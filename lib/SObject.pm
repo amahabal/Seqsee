@@ -3,7 +3,8 @@ use strict;
 
 use Sconsts;
 use SDescs;
-our @ISA = qw{SDescs};
+use SHistory;
+our @ISA = qw{SDescs SHistory};
 
 sub init{
   my $self = shift;
@@ -12,6 +13,7 @@ sub init{
   $self->{bonds_p} = {};
   $self->{groups}  = {};
   $self->{groups_p}= {};
+  $self->{history} = [];
   $self;
 }
 

@@ -1,20 +1,31 @@
-role Sdescs{
+role SDescs{
 
-  has @.desc = ();  # Holds the descriptions
+  has @.descs = ();  # Holds the descriptions
 
   method add_desc($desc)   {...}
   method remove_desc($desc){...}
 
 }
 
-class SDesc does Sdescs{
-  has SNode $.descriptor;
-  has Dflag $.flag;
-  has       $.label;
+role SBDescs does SDescs{
 }
 
-class SBond is SDesc{
+class SDesc does SDescs{
+  has SNode $.descriptor;
+  has Dflag $.flag;
+  has       @.labels;
+}
+
+class SBDesc does SBDescs{
+  has SNode $.descriptor;
+  has Dflag $.flag;
   has Bflag $.bflag;
+  has       @.labels;
+}
+
+class SBond does SBDescs{
+  has $.from;
+  has $.to;
 }
 
 class Schange{

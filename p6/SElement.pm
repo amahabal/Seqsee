@@ -1,6 +1,4 @@
 class SElement is SObject;
-# XXX Just trying out how the thing will look in P6.
-# Maybe I should design the program in P6 first...
 
 has Int $.magnitude;
 

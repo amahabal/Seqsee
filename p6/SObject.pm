@@ -1,23 +1,26 @@
 class SObject;
 
 does SHistory;
+does SDescs;
 is   SThought;
 
-has Num %.attributes is shape(Attribute);
+has %.bonds;
+has %.bonds_p;
+has %.groups;
+has %.groups_p;
 
-method add_attribute(Attribute $attr){
-  $_.add_history("Attribute '$attr' added");
-  %.attributes{$attr} = 1;
+method bond_insert($bond){
+  if ($bond.build_level == Built::Fully) {
+    %.bonds{$bond} = $bond;
+  } else {
+    %.bonds_p{$bond} = $bond;
+  }
 }
 
-method clear_attributes(){
-  %.Attributes = ();
-}
+method bond_promote($bond){...}
+method bond_remove($bond){...}
 
-method get_attribute_keys(){
-  return {.key}>> %.attributes;
-}
+method group_insert($group){...}
+method group_remove($group){...}
+method group_promote($group) {...}
 
-method get_common_attributes(SEntity $other){
-  
-}
