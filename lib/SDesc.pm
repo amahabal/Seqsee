@@ -13,14 +13,22 @@ sub new{
   my ($package, $descriptor, $flag, @labels) = @_;
   croak "Something wrong in arguments to SDesc->new" unless
     ($descriptor and $flag and scalar(@labels) == $flag->{arity});
-  bless {
-	 descriptor => $descriptor,
-	 flag       => $flag,
-	 label      => \@labels,
-	 descs      => [],
-	 str        => "$descriptor->{str}##$flag->{str}##@labels",
-	 str_sh     => "$flag->{str}##@labels", # for compare()
-	}, $package;
+  my $str;
+  if (ref $descriptor) {
+    $str = "$descriptor->{str}##$flag->{str}##@labels";
+  } else {
+    $str = "$descriptor##$flag->{str}##@labels";
+  }
+  my $self = bless {
+		    descriptor => $descriptor,
+		    flag       => $flag,
+		    label      => \@labels,
+		    descs      => [],
+		    str        => $str,
+		    str_sh     => "$flag->{str}##@labels", # for compare()
+		   }, $package;
+  $self->hardcode_ref;
+  $self;
 }
 
 sub compare{
@@ -52,6 +60,13 @@ sub compare{
 sub similar{
   my ($self, $other) = @_;
   return ($self->{str} eq $other->{str}) ? 1 : 0;
+}
+
+sub hardcode_ref{
+  my $self = shift;
+  return if ref $self->{descriptor};
+  my $descriptor = SNet::fetch($self->{descriptor});
+  $self->{descriptor} = $descriptor if $descriptor;
 }
 
 1;

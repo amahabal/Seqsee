@@ -99,6 +99,7 @@ sub redraw{
     if $SStream::CurrentThought;
   my $counter = 0;
   for (@SStream::Thoughts) {
+    $next_detail_position = ($next_detail_position + 1) % 3;
     draw_thought($_, $counter);
     $counter++;
   }

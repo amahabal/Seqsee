@@ -1,12 +1,4 @@
-=head1 NAME
-
-Seqsee Design Doc 0 - Overall Architecture
-
-=head1 AUTHOR
-
-Abhijit Mahabal
-
-=head1 VERSION
+=head1 Seqsee Design Doc 0 - Overall Architecture
 
 Last Modified: Jan 21, 2005
 
@@ -44,7 +36,7 @@ Apart from these, though, there are several other components that are not so vis
 
 =head1 L<The Stream|sdd01>
 
-F<SStream.pm> implements the stream. Each component of the stream is a thoughts. Some routines for managing a single thought are present in F<SThought.pm>, but each class that can function as a thought must define several of its own methods. Since there can be only be a single stream, we do not need a variable for it, and any method can always be called like so C<< SStream->method() >>.
+F<SStream.pm> implements the stream. Each component of the stream is a thought. Some routines for managing a single thought are present in F<SThought.pm>, but each class that can function as a thought must define several of its own methods. Since there can be only be a single stream, we do not need a variable for it, and any method can always be called like so C<< SStream->method() >>.
 
 =head1 The Workspace
 

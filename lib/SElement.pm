@@ -10,7 +10,9 @@ sub new{
   my $magnitude   = shift;
   my $self = bless { mag => $magnitude }, $package;
   $self->set_str;
-  my $concept = SNet->fetch($magnitude, create => 1);
+  my $concept = SNet::fetch("Number::".$magnitude, 
+			    create => 1, 
+			    magnitude => $magnitude);
   $self->init;
   $self->add_desc( new SDesc($concept, $Dflag::is) );
   $self;

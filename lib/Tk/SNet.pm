@@ -18,7 +18,7 @@ sub Populate{
 		 sub { 
 		   my $line= $list->get('current linestart','current lineend');
 		   $line =~ s/^\S+\s*//;
-		   my $node = SNet->fetch($line);
+		   my $node = SNet::fetch($line);
 		   #print "Need to deal with '$node'\n";
 		   $node->display_details;
 		 });
@@ -31,7 +31,7 @@ sub clear{
 
 sub redraw{
   $list->delete('0.0', 'end');
-  while (my ($name, $node) = each %SNet::Nodes) {
+  while (my ($name, $node) = each %SNet::Name2Node) {
     $list->insert('end', "---\t$name\n", 'node' );
   }
 }

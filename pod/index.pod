@@ -1,12 +1,6 @@
-=head1 NAME
+=head1 Seqsee Documentation
 
-Seqsee Documentation
-
-=head1 AUTHOR
-
-Abhijit Mahabal
-
-=head1 Design Documents
+=head2 Design Documents
 
 =over 
 
@@ -23,7 +17,7 @@ Abhijit Mahabal
 
 =back
 
-=head1 GUI
+=head2 GUI
 
 =over 
 
@@ -39,6 +33,6 @@ Abhijit Mahabal
 
 =item
 
-
+ 
 
 =back

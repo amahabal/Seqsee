@@ -17,6 +17,7 @@ our $head2_style = [qw{ -foreground red
 our $descflag_style = [qw{-foreground blue}];
 our $desclabel_style = [qw{-foreground green}];
 our $descdesc_style = [qw{-foreground red}];
+our $descdescvert_style = [qw{-background yellow -foreground blue}];
 our $bdescflag_style = [qw{-foreground blue -background #FF9999}];
 our $hist_critical_style = [qw{-foreground red}];
 
@@ -40,6 +41,7 @@ sub init_tags{
   $self->tag(qw{configure descflag}, @$descflag_style);
   $self->tag(qw{configure desclabel}, @$desclabel_style);
   $self->tag(qw{configure descdesc }, @$descdesc_style);
+  $self->tag(qw{configure descdescvirt }, @$descdescvirt_style);
   $self->tag(qw{configure bdescflag}, @$bdescflag_style);
   $self->tag(qw{configure hist_critical}, @$hist_critical_style);
 }
@@ -80,7 +82,11 @@ sub description{
   $self->insert('end', "\t" x $depth);
   $self->insert('end', "$desc->{flag}{str} ", 'descflag');
   $self->insert('end', join(", ", @{ $desc->{label} }), 'desclabel');
-  $self->insert('end', " $desc->{descriptor}{str}\n", 'descdesc');
+  if (ref $desc->{descriptor}) {
+    $self->insert('end', " $desc->{descriptor}{str}\n", 'descdesc');
+  } else {
+    $self->insert('end', " $desc->{descriptor}\n", 'descdescvirt');
+  }
   for (@{$desc->{descs}}) {
     $self->description($_, $depth + 1);
   }

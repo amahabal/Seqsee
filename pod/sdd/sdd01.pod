@@ -1,12 +1,4 @@
-=head1 NAME
-
-Seqsee Design Doc 01 - The Stream
-
-=head1 AUTHOR
-
-Abhijit Mahabal
-
-=head1 VERSION
+=head1 Seqsee Design Doc 01 - The Stream
 
 Last Modified: Jan 21, 2005
 

@@ -1,12 +1,4 @@
-=head1 NAME
-
-Seqsee Design Doc 03 - Slipnet
-
-=head1 AUTHOR
-
-Abhijit Mahabal
-
-=head1 VERSION
+=head1 Seqsee Design Doc 03 - Slipnet
 
 Last Modified: Dec 02, 2004
 
