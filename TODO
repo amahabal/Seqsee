@@ -4,12 +4,13 @@ This is going to be a huge list...
 	Done * use Tk::Getopt for this if it works
 	Done * using BEGIN{} define the method main::GUI using constants
 	* Create framework for menus,
-	* create windows for Info, Coderack, Slipnet and Stream
-	* In each method that modifies the WS or coderack, have a call that looks like C<< if(::GUI) { ... a method that modifies the view ... }. This will be removed by the compiler in the non-GUI mode
-	* In each package, define the method LOGGING_INFO and LOGGING_DEBUG similarly
-	* write code in Tk::SWorkspace that'd be able to deal with bonds and groups etc. Think through and implement how I can make incremental changes.
-	* Check if just using splines removes the need for me to have to deal with how bonds go.
-	* Think through how callbacks will happen
+	PARTLY * create windows for Info, Coderack, Slipnet and Stream
+	DONE * In each method that modifies the WS or coderack, have a call that looks like C<< if(::GUI) { ... a method that modifies the view ... }. This will be removed by the compiler in the non-GUI mode
+	PARTLY * In each package, define the method LOGGING_INFO and LOGGING_DEBUG similarly
+	PARTLY * write code in Tk::SWorkspace that'd be able to deal with bonds and groups etc. 
+	DONE * Think through and implement how I can make incremental changes.
+	MOSTLY * Check if just using splines removes the need for me to have to deal with how bonds go.
+	DONE * Think through how callbacks will happen
 	* Think about how I can let the program run several steps slowly stepping through without having to press the button each time.
 
 * experiment with C<< perl -MO=Xref prog.pl > dump >>

@@ -10,7 +10,8 @@ our @buckets       = ();
 our @bucket_sum    = ();
 our $MAX_CODELETS  = 150;   # Maximum number of codelets allowed.
 
-
+our %FamilyUrgency;
+our %FamilyCount;
 
 sub add_codelet{
   my ($package, $codelet ) = @_;
@@ -50,6 +51,10 @@ sub add_codelet{
   $urgencies_sum            += $urgency;
   $bucket_sum[$last_bucket] += $urgency;
   $codelet_count++;
+  my $family = $codelet->[0];
+  $FamilyCount{$family}++;
+  $FamilyUrgency{$family} += $urgency;
+  $::CODERACK_gui->update() if ::GUI;
 }
 
 sub choose_codelet {
@@ -83,6 +88,10 @@ sub choose_codelet {
 	  "urgency: $urgency. Urgency sum: $urgencies_sum\n");
     confess();
   }
+  my $family = $return_codelet->[0];
+  $FamilyCount{$family}--;
+  $FamilyUrgency{$family} -= $urgency;
+  $::CODERACK_gui->update() if ::GUI;
   return $return_codelet;
 }
 

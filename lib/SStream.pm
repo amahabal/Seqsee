@@ -26,6 +26,7 @@ sub Reset{
   $CurrentThought = undef;
   %CompStrength   = ();
   %ThoughtsList   = ();
+  $::STREAM_gui->redraw() if ::GUI;
 }
 
 sub antiquate_thought{
@@ -41,9 +42,11 @@ sub antiquate_thought{
     $CompStrength{$comp} *= $DiscountFactor;
   }
   unshift(@Thoughts, $CurrentThought);
+  $::STREAM_gui->antiquate_thought() if ::GUI;
   foreach my $comp (@{ $CurrentThought->{str_comps} }) {
     $CompStrength{$comp} += $DiscountFactor;
   }
+  $::STREAM_gui->update_componentlist() if ::GUI;
   $ThoughtCount++;
   $CurrentThought = undef;
 }
@@ -65,10 +68,13 @@ sub add_thought{
     $CurrentThought = $thought;
     recalculate_CompStrength();
     $ThoughtCount = scalar(@Thoughts); # maybe $CurrentThought was undef
+    $::STREAM_gui->redraw() if ::GUI; #everything has changed...
   } else {
     SStream->antiquate_thought() if $CurrentThought;
     $CurrentThought = $thought;
+    $::STREAM_gui->new_current_thought($CurrentThought) if ::GUI;
     $ThoughtsList{$CurrentThought} = 1;
+    maybe_expell_thoughts();
   }
 }
 
@@ -76,6 +82,7 @@ sub maybe_expell_thoughts{
   return unless $ThoughtCount > $MaxThoughts;
   my $excess = $ThoughtCount - $MaxThoughts;
   for (1..$excess) { forget_oldest_thought(); }
+  $::STREAM_gui->update_componentlist() if (::GUI() and $excess);
 }
 
 sub forget_oldest_thought{
@@ -88,6 +95,7 @@ sub forget_oldest_thought{
     delete $CompStrength{$comp} unless $CompStrength{$comp};
   }
   delete $ThoughtsList{$last_thought};
+  $::STREAM_gui->delete_thought($last_thought) if ::GUI;
 }
 
 sub recalculate_CompStrength{

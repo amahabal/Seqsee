@@ -17,6 +17,7 @@ sub init{
   $self->{groups}  = {};
   $self->{groups_p}= {};
   $self->{history} = [];
+  $self->history_add("Created");
   $self;
 }
 
@@ -24,12 +25,14 @@ sub bond_insert{
   my ($self, $bond) = @_;
   my $type = ($bond->{build_level} == Built::Fully) ? "bonds" : "bonds_p";
   $self->{$type}{$bond} = $bond;
+  $self->history_add("Bond $bond added");
 }
 
 sub bond_promote{
   my ($self, $bond) = @_;
   delete $self->{bonds_p}{$bond};
   $self->{bonds}{$bond} = $bond;
+  $self->history_add("Bond $bond promoted");
 }
 
 sub bond_remove{
@@ -37,6 +40,7 @@ sub bond_remove{
   # faster to just delete from both without checking which
   delete $self->{bonds_p}{$bond};
   delete $self->{bonds}{$bond};
+  $self->history_add("Bond $bond removed");
 }
 
 sub group_insert{

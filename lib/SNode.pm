@@ -4,13 +4,17 @@ use SDescs;
 
 our @ISA = qw{SDescs};
 
+our %Str2Name;
+
 sub new{
   my $package = shift;
   my $name    = shift;
-  bless { name  => $name, 
-	  str   => "{$name}",
-	  descs => [],
-	}, $package;
+  my $self    =   bless { name  => $name, 
+			  str   => "{$name}",
+			  descs => [],
+			}, $package;
+  $Str2Name{$self} = $name;
+  $self;
 }
 
 sub halo{

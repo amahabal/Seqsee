@@ -30,6 +30,7 @@ sub run{
     my $bdesc= $opts->{older}->compare($old_comp, $opts->{current}, $new_comp);
     if ($bdesc) {
       $logger->info("Aha! I did find something nice! $bdesc->{str}") if LOGGING_INFO;
+      $bond->add_desc($bdesc);
     } else {
       $logger->info("Failed to find any relationship") if LOGGING_INFO;
     }

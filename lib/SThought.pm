@@ -25,10 +25,12 @@ sub check_if_component_in_stream{
   my $thought = shift;
   unless ($thought->isa("SObject")) {
     $logger->debug("No need to check if there is a similar component in the stream: this is not an SObject");
+    $::STREAM_gui->magical_halo({}) if ::GUI;
     return;
   }
   my %in_stream = ();
   my $magical_halo = $thought->magical_halo();
+  $::STREAM_gui->magical_halo($magical_halo) if ::GUI;
   foreach my $c (map {$_->[0]} values %$magical_halo) {
     if (exists $SStream::CompStrength{$c}) {
       $in_stream{$c} =  $c;
