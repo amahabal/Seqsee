@@ -25,13 +25,8 @@ sub contemplate_add_descriptors{
   # XXX
 }
 
-sub spread_activation_from_components{
+sub spread_activation_from_halo{
   # XXX
-}
-
-sub components{
-  my $self = shift;
-  return $self->descriptors();
 }
 
 1;

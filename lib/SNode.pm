@@ -20,5 +20,15 @@ sub halo{
   return $self->descriptors;
 }
 
+sub relation{
+  my ($self, $other_node) = @_;
+  foreach my $link (@{ $self->{descs} }) {
+    next unless ($link->{descriptor} eq $other_node and 
+		 $link->{flag} eq $Dflag::has
+		);
+    return $link->{label}[0];
+  }
+  return undef;
+}
 
 1;

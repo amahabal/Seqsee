@@ -58,5 +58,9 @@ sub group_remove{
   delete $self->{groups}{$group};
 }
 
+sub halo{
+  my $self = shift;
+  return $self->descriptors();
+}
 
 1;

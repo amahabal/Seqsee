@@ -3,18 +3,23 @@ package Dflag;
 sub new { 
   my $package = shift;
   my $arity   = shift;
-  bless {arity => $arity }, $package; 
+  my $str     = shift;
+  bless {arity => $arity, str => $str }, $package; 
 }
 
-our $is  = new Dflag(0);
-our $has = new Dflag(1);
+our $is  = new Dflag(0, "is");
+our $has = new Dflag(1, "has");
 
 
 package Bflag;
 
-sub new { bless {}, shift; }
+sub new { 
+  my $pack = shift;
+  my $str  = shift;
+  bless { str => $str }, $pack;
+}
  
-our $both   = new Bflag;
-our $change = new Bflag;
+our $both   = new Bflag("both");
+our $change = new Bflag("change");
 
 1;

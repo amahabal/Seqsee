@@ -30,11 +30,11 @@ sub Reset{
 
 sub antiquate_thought{
   return unless $CurrentThought; # Else nothing to antiquate!
-  $CurrentThought->{str_comps} = [$CurrentThought->components()];
+  $CurrentThought->{str_comps} = [$CurrentThought->halo()];
   if ($debug_logging) {
     $logger->debug("Antiquating thought $CurrentThought->{str}");
     foreach (@{ $CurrentThought->{str_comps} }) {
-      $logger->debug("\tComponent: $_->{str}");
+      $logger->debug("\thalo component: $_->{str}");
     }
   }
   while ( my ($comp, $strength) = each %CompStrength) {

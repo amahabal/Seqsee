@@ -9,11 +9,11 @@ sub contemplate{
   $thought->contemplate_add_descriptors();
   # Check if the components are already present in the stream somewhere
   $thought->check_if_component_in_stream();
-  $thought->spread_activation_from_components();
+  $thought->spread_activation_from_halo();
   $thought->contemplate_add_descriptors();
 }
 
-sub spread_activation_from_components{
+sub spread_activation_from_halo{
   die "This Should Never Have Been Called. Not Implemented Yet";
 }
 
@@ -28,7 +28,8 @@ sub check_if_component_in_stream{
     return;
   }
   my %in_stream = ();
-  foreach my $c ($thought->magical_halo()) {
+  my $magical_halo = $thought->magical_halo();
+  foreach my $c (map {$_->[0]} values %$magical_halo) {
     if (exists $SStream::CompStrength{$c}) {
       $in_stream{$c} =  $c;
     }
@@ -50,14 +51,20 @@ sub check_if_component_in_stream{
   }
   my $object = $SChooser::By_wt->choose(\@object_thoughts, \@similarity_strengths);
   return() unless $object;
+
+  # @common is the intersection of stuff in the magical halo of current and the halo of the older thought.
   my @common = ();
   for my $comp (@{$object->{str_comps}}) {
     push(@common, $comp) if exists $in_stream{$comp};
   }
 
+  # But we also know where each of these magical halo came from
+  my @eff_common = map { $magical_halo->{$_}[1] } @common;
+
   $logger->debug("This new thought looks similar to another older thought($object->{str})!.");
   SApp::post_cc("SThought", "bond_evaluator", 
-		similarity => \@common,
+		old_halo   => \@common,
+		new_halo   => \@eff_common,
 		current    => $thought,
 		older      => $object,
 	       );
@@ -66,15 +73,15 @@ sub check_if_component_in_stream{
 sub magical_halo{
   my $thought = shift;
   my %halo;
-  my @components = $thought->components;
-  foreach (@components) {
-    $halo{$_} = $_;
+  my @components = $thought->halo;
+  foreach my $comp (@components) {
+    $halo{$comp} = [$comp, $comp];
     # For each concept in the halo of this concept, add those too. So, for "2" this will be a "3" and a "1", perhaps
-    for ($_->halo) {
-      $halo{$_} = $_;
+    for ($comp->halo) {
+      $halo{$_} = [$_, $comp];
     }
   }
-  values %halo;
+  \%halo;
 }
 
 1;

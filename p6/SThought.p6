@@ -2,11 +2,12 @@ role SThought;
 
 # Last Updated: Jan 12 2005
 
-method contemplate                      (){...}
-method spread_activation_from_components(){...}
-method contemplate_add_descriptors      (){...}
-method check_if_component_in_stream     (){...}
-method magical_halo                     (){...}
+method contemplate                      (){...} #No need to override
+method spread_activation_from_halo      (){...} #No need to override(unwritten)
+method contemplate_add_descriptors      (){...} #Must override (curr. blank)
+method check_if_component_in_stream     (){...} #No need to override
+method magical_halo                     (){...} #No need to override
+method halo                             (){...} #Must override
 
 method contemplate(){
 
@@ -18,14 +19,14 @@ method contemplate(){
   .check_if_component_in_stream();
 
   # Each component of the description is sent some activation, and it also passes this on.
-  .spread_activation_from_components();
+  .spread_activation_from_halo();
 
   # Another phase of adding descriptions. After this point, perhaps, the thought will soon be antiquated.
   .contemplate_add_descriptors();
 
 }
 
-method spread_activation_from_components(){
+method spread_activation_from_halo(){
   # I do not understand this well yet.
   # Currently, classes using this supply their own versions (null).
   # Ideally, this should be written here as it is perhaps common to all.
@@ -93,6 +94,12 @@ method magical_halo(){
     }
   }
   %halo.values;
+}
+
+method halo(){
+  # Not defined here: different for SObjects, SNodes, SBonds etc.
+  # For SObjects, it will include the descriptions
+  # For SNodes, it will include (some of) the outgoing links
 }
 
 # XXX: What are the potential problems here?

@@ -7,6 +7,10 @@ has Int    $.eob       = { $*CurrentEpoch };     #Epoch of Birth
 has        %.options;
 
 # I want to check that family is supplied.
+method new(class $c: +$family, +$urgency, *%options){
+  $family err die "family missing in Codelet.new";
+  $c.bless :family{$family} :urgency{$urgency} <== %options;
+}
 # submethod BUILD(){}
 
 method run(){
