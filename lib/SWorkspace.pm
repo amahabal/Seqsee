@@ -3,6 +3,7 @@ use strict;
 
 use SChooser;
 use Sconsts;
+use SElement;
 
 our $elements_count;
 our @elements = ();

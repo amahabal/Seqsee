@@ -9,7 +9,6 @@ Construct Tk::Widget "SWorkspace";
 our ($height, $width);
 our ($top_margin,  $bottom_margin);
 our ($left_margin, $right_margin);
-our ($element_count);
 
 sub ClassInit{
   my ( $class, $mw ) = @_;
@@ -32,9 +31,9 @@ sub clear{
 }
 
 sub draw_elements{
-  my ($self, @elements) = @_;
-  my @element_mag = map { (ref $_)? $_->{magnitude} : $_ } @elements;
-  $element_count = scalar(@element_mag);
+  my $self = shift;  
+  my @element_mag = map { $_->{mag} } @SWorkspace::elements;
+  my $element_count = scalar(@element_mag);
   # I want spacing so that all elements (plus 2 more) just fit...
   my $eff_width  = $width - $left_margin - $right_margin;
   my $eff_height = $height - $top_margin - $bottom_margin;
@@ -56,5 +55,10 @@ sub draw_elements{
   }
 }
 
+sub redraw{
+  my $self = shift;
+  $self->clear;
+  $self->draw_elements;
+}
 
 1;

@@ -1,6 +1,11 @@
 package SCF::reader;
+our $logger;
 
-our $logger = Log::Log4perl->get_logger("SCF.reader");
+BEGIN{ 
+  $logger = Log::Log4perl->get_logger("SCF.reader");
+}
+use constant LOGGING_DEBUG => $logger->is_debug;
+use constant LOGGING_INFO  => $logger->is_info;
 
 sub run{
   my $self = shift;
@@ -9,7 +14,7 @@ sub run{
 				    must   => [$SWorkspace::ReadHead]
 				  );
   if ($obj) {
-    $logger->info("Read $obj->{str}");
+    $logger->info("Read $obj->{str}") if LOGGING_INFO;
     SStream->new_thought($obj);
     $SWorkspace::ReadHead = $obj->{right_edge} + 1;
     $SWorkspace::ReadHead = $SWorkspace::elements_count - 1

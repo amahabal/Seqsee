@@ -1,9 +1,7 @@
 package SApp;
 use UNIVERSAL::require;
-use SCodeConfig;
 
-our $RandomSeed = undef;
-our $MaxSteps   = 10;
+use Suseorder;
 
 sub post_cc($$@){
   my $who  = shift;
@@ -20,6 +18,11 @@ sub init{
   process_codefamilies() unless $_codefamilies_processed;
   $_codefamilies_processed = 1;
   SWorkspace->setup(@_);
+  if (::GUI){
+    my $gui_pack = "SGUI";
+    $gui_pack->require() or die "Could not load package SGUI";
+    main::setupGUI();
+  }
   post_cc "StartUp", "all";
 }
 

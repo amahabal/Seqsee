@@ -26,8 +26,8 @@ DEFAULTLOGFILE
   my $logger = Log::Log4perl->get_logger('');
   $logger->info("Run started at: ", scalar(localtime));
   $logger->info("Input         : ", join(", ", @ARGV));
-  $logger->info("Random Seed   : ", $SApp::RandomSeed);
-  $logger->info("Maximum Steps : ", $SApp::MaxSteps);
+  $logger->info("Random Seed   : ", $::options{seed});
+  $logger->info("Maximum Steps : ", $::options{steps});
 
 }
 
