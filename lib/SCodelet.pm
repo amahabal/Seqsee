@@ -30,7 +30,7 @@ sub logself{
 STR
 
   while (my ($k, $v) = each %{$self->[3]}){
-    $str .= "\t$k\t=>$v\n";
+    $str .= join("", "\t$k\t=>", SUtility::pprint($v), "\n");
   }
   $logger->info($str);
 }

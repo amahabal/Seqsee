@@ -32,9 +32,9 @@ sub antiquate_thought{
   return unless $CurrentThought; # Else nothing to antiquate!
   $CurrentThought->{str_comps} = [$CurrentThought->components()];
   if ($debug_logging) {
-    $logger->debug("Antiquating thought $CurrentThought");
+    $logger->debug("Antiquating thought $CurrentThought->{str}");
     foreach (@{ $CurrentThought->{str_comps} }) {
-      $logger->debug("\tComponent: $_");
+      $logger->debug("\tComponent: $_->{str}");
     }
   }
   while ( my ($comp, $strength) = each %CompStrength) {
@@ -50,7 +50,7 @@ sub antiquate_thought{
 
 sub new_thought{
   my ($package, $thought) = @_;
-  $logger->info("SStream: new thought $thought");
+  $logger->info("SStream: new thought $thought->{str}");
   $package->add_thought($thought);
   $thought->contemplate;
 }

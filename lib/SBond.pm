@@ -16,6 +16,7 @@ sub new{
   bless { from         => $from,
 	  to           => $to,
 	  descs        => [],
+	  str          => "[$from->{str}--$to->{str}]",
 	}, $package;
 }
 

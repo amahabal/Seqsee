@@ -2,6 +2,7 @@ package SNet;
 use strict;
 
 use SNode;
+use SFlags;
 
 our %Nodes;
 
@@ -13,6 +14,19 @@ foreach (
   $Nodes{$_} = new SNode($_);
 }
 
+for (1..9) {
+  $Nodes{$_}->add_desc( SDesc->new($Nodes{$_ + 1},
+				   $Dflag::has,
+				   "successor",)
+		      );
+}
+
+for (2..10) {
+  $Nodes{$_}->add_desc( SDesc->new($Nodes{$_ - 1},
+				   $Dflag::has,
+				   "predecessor")
+		      );
+}
 
 sub fetch{
   my $package = shift;

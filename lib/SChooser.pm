@@ -2,8 +2,9 @@ package SChooser;
 use strict;
 use Carp;
 
-our $NULL = SChooser::NULL->create();
+our $NULL        = SChooser::NULL->create();
 our $By_strength = SChooser::ByName->create("strength");
+our $By_wt       = SChooser::ByWt->create();
 
 sub create{
   my $package = shift;
@@ -144,6 +145,8 @@ sub choose_safe{
 
 package SChooser::ByWt;
 use strict;
+
+sub create { my $self = {}; bless $self, shift }
 
 sub choose{
   my $package = shift;
