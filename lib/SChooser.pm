@@ -3,6 +3,7 @@ use strict;
 use Carp;
 
 our $NULL = SChooser::NULL->create();
+our $By_strength = SChooser::ByName->create("strength");
 
 sub create{
   my $package = shift;
@@ -10,7 +11,7 @@ sub create{
   return $NULL unless $what;
   my $ref = ref $what;
   return SChooser::ByName->create($what) unless $ref;
-  if ($ref =~ /^Chooser/) {
+  if ($ref =~ /^SChooser/) {
     return $what;
   } elsif ($ref eq "CODE") {
     return SChooser::BySub->create($what);

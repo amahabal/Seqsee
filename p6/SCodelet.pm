@@ -1,5 +1,5 @@
 class SCodelet;
-# Written before writing the P5 code. So may be wrong.
+
 
 has String $.family;
 has Num    $.urgency;
@@ -15,7 +15,7 @@ method run(){
     next unless $_.can("is_outdated");
     return 0 if $_.is_outdated;
   }
-  SCodefamily::($.family).run(%.options);
+  SCF::($.family).run(%.options);
 }
 
 1;

@@ -13,7 +13,7 @@ sub spread_activation_from_components{
 }
 
 sub contemplate_add_descriptors{
-  die "This default implementation just dies: Override this.";
+  die "This default implementation of contemplate_add_descriptors() just dies: Override this.";
 }
 
 1;

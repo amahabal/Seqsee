@@ -10,12 +10,18 @@ use blib;
 use SLog;
 use SUtility;
 use SApp;
+use SStream;
 use Sconsts;
 use SCodelet;
 use SCoderack;
+use SDesc;
+use SDescs;
+use SBDesc;
+use SBDescs;
+use SBond;
+use SNet;
 use SWorkspace;
 use SElement;
-use SNet;
 
 our $logging = 1;
 GetOptions("seed=s"  => \$SApp::RandomSeed,

@@ -4,7 +4,8 @@ use strict;
 use Sconsts;
 use SDescs;
 use SHistory;
-our @ISA = qw{SDescs SHistory};
+use SThought;
+our @ISA = qw{SDescs SHistory SThought};
 
 sub init{
   my $self = shift;

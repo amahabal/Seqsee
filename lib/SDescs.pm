@@ -17,4 +17,9 @@ sub add_desc{
   push(@{ $self->{descs} }, $desc);
 }
 
+sub descriptors{
+  my $self = shift;
+  map { $_->{descriptor} } @{ $self->{descs} };
+}
+
 1;

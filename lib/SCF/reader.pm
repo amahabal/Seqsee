@@ -8,6 +8,14 @@ sub run{
 				    built  => Built::Fully,
 				    must   => [$SWorkspace::ReadHead]
 				  );
+  if ($obj) {
+    SStream->new_thought($obj);
+    $logger->info("Read $obj");
+    $SWorkspace::ReadHead = $obj->{right_edge} + 1;
+    $SWorkspace::ReadHead = $SWorkspace::elements_count - 1
+      if $SWorkspace::ReadHead >= $SWorkspace::elements_count;
+  }
+
 }
 
 1;

@@ -1,5 +1,6 @@
 package SStream;
 use strict;
+use Log::Log4perl;
 
 our $DiscountFactor         = 0.8;
 our $MaxThoughts            = 10;
@@ -8,6 +9,8 @@ our @Thoughts               = ();
 our $CurrentThought;
 our %CompStrength;
 our %ThoughtsList;
+
+our $logger = Log::Log4perl->get_logger('SStream');
 
 sub Reset{
   $ThoughtCount   = 0;
@@ -33,6 +36,7 @@ sub antiquate_thought{
 
 sub new_thought{
   my ($package, $thought) = @_;
+  $logger->info("SStream: new thought $thought");
   $package->add_thought($thought);
   $thought->contemplate;
 }
