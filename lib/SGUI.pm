@@ -30,7 +30,7 @@ sub setupGUI{
     (
      -height      => 500,
      -width       => 700,
-     -background  => '#FCFCFC'
+     # -background  => '#FCFCFC'
     )
       ->pack(-side => 'top');
 
@@ -41,7 +41,7 @@ sub setupGUI{
      -scrollbars  => 'se',
      -height      => 33,
      -width       => 60,
-     -background  => '#FCFCFC'
+     #-background  => '#FCFCFC'
     )
       ->pack(-side => 'left');
   my $frame = $Info_top->Frame()->pack(-side => 'right');

@@ -1,7 +1,7 @@
 package Tk::SInfo;
 
-use Tk::widgets qw{Text};
-use base qw/Tk::Derived Tk::Text/;
+use Tk::widgets qw{ROText};
+use base qw/Tk::Derived Tk::ROText/;
 use SFlags;
 
 Construct Tk::Widget "SInfo";

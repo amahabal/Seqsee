@@ -1,7 +1,7 @@
 package Tk::SCoderack;
 
-use Tk::widgets qw{Text};
-use base qw/Tk::Derived Tk::Text/;
+use Tk::widgets qw{ROText};
+use base qw/Tk::Derived Tk::ROText/;
 
 our $list;
 

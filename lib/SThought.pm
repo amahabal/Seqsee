@@ -33,7 +33,7 @@ sub check_if_component_in_stream{
   $::STREAM_gui->magical_halo($magical_halo) if ::GUI;
   foreach my $c (map {$_->[0]} values %$magical_halo) {
     if (exists $SStream::CompStrength{$c}) {
-      $in_stream{$c} =  $c;
+      $in_stream{$c} =  $magical_halo->{$c}[2];
     }
   }
   return unless %in_stream;
@@ -43,11 +43,13 @@ sub check_if_component_in_stream{
   return unless @object_thoughts;
   ### For each object, see how much it can be reminded of
   my @similarity_strengths;
+  my $damping = 1;
   for my $ot (@object_thoughts) {
     my $strength = 0;
+    $damping *= 0.8;
     for my $comp (@{$ot->{str_comps}}) {
       next unless exists $in_stream{$comp};
-      $strength += $SStream::CompStrength{$comp};
+      $strength += $SStream::CompStrength{$comp} * $in_stream{$comp} *$damping;
     }
     push(@similarity_strengths, $strength);
   }
@@ -75,13 +77,19 @@ sub check_if_component_in_stream{
 sub magical_halo{
   my $thought = shift;
   my %halo;
+  my %strength;
   my @components = $thought->halo;
   foreach my $comp (@components) {
     $halo{$comp} = [$comp, $comp];
+    $strength{$comp}+=2;
     # For each concept in the halo of this concept, add those too. So, for "2" this will be a "3" and a "1", perhaps
     for ($comp->halo) {
       $halo{$_} = [$_, $comp];
+      $strength{$_} += 1;
     }
+  }
+  while (my ($k, $v) = each %halo) {
+    $v->[2] = $strength{$k};
   }
   \%halo;
 }

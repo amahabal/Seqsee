@@ -139,11 +139,17 @@ sub SGroup::draw{
   my $ht = $space_per_group * 0.4;
   my $xstart = $left_margin + $space_per_elem * $self->{left_edge};
   my $xend   = $left_margin + $space_per_elem * ($self->{right_edge} + 1);
-  $Canvas->createRectangle($xstart, $y - $ht,
-			   $xend, $y + $ht,
-			   @group_options,
-			   -tags => [$self, "wso"],
-			  )
+  #$Canvas->createLine($xstart, $y, $xend, $y, -fill => '#CCCCCC', -tags => [$self]);
+  for (@{$self->{elements}}) {
+    $xstart = $left_margin + $space_per_elem * $_->{left_edge};
+    $xend   = $left_margin + $space_per_elem * ($_->{right_edge} + 1);
+    my $id = $Canvas->createRectangle($xstart, $y - $ht,
+			     $xend, $y + $ht,
+			     @group_options,
+			     -tags => [$self, "wso"],
+			    );
+    $Id2Obj{$id} = $self;
+  }
 }
 
 1;

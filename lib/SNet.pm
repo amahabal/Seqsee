@@ -52,7 +52,7 @@ sub create_node{
   my $shortname = $node->{shortname};
   $Str2Node{$node} = $node;
   $Name2Node{$shortname}{$type} = $node;
-   
+  
   my $longname   = $type."::".$shortname;
   if (exists $SNode::DanglingLinks{ $longname }) {
     foreach (@{ $SNode::DanglingLinks{ $longname }}) {

@@ -2,7 +2,7 @@ package Tk::SStream;
 
 use Tk::X11Font;
 
-use Tk::widgets qw{Canvas Listbox};
+use Tk::widgets qw{Canvas ROText};
 use base qw/Tk::Toplevel/;
 
 Construct Tk::Widget 'SStream';
@@ -63,14 +63,14 @@ sub Populate{
     ->pack(-side => 'left');
 
   $component_list = $frame3->Scrolled
-    ('Text', 
+    ('ROText', 
      -scrollbars => 'oe',
      -height => 10,
      -width  => 42,
     )->pack(-side => 'top');
   
   $magical_halo = $frame2->Scrolled
-    ( 'Text',
+    ( 'ROText',
       -height => 10,
       -width  => 42,
       -scrollbars => 'oe',
@@ -110,7 +110,8 @@ sub update_componentlist{
   $component_list->delete('0.0', 'end');
   foreach my $comp (sort { $SStream::CompStrength{$b} <=> $SStream::CompStrength{$a} } keys %SStream::CompStrength) {
     my $_strength = sprintf("%4.2f", $SStream::CompStrength{$comp});
-    $component_list->insert('end', "$_strength   $SNode::Str2Name{$comp}\n");
+    my $name = $SNet::Str2Node{$comp}{shortname}; # Will always exist. 
+    $component_list->insert('end', "$_strength   '$name'\n");
   }
 }
 
@@ -160,9 +161,12 @@ sub magical_halo{
   $magical_halo->delete('0.0', 'end');
   while (my ($k, $v) = each %$halo) {
     my $in_stream = (exists $SStream::CompStrength{$k}) ? "Hit" : "miss";
-    $magical_halo->insert('end', "$v->[0]{name}", $in_stream);
+    my $name = $v->[0];
+    $name = $name->{shortname} if ref $name;
+    $magical_halo->insert('end', "$v->[2]\t");
+    $magical_halo->insert('end', $name, $in_stream);
     $magical_halo->insert('end', "\n");
   }
 }
-
+ 
 1;
