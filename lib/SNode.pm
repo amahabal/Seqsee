@@ -6,7 +6,7 @@ use SNodeType::Number; # wrong place!
 
 our %DanglingLinks;
 
-our @ISA = qw{SDescs};
+our @ISA = qw{SDescs SFascination};
 
 our %Str2Name;
 

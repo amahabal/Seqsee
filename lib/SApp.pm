@@ -31,6 +31,7 @@ sub hooks_before_each_step{
 }
 
 sub hooks_after_each_step{
+  SFascination::update_all();
   post_cc "Background", "all";
 }
 

@@ -3,7 +3,7 @@ use strict;
 
 use SObject;
 use SFlags;
-our @ISA = qw{SObject};
+our @ISA = qw{SObject SFascination};
 
 sub new{
   my $package     = shift;

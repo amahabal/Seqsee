@@ -87,6 +87,8 @@ sub SElement::display_details{
   $INFO->skip(1);
   $self->display_descriptions;
   $INFO->skip(3);
+  $self->display_fascinations;
+  $INFO->skip(3);
   $self->display_memberships;
   $INFO->skip(3);
   $INFO->history($self);
@@ -98,6 +100,8 @@ sub SGroup::display_details{
   $INFO->head("$self\t$self->{str}");
   $INFO->skip(1);
   $self->display_descriptions;
+  $INFO->skip(3);
+  $self->display_fascinations;
   $INFO->skip(3);
   $self->display_memberships;
   $INFO->skip(3);
@@ -112,6 +116,8 @@ sub SBond::display_details{
   $INFO->skip(1);
   $self->display_bdescriptions;
   $INFO->skip(3);
+  $self->display_fascinations;
+  $INFO->skip(3);
   $INFO->history($self);
 }
 
@@ -121,6 +127,8 @@ sub SNode::display_details{
   $INFO->head("$self\t$self->{str}");
   $INFO->skip(1);
   $self->display_descriptions;
+  $INFO->skip(3);
+  $self->display_fascinations;
 }
 
 sub SDescs::display_descriptions{
@@ -153,6 +161,14 @@ sub SObject::display_memberships{
   $INFO->head2("Groups");
   foreach (values %{$self->{groups}}, values %{$self->{groups_p}}) {
     $INFO->group($_, $depth);
+  }
+}
+
+sub SFascination::display_fascinations{
+  my $self = shift;
+  $INFO->head2("Fascinations");
+  while (my ($k, $v) = each %{$self->{f}}) {
+    $INFO->body(1, "$k\t$v");
   }
 }
 

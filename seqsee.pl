@@ -61,6 +61,8 @@ use constant LOGGER => Log::Log4perl->get_logger('');
 
 use Suseorder;
 
+SFascination->load("SFasc::simple");
+
 our @Seq = @ARGV;
 SApp->init(@Seq);
 

@@ -1,5 +1,7 @@
 use SUtility;
 
+use SFascination;
+
 use SCodelet;
 use SCoderack;
 use SCodeConfig;
