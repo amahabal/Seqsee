@@ -1,0 +1,65 @@
+=head1 NAME
+
+Seqsee Design Doc 02 - Thoughts
+
+=head1 AUTHOR
+
+Abhijit Mahabal
+
+=head1 VERSION
+
+Last Modified: Jan 21, 2005
+
+Number : 2
+
+Version : 1
+
+=head1 Thoughts
+
+Many things can be thoughts in Seqsee, ranging from objects in the workspace(Seqelements, Groups, Bonds) to nodes in the slipnet. Somehwere in there are also meta thoughts like "This is a promising path".
+
+This SDD details the interface that must be supported by all classes that can function as thoughts.
+
+=head1 Attributes
+
+=over
+
+=item C<str_comps>
+
+This is used by the stream to keep a snapshot of the halo of the thought when it entered the stream. This snapshot is best taken just before the current thought becomes an old thought. Maybe for some purposes it can be taken as soon as the thought becomes the current thought and retaken before it becomes an old thought.
+
+=back
+
+=head1 Methods
+
+=over
+
+=item C<< contemplate() >>
+
+This method spends time exploring C<$thought>. This process involves calls to C<contemplate_add_descriptors>, C<spread_activation_from_halo> and perhaps another C<contemplate_add_descriptors>. Also, somewhere it is checked whether we should be reminded of something in the stream. See L<Remindings|/Reminding>
+
+=item C<< halo() >>
+
+This returns a list of components of the objects.
+
+=item C<< spread_activation_from_halo() >>
+
+Currently missing. Should spread activation from components of the halo to nearby nodes.
+
+=item C<< contemplate_add_descriptors() >>
+
+When contemplating a thought, this method can embellish the thought with more descriptions. Should be overridden by each class. 
+
+=item C<< check_if_component_in_stream() >>
+
+This implements reminding. see below.
+
+=back
+
+=head1 Reminding
+
+When a thought is the current thought, its C<magical_halo()> is calculated: this is currently just the halo, plus the halo of each component of the halo. Each of these components in this extended halo is checked against the components of the halos of other streams in the thought; If a match is found then it is as if F<seqsee> was reminded of the earlier thought.
+
+=cut
+
+

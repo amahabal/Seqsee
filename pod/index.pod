@@ -1,12 +1,12 @@
 =head1 NAME
 
-Seqsee Design Documents
+Seqsee Documentation
 
 =head1 AUTHOR
 
 Abhijit Mahabal
 
-=head1 Documents
+=head1 Design Documents
 
 =over 
 
@@ -19,6 +19,26 @@ Abhijit Mahabal
 =item 03 L<The Slipnet|sdd03>
 
 =item 04 L<Codelet System|sdd04>
+
+
+=back
+
+=head1 GUI
+
+=over 
+
+=item L<Workspace|Tk::SWorkspace>
+
+=item L<Stream|Tk::SStream>
+
+=item L<Coderack|Tk::SCoderack>
+
+=item L<Slipnet|Tk::SNet>
+
+=item L<Info|Tk::SInfo>
+
+=item
+
 
 
 =back
