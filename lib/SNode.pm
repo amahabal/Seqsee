@@ -3,6 +3,7 @@ use strict;
 use SDescs;
 
 use SNodeType::Number; # wrong place!
+use SNodeType::Other;  # wrong place!
 
 our %DanglingLinks;
 

@@ -23,6 +23,7 @@ sub new{
 		  label      => \@labels,
 		  descs      => [],
 		  str        => "$bflag->{str} $flag->{pl_str} @labels $descriptor->{str}",
+		  reln       => $descriptor, # for sameness, just the commonality
 		 }, $package;
   } else {
     #print "Descriptors: @{$descriptor}\n";
@@ -41,6 +42,7 @@ sub new{
 		  label      => \@labels,
 		  descs      => [],
 		  str        => "$bflag->{str} ($flag->[0]{str} @{$labels[0]} $descriptor->[0]{str}) ->  ($flag->[1]{str} @{$labels[1]} $descriptor->[1]{str}) $descriptor->[2]",
+		  reln       => $descriptor->[2], # For change, this really is the reln!
 		 }, $package;
   }
 }

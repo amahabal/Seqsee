@@ -23,11 +23,12 @@ sub contemplate_add_descriptors{
 
 sub check_if_component_in_stream{
   my $thought = shift;
-  unless ($thought->isa("SObject")) {
-    $logger->debug("No need to check if there is a similar component in the stream: this is not an SObject");
-    $::STREAM_gui->magical_halo({}) if ::GUI;
-    return;
-  }
+  # Comment out this: even for bonds, we do need reminding
+  # unless ($thought->isa("SObject")) {
+  #  $logger->debug("No need to check if there is a similar component in the stream: this is not an SObject");
+  #  $::STREAM_gui->magical_halo({}) if ::GUI;
+  #  return;
+  # }
   my %in_stream = ();
   my $magical_halo = $thought->magical_halo();
   $::STREAM_gui->magical_halo($magical_halo) if ::GUI;
@@ -37,6 +38,11 @@ sub check_if_component_in_stream{
     }
   }
   return unless %in_stream;
+
+  # For now, I'll return unless we are dealing with an object, as I do not know how I should deal with being reminded of a bond....
+  unless ($thought->isa("SObject")) {
+    return;
+  }
 
   #XXX Aargh! but we need to choose which thought; This, and the other thought, must both be SObjects, o/w no bond makes sense...
   my @object_thoughts = grep { $_->isa("SObject") } @SStream::Thoughts;

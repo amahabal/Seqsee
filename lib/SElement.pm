@@ -24,7 +24,10 @@ sub set_str{
 }
 
 sub contemplate_add_descriptors{
-  # XXX
+  my $self = shift;
+  if ($self->{mag} > 10 or $self->{mag} < 0) {
+    $self->add_desc( new SDesc($SNet::node_surprising, $Dflag::is) );
+  }
 }
 
 1;

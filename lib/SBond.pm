@@ -30,8 +30,8 @@ sub contemplate_add_descriptors{
 }
 
 sub halo{
-  # XXX dummy implementation
-  # maybe the implementation could even stay empty :)
+  # XXX?
+  map { $_->{reln} } @{ shift->{descs} }
 }
 
 1;

@@ -1,5 +1,7 @@
 =head1 Seqsee Documentation
 
+=head2 L<A Tour of Seqsee|Tour>
+
 =head2 Design Documents
 
 =over 

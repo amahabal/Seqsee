@@ -2,6 +2,7 @@ package SNodeType::Number;
 
 our @ISA = qw{SNode};
 
+
 sub new{
   my $package = shift;
   my %args    = @_;
@@ -19,12 +20,12 @@ sub find_links{
   my $mag  = $self->{magnitude};
   push(@links, SDesc->new( "Number::" . ($mag + 1),
 			   $Dflag::has,
-			   "successor",
+			   $SNet::node_successor,
 			 )
       );
   push(@links, SDesc->new( "Number::" . ($mag - 1),
 			   $Dflag::has,
-			   "predecessor",
+			   $SNet::node_predecessor,
 			 )
       );
   @links;

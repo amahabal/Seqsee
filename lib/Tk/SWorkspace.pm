@@ -104,6 +104,7 @@ sub redraw{
   my $self = shift;
   $self->clear;
   $self->draw_elements;
+  $self->draw_readhead;
 }
 
 sub SElement::draw{
@@ -135,7 +136,7 @@ sub SBond::draw{
 sub SGroup::draw{
   my $self     = shift;
   my $position = get_new_group_pos();
-  my $y  = $top_margin + $eff_height * 0.6 + $position * $space_per_group;
+  my $y  = $top_margin + $eff_height * 0.65 + $position * $space_per_group;
   my $ht = $space_per_group * 0.4;
   my $xstart = $left_margin + $space_per_elem * $self->{left_edge};
   my $xend   = $left_margin + $space_per_elem * ($self->{right_edge} + 1);
@@ -150,6 +151,23 @@ sub SGroup::draw{
 			    );
     $Id2Obj{$id} = $self;
   }
+}
+
+sub draw_readhead{
+  my $pos = $SWorkspace::ReadHead;
+  my $ypos = $top_margin + 0.6 * $eff_height;
+  my $xpos = $left_margin + $space_per_elem * $pos;
+  $Canvas->delete('withtag', 'eye');
+  $Canvas->createOval($xpos - 10, $ypos - 3, $xpos + 10, $ypos + 3, -fill => '#FFFF00',
+		      -tags => 'eye',
+		     );
+}
+
+sub move_readhead{
+  my $pos = $SWorkspace::ReadHead;
+  my $ypos = $top_margin + 0.6 * $eff_height;
+  my $xpos = $left_margin + $space_per_elem * $pos;
+  $Canvas->coords('eye', $xpos - 10, $ypos - 3, $xpos + 10, $ypos + 3 );
 }
 
 1;

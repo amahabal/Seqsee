@@ -7,6 +7,12 @@ use SFlags;
 our %Str2Node;   # maps "$node" to $node
 our %Name2Node; # maps long name to node (long name includes type)
 
+
+our $node_successor   =   fetch("Other::successor",   create => 1);
+our $node_predecessor =   fetch("Other::predecessor", create => 1);
+our $node_surprising  =   fetch("Other::surprising",  create => 1);
+our $node_extendible  =   fetch("Other::extendible",  create => 1);
+
 for (1 .. 10) {
   my $node = fetch("Number::$_", create => 1, magnitude => $_);
 }
@@ -26,7 +32,7 @@ sub fetch{
     if (my $type = $args{type}) {
       # Okay, so that limits the choice a lot
       return $hashref->{$type} if $hashref->{$type};
-      return $args{create} ? create_node($type, %args) : undef;
+      return $args{create} ? create_node($type, shortname => $what, %args) : undef;
     }
     # If I am here, no specific type has been requested
     my %hash = %$hashref;
@@ -38,7 +44,7 @@ sub fetch{
     # No short name with this node exists!
     if ($args{create}) {
       die "Must have type if I am to create" unless $args{type};
-      return create_node($args{type}, %args);
+      return create_node($args{type}, shortname => $what, %args);
     } else {
       return undef;
     }

@@ -24,7 +24,7 @@ Tk::Pod->Dir('.', './pod/sdd', './pod');
 
 sub setupGUI{
   # This method creates windows etc...
-  $MW = new MainWindow;
+  $MW = new MainWindow(-title => "Workspace");
   setup_menu();
   $WS_gui = $MW->SWorkspace
     (
@@ -35,7 +35,7 @@ sub setupGUI{
       ->pack(-side => 'top');
 
   # $CR_SN_top = $MW->Toplevel;
-  $Info_top = $MW->Toplevel;
+  $Info_top = $MW->Toplevel(-title => "Information");
   $INFO     = $Info_top->Scrolled
     ('SInfo',
      -scrollbars  => 'se',
@@ -64,7 +64,7 @@ sub setupGUI{
       -height     => 18,
     )->pack();
   $SLIPNET_gui->redraw;
-  $STREAM_gui = $MW->SStream;
+  $STREAM_gui = $MW->SStream(-title => "Stream");
 
   #$Stream_top = $MW->Toplevel;
   #$STREAM_gui = $Stream_top->SCrolled
@@ -124,7 +124,7 @@ sub SBond::display_details{
 sub SNode::display_details{
   my $self = shift;
   $INFO->clear;
-  $INFO->head("$self\t$self->{str}");
+  $INFO->head("Node $self->{shortname}");
   $INFO->skip(1);
   $self->display_descriptions;
   $INFO->skip(3);

@@ -81,7 +81,7 @@ sub description{
   my ($desc, $depth) = @_;
   $self->insert('end', "\t" x $depth);
   $self->insert('end', "$desc->{flag}{str} ", 'descflag');
-  $self->insert('end', join(", ", @{ $desc->{label} }), 'desclabel');
+  $self->insert('end', join(", ", map { $_->{shortname} } @{ $desc->{label} }), 'desclabel');
   if (ref $desc->{descriptor}) {
     $self->insert('end', " $desc->{descriptor}{str}\n", 'descdesc');
   } else {
@@ -99,24 +99,26 @@ sub bdescription{
     $self->insert('end', "\t" x $depth);
     $self->insert('end', "Both", 'bdescflag');
     $self->insert('end', " $desc->{flag}{pl_str} ", 'descflag');
-    $self->insert('end', join(", ", @{ $desc->{label} }), 'desclabel');
+    $self->insert('end', join(", ", map { $_->{shortname} } @{ $desc->{label} }), 'desclabel');
     $self->insert('end', " $desc->{descriptor}{str}\n", 'descdesc');
     for (@{$desc->{descs}}) {
       $self->description($_, $depth + 1);
     }
   } else {
     $self->insert('end', "\t" x $depth);
-    $self->insert('end', "Change ($desc->{descriptor}[2])", 'bdescflag');
     $self->insert('end', "(" );
 
     $self->insert('end', "$desc->{flag}[0]{str} ", 'descflag');
-    $self->insert('end', join(", ", @{ $desc->{label}[0] }), 'desclabel');
+    $self->insert('end', join(", ", map { $_->{shortname} } @{ $desc->{label}[0] }), 'desclabel');
     $self->insert('end', " $desc->{descriptor}[0]{str}", 'descdesc');
 
-    $self->insert('end', ") ===> (" );
+    $self->insert('end', ") " );
+    $self->insert('end', "=== $desc->{descriptor}[2]{shortname} ==>", 'bdescflag');
+
+    $self->insert('end', " (" );
 
     $self->insert('end', "$desc->{flag}[1]{str} ", 'descflag');
-    $self->insert('end', join(", ", @{ $desc->{label}[1] }), 'desclabel');
+    $self->insert('end', join(", ", map { $_->{shortname} }@{ $desc->{label}[1] }), 'desclabel');
     $self->insert('end', " $desc->{descriptor}[1]{str}", 'descdesc');
 
     $self->insert('end', ")\n");

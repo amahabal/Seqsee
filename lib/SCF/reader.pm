@@ -20,6 +20,7 @@ sub run{
     $SWorkspace::ReadHead = $obj->{right_edge} + 1;
     $SWorkspace::ReadHead = $SWorkspace::elements_count - 1
       if $SWorkspace::ReadHead >= $SWorkspace::elements_count;
+    $::WS_gui->move_readhead() if ::GUI;
   }
 
 }
