@@ -7,6 +7,7 @@ use Getopt::Long;
 use blib;
 
 # Seqsee libraries
+use SLog;
 use SUtility;
 use SApp;
 use Sconsts;
@@ -16,13 +17,19 @@ use SWorkspace;
 use SElement;
 use SNet;
 
-
+our $logging = 1;
 GetOptions("seed=s"  => \$SApp::RandomSeed,
 	   "steps=i" => \$SApp::MaxSteps,
+	   "log!"    => \$logging,
 	  );
+
 
 $SApp::RandomSeed = int(rand() * 32000) unless $SApp::RandomSeed;
 srand($SApp::RandomSeed);
+
+SLog->init($logging);
+our $TopLogger = Log::Log4perl->get_logger('');
+
 
 ### Initialize Display
 ##    SDisplay->init("SDisplay::simple");
@@ -49,7 +56,7 @@ for (1..$SApp::MaxSteps) {
 }
 
 sub Step{
-  $CurrentEpoch++;
+  $CurrentEpoch++; # XXX: Is this the right place to update?
   SApp->hooks_before_each_step();
 
   $CurrentCodelet = SCoderack->choose_codelet;
@@ -57,6 +64,8 @@ sub Step{
   if (defined $CurrentCodelet) {
     $CurrentCodeletFamily = $CurrentCodelet->[0];
     $CurrentCodelet->run();
+  } else {
+    $TopLogger->warn("\n\n[$CurrentEpoch] The coderack was empty!");
   }
   SApp->hooks_after_each_step();
 }

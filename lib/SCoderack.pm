@@ -57,7 +57,6 @@ sub choose_codelet {
   confess "In Coderack: urgencies sum 0, but codelet count non-zero"
     unless $urgencies_sum;
   my $random_number = 1 + int( rand($urgencies_sum) );
-  $::CurrentEpoch++;
   my $bucket = 0;
   while ( $random_number > $bucket_sum[$bucket] ) {
     $random_number -= $bucket_sum[$bucket];
