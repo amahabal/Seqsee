@@ -1,0 +1,13 @@
+This is going to be a huge list...
+
+* I should maybe work on the workspace for a bit. Lots of stuff there that can be lifted to this new environment.
+
+* Need to create groups.
+
+* Write a lot of examples including descriptions, bonds, groups etc.
+
+* Create class SObject (from which SElement and SGroup derive), and add stuff to this like promote/add/remove bonds and groups, and add similar functionality to the WS.
+
+* Write as_str() methods for the various classes.
+
+* Write code in SBDescs so that add_desc works there as well...

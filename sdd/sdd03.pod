@@ -1,0 +1,96 @@
+=head1 NAME
+
+Seqsee Design Doc 03 - Slipnet
+
+=head1 AUTHOR
+
+Abhijit Mahabal
+
+=head1 VERSION
+
+Last Modified: Dec 02, 2004
+
+Number : 3
+
+Version : 0
+
+=head1 Slipnet
+
+The Slipnet is the permanent repository of knowledge of seqsee. A concepts in seqsee are represented by nodes in the slipnet, and the relationships between nodes are represented by edges between nodes. The Workspace is similar to the slipnet in many respects.
+
+=head1 Slipnodes
+
+A slipnode can be leaf or not. A leaf slipnode has no internal structure, whereas a non-leaf slipnode does. If it is a non leaf slipnode then its internal structure is a labeled group, but more on that later.
+
+There are links between slipnodes, and are called sliplinks. Sliplinks can have labels on them. The activation flow from a slipnode to another is influenced by the labels on the slipnode.
+
+Workspace objects like Elements and Groups are also Slipnode, but in a different sort of slipnet. Workspace objects can have descriptions, which are just sliplinks, with zero or more labels.
+
+Workspace groups are composed of other workspace objects; There are two species of groups, called uniform groups and labeled groups.
+
+Workspace objects may also be related to each other; A relation takes the form of a link, which may again have labels.
+
+Note that all labels are other workspace concepts. 
+
+The label between a [3] and a [4] can be "successor". But how would one say that it is actually a successor in magnitude? If it is still to be just a link, then it would have to be labeled with the composite concept "successor in magnitude". "successor in magnitude" is a non-exact copy of the concept "successor". 
+
+Now, when two bonds are labeled "successor in magnitude" and "successor in length", would they immediately be recognized as being similar? I think not. (If both are seen as just successors that is a different story). The component of a bond can indeed be its label and its component too. (Thus, we are saying that we are labelling something both as "successor in magnitude" and "successor".
+=head2 Implementation Details
+
+Every Slipnode has the following information attached to it:
+
+=over
+
+=item C<name>
+
+=item C<act, act_buffer>
+
+This is the activation level of the node, and its buffer.
+
+=item C<clamped>
+
+This specifies whether the node's activation is allowed to change.
+
+=item C<depth>
+
+The greater the depth, the less likely a slippage from this node, and slower it's activation decays.
+
+=item C<outlinks, inlinks>
+
+This is the list of outgoing and incoming links. It is really a hash, indexed by the node at the other end.
+
+=back
+
+=head2 Specific Slipnodes
+
+Here is a list of slipnodes that must be present:
+
+=over
+
+=item C<1>, C<2> ... C<10> etc. 
+
+The integers upto 10. Other integers can still get added if needed.
+
+=item C<Group>, C<Bond>
+
+The concepts "Group" and "Bond". Would be needed to label things as being bonds or groups. 
+
+=item C<Variant>
+
+Needed to mark some object as having a variant.
+
+=item Meta-thoughts
+
+This is actually a bunch of thoughts including:
+
+=over
+
+=item C<< This looks promising >>
+
+=item C<< This is too complicated >>
+
+=back
+
+=back
+
+

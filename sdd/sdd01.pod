@@ -1,0 +1,97 @@
+=head1 NAME
+
+Seqsee Design Doc 01 - The Stream
+
+=head1 AUTHOR
+
+Abhijit Mahabal
+
+=head1 VERSION
+
+Last Modified: Dec 02, 2004
+
+Number : 1
+
+Version : 1
+
+=head1 The Stream
+
+The stream is the central component of Seqsee. It is implemented in F<SStream.pm> and modules that get loaded thence. Each entry in the stream is an C<SThought>. A special thought is the current thought. 
+
+Thoughts have components, and these can be found using C<< $Thought->components() >>. It is not required that the answer be fixed over time. So, when a thought enters the stream, its components' snapshot is placed in C<< $Thought->{str_comps} >>. This snapshot must be taken just before antiquating the thought and not before. This also means that the same object should not enter the stream twice, but rather we should just recycle the existing object if we try to reenter it.
+
+=head1 Variables
+
+=over
+
+=item C<$CurrentThought>
+
+The current thought. Can be a thought or undef.
+
+=item C<@Thoughts>
+
+Other non-current thought. The latest amongst these is C<$Thoughts[0]>.
+
+=item C<$ThoughtCount>
+
+This is just the size of C<@Thoughts>
+
+=item C<%ThoughtsList>
+
+This is a mapping C<< {Thought => 1} >> for each though. Important to ensure that the same thought does not enter twice.
+
+=item C<$DiscountFactor>
+
+If a thought becomes older by 1 unit, its component's importance goes down by a factor of C<$DiscountFactor>.
+
+=item C<%CompStrength>
+
+Mapping from components to their strengths.
+
+=item C<$MaxThoughts>
+
+The maximum allowed value of C<$ThoughtCount>. If there are more thoughts than this, the oldest thoughts will be expelled.
+
+=back
+
+=head1 Methods
+
+Methods that need to be supported by the stream include:
+
+=over
+
+=item C<Reset()>
+
+This would clean up everything. Not expected to be needed often. It resets the following: C<$CurrentThought>, C<@Thoughts>, C<$ThoughtCount>, C<%ThoughtsList>, C<%CompStrength>.
+
+=item C<add_thought($thought)>
+
+This method will only be called from C<new_thought()>.
+
+At the end of this method, C<$thought> will end up being the C<$CurrentThought>. But several things need to be done before that can happen. 
+
+Two pathways are possible depending on whether C<$thought> is already in the stream. If it is, and is C<$CurrentThought>, nothing happens. If it is not the C<$CurrentThought>, it must be removed from the stream and made C<$CurrentThought>.
+
+Otherwise, if there is an existing C<$CurrentThought>, it will need to be antiquated. This updates the bookeeping, and can also result in some thought being expelled.
+
+In either case, all of the following may have changed: C<$CurrentThought>, C<@Thoughts>, C<$ThoughtCount>, C<%ThoughtsList>, C<%CompStrength>.
+
+=item C<new_thought($thought)>
+
+A new thought is added to the stream and a lot of attention is paid to this thought, by calling C<contemplate()> on it.
+
+=item C<antiquate_thought()>
+
+This makes C<$CurrentThought> an old thought, and each other thought older still. It will also check to see if there are too many thoughts and some need to be expelled. At the end of this call, C<$CurrentThought> will be C<undef>.
+
+All of the following may have changed: C<$CurrentThought>, C<@Thoughts>, C<$ThoughtCount>, C<%ThoughtsList>, C<%CompStrength>.
+
+=item C<maybe_expell_thoughts()>
+
+Checks the value of the C<$ThoughtCount>. If it is larger that C<$MaxThoughts> then expells as many thoughts as needed.
+
+=item C<recalculate_CompStrength()>
+
+This is a utility method that recalculates C<%CompStrength>. Could be useful in C<new_thought()> when the new thought is already present in the stream and we shuffle C<@Thoughts> around.
+
+=back

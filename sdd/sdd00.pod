@@ -1,0 +1,58 @@
+=head1 NAME
+
+Seqsee Design Doc 0 - Overall Architecture
+
+=head1 AUTHOR
+
+Abhijit Mahabal
+
+=head1 VERSION
+
+Last Modified: Dec 03, 2004
+
+Number : 0
+
+Version : 0
+
+=head1 Seqsee Architecture
+
+Seqsee consists of the following components:
+
+=over
+
+=item The Stream
+
+=item The Workspace and its objects
+
+=item The Codelet System
+
+=item The Aesthetic System
+
+=item The Slipnet
+
+=back
+
+Apart from these, though, there are several other components that are not so visible. These include:
+
+=over
+
+=item The User Interaction component
+
+=item The Setup component
+
+=back
+
+=head1 The Stream
+
+F<SStream.pm> implements the stream. Each component of the stream is a thoughts. Some routines for managing a single thought are present in F<SThought.pm>, but each class that can function as a thought must define several of its own methods. Since there can be only be a single stream, we do not need a variable for it, and any method can always be called like so C<< SStream->method() >>.
+
+=head1 The Workspace
+
+F<SWorkspace.pm> implements the workspace. There can be only one workspace. It is responsible for managing the several workspace entities like elements, groups, bonds and possibly other entities. All these conform to the interface defined in F<SEntity.pm>. Groups and elements are implemented in F<SElement.pm> and F<SGroup.pm>. Both are derived from Objects, implemented in F<SObject.pm>.
+
+=head1 The Codelet System
+
+F<SCoderack.pm> implements the coderack. There can be only one coderack. Each entity in the coderack is a codelet, implemented in F<SCodelet.pm>. Each codelet belongs to a codefamily, each of which is implemented in F<SCF/*.pm>. The file F<SCF.list> lists out the names of the codefamilies, and these get automatically loaded. The codefamily C<bond_scout> (notice the all-lowercase name) is thus implemented in the file F<SCF/bond_scout.pm>, and its methods run in the name-space  C<SCF::bond_scout>. Every F<SCF/*.pm> defines the method C<run()>. For details of the codelet system see sdd04.
+
+=cut
+

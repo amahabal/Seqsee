@@ -1,0 +1,48 @@
+=head1 NAME
+
+Seqsee Design Doc 02 - Thoughts
+
+=head1 AUTHOR
+
+Abhijit Mahabal
+
+=head1 VERSION
+
+Last Modified: Dec 02, 2004
+
+Number : 2
+
+Version : 0
+
+=head1 Thoughts
+
+Many things can be thoughts in Seqsee, ranging from objects in the workspace(Seqelements, Groups, Bonds) to nodes in the slipnet. Somehwere in there are also meta thoughts like "This is a promising path".
+
+This SDD details the interface that must be supported by all classes that can function as thoughts.
+
+=head1 Attributes
+
+=over
+
+=item C<str_comps>
+
+This is used by the stream to keep a snapshot of the components of the thought when it entered the stream. This snapshot is best taken just before the current thought becomes an old thought. Maybe for some purposes it can be taken as soon as the thought becomes the current thought and retaken before it becomes an old thought.
+
+=back
+
+=head1 Methods
+
+=over
+
+=item C<< $thought->contemplate() >>
+
+This method spends time exploring C<$thought>. This process involves calls to C<contemplate_add_descriptors>, C<spread_activation_from_components> and perhaps another C<contemplate_add_descriptors>.
+
+=item C<components()>
+
+
+
+=back
+
+
+
