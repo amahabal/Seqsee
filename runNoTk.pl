@@ -7,6 +7,7 @@ use Getopt::Long;
 use blib;
 
 # Seqsee libraries
+use SUtility;
 use SApp;
 use Sconsts;
 use SCodelet;
@@ -15,14 +16,13 @@ use SWorkspace;
 use SElement;
 use SNet;
 
-our $RandomSeed = undef;
-our $MaxSteps    = 1000;
 
-GetOptions("seed=s"  => \$RandomSeed,
-	   "steps=i" => \$MaxSteps,
+GetOptions("seed=s"  => \$SApp::RandomSeed,
+	   "steps=i" => \$SApp::MaxSteps,
 	  );
 
-$RandomSeed = int(rand() * 32000) unless $RandomSeed;
+$SApp::RandomSeed = int(rand() * 32000) unless $SApp::RandomSeed;
+srand($SApp::RandomSeed);
 
 ### Initialize Display
 ##    SDisplay->init("SDisplay::simple");
@@ -40,7 +40,7 @@ my $starttime = time;
 
 #### MAIN LOOP:
 
-for (1..$MaxSteps) {
+for (1..$SApp::MaxSteps) {
   if ($_ % 100 == 0) {
     my $elasped = time() - $starttime;
     print "Finished $_ codelets in $elasped seconds\n";

@@ -2,6 +2,9 @@ package SApp;
 use UNIVERSAL::require;
 use SCodeConfig;
 
+our $RandomSeed = undef;
+our $MaxSteps   = 10;
+
 sub post_cc($$@){
   my $who  = shift;
   my $what = shift;
@@ -23,7 +26,7 @@ sub hooks_before_each_step{
 }
 
 sub hooks_after_each_step{
-  # XXX something akin to post_cc needed
+  post_cc "Background", "all";
 }
 
 sub process_codefamilies{

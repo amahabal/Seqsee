@@ -200,7 +200,7 @@ STUFF
   sub {
     my \%attr = \@_;$need_att
     my \$how_freq = $prob;
-    if (Utility::toss(\$how_freq)) {
+    if (SUtility::toss(\$how_freq)) {
       my \$codelet = new SCodelet( "$family",
                                  $urgency, $option_string
                                  \%attr,
@@ -259,7 +259,7 @@ STUFF
     } else {
       print OUT <<"STUFF";
     \$how_freq = $prob;
-    if (Utility::toss(\$how_freq)) {
+    if (SUtility::toss(\$how_freq)) {
       my \$codelet = new SCodelet( "$family",
                                  $urgency,$option_string
                                  \%attr,

@@ -1,4 +1,4 @@
-use Test::More tests => 16;
+use Test::More tests => 12;
 use Test::Exception;
 
 use strict;
@@ -14,15 +14,11 @@ SWorkspace->setup(1, 2, 3, 4);
 
 cmp_ok($SWorkspace::elements_count, '==', 4);
 cmp_ok($SWorkspace::elements[2]->{mag},    '==', 3);
-cmp_ok($SWorkspace::bonds_count,    '==', 0);
-cmp_ok($SWorkspace::bonds_p_count,  '==', 0);
-cmp_ok($SWorkspace::groups_count,   '==', 0);
-cmp_ok($SWorkspace::groups_p_count, '==', 0);
 
 isa_ok($SWorkspace::elements[2], "SElement");
 cmp_ok($SWorkspace::elements[2]->{left_edge}, '==', 2);
 
-SWorkspace->insert(5,6);
+SWorkspace->insert_elements(5,6);
 cmp_ok($SWorkspace::elements_count, '==', 6);
 cmp_ok($SWorkspace::elements[5]->{mag},    '==', 6);
 isa_ok($SWorkspace::elements[5], "SElement");

@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 
 sub MY::postamble{
   return <<"MAKE_FRAG";
-lib/SCodeConfig.pm: SCodeConfig.txt
+lib/SCodeConfig.pm: SCodeConfig.txt GenCL.pl
 \t\tperl GenCL.pl
 MAKE_FRAG
 }
