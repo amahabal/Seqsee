@@ -1,12 +1,8 @@
 package Tk::SNet;
-use Tk::widgets qw{MListbox};
-use base qw/Tk::Derived Tk::MListbox/;
+use Tk::widgets qw{Text};
+use base qw/Tk::Derived Tk::Text/;
 
 our $list;
-our @columns = ( [-text => "Node"],
-		 [-text => "Activation", -textwidth => 10],
-	       );
-
 Construct Tk::Widget 'SNet';
 
 sub ClassInit{
@@ -17,20 +13,30 @@ sub ClassInit{
 sub Populate{
   my ( $self, $args ) = @_;
   $list = $self;
-  $args->{-moveable} = 0;
-  $args->{-columns}  = \@columns;
   $self->SUPER::Populate( $args );
+  $self->tagBind('node', '<1>' => 
+		 sub { 
+		   my $line= $list->get('current linestart','current lineend');
+		   $line =~ s/^\S+\s*//;
+		   my $node = SNet->fetch($line);
+		   #print "Need to deal with '$node'\n";
+		   $node->display_details;
+		 });
+  $self;
 }
 
 sub clear{
-  $list->delete(0, 'end');
+  $list->delete('0.0', 'end');
 }
 
-sub update{
-  $list->delete(0, 'end');
+sub redraw{
+  $list->delete('0.0', 'end');
   while (my ($name, $node) = each %SNet::Nodes) {
-    $list->insert('end', [$name, "---"] );
+    $list->insert('end', "---\t$name\n", 'node' );
   }
 }
 
+
+
 1;
+

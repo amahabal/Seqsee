@@ -40,6 +40,14 @@ sub run{
   $right_obj->bond_insert($bond);
   SWorkspace->bond_insert($bond);
   SStream->new_thought($bond);
+  
+  #XXX Just testing....
+  my $gp = SGroup->new($left_obj, $right_obj);
+  SWorkspace->group_insert($gp);
+  for ($left_obj, $right_obj) {
+    $_->group_insert($gp);
+  }
+
 }
  
 1;

@@ -112,6 +112,7 @@ sub group_insert{
   } else {
     $groups_p{$group} = $group;
   }
+  $main::WS_gui->GUI_add($group) if ::GUI;
 }
 
 sub group_remove{

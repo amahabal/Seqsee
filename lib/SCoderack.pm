@@ -54,7 +54,7 @@ sub add_codelet{
   my $family = $codelet->[0];
   $FamilyCount{$family}++;
   $FamilyUrgency{$family} += $urgency;
-  $::CODERACK_gui->update() if ::GUI;
+  $::CODERACK_gui->Update() if ::GUI;
 }
 
 sub choose_codelet {
@@ -91,7 +91,7 @@ sub choose_codelet {
   my $family = $return_codelet->[0];
   $FamilyCount{$family}--;
   $FamilyUrgency{$family} -= $urgency;
-  $::CODERACK_gui->update() if ::GUI;
+  $::CODERACK_gui->Update() if ::GUI;
   return $return_codelet;
 }
 

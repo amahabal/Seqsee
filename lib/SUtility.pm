@@ -19,4 +19,20 @@ sub pprint{
   return $what;
 }
 
+sub min{
+  my $min = 1000000;
+  for (@_) {
+    $min = $_ if $_ < $min;
+  }
+  $min;
+}
+
+sub max{
+  my $max = -1000000;
+  for (@_) {
+    $max = $_ if $_ > $max;
+  }
+  $max;
+}
+
 1;

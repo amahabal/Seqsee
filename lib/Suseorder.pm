@@ -8,6 +8,7 @@ use SApp;
 
 use SThought;
 use SElement;
+use SGroup;
 
 use SDescs;
 use SDesc;

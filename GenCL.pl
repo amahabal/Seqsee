@@ -5,9 +5,27 @@ package LaunchInstance;
 sub new{  bless {}, shift }
 
 package main;
+use Getopt::Long;
+
+my $info = 0;
+my $launcher;
+my $launchee;
+my $list;
+
+GetOptions("info!" => \$info,
+	   "launcher=s" => \$launcher,
+	   "launchee=s" => \$launchee,
+	   "list!" => \$list,
+	  );
+
+if ($info and not($launcher or $launchee or $list)) {
+  die "Must include at least one of launcher, launchee or list if info needed";
+}
+
+
 use Carp;
 open IN,  "     SCodeConfig.txt";
-open OUT, ">lib/SCodeConfig.pm";
+open (OUT, ">lib/SCodeConfig.pm") unless $info;
 
 my %Vars;
 my $CurrentLauncher;
@@ -130,6 +148,38 @@ while ($in = <IN>) {
 if ($CurrentObject) {
   push(@Objects, $CurrentObject);
 }
+
+if ($info) {
+  if ($list) {
+    # only list out stuff and exit
+    my %Launchers;
+    my %Launchees;
+    foreach my $o (@Objects) {
+      $Launchers{$o->{Launcher}}++;
+      $Launchees{$o->{family}}++;
+    }
+    for (keys %Launchers) {
+      print "$_\n";
+    }
+    print "$_\n";
+    for (keys %Launchees) {
+      print "$_\n";
+    }
+    exit;
+  }
+  # only information sought!
+  foreach my $o (@Objects) {
+    next unless (!$launcher or $o->{Launcher} eq $launcher);
+    next unless (!$launchee or $o->{family}   eq $launchee);
+    for my $k (qw{Launcher family TAG key urgency prob}) {
+      print "$k#$o->{$k}\n";
+    }
+    print "###\n";
+  }
+
+  exit;
+}
+
 foreach my $o (@Objects) {
 #  print "="x30, "\n";
 #  foreach (qw{Launcher family key prob urgency}) {
@@ -145,6 +195,8 @@ foreach my $o (@Objects) {
     process_single($o);
   }
 }
+
+
 
 while (my($launcher, $hashref) = each %Deffered) {
   while (my($tag, $arrayref) = each %$hashref) {

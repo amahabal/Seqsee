@@ -11,8 +11,10 @@ our ($top_margin,  $bottom_margin);
 our ($left_margin, $right_margin);
 our ($eff_width, $eff_height);
 our $space_per_elem;
+our $space_per_group;
 our %Id2Obj;
 our $Canvas;
+our $last_used_group_position = -1;
 
 our @elements_options = qw{ -anchor center -fill red -activefill blue
 			    -font -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4
@@ -25,6 +27,8 @@ our @bond_options = qw{
 		     };
 our @bond_options_full   = qw{ -dash 0 };
 our @bond_options_partly = qw{ -dash 1 };
+
+our @group_options = qw{-fill red -activefill blue};
 
 sub ClassInit{
   my ( $class, $mw ) = @_;
@@ -51,6 +55,11 @@ sub Populate{
 
 sub clear{
   $Canvas->delete('all');
+  $last_used_group_position = -1;
+}
+
+sub get_new_group_pos{
+  ++$last_used_group_position;
 }
 
 sub new_object{
@@ -73,6 +82,7 @@ sub draw_elements{
   $eff_width  = $width - $left_margin - $right_margin;
   $eff_height = $height - $top_margin - $bottom_margin;
   $space_per_elem = $eff_width / ($element_count + 2);
+  $space_per_group = ($eff_height - $top_margin - $bottom_margin) / 40;
   my $counter = 0;
   for my $elt ( @SWorkspace::elements ) {
     new_object($elt, 
@@ -113,12 +123,27 @@ sub SBond::draw{
   my $starty = $from_bbox->[1] - 5;
   my $endy   = $to_bbox->[1] - 5;
   my $zenith = $top_margin + $eff_height * 0.5 - ($endx - $startx);
+  $zenith = $top_margin if ($zenith < $top_margin);
   my @coordinates = ($startx, $starty, 
 		     $startx, $zenith,
 		     $endx,   $zenith,
 		     $endx,   $endy
 		    );
   $Canvas->createLine(@coordinates, @bond_options, -tags => [$self, "wso"]);
+}
+
+sub SGroup::draw{
+  my $self     = shift;
+  my $position = get_new_group_pos();
+  my $y  = $top_margin + $eff_height * 0.6 + $position * $space_per_group;
+  my $ht = $space_per_group * 0.4;
+  my $xstart = $left_margin + $space_per_elem * $self->{left_edge};
+  my $xend   = $left_margin + $space_per_elem * ($self->{right_edge} + 1);
+  $Canvas->createRectangle($xstart, $y - $ht,
+			   $xend, $y + $ht,
+			   @group_options,
+			   -tags => [$self, "wso"],
+			  )
 }
 
 1;
