@@ -8,7 +8,9 @@ our $MaxSteps   = 10;
 sub post_cc($$@){
   my $who  = shift;
   my $what = shift;
-  $CodeConfig::Post{$who}{$what}->(@_);
+  my $code = $CodeConfig::Post{$who}{$what};
+  die "Am trying to do a post_cc, where '$who' is trying to post a '$what', and no configuration information exists as to how that is to happen. Perhaps you need to modify SCodeConfig.txt?" unless $code;
+  $code->(@_);
 }
 
 our $_codefamilies_processed = 0;
@@ -36,7 +38,15 @@ sub process_codefamilies{
     $in =~ s{#.*}{};
     $in =~ s#\s##g;
     next unless $in;
-    $in->require or die "Required Codefamily $in missing";
+    $in->require or die "Required Codefamily '$in' missing.";
+
+    unless (defined ${"$in"."::logger"}) {
+      die"Error in processing codefamily '$in': It defines no variable \$logger\n";
+    }
+
+    unless (UNIVERSAL::can($in, "run")) {
+      die"Error in processing codefamily '$in': It does not define the method run()";
+    }
   }
 }
 

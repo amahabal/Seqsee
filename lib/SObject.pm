@@ -3,8 +3,10 @@ use strict;
 
 use Sconsts;
 use SDescs;
+use SDesc;
 use SHistory;
 use SThought;
+use SNet;
 our @ISA = qw{SDescs SHistory SThought};
 
 sub init{

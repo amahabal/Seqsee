@@ -2,11 +2,15 @@ use Test::More tests => 9;
 use Test::MockObject;
 use blib;
 
+use STestInit;
+
 BEGIN {
   Test::MockObject->fake_module('SCF::family_foo');
 }
 
 BEGIN{
+  $SCF::family_foo::logger = Log::Log4perl->get_logger('');
+  $SCF::family_foo::logger;
   sub SCF::family_foo::run{
     my $args = shift;
     return (97 + $args->{a});

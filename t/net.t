@@ -10,7 +10,7 @@ BEGIN { use_ok("SNet")};
 {
   our $none_missing_so_far = 1;
   for (@node_list) {
-    unless ($ {"SNet::node_$_"}) {
+    unless (defined $SNet::Nodes{$_}) {
       diag("Node $_ not defined!");
       $none_missing_so_far = 0;
       last;

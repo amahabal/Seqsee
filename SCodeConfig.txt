@@ -7,4 +7,5 @@ for StartUp :Bundle«all»
 for Background :Bundle«all»
 :family«reader»                :prob«=high»      :urgency«50»
 
-
+for SThought
+:family«bond_evaluator»        :prob«=certain»   :urgency«50»

@@ -2,6 +2,16 @@ package SStream;
 use strict;
 use Log::Log4perl;
 
+our $debug_logging;
+our $logger;
+
+BEGIN {
+  our $logger = Log::Log4perl->get_logger('SStream');
+  our $debug_logging = $logger->is_debug();
+}
+
+
+
 our $DiscountFactor         = 0.8;
 our $MaxThoughts            = 10;
 our $ThoughtCount           = 0;
@@ -9,8 +19,6 @@ our @Thoughts               = ();
 our $CurrentThought;
 our %CompStrength;
 our %ThoughtsList;
-
-our $logger = Log::Log4perl->get_logger('SStream');
 
 sub Reset{
   $ThoughtCount   = 0;
@@ -23,6 +31,12 @@ sub Reset{
 sub antiquate_thought{
   return unless $CurrentThought; # Else nothing to antiquate!
   $CurrentThought->{str_comps} = [$CurrentThought->components()];
+  if ($debug_logging) {
+    $logger->debug("Antiquating thought $CurrentThought");
+    foreach (@{ $CurrentThought->{str_comps} }) {
+      $logger->debug("\tComponent: $_");
+    }
+  }
   while ( my ($comp, $strength) = each %CompStrength) {
     $CompStrength{$comp} *= $DiscountFactor;
   }

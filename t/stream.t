@@ -2,6 +2,8 @@ use Test::More tests => 33;
 use Test::MockObject;
 use blib;
 
+use STestInit;
+
 Test::MockObject->fake_module('SThought');
 
 BEGIN {use_ok('SStream')};
