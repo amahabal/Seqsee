@@ -8,17 +8,19 @@ Abhijit Mahabal
 
 =head1 VERSION
 
-Last Modified: Dec 02, 2004
+Last Modified: Jan 21, 2005
 
 Number : 1
 
-Version : 1
+Version : 2
 
 =head1 The Stream
 
-The stream is the central component of Seqsee. It is implemented in F<SStream.pm> and modules that get loaded thence. Each entry in the stream is an C<SThought>. A special thought is the current thought. 
+The stream is the central component of Seqsee. It is implemented in F<SStream.pm> and modules that get loaded thence. Each entry in the stream is an L<Thought|sdd02>. A special thought is the current thought. 
 
-Thoughts have components, and these can be found using C<< $Thought->components() >>. It is not required that the answer be fixed over time. So, when a thought enters the stream, its components' snapshot is placed in C<< $Thought->{str_comps} >>. This snapshot must be taken just before antiquating the thought and not before. This also means that the same object should not enter the stream twice, but rather we should just recycle the existing object if we try to reenter it.
+Thoughts have halos, and these can be found using C<< $Thought->halo() >>. It is not required that the answer be fixed over time. So, when a thought enters the stream, its halos' snapshot is placed in C<< $Thought->{str_comps} >>. This snapshot must be taken just before antiquating the thought and not before. This also means that the same object should not enter the stream twice, but rather we should just recycle the existing object if we try to reenter it.
+
+Everything entering the stream must be a thought, and support all the methods that are expected of thoughts.
 
 =head1 Variables
 
@@ -30,7 +32,7 @@ The current thought. Can be a thought or undef.
 
 =item C<@Thoughts>
 
-Other non-current thought. The latest amongst these is C<$Thoughts[0]>.
+Other non-current thought. The most recent amongst these is C<$Thoughts[0]>.
 
 =item C<$ThoughtCount>
 
@@ -89,6 +91,10 @@ All of the following may have changed: C<$CurrentThought>, C<@Thoughts>, C<$Thou
 =item C<maybe_expell_thoughts()>
 
 Checks the value of the C<$ThoughtCount>. If it is larger that C<$MaxThoughts> then expells as many thoughts as needed.
+
+=item C<forget_oldest_thought()>
+
+Only called from C<maybe_expell_thoughts()>, it is the helper function that does the expelling.
 
 =item C<recalculate_CompStrength()>
 

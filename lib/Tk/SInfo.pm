@@ -124,6 +124,13 @@ sub bond{
   $self->insert('end', "\n");
 }
 
+sub group{
+  my ($self, $group, $depth) = @_;
+  $self->insert('end', "\t" x $depth);
+  $self->insert('end', $group->{str});
+  $self->insert('end', "\n");
+}
+
 sub history{
   my ($self, $object) = @_;
   $self->head2("History");

@@ -15,6 +15,7 @@ sub run{
 				  );
   if ($obj) {
     $logger->info("Read $obj->{str}") if LOGGING_INFO;
+    $obj->history_add('Read into stream');
     SStream->new_thought($obj);
     $SWorkspace::ReadHead = $obj->{right_edge} + 1;
     $SWorkspace::ReadHead = $SWorkspace::elements_count - 1

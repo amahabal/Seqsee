@@ -9,6 +9,7 @@ use Tk::SStream;
 use Tk::SCoderack;
 use Tk::SStream;
 use Tk::SNet;
+use Tk::Pod;
  
 our $MW;
 our $WS_gui;
@@ -18,6 +19,8 @@ our $CODERACK_gui;
 our $SLIPNET_gui;
 our $CR_SN_top;
 our $MENU;
+
+Tk::Pod->Dir('.', './sdd', './pod');
 
 sub setupGUI{
   # This method creates windows etc...
@@ -170,6 +173,9 @@ sub setup_menu{
   my $j = $i->cascade(-label => 'Who launches...', -tearoff => 0);
   my $k = $i->cascade(-label => '... launched by', -tearoff => 0);
   populate_launching_info($j, $k);
+
+  $i = $MENU->cascade(-label => 'Help', -tearoff => 0);
+  populate_pod($i);
 }
 
 sub display_file{
@@ -235,7 +241,7 @@ sub populate_launching_info{
 			-command => [\&display_launching_info, "Background"]
 		       );
   $launched_by->separator;
-  open(IN, "perl GenCL.pl --info --list|");
+  open(IN, "SCodeConfig.list");
   while (my $in = <IN>) {
     chop($in);
     last unless $in;
@@ -252,6 +258,23 @@ sub populate_launching_info{
 			 );
   }
   close(IN);
+}
+
+sub launch_pod{
+  my ($name)  = @_;
+  $MW->Pod()->configure(-file => $name);
+}
+
+sub populate_pod{
+  my ($menu) = @_;
+  my $sdd = $menu->cascade(-label => "SDD", -tearoff => 0);
+  for (<sdd/*>) {
+    $sdd->command(-label   => $_,
+		  -command => [\&launch_pod, $_] 
+		 );
+  }
+  $menu->separator;
+
 }
 
 1;

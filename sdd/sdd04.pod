@@ -1,6 +1,6 @@
 =head1 NAME
 
-Seqsee Design Doc 4 - Overall Architecture
+Seqsee Design Doc 4 - Codelet System
 
 =head1 AUTHOR
 
@@ -8,9 +8,9 @@ Abhijit Mahabal
 
 =head1 VERSION
 
-Last Modified: Dec 03, 2004
+Last Modified: Jan 21, 2005
 
-Number : 4
+Number : 5
 
 Version : 0
 
@@ -20,11 +20,35 @@ This document describes the codelet system for Seqsee.
 
 =head1 Files
 
-The coderack is implemented in F<SCoderack.pm>. The Codelet class is implemented in F<SCodelet.pm>.
+=over
 
-F<SCF.list> is a plain text file with the names of the code families to load. If a line in this file starts with a C<#> then that line is ignored. Each entry looks like this: C<< SCF::bond_scout >>.  So it is not really a filename.
+=item F<SCoderack.pm> 
+
+implements the Coderack.
+
+=item F<Tk::SCoderack.pm> 
+
+implements the L<GUI|SGUI>
+
+=item F<SCodelet.pm> 
+
+implements the codelets.
+
+=item Codelet Families
+
+=over
+
+=item F<SCF.list>
+
+is a plain text file with the names of the code families to load. If a line in this file starts with a C<#> then that line is ignored. Each entry looks like this: C<< SCF::bond_scout >>.  So it is not really a filename.
+
+=item F<SCF::*.pm>
 
 Each codefamily is implemented in its own file. The codefamily C<bond_scout> is thus implemented in F<SCF/bond_scout.pm> and starts with the line C<< package SCF::bond_scout; >>. It has the method C<run()> in it.
+
+=back
+
+=back
 
 =head1 Variables
 
@@ -63,6 +87,14 @@ The codelet structure for a codelet in SeqSci was an array ref, consisting of th
 =back
 
 We will surely need other attributes later, perhaps something like effective urgency.
+
+=head1 Launching Codelets
+
+A codelet is added to the coderack by the call C<< SApp::post_cc(poster, postee, options) >>, where C<poster> is the name of the poster, and C<postee> is the name of what is being posted. It is not necessary that the posting always happens, or with what urgency: the method post_cc intervenes and probabilistically posts the codelet. The codelet, if posted, will have the extra arguments as a hashref, so that the C<run()> method of the codelet can start: C<< my ($opts) = shift; >>
+
+=head1 Configuring Behaviour
+
+The files F<SCodeConfig.txt> and F<GenCL.pl> together create a file containing perl-code that controls what happens in a call to C<SApp::post_cc>.
 
 =cut
 

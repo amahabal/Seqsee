@@ -1,0 +1,24 @@
+=head1 NAME
+
+Seqsee Design Documents
+
+=head1 AUTHOR
+
+Abhijit Mahabal
+
+=head1 Documents
+
+=over 
+
+=item 00 L<Overall Architecture|sdd00>
+
+=item 01 L<The Stream|sdd01>
+
+=item 02 L<Thoughts|sdd02>
+
+=item 03 L<The Slipnet|sdd03>
+
+=item 04 L<Codelet System|sdd04>
+
+
+=back

@@ -7,8 +7,11 @@ sub MY::postamble{
   return <<"MAKE_FRAG";
 lib/SCodeConfig.pm: SCodeConfig.txt GenCL.pl
 \t\tperl GenCL.pl
+\t\tperl GenCL.pl --info --list > SCodeConfig.list
+\t\tcp lib/SCodeConfig.pm blib/lib/SCodeConfig.pm
 MAKE_FRAG
 }
+
 
 WriteMakefile(
     NAME              => 'Seqsee',
@@ -16,6 +19,7 @@ WriteMakefile(
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1      
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Seqsee.pm', # retrieve abstract from module
-       AUTHOR         => 'Abhijit Mahabal <amahabal@cs.indiana.edu>') : ()),
+       AUTHOR         => 'Abhijit Mahabal <amahabal@cs.indiana.edu>',
+      ) : ()),
 
 );
