@@ -32,6 +32,7 @@ sub run{
   $left_obj->bond_insert($bond);
   $right_obj->bond_insert($bond);
   SWorkspace->bond_insert($bond);
+  SStream->new_thought($bond);
 }
  
 1;

@@ -14,7 +14,7 @@ sub contemplate{
 }
 
 sub spread_activation_from_halo{
-  die "This Should Never Have Been Called. Not Implemented Yet";
+  # XXX Blank implementation currently
 }
 
 sub contemplate_add_descriptors{

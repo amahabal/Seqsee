@@ -22,7 +22,7 @@ sub new{
 		  bflag      => $bflag,
 		  label      => \@labels,
 		  descs      => [],
-		  str        => "$descriptor->{str}##$flag->{str}##$bflag->{str}##@labels",
+		  str        => "$bflag->{str} $flag->{pl_str} @labels $descriptor->{str}",
 		 }, $package;
   } else {
     #print "Descriptors: @{$descriptor}\n";
@@ -40,7 +40,7 @@ sub new{
 		  bflag      => $bflag,
 		  label      => \@labels,
 		  descs      => [],
-		  str        => "$descriptor->[0]{str}#$descriptor->[1]{str}#$descriptor->[2]##$flag->[0]{str}#$flag->[1]{str}##$bflag->{str}##@{$labels[0]}#@{$labels[1]}",
+		  str        => "$bflag->{str} ($flag->[0]{str} @{$labels[0]} $descriptor->[0]{str}) ->  ($flag->[1]{str} @{$labels[1]} $descriptor->[1]{str}) $descriptor->[2]",
 		 }, $package;
   }
 }

@@ -1,0 +1,27 @@
+* Use Tk::Carp for sure
+* Use Tk::Getopt also. Excellent module!
+
+* Perhaps also Tk::FireButton
+
+* possibly Tk::LabFrame( with option -label)
+
+=====================
+* LABELS:
+  Probably a label with an image too :)
+  Useful reliefs: (default/flat) Probably what I'll use most	
+  For image, perhaps 'sunken' will be good
+  -bitmap another useful option; Builtins include qw{error hourglass info questhead question warning TK}
+
+====================
+* BUTTONS:
+   Maybe with icons (see iconic button demo in widget())
+===================
+
+* MessageBoxes should be used more frequently
+  
+======
+* MENUs
+
+
+========
+Learn to use Tk::ConfigSpecs.... could be useful

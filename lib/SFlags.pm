@@ -4,11 +4,13 @@ sub new {
   my $package = shift;
   my $arity   = shift;
   my $str     = shift;
-  bless {arity => $arity, str => $str }, $package; 
+  my $pl_str  = shift;
+  $pl_str ||= $str;
+  bless {arity => $arity, str => $str, pl_str => $pl_str }, $package; 
 }
 
-our $is  = new Dflag(0, "is");
-our $has = new Dflag(1, "has");
+our $is  = new Dflag(0, "is", "are");
+our $has = new Dflag(1, "has", "have");
 
 
 package Bflag;

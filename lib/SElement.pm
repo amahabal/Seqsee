@@ -25,8 +25,4 @@ sub contemplate_add_descriptors{
   # XXX
 }
 
-sub spread_activation_from_halo{
-  # XXX
-}
-
 1;
