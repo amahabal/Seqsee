@@ -25,3 +25,14 @@
 
 ========
 Learn to use Tk::ConfigSpecs.... could be useful
+
+
+===========
+FONTS
+* possibilities:
+  -*-arial black-*-*-*-*-*-*-*-*-*-*-*-*
+  -adobe-courier-bold-r-normal--14-140-75-75-m-90-iso8859-9
+-adobe-helvetica-bold-r-normal--14-100-100-100-p-82-iso8859-1
+-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4
+
+-misc-brushstroke, perhaps?

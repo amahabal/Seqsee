@@ -52,6 +52,8 @@ sub bond_insert{
   } else {
     $bonds_p{$bond} = $bond;
   }
+  print "Bond insert into the workspace\n";
+  $main::WS_gui->GUI_add($bond) if ::GUI;
 }
 
 sub bond_remove{

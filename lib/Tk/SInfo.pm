@@ -31,7 +31,7 @@ sub head{
 }
 
 sub body{
-  my ($self, $line, $indent) = @_;
+  my ($self, $indent, $line) = @_;
   $self->insert('end', "\t" x $indent, 'end', "$line\n");
 }
 
