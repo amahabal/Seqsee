@@ -1,0 +1,14 @@
+define «certain»               1
+define «high»                  0.5
+
+for StartUp :Bundle«all»
+:family«reader»                :prob«=certain»   :urgency«50»
+
+for Background :Bundle«all»
+:family«reader»                :prob«=high»      :urgency«50»
+
+for SThought
+:family«bond_evaluator»        :prob«=certain»   :urgency«50»
+ 
+for bond_evaluator
+:family«group_evaluator»       :prob«=certain»   :urgency«50»
