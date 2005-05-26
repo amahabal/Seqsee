@@ -3,7 +3,9 @@ use ExtUtils::MakeMaker;
 sub MY::postamble{
   return <<"MAKE_FRAG";
 smoke:
+\t\tmake
 \t\tperl util/run-smoke.pl . smoke.html
+\t\tcp smoke.html /u/amahabal/.hyplan/smoke.html
 
 MAKE_FRAG
 }
