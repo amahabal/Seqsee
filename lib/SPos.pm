@@ -9,8 +9,8 @@ sub new{
   return $Memoize{$what} if $Memoize{$what};
   my %args    = @_;
   die "A position must have a number or a string as the first argument to new." unless $what;
-  my $sub = $args{sub} || generate_sub($what);
-  my $self = bless { name => $what, sub => $sub, %args }, $package;
+  my $sub = generate_sub($what); #XXX need option to specify sub at creation time
+  my $self = bless { name => $what, rangesub => $sub, %args }, $package;
   $Memoize{$what} = $self;
   $self;
 }
@@ -29,10 +29,13 @@ sub generate_sub{
     $index = $index - 1 if $index > 0; # convert to 0 based
     return sub {
       my $built_obj = shift;
-      my $subobj = $built_obj->items()->[$index];
-      return undef unless defined $subobj;
-      return $subobj if ref $subobj;
-      return SBuiltObj->new()->set_items($subobj);
+      if ($index < 0) {
+	my $eff_index = scalar(@{$built_obj->items}) + $index;
+	return [ $eff_index ] unless $eff_index < 0; # out of range o/w
+	return [scalar(@{$built_obj->items})]; # return an out-of-range value
+      } else {
+	return [ $index ];
+      }
     }
   }
 

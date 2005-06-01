@@ -1,4 +1,4 @@
-use Test::More tests => 35;
+use Test::More tests => 38;
 use Test::Exception;
 use Test::Deep;
 use blib;
@@ -39,8 +39,25 @@ isa_ok($pos_second, "SPos");
 my $pos_last_butone = new SPos(-2);
 isa_ok($pos_last_butone, "SPos");
 
+my $pos_peak = new SPos "peak";
+isa_ok($pos_peak, "SPos");
+
+
 my $sub_object;
 
+
+RANGE_GIVEN_POSITION: {
+  my $range;
+  $range = $bo1->range_given_position($pos_second);
+  cmp_deeply($range, [1], "second index okay");
+  $range = $bo1->range_given_position($pos_last);
+  cmp_deeply($range, [3], "last index okay");
+ SKIP: {
+    skip "missing named positions", 1;
+    $range = $bo3->range_given_position($pos_peak);
+    cmp_deeply($range, [3], "last index okay");
+  }
+}
 
 ASCENDING: {
   my $count = 0;
@@ -77,6 +94,7 @@ MOUNTAIN: {
     cmp_deeply($sub_object->items, [$pair->[1]], "mountain 3 6, subobj test $count");
   }
 
+
   $subobj = $bo_small->find_at_position($pos_second);
   ok(not(defined $subobj));
 
@@ -85,8 +103,6 @@ MOUNTAIN: {
 
 }
 
-my $pos_peak = new SPos "peak";
-isa_ok($pos_peak, "SPos");
 
 PEAK: {
  SKIP: {
