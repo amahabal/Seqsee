@@ -1,4 +1,4 @@
-use Test::More tests=> 15;
+use Test::More tests=> 16;
 use Test::Exception;
 use Test::Deep;
 use blib;
@@ -36,4 +36,13 @@ SUBOBJ_GIVEN_RANGE: {
     $so = $bo->subobj_given_range([1, 7]);
     ok(not(defined $so));
   }
+}
+
+
+SPLICING: {
+  my $bo = SBuiltObj->new(7, 8, 9, 10, 11);
+
+  $bo->splice(2, 2, 4, 5, 6);
+  cmp_deeply($bo->items, [7, 8, 4, 5, 6, 11]);
+
 }

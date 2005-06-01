@@ -55,4 +55,26 @@ sub get_position_finder{ #XXX should really deal with the category of the built 
   return $sub;
 }
 
+sub splice{
+  my $self = shift;
+  my $from = shift;
+  my $len = shift;
+  my $items = $self->{items};
+  splice(@$items, $from, $len, @_);
+  $self;
+}
+
+sub apply_blemish_at{
+  my ($self, $blemish, $position) = @_;
+  my $range = $self->range_given_position($position);
+  die "position $position undefined for $self" unless $range;
+  # XXX should check that range is contiguous....
+  my $subobj = $self->subobj_given_range($range);
+  my $blemished = $blemish->blemish($subobj);
+  my $range_start = $range->[0];
+  my $range_length = scalar(@$range);
+  $self->splice($range_start, $range_length, $blemished);
+  $self;
+}
+
 1;

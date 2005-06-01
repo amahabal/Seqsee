@@ -1,17 +1,13 @@
-use Test::More tests => 5;
+use Test::More tests => 3;
 use Test::Exception;
 use Test::Deep;
 use blib;
 
 use SBuiltObj;
-use SBindings;
-use SCat;
-
+use SPos;
 use SBlemish;
-use SUtil;
 
 my $bl = new SBlemish;
-isa_ok($bl, "SBlemish");
 
 $bl->{blemisher} = sub {
   my ($self, $builtobj, %args) = @_;
@@ -34,15 +30,24 @@ $bl->{unblemisher} = sub {
   $new_obj;
 };
 
-my $obj = SBuiltObj->new()->set_items(1, 2, 1, 2);
-my $more_blemished = $bl->blemish($obj);
-my $unblemished    = $bl->unblemish($obj);
 
+SECOND: {
+  my $pos = new SPos 2;
+  
+  my $obj = new SBuiltObj(4, 5, 6, 7);
+  
+  $obj2 = $obj->apply_blemish_at($bl, $pos);
+  cmp_deeply([$obj->flatten], [4, 5, 5, 6, 7]);
+  
+ TODO: {
+    local $TODO = "should use a clone";
+    cmp_ok($obj, 'ne', $obj2);
+  }
+}
 
-isa_ok($more_blemished, "SBuiltObj");
-isa_ok($unblemished, "SBuiltObj");
-cmp_deeply($more_blemished->items, [qw{1 2 1 2 1 2 1 2}]);
-cmp_deeply($unblemished->items, [1, 2]);
-
-
-#XXX there should also be some test to check that the two new objects are marked for their origins.
+LAST_BUT_ONE: {
+  my $pos = new SPos -2;  
+  my $obj = new SBuiltObj(4, 5, 6, 7);
+  $obj2 = $obj->apply_blemish_at($bl, $pos);
+  cmp_deeply([$obj->flatten], [4, 5, 6, 6, 7]);
+}
