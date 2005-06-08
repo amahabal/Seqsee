@@ -12,6 +12,7 @@ $cat->{builder} = sub{
   my $ret = new SBuiltObj;
   $ret->set_items($args{foot} .. $args{peak}, 
 		  reverse($args{foot} .. $args{peak} - 1));
+  $ret->add_cat($cat, %args);
   $ret;
 };
 
@@ -32,5 +33,14 @@ $cat->{instancer} = sub {
   my $bindings = new SBindings(foot => $items[0], peak => $mid);
   $bindings;
 };
+
+$cat->{position_finder}{peak} = 
+  sub {
+    my $bo = shift;
+    my $items = $bo->items;
+    my $count = scalar(@$items);
+    my $ret = ($count - 1) / 2;
+    return [ $ret ];
+  };
 
 1;

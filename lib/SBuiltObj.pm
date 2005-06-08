@@ -80,9 +80,11 @@ sub subobj_given_range{
 
 sub get_position_finder{ #XXX should really deal with the category of the built object, and I have not dealt with that yet....
   my ($self, $str) = @_;
-  my $sub = $self->{position_finder}{$str};
-  die "Could not find any way for finding the position '$str' for $self" unless $sub;
-  return $sub;
+  my @cats = $self->get_cats();
+  my @cats_with_position = grep { $_->has_named_position($str) } @cats;
+  die "Could not find any way for finding the position '$str' for $self" unless @cats_with_position;
+  # XXX what if multiple categories have a position of this name??
+  return $cats_with_position[0]->{position_finder}{$str};
 }
 
 sub splice{

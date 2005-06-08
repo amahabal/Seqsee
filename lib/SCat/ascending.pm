@@ -11,6 +11,7 @@ $cat->{builder} = sub {
   die "need end"   unless $args{end};
   my $ret = new SBuiltObj;
   $ret->set_items($args{start} .. $args{end});
+  $ret->add_cat($cat, %args);
   $ret;
 };
 

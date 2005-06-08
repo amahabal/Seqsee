@@ -60,4 +60,9 @@ sub subcat_assuming{
   $new_cat;
 }
 
+sub has_named_position{
+  my ($self, $str) = @_;
+  return (exists $self->{position_finder}{$str});
+}
+
 1;

@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 BEGIN { 
-  plan tests => 14;
+  plan tests => 16;
 }
 
 use SBuiltObj;
@@ -19,6 +19,7 @@ BUILDING: {
   my $ret;
   $ret = $cat->build(foot => 1, peak => 5);
   isa_ok($ret, "SBuiltObj");
+  instance_of_cat_ok $ret, $cat;
   cmp_deeply($ret->items, [qw{1 2 3 4 5 4 3 2 1}]);
 
   $ret = $cat->build(foot => 4, peak => 5);
@@ -28,6 +29,7 @@ BUILDING: {
   cmp_deeply($ret->items, [qw{5}]);
 
   $ret = $cat->build(foot => 6, peak => 5);
+  instance_of_cat_ok $ret, $cat;
   cmp_deeply($ret->items, [qw{}]);
   
 }

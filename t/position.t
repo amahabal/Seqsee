@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN {  plan tests => 38; }
+BEGIN {  plan tests => 39; }
 
 use SBuiltObj;
 use SCat;
@@ -52,11 +52,9 @@ RANGE_GIVEN_POSITION: {
   cmp_deeply($range, [1], "second index okay");
   $range = $bo1->range_given_position($pos_last);
   cmp_deeply($range, [3], "last index okay");
- SKIP: {
-    skip "missing named positions", 1;
-    $range = $bo3->range_given_position($pos_peak);
-    cmp_deeply($range, [3], "last index okay");
-  }
+
+  $range = $bo3->range_given_position($pos_peak);
+  cmp_deeply($range, [3], "last index okay");
 }
 
 ASCENDING: {
@@ -105,10 +103,9 @@ MOUNTAIN: {
 
 
 PEAK: {
- SKIP: {
-    skip "need the concept of 'the category of a built object'", 1;
-    $subobj = $bo3->find_at_position($pos_peak);
-    cmp_deeply($sub_object->items, [6], "mountain 3 6, subobj peak");  
-  }
+  my $range = $bo3->range_given_position($pos_peak);
+  cmp_deeply $range, [3];
+  $sub_object = $bo3->find_at_position($pos_peak);
+  cmp_deeply($sub_object->items, [6], "mountain 3 6, subobj peak");  
 }
  
