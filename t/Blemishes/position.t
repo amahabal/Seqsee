@@ -1,7 +1,6 @@
-use Test::More tests => 3;
-use Test::Exception;
-use Test::Deep;
 use blib;
+use Test::Seqsee;
+BEGIN { plan tests => 3; }
 
 use SBuiltObj;
 use SPos;

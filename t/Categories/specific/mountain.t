@@ -1,7 +1,8 @@
-use Test::More tests => 14;
-use Test::Exception;
-use Test::Deep;
 use blib;
+use Test::Seqsee;
+BEGIN { 
+  plan tests => 14;
+}
 
 use SBuiltObj;
 use SBindings;
@@ -43,8 +44,9 @@ IS_INSTANCE: {
   is($bindings->{peak}, 5);
   
   $bindings = $cat->is_instance(5, 6);
-  ok(not(defined $bindings));
+  undef_ok($bindings);
 
   $bindings = $cat->is_instance();
   isa_ok($bindings, "SBindings");
 }
+

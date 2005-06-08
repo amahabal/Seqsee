@@ -19,6 +19,12 @@ sub new{
 sub add_attributes{
   my $self = shift;
   $self->{att}->insert(@_);
+  $self;
+}
+
+sub has_attribute{
+  my ($self, $what) = @_;
+  $self->{att}->has($what);
 }
 
 sub build{

@@ -1,7 +1,7 @@
-use Test::More tests => 38;
-use Test::Exception;
-use Test::Deep;
 use blib;
+use Test::Seqsee;
+BEGIN {  plan tests => 38; }
+
 use SBuiltObj;
 use SCat;
 

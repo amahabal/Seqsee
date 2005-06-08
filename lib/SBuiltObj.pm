@@ -4,6 +4,8 @@ sub new{
   my $package = shift;
   my $self = bless {}, $package;
   $self->set_items(@_);
+  $self->{cats} = {};
+  $self;
 }
 
 sub set_items{
@@ -14,6 +16,33 @@ sub set_items{
 
 sub items{
   shift->{items};
+}
+
+sub add_cat{
+  my $self = shift;
+  my $cat  = shift;
+  unless (UNIVERSAL::isa($cat, "SCat")) {
+    die "The argument to add_cat must be a category";
+  }
+  my %bindings = @_;
+  foreach (keys %bindings) {
+    die "Category $cat does not take the attribute $_" unless
+      $cat->has_attribute($_);
+  }
+  $SCat::Str2Cat{$cat} = $cat;
+  $self->{cats}{$cat} = \%bindings;
+  $self;
+}
+
+sub get_cat_bindings{
+  my ($self, $cat) = @_;
+  return undef unless exists $self->{cats}{$cat};
+  $self->{cats}{$cat};
+}
+
+sub get_cats{
+  my $self = shift;
+  map { $SCat::Str2Cat{$_} } keys %{$self->{cats}};
 }
 
 sub flatten{
@@ -76,5 +105,7 @@ sub apply_blemish_at{
   $self->splice($range_start, $range_length, $blemished);
   $self;
 }
+
+
 
 1;

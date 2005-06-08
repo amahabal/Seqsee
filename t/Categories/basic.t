@@ -1,7 +1,7 @@
-use Test::More tests=> 21;
-use Test::Exception;
-use Test::Deep;
 use blib;
+use Test::Seqsee;
+BEGIN { plan tests=> 21; }
+
 use SBuiltObj;
 use SBindings;
 
@@ -48,7 +48,7 @@ is($bindings->{start}, 3, "Bindings correct for 3 4 5 6");
 is($bindings->{end}, 6, "Bindings correct for 3 4 5 6");
 
 $bindings = $cat->is_instance(3, 6, 7);
-ok(not(defined $bindings));
+undef_ok($bindings);
 
 my $cat2 = $cat->subcat_assuming(start => 1);
 dies_ok  { $ret = $cat2->build() }         "Needs the missing arguments";
@@ -66,4 +66,5 @@ is($bindings->{start}, 1);
 is($bindings->{end}, 6);
 
 $bindings = $cat2->is_instance(3, 4, 5);
-ok(not(defined $bindings));
+undef_ok($bindings);
+

@@ -1,7 +1,7 @@
-use Test::More tests => 5;
-use Test::Exception;
-use Test::Deep;
 use blib;
+use Test::Seqsee;
+
+BEGIN { plan tests => 5; }
 
 use SBuiltObj;
 use SBindings;
