@@ -3,7 +3,7 @@ use Test::Seqsee;
 
 use SCat;
 
-BEGIN { plan tests => 24; }
+BEGIN { plan tests => 32; }
 
 
 
@@ -18,6 +18,23 @@ NEW: {
   my $bo2 = new SBuiltObj(3, 7, 9, 11);
   isa_ok($bo2, "SBuiltObj");
   cmp_deeply($bo2->items, [3, 7, 9, 11]);
+
+ CLONE: {
+    my $bo2 = $bo->clone;
+    isa_ok $bo2, "SBuiltObj";
+    cmp_deeply $bo2->items, [1, 2, 3];
+  }
+  
+ CLONE_NEW: {
+    my $bo3 = new SBuiltObj($bo, 5, $bo);
+    isa_ok $bo3, "SBuiltObj";
+    my @items = @{ $bo3->items };
+    isa_ok $items[0], "SBuiltObj";
+    cmp_ok($items[0], 'ne', $bo);
+    cmp_ok($items[2], 'ne', $bo);
+    cmp_ok($items[0], 'ne', $items[2]);
+    cmp_deeply([$bo3->flatten], [1, 2, 3, 5, 1, 2, 3]);
+  }
 }
 
 CATS: {
@@ -30,8 +47,8 @@ CATS: {
   dies_ok { $bo->add_cat($cat2, foo => 3)} "if bindings present, they must be attributes";
   lives_ok { $bo->add_cat($cat2, start => 3)} "add_cat okay if bindings really are attributes";
   
-  my @cats = $bo->get_cats();
-  cmp_deeply(\@cats, [$cat2, $cat1]);
+  my @cats = sort $bo->get_cats();
+  cmp_deeply(\@cats, [sort($cat1, $cat2)]);
   undef_ok( $bo->get_cat_bindings($cat2)->{foo} );
   is( $bo->get_cat_bindings($cat2)->{start}, 3 );
 

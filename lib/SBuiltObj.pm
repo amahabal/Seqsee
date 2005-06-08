@@ -3,7 +3,8 @@ package SBuiltObj;
 sub new{
   my $package = shift;
   my $self = bless {}, $package;
-  $self->set_items(@_);
+  my @items = map { ref($_) ? $_->clone : $_ } @_;
+  $self->set_items(@items);
   $self->{cats} = {};
   $self;
 }
@@ -95,6 +96,7 @@ sub splice{
 
 sub apply_blemish_at{
   my ($self, $blemish, $position) = @_;
+  $self = $self->clone;
   my $range = $self->range_given_position($position);
   die "position $position undefined for $self" unless $range;
   # XXX should check that range is contiguous....
@@ -106,6 +108,18 @@ sub apply_blemish_at{
   $self;
 }
 
+sub clone{
+  my $self = shift;
+  my $new_obj = new SBuiltObj;
+  my $items = $new_obj->{items};
+  foreach (@{$self->{items}}) {
+    push (@$items, ref($_) ? $_->clone() : $_ ); 
+  }
+  while (my($k, $v) = each %{$self->{cats}}) {
+    $new_obj->{cats}{$k} = $v; #XXX should I clone this???
+  }
+  $new_obj;
+}
 
 
 1;

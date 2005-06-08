@@ -36,17 +36,14 @@ SECOND: {
   my $obj = new SBuiltObj(4, 5, 6, 7);
   
   $obj2 = $obj->apply_blemish_at($bl, $pos);
-  cmp_deeply([$obj->flatten], [4, 5, 5, 6, 7]);
+  cmp_deeply([$obj2->flatten], [4, 5, 5, 6, 7]);
   
- TODO: {
-    local $TODO = "should use a clone";
-    cmp_ok($obj, 'ne', $obj2);
-  }
+  cmp_ok($obj, 'ne', $obj2);
 }
 
 LAST_BUT_ONE: {
   my $pos = new SPos -2;  
   my $obj = new SBuiltObj(4, 5, 6, 7);
   $obj2 = $obj->apply_blemish_at($bl, $pos);
-  cmp_deeply([$obj->flatten], [4, 5, 6, 6, 7]);
+  cmp_deeply([$obj2->flatten], [4, 5, 6, 6, 7]);
 }
