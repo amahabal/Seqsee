@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests=> 21; }
+BEGIN { plan tests=> 12; }
 
 use SBuiltObj;
 use SBindings;
@@ -48,23 +48,5 @@ is($bindings->{start}, 3, "Bindings correct for 3 4 5 6");
 is($bindings->{end}, 6, "Bindings correct for 3 4 5 6");
 
 $bindings = $cat->is_instance(3, 6, 7);
-undef_ok($bindings);
-
-my $cat2 = $cat->subcat_assuming(start => 1);
-dies_ok  { $ret = $cat2->build() }         "Needs the missing arguments";
-lives_ok { $ret = $cat2->build(end => 4) } "all arguments present";
-
-isa_ok($ret, "SBuiltObj", "Built object is a SBuiltObj");
-cmp_deeply($ret->items, [1,2,3,4], "derived built the right object");
-
-$bindings = $cat2->is_instance($ret);
-isa_ok($bindings, "SBindings");
-is($bindings->{end}, 4);
-
-$bindings = $cat2->is_instance(1, 2, 3, 4, 5, 6);
-is($bindings->{start}, 1);
-is($bindings->{end}, 6);
-
-$bindings = $cat2->is_instance(3, 4, 5);
 undef_ok($bindings);
 
