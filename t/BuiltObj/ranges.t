@@ -15,7 +15,7 @@ SUBOBJ_GIVEN_RANGE: {
 	       ) {
     $count++;
     my @so = $bo->subobj_given_range($pair->[0]);
-    cmp_deeply(\@so, $pair->[1], "subobj given range @{$pair->[0]}: deep comp");
+    cmp_deeply([map { $_->{'m'} } @so], $pair->[1], "subobj given range @{$pair->[0]}: deep comp");
   }
  OUT_OF_RANGE: {
     dies_ok { $bo->subobj_given_range([7]) };

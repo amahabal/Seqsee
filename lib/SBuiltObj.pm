@@ -1,9 +1,10 @@
 package SBuiltObj;
+use SInt;
 
 sub new{
   my $package = shift;
   my $self = bless {}, $package;
-  my @items = map { ref($_) ? $_->clone : $_ } @_;
+  my @items = map { ref($_) ? $_->clone : SInt->new($_) } @_;
   $self->set_items(@items);
   $self->{cats} = {};
   $self;
@@ -20,7 +21,7 @@ sub new_deep{
 	$_->clone;
       }
     } else {
-      $_
+      SInt->new($_)
     }
   } @_;
   $self->set_items(@items);
@@ -30,7 +31,7 @@ sub new_deep{
 
 sub set_items{
   my $self = shift;
-  $self->{items} = [@_];
+  $self->{items} = [map { (ref $_) ? $_ : SInt->new($_) } @_];
   $self;
 }
 
@@ -166,23 +167,36 @@ sub show_shallow{
   }
 }
 
-sub compare_deep{ #XXX need tests for this...
+sub compare_deep{
   my ($self, $other) = @_;
-  return undef unless ref($other);
-  my $self_items = $self->items;
+  return undef if UNIVERSAL::isa($other, "SInt");
+  my $self_items  = $self->items;
   my $other_items = $other->items;
   return undef unless scalar(@$self_items) == scalar(@$other_items);
   my $count = scalar(@$self_items);
-  for my $i (0 .. $count - 1) {
-    if (ref $self_items->[$i]) {
-      return undef unless $self_items->[$i]->compare_deep($other_items->[$i]);
-    } elsif (ref $other_items->[$i]) {
-      return undef;
-    } else {
-      return undef unless $self_items->[$i] eq $other_items->[$i];
-    }
+  for (my $i=0; $i < $count; $i++) {
+    return undef unless $self_items->[$i]->compare_deep($other_items->[$i]);
   }
   return 1;
+}
+
+sub structure_is{ # To be called by structure_ok
+  my ($self, $potential_struct) = @_;
+  my @struct_parts = @$potential_struct;
+  my @items = @{$self->items};
+  unless (scalar(@items) == scalar(@struct_parts)) {
+    return 0;
+  }
+  for (my $i = 0; $i < scalar(@items); $i++) {
+    return 0 unless $items[$i]->structure_is($struct_parts[$i]);
+  }
+  return 1;
+}
+
+sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
+  my ($self, $potential_struct, $msg ) = @_;
+  $msg ||= "structure of $self";
+  Test::More::ok($self->structure_is($potential_struct), $msg);
 }
 
 1;

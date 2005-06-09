@@ -18,7 +18,7 @@ my $cat_dsc = $SCat::descending::descending;
 my $cat_mnt = $SCat::mountain::mountain;
 
 my $bo1 = $cat_asc->build(start => 5, end => 8);
-is(($bo1->items)->[2],  7, "basic sanity");
+$bo1->structure_ok ([5, 6, 7, 8]);
 
 my $bo2 = $cat_dsc->build(start => 9, end => 1);
 my $bo3 = $cat_mnt->build(foot => 3, peak => 6);
@@ -64,7 +64,7 @@ ASCENDING: {
 	       ) {
     my @sub_objects = $bo1->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply(\@sub_objects, [$pair->[1]], "ascending 5 8, subobj test $count");
+    cmp_deeply([map { $_->{'m'} } @sub_objects], [$pair->[1]], "ascending 5 8, subobj test $count");
   }
 }
 
@@ -75,7 +75,7 @@ DESCENDING: {
 	       ) {
     my @sub_objects = $bo2->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply(\@sub_objects, [$pair->[1]], "descending 9 1, subobj test $count");
+    cmp_deeply([map { $_->{'m'} } @sub_objects], [$pair->[1]], "descending 9 1, subobj test $count");
   }
 }
 
@@ -86,7 +86,7 @@ MOUNTAIN: {
 	       ) {
     my @sub_objects = $bo3->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply(\@sub_objects, [$pair->[1]], "mountain 3 6, subobj test $count");
+    cmp_deeply([map { $_->{'m'} }@sub_objects], [$pair->[1]], "mountain 3 6, subobj test $count");
   }
 
 
@@ -101,6 +101,6 @@ PEAK: {
   my $range = $bo3->range_given_position($pos_peak);
   cmp_deeply $range, [3];
   @sub_objects = $bo3->find_at_position($pos_peak);
-  cmp_deeply(\@sub_objects, [6], "mountain 3 6, subobj peak");  
+  cmp_deeply([map { $_->{'m'} } @sub_objects], [6], "mountain 3 6, subobj peak");  
 }
  

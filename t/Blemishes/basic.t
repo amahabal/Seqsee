@@ -41,8 +41,8 @@ my $unblemished    = $bl->unblemish($obj);
 
 isa_ok($more_blemished, "SBuiltObj");
 isa_ok($unblemished, "SBuiltObj");
-cmp_deeply($more_blemished->items, [qw{1 2 1 2 1 2 1 2}]);
-cmp_deeply($unblemished->items, [1, 2]);
+cmp_deeply([$more_blemished->flatten], [qw{1 2 1 2 1 2 1 2}]);
+cmp_deeply([$unblemished->flatten], [1, 2]);
 
 
 #XXX there should also be some test to check that the two new objects are marked for their origins.

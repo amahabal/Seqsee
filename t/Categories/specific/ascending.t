@@ -17,11 +17,11 @@ BUILDING: {
   my $ret;
   $ret = $cat->build(start => 2, end => 5);
   isa_ok($ret, "SBuiltObj");
-  cmp_deeply($ret->items, [2, 3, 4, 5], "start => 2, end => 5");
+  cmp_deeply([$ret->flatten], [2, 3, 4, 5], "start => 2, end => 5");
   $ret = $cat->build(start => 2, end => 2);
-  cmp_deeply($ret->items, [2], "start => 2, end => 2");
+  cmp_deeply([$ret->flatten], [2], "start => 2, end => 2");
   $ret = $cat->build(start => 2, end => 1);
-  cmp_deeply($ret->items, [], "start => 2, end => 1");
+  cmp_deeply([$ret->flatten], [], "start => 2, end => 1");
 }
 
 IS_INSTANCE: {

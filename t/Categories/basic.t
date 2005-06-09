@@ -23,10 +23,10 @@ $cat->{instancer} = sub {
   my @items =  @{$builtobj->items};
   my $len = scalar(@items);
   for my $i (0 .. $len - 2) {
-    return undef unless $items[$i+1] == $items[$i] + 1;
+    return undef unless $items[$i+1]->{'m'} == $items[$i]->{'m'} + 1;
   }
-  return SBindings->new(start => $items[0],
-			end => $items[-1]
+  return SBindings->new(start => $items[0]->{'m'},
+			end => $items[-1]->{'m'}
 		       );
 };
 
@@ -37,7 +37,7 @@ dies_ok  {        $cat->build(start => 1) } "Needs the arguments";
 lives_ok { $ret = $cat->build(start => 1, end => 3) } "Needs the arguments";
 
 isa_ok($ret, "SBuiltObj", "Built object is a SBuiltObj");
-cmp_deeply($ret->items, [1,2,3], "built the right object");
+cmp_deeply([$ret->flatten], [1,2,3], "built the right object");
 
 my $bindings = $cat->is_instance($ret);
 isa_ok($bindings, "SBindings");

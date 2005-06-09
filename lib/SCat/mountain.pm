@@ -22,15 +22,15 @@ $cat->{instancer} = sub {
   return new SBindings() unless @items;
   my $len = scalar(@items);
   return undef if $len % 2 == 0;
-  my $mid = $items[ ($len - 1) / 2 ];
-  my $obj = $cat->build(foot => $items[0],
+  my $mid = $items[ ($len - 1) / 2 ]->{'m'};
+  my $obj = $cat->build(foot => $items[0]->{'m'},
 			peak => $mid
 		       );
   my $builtitems = $obj->items;
   for my $i (0 .. $len - 1) {
-    return undef unless $builtitems->[$i] == $items[$i];
+    return undef unless $builtitems->[$i]->compare_deep($items[$i]);
   }
-  my $bindings = new SBindings(foot => $items[0], peak => $mid);
+  my $bindings = new SBindings(foot => $items[0]->{'m'}, peak => $mid);
   $bindings;
 };
 

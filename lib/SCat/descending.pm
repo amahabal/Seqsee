@@ -21,10 +21,10 @@ $cat->{instancer} = sub{
   my $len = scalar(@items);
   return SBindings->new() unless @items;
   for my $i (0 .. $len - 2) {
-    return undef unless $items[$i+1] == $items[$i] - 1;
+    return undef unless $items[$i+1]->{'m'} == $items[$i]->{'m'} - 1;
   }
-  return SBindings->new(start => $items[0],
-			end => $items[-1]
+  return SBindings->new(start => $items[0]->{'m'},
+			end => $items[-1]->{'m'}
 		       );
 };
 

@@ -23,7 +23,7 @@ Numbered: {
   my $pos = new SPos 1;
   my $bo_derived = $bo->apply_blemish_at($bl, $pos);
   cmp_deeply [$bo_derived->flatten], [2, 2, 3, 4, 5, 4, 3, 2];
-  cmp_deeply $bo_derived->items()->[0]->items, [2, 2], "deep structure okay";
+  cmp_deeply [$bo_derived->items()->[0]->flatten],[2, 2], "deep structure okay";
   is scalar(@{$bo_derived->items}), 7, "deep structure okay";
 }
 
@@ -31,7 +31,7 @@ Named: {
   my $pos = new SPos "peak";
   my $bo_derived = $bo->apply_blemish_at($bl, $pos);
   cmp_deeply [$bo_derived->flatten], [2, 3, 4, 5, 5, 4, 3, 2];
-  cmp_deeply $bo_derived->items()->[3]->items, [5, 5], "deep structure okay";
+  cmp_deeply [$bo_derived->items()->[3]->flatten], [5, 5], "deep structure okay";
   is scalar(@{$bo_derived->items}), 7, "deep structure okay";
 }
 
