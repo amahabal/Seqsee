@@ -81,20 +81,16 @@ sub range_given_position{
   return $position->{rangesub}->($self);
 }
 
-sub subobj_given_range{
+sub subobj_given_range{ # Name should be changed!
   my ($self, $range) = @_;
   my @ret;
   my $items = $self->items;
   for (@$range) {
     my $what = $items->[$_];
-    return undef if not defined $what;
+    die "out of range" if not defined $what;
     push @ret, $what;
   }
-  if (scalar(@ret) == 1) {
-    return $ret[0] if ref $ret[0];
-    return SBuiltObj->new($ret[0]);
-  }
-  return SBuiltObj->new(@ret);
+  @ret;
 }
 
 sub get_position_finder{ #XXX should really deal with the category of the built object, and I have not dealt with that yet....
@@ -121,8 +117,11 @@ sub apply_blemish_at{ # Assumption: position returns a single item
   my $range = $self->range_given_position($position);
   die "position $position undefined for $self" unless $range;
   # XXX should check that range is contiguous....
-  my $subobj = $self->subobj_given_range($range);
-  my $blemished = $blemish->blemish(@{$subobj->items});
+  my @subobjs = $self->subobj_given_range($range);
+  if (@subobjs >= 2) {
+    die "applying blemished over a range longer than 1 not yet implemented";
+  }
+  my $blemished = $blemish->blemish($subobjs[0]);
   #$blemished->show();
   my $range_start = $range->[0];
   my $range_length = scalar(@$range);

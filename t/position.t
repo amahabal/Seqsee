@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN {  plan tests => 39; }
+BEGIN {  plan tests => 27; }
 
 use SBuiltObj;
 use SCat;
@@ -62,10 +62,9 @@ ASCENDING: {
   for my $pair ([$pos_first, 5], [$pos_second, 6],
 		[$pos_last_butone, 7], [$pos_last, 8]
 	       ) {
-    $sub_object = $bo1->find_at_position($pair->[0]);
-    isa_ok($sub_object, "SBuiltObj");
+    my @sub_objects = $bo1->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply($sub_object->items, [$pair->[1]], "ascending 5 8, subobj test $count");
+    cmp_deeply(\@sub_objects, [$pair->[1]], "ascending 5 8, subobj test $count");
   }
 }
 
@@ -74,10 +73,9 @@ DESCENDING: {
   for my $pair ([$pos_first, 9], [$pos_second, 8],
 		[$pos_last_butone, 2], [$pos_last, 1]
 	       ) {
-    $sub_object = $bo2->find_at_position($pair->[0]);
-    isa_ok($sub_object, "SBuiltObj");
+    my @sub_objects = $bo2->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply($sub_object->items, [$pair->[1]], "descending 9 1, subobj test $count");
+    cmp_deeply(\@sub_objects, [$pair->[1]], "descending 9 1, subobj test $count");
   }
 }
 
@@ -86,18 +84,15 @@ MOUNTAIN: {
   for my $pair ([$pos_first, 3], [$pos_second, 4],
 		[$pos_last_butone, 4], [$pos_last, 3]
 	       ) {
-    $sub_object = $bo3->find_at_position($pair->[0]);
-    isa_ok($sub_object, "SBuiltObj");
+    my @sub_objects = $bo3->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply($sub_object->items, [$pair->[1]], "mountain 3 6, subobj test $count");
+    cmp_deeply(\@sub_objects, [$pair->[1]], "mountain 3 6, subobj test $count");
   }
 
 
-  $subobj = $bo_small->find_at_position($pos_second);
-  ok(not(defined $subobj));
+  dies_ok { $bo_small->find_at_position($pos_second) };
 
-  $subobj = $bo_small->find_at_position($pos_last_butone);
-  ok(not(defined $subobj), "not autovivified");
+  dies_ok { $bo_small->find_at_position($pos_last_butone) };
 
 }
 
@@ -105,7 +100,7 @@ MOUNTAIN: {
 PEAK: {
   my $range = $bo3->range_given_position($pos_peak);
   cmp_deeply $range, [3];
-  $sub_object = $bo3->find_at_position($pos_peak);
-  cmp_deeply($sub_object->items, [6], "mountain 3 6, subobj peak");  
+  @sub_objects = $bo3->find_at_position($pos_peak);
+  cmp_deeply(\@sub_objects, [6], "mountain 3 6, subobj peak");  
 }
  
