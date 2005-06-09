@@ -3,7 +3,7 @@ use Test::Seqsee;
 
 use SCat;
 
-BEGIN { plan tests => 32; }
+BEGIN { plan tests => 37; }
 
 
 
@@ -35,6 +35,17 @@ NEW: {
     cmp_ok($items[0], 'ne', $items[2]);
     cmp_deeply([$bo3->flatten], [1, 2, 3, 5, 1, 2, 3]);
   }
+}
+
+NEW_DEEP: {
+  my $bo  = new_deep SBuiltObj(1, 2, 3);
+  my $bo2 = new_deep SBuiltObj([1, 2], 3);
+  my $bo3 = new_deep SBuiltObj(1, [2, 3], $bo, $bo2);
+  cmp_deeply [$bo3->flatten], [qw{1 2 3 1 2 3 1 2 3}];
+  is scalar(@{$bo->items}), 3;
+  is scalar(@{$bo2->items}), 2;
+  is scalar(@{$bo3->items}), 4;
+  is $bo3->items()->[3]->items()->[0]->items()->[1], 2;
 }
 
 CATS: {

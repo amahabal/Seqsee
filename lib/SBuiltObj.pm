@@ -9,6 +9,25 @@ sub new{
   $self;
 }
 
+sub new_deep{
+  my $package = shift;
+  my $self = bless {}, $package;
+  my @items = map { 
+    if (ref $_) {
+      if (ref($_) eq 'ARRAY') {
+	$package->new_deep(@$_);
+      } else {
+	$_->clone;
+      }
+    } else {
+      $_
+    }
+  } @_;
+  $self->set_items(@items);
+  $self->{cats} = {};
+  $self;
+}
+
 sub set_items{
   my $self = shift;
   $self->{items} = [@_];
@@ -96,17 +115,19 @@ sub splice{
   $self;
 }
 
-sub apply_blemish_at{
+sub apply_blemish_at{ # Assumption: position returns a single item
   my ($self, $blemish, $position) = @_;
   $self = $self->clone;
   my $range = $self->range_given_position($position);
   die "position $position undefined for $self" unless $range;
   # XXX should check that range is contiguous....
   my $subobj = $self->subobj_given_range($range);
-  my $blemished = $blemish->blemish($subobj);
+  my $blemished = $blemish->blemish(@{$subobj->items});
+  #$blemished->show();
   my $range_start = $range->[0];
   my $range_length = scalar(@$range);
   $self->splice($range_start, $range_length, $blemished);
+  #$self->show;
   $self;
 }
 
@@ -123,5 +144,46 @@ sub clone{
   $new_obj;
 }
 
+sub show{
+  my $self = shift;
+  print "Showing the structure of $self:\n";
+  print "\nItems:\n";
+  foreach (@{$self->items}) {
+    print "\t$_\n";
+    if (ref $_) {
+      $_->show_shallow(2);
+    }
+  }
+}
+
+sub show_shallow{
+  my ($self, $depth) = @_;
+  foreach (@{$self->items}) {
+    print "\t" x $depth;
+    print "$_\n";
+    if (ref $_) {
+      $_->show_shallow($depth + 1);
+    }
+  }
+}
+
+sub compare_deep{ #XXX need tests for this...
+  my ($self, $other) = @_;
+  return undef unless ref($other);
+  my $self_items = $self->items;
+  my $other_items = $other->items;
+  return undef unless scalar(@$self_items) == scalar(@$other_items);
+  my $count = scalar(@$self_items);
+  for my $i (0 .. $count - 1) {
+    if (ref $self_items->[$i]) {
+      return undef unless $self_items->[$i]->compare_deep($other_items->[$i]);
+    } elsif (ref $other_items->[$i]) {
+      return undef;
+    } else {
+      return undef unless $self_items->[$i] eq $other_items->[$i];
+    }
+  }
+  return 1;
+}
 
 1;

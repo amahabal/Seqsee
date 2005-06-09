@@ -16,4 +16,10 @@ sub unblemish{
   return $self->{unblemisher}->($self, @_);
 }
 
+sub is_blemished{
+  my $self = shift;
+  my $obj  = shift;
+  $self->{instancer}->($self, $obj);
+}
+
 1;

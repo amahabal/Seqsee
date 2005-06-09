@@ -1,38 +1,18 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 3; }
+BEGIN { plan tests => 4; }
 
 use SBuiltObj;
 use SPos;
 use SBlemish;
 
-my $bl = new SBlemish;
+use SCat::mountain;
+use SBlemish::double;
 
-$bl->{blemisher} = sub {
-  my ($self, $builtobj, %args) = @_;
-  my $new_obj = new SBuiltObj;
-  $new_obj->set_items( @{ $builtobj->items }, @{ $builtobj->items } );
-  $new_obj;
-};
-
-$bl->{unblemisher} = sub {
-  my ($self, $builtobj) = @_;
-  my @items = @{$builtobj->items};
-  my $len = scalar(@items);
-  return undef unless $len % 2 == 0;
-  my $half = $len / 2;
-  for my $i (0 .. $half - 1) {
-    return undef unless equal_when_flattened($items[$i], $items[$i + $half]);
-  }
-  my $new_obj = new SBuiltObj;
-  $new_obj->set_items(@items[0 .. $half - 1]);
-  $new_obj;
-};
-
+my $bl = $SBlemish::double::double;
 
 SECOND: {
   my $pos = new SPos 2;
-  
   my $obj = new SBuiltObj(4, 5, 6, 7);
   
   $obj2 = $obj->apply_blemish_at($bl, $pos);
@@ -46,4 +26,12 @@ LAST_BUT_ONE: {
   my $obj = new SBuiltObj(4, 5, 6, 7);
   $obj2 = $obj->apply_blemish_at($bl, $pos);
   cmp_deeply([$obj2->flatten], [4, 5, 6, 6, 7]);
+}
+
+NAMED: {
+  my $cat = $SCat::mountain::mountain;
+  my $bo_mtn = $cat->build(foot => 2, peak => 4);
+  my $pos = new SPos "peak";
+  my $bo_mtn2 = $bo_mtn->apply_blemish_at($bl, $pos);
+  cmp_deeply [$bo_mtn2->flatten], [2, 3, 4, 4, 3, 2];
 }
