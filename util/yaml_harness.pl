@@ -98,6 +98,7 @@ sub set_build_info {
 	my($self) = @_;
 	my $executable = $ENV{HARNESS_PERL} || "pugs";
 	$self->{_build_info} = join '', qx{$executable -V};
+	$self->{_build_info} = ""; #XXX abhijit
 }
 
 sub _build_exclude_re {
