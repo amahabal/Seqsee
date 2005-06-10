@@ -12,7 +12,7 @@ dies_ok  { $ret = $cat2->build() }         "Needs the missing arguments";
 lives_ok { $ret = $cat2->build(end => 4) } "all arguments present";
 
 isa_ok($ret, "SBuiltObj", "Built object is a SBuiltObj");
-cmp_deeply([$ret->flatten], [1,2,3,4], "derived built the right object");
+$ret->structure_ok([1, 2, 3, 4],  "derived built the right object");
 
 $bindings = $cat2->is_instance($ret);
 isa_ok($bindings, "SBindings");

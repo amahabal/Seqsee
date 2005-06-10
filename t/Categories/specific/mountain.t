@@ -20,17 +20,17 @@ BUILDING: {
   $ret = $cat->build(foot => 1, peak => 5);
   isa_ok($ret, "SBuiltObj");
   instance_of_cat_ok $ret, $cat;
-  cmp_deeply([$ret->flatten], [qw{1 2 3 4 5 4 3 2 1}]);
+  $ret->structure_ok([qw{1 2 3 4 5 4 3 2 1}]);
 
   $ret = $cat->build(foot => 4, peak => 5);
-  cmp_deeply([$ret->flatten], [qw{4 5 4}]);
+  $ret->structure_ok([qw{4 5 4}]);
   
   $ret = $cat->build(foot => 5, peak => 5);
-  cmp_deeply([$ret->flatten], [qw{5}]);
+  $ret->structure_ok([qw{5}]);
 
   $ret = $cat->build(foot => 6, peak => 5);
   instance_of_cat_ok $ret, $cat;
-  cmp_deeply([$ret->flatten], [qw{}]);
+  $ret->structure_ok([]);
   
 }
 

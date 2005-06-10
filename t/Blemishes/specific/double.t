@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 13; }
+BEGIN { plan tests => 7; }
 
 use SBuiltObj;
 use SCat;
@@ -22,27 +22,21 @@ my $bo = $cat_mtn->build(foot => 2, peak => 5);
 Numbered: {
   my $pos = new SPos 1;
   my $bo_derived = $bo->apply_blemish_at($bl, $pos);
-  cmp_deeply [$bo_derived->flatten], [2, 2, 3, 4, 5, 4, 3, 2];
-  cmp_deeply [$bo_derived->items()->[0]->flatten],[2, 2], "deep structure okay";
-  is scalar(@{$bo_derived->items}), 7, "deep structure okay";
+  $bo_derived->structure_ok([[2, 2], 3, 4, 5, 4, 3, 2]);
 }
 
 Named: {
   my $pos = new SPos "peak";
   my $bo_derived = $bo->apply_blemish_at($bl, $pos);
-  cmp_deeply [$bo_derived->flatten], [2, 3, 4, 5, 5, 4, 3, 2];
-  cmp_deeply [$bo_derived->items()->[3]->flatten], [5, 5], "deep structure okay";
-  is scalar(@{$bo_derived->items}), 7, "deep structure okay";
+  $bo_derived->structure_ok([2, 3, 4, [5, 5], 4, 3, 2]);
 }
 
 Everywhere: {
  SKIP: {
-    skip "positions like 'everywhere' not yet implemented", 3;
+    skip "positions like 'everywhere' not yet implemented", 1;
     my $pos = new SPos::Range "all";
     my $bo_derived = $bo->apply_blemish_at($bl, $pos);
-    cmp_deeply [$bo_derived->flatten], [qw{2 2 3 3 4 4 5 5 4 4 3 3 2 2}];
-    cmp_deeply $bo_derived->items()->[4], [4, 4], "deep structure okay";
-    is scalar(@{$bo_derived->items}), 7, "deep structure okay";
+    $bo_derived->structure_ok([[2, 2], [3, 3], [4, 4], [5, 5], [4, 4], [3, 3], [2, 2]]);
   }
 }
 

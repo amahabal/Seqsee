@@ -32,11 +32,11 @@ BUILDING: {
   dies_ok { $blemished2->build() };
   $bo = $blemished2->build(foot => 3, peak => 6);
   isa_ok $bo, "SBuiltObj";
-  cmp_deeply [$bo->flatten], [qw{3 4 4 5 6 5 4 3}];
+  $bo->structure_ok([3, [4,4], 5, 6, 5, 4, 3]);
 
   $bo = $blemished2->build(foot => 5, peak => 6);
   isa_ok $bo, "SBuiltObj";
-  cmp_deeply [$bo->flatten], [qw{5 6 6 5}];
+  $bo->structure_ok([5, [6, 6], 5]);
 
   # XXX in general, when we run into trouble, it is not quite clear what needs to be done. But there should be a way to specify the need... until I figure out how, I'll just die
   dies_ok { $blemished2->build(foot => 5, peak => 5) };

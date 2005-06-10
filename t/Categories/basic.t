@@ -37,7 +37,7 @@ dies_ok  {        $cat->build(start => 1) } "Needs the arguments";
 lives_ok { $ret = $cat->build(start => 1, end => 3) } "Needs the arguments";
 
 isa_ok($ret, "SBuiltObj", "Built object is a SBuiltObj");
-cmp_deeply([$ret->flatten], [1,2,3], "built the right object");
+$ret->structure_ok([1,2,3], "built the right object");
 
 my $bindings = $cat->is_instance($ret);
 isa_ok($bindings, "SBindings");
