@@ -1,4 +1,5 @@
 package SBlemish;
+use Perl6::Attributes;
 
 sub new{
   my $package = shift;
@@ -8,18 +9,18 @@ sub new{
 
 sub blemish{
   my $self = shift;
-  return $self->{blemisher}->($self, @_);
+  return $.blemisher->($self, @_);
 }
 
 sub unblemish{
   my $self = shift;
-  return $self->{unblemisher}->($self, @_);
+  return $.unblemisher->($self, @_);
 }
 
 sub is_blemished{
   my $self = shift;
   my $obj  = shift;
-  $self->{instancer}->($self, $obj);
+  $.instancer->($self, $obj);
 }
 
 1;

@@ -1,4 +1,5 @@
 package SPos;
+use Perl6::Attributes;
 use Carp;
 
 my %Memoize;
@@ -17,7 +18,7 @@ sub new{
 
 sub set_sub{
   my ($self, $sub) = @_;
-  $self->{sub} = $sub;
+  $.sub = $sub;
   $self;
 }
 

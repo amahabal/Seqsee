@@ -3,13 +3,14 @@ use SInt;
 use SCat;
 use SPos;
 use SBlemish;
+use Perl6::Attributes;
 use Perl6::Subs;
 
 
 method new($package: *@items){
   my $self = bless {}, $package;
   $self->set_items(@items);
-  $self->{cats} = {};
+  $.cats = {};
   $self;
 }
 
@@ -28,13 +29,13 @@ sub new_deep{
     }
   } @_;
   $self->set_items(@items);
-  $self->{cats} = {};
+  $.cats = {};
   $self;
 }
 
 sub set_items{
   my $self = shift;
-  $self->{items} = [map { (ref $_) ? $_->clone : SInt->new($_) } @_];
+  $.items = [map { (ref $_) ? $_->clone : SInt->new($_) } @_];
   $self;
 }
 
@@ -48,24 +49,24 @@ method add_cat($cat of SCat, *%bindings){
       $cat->has_attribute($_);
   }
   $SCat::Str2Cat{$cat} = $cat;
-  $self->{cats}{$cat} = \%bindings;
+  $.cats{$cat} = \%bindings;
   $self;
 }
 
 sub get_cat_bindings{
   my ($self, $cat) = @_;
-  return undef unless exists $self->{cats}{$cat};
-  $self->{cats}{$cat};
+  return undef unless exists $.cats{$cat};
+  $.cats{$cat};
 }
 
 sub get_cats{
   my $self = shift;
-  map { $SCat::Str2Cat{$_} } keys %{$self->{cats}};
+  map { $SCat::Str2Cat{$_} } keys %.cats;
 }
 
 sub flatten{
   my $self = shift;
-  return map { ref $_ ? $_->flatten() : $_ } @{$self->{items}};
+  return map { ref $_ ? $_->flatten() : $_ } @.items;
 }
 
 method find_at_position($position of SPos){
@@ -79,7 +80,7 @@ method range_given_position($position){
 
 method subobj_given_range($range){ # Name should be changed!
   my @ret;
-  my $items = $self->items;
+  my $items = $.items;
   for (@$range) {
     my $what = $items->[$_];
     die "out of range" if not defined $what;
@@ -97,7 +98,7 @@ method get_position_finder($str){ #XXX should really deal with the category of t
 }
 
 method splice($from, $len, *@rest){
-  my $items = $self->{items};
+  my $items = $.items;
   splice(@$items, $from, $len, @rest);
   $self;
 }
@@ -123,10 +124,10 @@ method apply_blemish_at(SBlemish $blemish, SPos $position){ # Assumption: positi
 method clone(){
   my $new_obj = new SBuiltObj;
   my $items = $new_obj->{items};
-  foreach (@{$self->{items}}) {
+  foreach (@.items) {
     push (@$items, ref($_) ? $_->clone() : $_ ); 
   }
-  while (my($k, $v) = each %{$self->{cats}}) {
+  while (my($k, $v) = each %.cats) {
     $new_obj->{cats}{$k} = $v; #XXX should I clone this???
   }
   $new_obj;
@@ -136,7 +137,7 @@ sub show{
   my $self = shift;
   print "Showing the structure of $self:\n";
   print "\nItems:\n";
-  foreach (@{$self->items}) {
+  foreach (@.items) {
     print "\t$_\n";
     if (ref $_) {
       $_->show_shallow(2);
