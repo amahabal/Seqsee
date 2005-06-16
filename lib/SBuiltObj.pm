@@ -1,10 +1,13 @@
 package SBuiltObj;
 use SInt;
+use SCat;
+use SPos;
+use SBlemish;
+use Perl6::Subs;
 
-sub new{
-  my $package = shift;
+
+method new($package: *@items){
   my $self = bless {}, $package;
-  my @items = map { ref($_) ? $_->clone : SInt->new($_) } @_;
   $self->set_items(@items);
   $self->{cats} = {};
   $self;
@@ -31,7 +34,7 @@ sub new_deep{
 
 sub set_items{
   my $self = shift;
-  $self->{items} = [map { (ref $_) ? $_ : SInt->new($_) } @_];
+  $self->{items} = [map { (ref $_) ? $_->clone : SInt->new($_) } @_];
   $self;
 }
 
@@ -39,13 +42,7 @@ sub items{
   shift->{items};
 }
 
-sub add_cat{
-  my $self = shift;
-  my $cat  = shift;
-  unless (UNIVERSAL::isa($cat, "SCat")) {
-    die "The argument to add_cat must be a category";
-  }
-  my %bindings = @_;
+method add_cat($cat of SCat, *%bindings){
   foreach (keys %bindings) {
     die "Category $cat does not take the attribute $_" unless
       $cat->has_attribute($_);
@@ -71,19 +68,16 @@ sub flatten{
   return map { ref $_ ? $_->flatten() : $_ } @{$self->{items}};
 }
 
-sub find_at_position{
-  my ($self, $position) = @_;
+method find_at_position($position of SPos){
   my $range = $self->range_given_position($position);
   return $self->subobj_given_range($range);
 }
 
-sub range_given_position{
-  my ($self, $position) = @_;
+method range_given_position($position){
   return $position->{rangesub}->($self);
 }
 
-sub subobj_given_range{ # Name should be changed!
-  my ($self, $range) = @_;
+method subobj_given_range($range){ # Name should be changed!
   my @ret;
   my $items = $self->items;
   for (@$range) {
@@ -94,8 +88,7 @@ sub subobj_given_range{ # Name should be changed!
   @ret;
 }
 
-sub get_position_finder{ #XXX should really deal with the category of the built object, and I have not dealt with that yet....
-  my ($self, $str) = @_;
+method get_position_finder($str){ #XXX should really deal with the category of the built object, and I have not dealt with that yet....
   my @cats = $self->get_cats();
   my @cats_with_position = grep { $_->has_named_position($str) } @cats;
   die "Could not find any way for finding the position '$str' for $self" unless @cats_with_position;
@@ -103,17 +96,13 @@ sub get_position_finder{ #XXX should really deal with the category of the built 
   return $cats_with_position[0]->{position_finder}{$str};
 }
 
-sub splice{
-  my $self = shift;
-  my $from = shift;
-  my $len = shift;
+method splice($from, $len, *@rest){
   my $items = $self->{items};
-  splice(@$items, $from, $len, @_);
+  splice(@$items, $from, $len, @rest);
   $self;
 }
 
-sub apply_blemish_at{ # Assumption: position returns a single item
-  my ($self, $blemish, $position) = @_;
+method apply_blemish_at(SBlemish $blemish, SPos $position){ # Assumption: position returns a single item
   $self = $self->clone;
   my $range = $self->range_given_position($position);
   die "position $position undefined for $self" unless $range;
@@ -131,8 +120,7 @@ sub apply_blemish_at{ # Assumption: position returns a single item
   $self;
 }
 
-sub clone{
-  my $self = shift;
+method clone(){
   my $new_obj = new SBuiltObj;
   my $items = $new_obj->{items};
   foreach (@{$self->{items}}) {

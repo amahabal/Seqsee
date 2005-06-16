@@ -7,15 +7,13 @@ use Set::Scalar;
 use SCat::Derive::assuming;
 use SCat::Derive::blemished;
 
+use Perl6::Subs;
+
 our %Cats;
 
-sub new{
-  my $package = shift;
+method new($package:){
   my $self = bless {}, $package;
-
   $self->{att} = new Set::Scalar;
-  
-
   $self;
 }
 
@@ -25,8 +23,7 @@ sub add_attributes{
   $self;
 }
 
-sub has_attribute{
-  my ($self, $what) = @_;
+method has_attribute($what){
   $self->{att}->has($what);
 }
 
@@ -43,8 +40,7 @@ sub is_instance{
 }
 
 
-sub has_named_position{
-  my ($self, $str) = @_;
+method has_named_position($str){
   return (exists $self->{position_finder}{$str});
 }
 
