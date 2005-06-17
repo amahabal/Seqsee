@@ -1,4 +1,5 @@
 package SCat;
+use strict;
 
 sub derive_assuming{
   my ($self, %assuming) = @_;

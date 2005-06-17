@@ -41,7 +41,7 @@ sub build{
 
 sub is_instance{
   my $self = shift;
-  my $builtobj = UNIVERSAL::isa($_[0], "SBuiltObj") ?
+  my $builtobj = ((@_ == 1) and UNIVERSAL::isa($_[0], "SBuiltObj")) ?
     $_[0] : SBuiltObj->new()->set_items(@_);
   return $.instancer->($self, $builtobj);
 }
