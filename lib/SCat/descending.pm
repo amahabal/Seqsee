@@ -15,17 +15,8 @@ $cat->{builder} = sub {
   $ret;
 };
 
-$cat->{instancer} = sub{
-  my ($self, $builtobj) = @_;
-  my @items =  @{$builtobj->items};
-  my $len = scalar(@items);
-  return SBindings->new() unless @items;
-  for my $i (0 .. $len - 2) {
-    return undef unless $items[$i+1]->{'m'} == $items[$i]->{'m'} - 1;
-  }
-  return SBindings->new(start => $items[0]->{'m'},
-			end => $items[-1]->{'m'}
-		       );
-};
+$cat->{guesser_pos} = { start => 0, end => -1 };
+$cat->{empty_ok} = 1;
+$cat->compose();
 
 1;

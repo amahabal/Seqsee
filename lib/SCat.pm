@@ -93,4 +93,60 @@ method generate_instancer(){
   };
 }
 
+method generate_guesser_from_pos($attribute, $pos){
+  $.guesser{$attribute} = sub {
+	my ($self, $bo) = @_;
+	my $obj = $bo->items()->[$pos];
+	my @int_vals = $obj->as_int();
+	if (@int_vals == 1) { return $int_vals[0]; }
+	return undef;
+  };
+}
+
+method generate_guesser_from_pos_finder($attribute, $finder){
+  $.guesser{$attribute} = sub {
+	my ($self, $bo) = @_;
+	my $range = eval { $finder->($bo) };
+	return undef if $@;
+	my @objs = $bo->subobj_given_range($range);
+	return undef unless (@objs == 1);
+	my @int_vals = $objs[0]->as_int();
+	if (@int_vals == 1) { return $int_vals[0]; }
+	return undef;
+   };		    
+}
+
+method compose(){
+  # The task of this is to tie all loose ends, check sanity etc
+
+  # must have a builder...
+  die "New category has no builder!" unless $.builder;
+  unless ($.instancer) {
+	# Must define what to do with empty objects...
+	defined($.empty_ok) or die "No instancer given, and I was not 
+told what to do with empty objects, and so I cannot provide my own 
+instancer"; 
+
+	# Try and generate guessers for those that are missing
+	for ($.att->members) {
+	  next if $.guesser{$_}; # already defined
+	  unless (exists($.guesser_pos{$_}) or $.position_finder{$_}) {
+		die "Cannot generate guesser for $_: need at least a 
+guesser_pos";
+	  }
+	  if (exists $.guesser_pos{$_}){
+	    $self->generate_guesser_from_pos($_, $.guesser_pos{$_});
+	  } else {
+	    $self->generate_guesser_from_pos_finder($_, 
+						    $.position_finder{$_});
+	  }
+	}
+
+	eval { $self->generate_instancer };
+	die "No instancer given, and something went wrong when I attempted 
+to provide one: $@" if $@;
+  }
+
+}
+
 1;
