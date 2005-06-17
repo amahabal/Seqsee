@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 
-BEGIN { plan tests => 5; }
+BEGIN { plan tests => 7; }
 
 use SBuiltObj;
 use SBindings;
@@ -44,5 +44,8 @@ isa_ok($unblemished, "SBuiltObj");
 $more_blemished->structure_ok([qw{1 2 1 2 1 2 1 2}]);
 $unblemished->structure_ok([1, 2]);
 
+my $blemished_cat = $bl->get_blemish_category();
+isa_ok $blemished_cat, "SCat";
+instance_of_cat_ok($more_blemished, $blemished_cat);
 
 #XXX there should also be some test to check that the two new objects are marked for their origins.

@@ -3,9 +3,12 @@ use SInt;
 use SCat;
 use SPos;
 use SBlemish;
+use SInstance;
+
 use Perl6::Attributes;
 use Perl6::Subs;
 
+our @ISA = qw{SInstance};
 
 method new($package: *@items){
   my $self = bless {}, $package;
@@ -43,26 +46,6 @@ sub items{
   shift->{items};
 }
 
-method add_cat($cat of SCat, *%bindings){
-  foreach (keys %bindings) {
-    die "Category $cat does not take the attribute $_" unless
-      $cat->has_attribute($_);
-  }
-  $SCat::Str2Cat{$cat} = $cat;
-  $.cats{$cat} = \%bindings;
-  $self;
-}
-
-sub get_cat_bindings{
-  my ($self, $cat) = @_;
-  return undef unless exists $.cats{$cat};
-  $.cats{$cat};
-}
-
-sub get_cats{
-  my $self = shift;
-  map { $SCat::Str2Cat{$_} } keys %.cats;
-}
 
 sub flatten{
   my $self = shift;

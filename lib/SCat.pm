@@ -3,6 +3,7 @@ use strict;
 use SUtil;
 use SBuiltObj;
 use Set::Scalar;
+use SInstance;
 
 use SCat::Derive::assuming;
 use SCat::Derive::blemished;
@@ -10,11 +11,16 @@ use SCat::Derive::blemished;
 use Perl6::Subs;
 use Perl6::Attributes;
 
+our @ISA = qw{SInstance};
 our %Cats;
+
+our %Global_attributes = map { $_ => 1 }
+  qw{what};
 
 method new($package:){
   my $self = bless {}, $package;
   $.att = new Set::Scalar;
+  $.cats= {};
   $self;
 }
 
@@ -25,7 +31,7 @@ sub add_attributes{
 }
 
 method has_attribute($what){
-  $.att->has($what);
+  $Global_attributes{$what} or $.att->has($what);
 }
 
 sub build{
@@ -43,6 +49,10 @@ sub is_instance{
 
 method has_named_position($str){
   return (exists $.position_finder{$str});
+}
+
+method is_blemished_cat(){
+  $._blemished;
 }
 
 1;
