@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests=> 16; }
+BEGIN { plan tests=> 26; }
 
 use SBuiltObj;
 use SBindings;
@@ -55,4 +55,39 @@ BLEMISHED_IS_INST: {
 	local $TODO = "instancer does not yet add blemish bindings";
 	ok $bindings->{_blemish};
   }
+
+
+  my $very_blemished_obj = 	
+     $cat->build(start => 3, end => 8)
+	->apply_blemish_at( $SBlemish::double::double, SPos->new(1) )
+	  ->apply_blemish_at( $SBlemish::double::double, SPos->new(-1) );
+  $very_blemished_obj->structure_ok([ [3, 3], 4, 5, 6, 7, [8, 8]]);
+
+  $bindings = $cat->is_instance($very_blemished_obj);
+  isa_ok $bindings, "SBindings";
+  is $bindings->{start}, 3, "start ok";
+  is $bindings->{end},   8, "end ok";
+  TODO: {
+	local $TODO = "instancer does not yet add blemish bindings";
+	ok $bindings->{_blemish};
+  }
+
+  $very_blemished_obj = 	
+     $cat->build(start => 3, end => 8)
+	->apply_blemish_at( $SBlemish::double::double, SPos->new(1) )
+	  ->apply_blemish_at( $SBlemish::double::double, SPos->new(1) );
+  $very_blemished_obj->structure_ok([ [[3, 3], [3, 3]], 4, 5, 6, 7, 8 ]);
+
+  $bindings = $cat->is_instance($very_blemished_obj);
+  isa_ok $bindings, "SBindings";
+  is $bindings->{start}, 3, "start ok";
+  is $bindings->{end},   8, "end ok";
+  TODO: {
+	local $TODO = "instancer does not yet add blemish bindings";
+	ok $bindings->{_blemish};
+  }
+
+
+
 }
+
