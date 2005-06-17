@@ -1,4 +1,5 @@
 package SInt;
+use Perl6::Subs;
 
 sub new{
   my ($package, $val) = @_;
@@ -37,6 +38,14 @@ sub structure_ok{
   my ($self, $potential_struct, $msg ) = @_;
   $msg ||= "structure of $self";
   Test::More::ok($self->structure_is($potential_struct), $msg);
+}
+
+method as_int(){
+  $self->{'m'};
+}
+
+method can_be_as_int($int){
+  $self->{'m'} == $int;
 }
 
 1;

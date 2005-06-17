@@ -55,4 +55,10 @@ method is_blemished_cat(){
   $._blemished;
 }
 
+method guess_attribute(SBuiltObj $obj, $att){
+  my $guesser = $.guesser{$att};
+  die "Don't know how to guess attribute $att" unless $guesser;
+  return $guesser->($self, $obj);
+}
+
 1;

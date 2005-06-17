@@ -86,7 +86,8 @@ method splice($from, $len, *@rest){
   $self;
 }
 
-method apply_blemish_at(SBlemish $blemish, SPos $position){ # Assumption: position returns a single item
+method apply_blemish_at(SBlemish $blemish, $position of SPos where {$_}){ 
+	# Assumption: position returns a single item
   $self = $self->clone;
   my $range = $self->range_given_position($position);
   die "position $position undefined for $self" unless $range;
@@ -169,6 +170,46 @@ sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
   my ($self, $potential_struct, $msg ) = @_;
   $msg ||= "structure of $self";
   Test::More::ok($self->structure_is($potential_struct), $msg);
+}
+
+
+method as_int(){
+  return $.items[0]->as_int() if scalar(@.items) == 1;
+  my $bl_cats = $self->get_blemish_cats;
+  my %ret;
+  while (my ($blemish, $what) = each %$bl_cats) {
+    my @what_as_int = $what->as_int;
+    foreach (@what_as_int) { $ret{$_}++ }
+  } 
+  return sort { $ret{$b} <=> $ret{$a} } keys %ret;
+}
+
+method can_be_as_int($int){
+  my @int_vals = $self->as_int();
+  for (@int_vals) { return 1 if $_ == $int }
+  return undef;
+}
+
+method structure_blearily_ok($template){
+  my @my_items        = @.items;
+  my @template_items  = @{$template->items};
+  return undef unless scalar(@my_items) == scalar(@template_items);
+  for (my $i = 0; $i < scalar(@my_items); $i++){
+    my $my_item = $my_items[$i];
+    my $t_item  = $template_items[$i];
+    if (UNIVERSAL::isa($t_item, "SInt")) {
+      next if $my_item->can_be_as_int($t_item->{'m'});
+    } else {
+      next if $my_item->structure_blearily_ok($t_item);
+    }
+    return undef;
+  }
+  return SBindings->new();
+}
+
+method is_empty{
+  return 1 unless @.items;
+  return 0;
 }
 
 1;
