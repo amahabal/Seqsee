@@ -15,7 +15,7 @@ $cat->{builder} = sub {
   $ret;
 };
 
-$cat->{instancer} = sub{
+$cat->{instancer_} = sub{
   my ($self, $builtobj) = @_;
   return SBindings->new() if $builtobj->is_empty;
   my $start_guess = $self->guess_attribute($builtobj, "start");
@@ -47,5 +47,8 @@ $cat->{guesser}{end} = sub {
   if (@int_vals == 1) { return $int_vals[0]; }
   return undef;
 };
+
+$cat->{empty_ok} = 1;
+$cat->generate_instancer;
 
 1;

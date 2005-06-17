@@ -16,22 +16,7 @@ $cat->{builder} = sub{
   $ret;
 };
 
-$cat->{instancer} = sub {
-  my ($self, $builtobj) = @_;
-  return SBindings->new() if $builtobj->is_empty;
-  my $foot_guess = $self->guess_attribute($builtobj, "foot");
-  my $peak_guess = $self->guess_attribute($builtobj, "peak");
-  return undef unless (defined($foot_guess) and defined($peak_guess));
-  my $guess_built = $self->build( foot => $foot_guess,
-				  peak => $peak_guess);
-  my $bindings = $builtobj->structure_blearily_ok($guess_built);
-  if ($bindings) {
-	$bindings->{foot} = $foot_guess;
-	$bindings->{peak} = $peak_guess;
-  }
-
-  return $bindings;
-};
+$cat->{empty_ok} = 1;
 
 $cat->{position_finder}{peak} = 
   sub {
@@ -62,5 +47,8 @@ $cat->{guesser}{peak} =
     if (@int_vals == 1) { return $int_vals[0]; }
     return undef;
   };
+
+$cat->generate_instancer;
+
 
 1;
