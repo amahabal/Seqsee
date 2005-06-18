@@ -1,5 +1,12 @@
 package SPos;
+use strict;
 use Perl6::Attributes;
+
+use SPosFinder;
+use SPos::Global;
+use SPos::Global::Absolute;
+use SPos::Named;
+
 use Carp;
 
 my %Memoize;

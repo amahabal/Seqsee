@@ -6,6 +6,7 @@ BEGIN { plan tests => 14; }
 use SCat::ascending;
 use SBindings;
 use SBuiltObj;
+use SInt;
 
 my $cat = $SCat::ascending::ascending;
 
@@ -33,7 +34,7 @@ undef_ok($bindings);
 	my $blemished_obj2 = SBuiltObj->new(
 				3, 
 				$SBlemish::double::double
-				   ->blemish(SBuiltObj->new(4)),
+				   ->blemish(SInt->new(4)),
 				5, 6, 7);
 
 

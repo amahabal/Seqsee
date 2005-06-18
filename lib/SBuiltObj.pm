@@ -53,9 +53,10 @@ sub flatten{
 }
 
 method find_at_position($position of SPos){
-  my $range = $self->range_given_position($position);
+  my $range = $position->find_range($self);
   return $self->subobj_given_range($range);
 }
+
 
 method range_given_position($position){
   return $position->{rangesub}->($self);
