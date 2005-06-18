@@ -1,0 +1,18 @@
+BLEMISHES:
+	* refactor to have a compose() method
+	* think about how blemishes can be applied at several places
+	* think about how to store blemish info...
+	
+SPos:
+	* More tests, including sanity tests
+
+Fascinations:
+	* For built objects, think of a way of evaluation fascinations
+
+SCat:
+	* Can I compose() not SBuiltObj returning stuff?
+
+SCat/Derived:
+	* Cleanup the assuming() mess
+	* take a closer look at blemished()
+

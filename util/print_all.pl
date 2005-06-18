@@ -67,7 +67,7 @@ END
 }
 
 sub print_all_files{
-  my @files = sort(<lib/*.pm lib/*/*.pm lib/*/*/*.pm  t/*.t t/*/*.t t/*/*/*.t>);
+  my @files = sort(<TODO lib/*.pm lib/*/*.pm lib/*/*/*.pm  t/*.t t/*/*.t t/*/*/*.t>);
   my %PrintOK;
   for (@files) {
     $PrintOK{$_} = 1;
