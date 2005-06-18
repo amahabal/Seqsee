@@ -9,6 +9,7 @@ method new($package: $str){
   return $Memoize{$str} if $Memoize{$str};
   my $self = bless { }, $package;
   $.find_by_cat = {};
+  $.name = $str;
   $Memoize{$str} = $self;
 }
 

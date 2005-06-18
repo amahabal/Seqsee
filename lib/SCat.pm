@@ -4,6 +4,7 @@ use SUtil;
 use SBuiltObj;
 use Set::Scalar;
 use SInstance;
+use SPos;
 
 use SCat::Derive::assuming;
 use SCat::Derive::blemished;
@@ -147,6 +148,16 @@ guesser_pos";
 to provide one: $@" if $@;
   }
 
+}
+
+method install_position_finder($name, $sub, +$multi is required){
+  SPos->new($name)->install_finder
+    ( cat    => $self,
+      finder => new SPosFinder( multi => $multi,
+				sub => $sub
+			      )
+    );
+  $.position_finder{$name} = $sub; #XXX. SHould use the Finder object!!
 }
 
 1;

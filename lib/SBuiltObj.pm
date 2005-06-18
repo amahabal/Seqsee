@@ -58,9 +58,9 @@ method find_at_position($position of SPos){
 }
 
 
-method range_given_position($position){
-  return $position->{rangesub}->($self);
-}
+#method range_given_position($position){
+#  return $position->find_range($self);
+#}
 
 method subobj_given_range($range){ # Name should be changed!
   my @ret;
@@ -90,7 +90,7 @@ method splice($from, $len, *@rest){
 method apply_blemish_at(SBlemish $blemish, $position of SPos where {$_}){ 
 	# Assumption: position returns a single item
   $self = $self->clone;
-  my $range = $self->range_given_position($position);
+  my $range = $position->find_range($self);
   die "position $position undefined for $self" unless $range;
   # XXX should check that range is contiguous....
   my @subobjs = $self->subobj_given_range($range);

@@ -1,5 +1,6 @@
 package SCat::mountain;
 use SCat;
+use SPos;
 
 our $mountain = new SCat;
 my $cat = $mountain;
@@ -17,14 +18,17 @@ $cat->{builder} = sub{
 };
 
 
-$cat->{position_finder}{peak} = 
-  sub {
-    my $bo = shift;
-    my $items = $bo->items;
-    my $count = scalar(@$items);
-    my $ret = ($count - 1) / 2;
-    return [ $ret ];
-  };
+$cat->install_position_finder
+  ('peak',
+   sub {
+     my $bo = shift;
+     my $items = $bo->items;
+     my $count = scalar(@$items);
+     my $ret = ($count - 1) / 2;
+     return [ $ret ];
+   },
+   multi => 0,
+  );
 
 $cat->{guesser_pos} = { foot => 0 };
 $cat->{empty_ok} = 1;

@@ -48,12 +48,12 @@ my $sub_object;
 
 RANGE_GIVEN_POSITION: {
   my $range;
-  $range = $bo1->range_given_position($pos_second);
+  $range = $pos_second->find_range($bo1);
   cmp_deeply($range, [1], "second index okay");
-  $range = $bo1->range_given_position($pos_last);
+  $range = $pos_last->find_range($bo1);
   cmp_deeply($range, [3], "last index okay");
 
-  $range = $bo3->range_given_position($pos_peak);
+  $range = $pos_peak->find_range($bo3);
   cmp_deeply($range, [3], "last index okay");
 }
 
@@ -98,7 +98,7 @@ MOUNTAIN: {
 
 
 PEAK: {
-  my $range = $bo3->range_given_position($pos_peak);
+  my $range = $pos_peak->find_range($bo3);
   cmp_deeply $range, [3];
   @sub_objects = $bo3->find_at_position($pos_peak);
   cmp_deeply([map { $_->{'m'} } @sub_objects], [6], "mountain 3 6, subobj peak");  
