@@ -40,12 +40,12 @@ undef_ok($bindings);
 
 	my $bindings = $cat2->is_instance($blemished_obj2);
 	undef_ok $bindings;
-	diag $bindings->{start};
+	#diag $bindings->{start};
 }
 
 
-diag "cat  instancer is: $cat->{instancer}";
-diag "cat2 instancer is: $cat2->{instancer}";
+#diag "cat  instancer is: $cat->{instancer}";
+#diag "cat2 instancer is: $cat2->{instancer}";
 
 {
 	use SBlemish::double;
@@ -61,8 +61,8 @@ diag "cat2 instancer is: $cat2->{instancer}";
 	is($bindings->{end}, 5);
 }
 
-diag "cat  instancer is: $cat->{instancer}";
-diag "cat2 instancer is: $cat2->{instancer}";
+#diag "cat  instancer is: $cat->{instancer}";
+#diag "cat2 instancer is: $cat2->{instancer}";
 
 
 {
@@ -75,6 +75,6 @@ diag "cat2 instancer is: $cat2->{instancer}";
 
 	my $bindings = $cat2->is_instance($blemished_obj2);
 	undef_ok $bindings;
-	diag $bindings->{start};
+	#diag $bindings->{start};
 }
 
