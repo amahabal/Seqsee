@@ -1,19 +1,17 @@
 package SCat::mountain;
 use SCat;
 use SPos;
+use Perl6::Subs;
 
 our $mountain = new SCat;
 my $cat = $mountain;
 
 $cat->add_attributes(qw/foot peak/);
-$cat->{builder} = sub{
-  my ($self, %args) = @_;
-  die "need foot" unless $args{foot};
-  die "need peak" unless $args{peak};
+$cat->{builder} = sub ($self, +$foot is required, +$peak is required){
   my $ret = new SBuiltObj;
-  $ret->set_items($args{foot} .. $args{peak}, 
-		  reverse($args{foot} .. $args{peak} - 1));
-  $ret->add_cat($cat, %args);
+  $ret->set_items($foot .. $peak, 
+		  reverse($foot .. $peak - 1));
+  $ret->add_cat($cat, foot => $foot, peak => $peak);
   $ret;
 };
 
