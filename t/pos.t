@@ -8,8 +8,10 @@ use SCat;
 use SPos;
 use SCat::mountain;
 
+use MyFilter;
+
 my $mtn = $SCat::mountain::mountain;
-my $bo  = $mtn->build(foot => 3, peak => 5);
+my $bo  = $mtn.build(foot => 3, peak => 5);
 
 ok UNIVERSAL::isa("SPos::Global", "SPos");
 ok UNIVERSAL::isa("SPos::Global::Absolute", "SPos::Global");
@@ -19,8 +21,8 @@ Absolute: {
 
   my $pos_1 = new SPos::Global::Absolute(1);
   isa_ok $pos_1, "SPos::Global";
-  isa_ok $pos_1->{finder}, "SPosFinder";
-  @objs = $bo->find_at_position($pos_1);
+  isa_ok $pos_1.finder, "SPosFinder";
+  @objs = $bo.find_at_position($pos_1);
   ok(@objs == 1);
   $objs[0]->structure_ok([3]);
 
@@ -31,15 +33,15 @@ Absolute: {
   
   my $pos_m2 = new SPos::Global::Absolute(-2);
   isa_ok $pos_m2, "SPos::Global";
-  isa_ok $pos_m2->{finder}, "SPosFinder";
-  @objs = $bo->find_at_position($pos_m2);
+  isa_ok $pos_m2.finder, "SPosFinder";
+  @objs = $bo.find_at_position($pos_m2);
   ok(@objs == 1);
   $objs[0]->structure_ok([4]);
 
   my $pos_m6 = new SPos::Global::Absolute(-6);
   isa_ok $pos_m6, "SPos::Global";
-  isa_ok $pos_m6->{finder}, "SPosFinder";
-  throws_ok { @objs = $bo->find_at_position($pos_m6) } "SErr::Pos::OutOfRange";
+  isa_ok $pos_m6.finder, "SPosFinder";
+  throws_ok { @objs = $bo.find_at_position($pos_m6) } "SErr::Pos::OutOfRange";
 }
 
 Named: {
@@ -66,22 +68,22 @@ Named: {
 			      )
     );
 
-  isa_ok $pos_peak->{find_by_cat}{$cat_arbit}, "SPosFinder";
+  isa_ok $pos_peak.find_by_cat{$cat_arbit}, "SPosFinder";
 
   my $bo_arbit         = new SBuiltObj(1, 2, 3, 4);
-  $bo_arbit->add_cat($cat_arbit);
+  $bo_arbit.add_cat($cat_arbit);
 
   my $bo_random        = new SBuiltObj(1, 2, 3, 4);
-  $bo_random->add_cat($cat_random);
+  $bo_random.add_cat($cat_random);
 
-  @objs = $bo_arbit->find_at_position($pos_peak);
+  @objs = $bo_arbit.find_at_position($pos_peak);
   ok(@objs == 1);
   $objs[0]->structure_ok([4]);
 
-  @objs = $bo_random->find_at_position($pos_peak);
+  @objs = $bo_random.find_at_position($pos_peak);
   ok(@objs == 1);
   $objs[0]->structure_ok([3]);
 
-  $bo_arbit->add_cat($cat_random);
-  throws_ok { @objs = $bo_arbit->find_at_position($pos_peak) } "SErr::Pos::MultipleNamed";
+  $bo_arbit.add_cat($cat_random);
+  throws_ok { @objs = $bo_arbit.find_at_position($pos_peak) } "SErr::Pos::MultipleNamed";
 }
