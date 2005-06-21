@@ -39,19 +39,16 @@ is $hash{u}, 3;
 
 package Foo;
 sub new { bless {}, shift }
-sub add7 { my $self = shift; return $.x + 7 }
 
 package main;
 
 my $y = new Foo;
-$y.x = 5;
-is &y.add7(), 12;
+$y.add7 = sub { my ($self, $arg1, $arg2) = @_; return [$self, $arg1, $arg2] };
+is &y.add7(1, 2)->[0], $y;
+is &y.add7(1, 2)->[1], 1;
 
-my $str = '&y' . '.add7';
-eval $str;
-ok $@;
 
 for my $self ($y) {
-  is &.add7(), 12;
+  is &.add7()->[0], $self;
 }
 

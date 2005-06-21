@@ -8,11 +8,11 @@ sub change{
   $name ||= "self";
   if ($sigil eq '$') {
     return "\$$name". "->{$arg}$next" unless $next eq '(';
-    return "\$$name"."->$arg(";
+    die "Something is wrong here. You wrote: '$sigil$name.arg$next'. Normally, that would have changed to '\$$name". "->{$arg}$next'. If you specifically want that to happen, write: '&$name.arg$next'. I am going to not allow this syntax because I am afraid that what you have in mind is '$sigil$name"."->arg(";
   }
   if ($sigil eq '&') {
     if ($next eq '(') {
-      return "\$$name"."->$arg(";
+      return "\$$name"."->\{$arg}->(\$$name, ";
     } else {
       die "When using &.name method call syntax, this must be followed by a '('. I see the syntax '$sigil$name.$arg$next', and I think it is an error";
     }
@@ -42,7 +42,7 @@ sub change2{
 
 use Filter::Simple sub {
   my $what = $_;
-  $what =~ s#([\$@%&])(\w*)\.(\w+)(.)#
+  $what =~ s#([\$@%&])(\w*)\.(\w+)(.?)#
     change($1, $2, $3, $4) #ge;
 
   $what =~ s#ATT\s*(.+);# change2($1)#ge;
