@@ -36,16 +36,16 @@ BUILDING: {
 
 IS_INSTANCE: {
   my $bindings;
-  $bindings = $cat->is_instance(1, 2, 3, 2, 1);
+  $bindings = $cat->is_instance(SBuiltObj->new(1, 2, 3, 2, 1));
   isa_ok($bindings, "SBindings");
   is($bindings->{foot}, 1);
   is($bindings->{peak}, 3);
 
-  $bindings = $cat->is_instance(5);
+  $bindings = $cat->is_instance(SBuiltObj->new(5));
   is($bindings->{foot}, 5);
   is($bindings->{peak}, 5);
   
-  $bindings = $cat->is_instance(5, 6);
+  $bindings = $cat->is_instance(SBuiltObj->new(5, 6));
   undef_ok($bindings);
 
   $bindings = $cat->is_instance();

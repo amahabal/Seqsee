@@ -43,10 +43,10 @@ my $bindings = $cat->is_instance($ret);
 isa_ok($bindings, "SBindings");
 is($bindings->{end}, 3, "Bindings correct when obj is SObj");
 
-$bindings = $cat->is_instance(3, 4, 5, 6);
+$bindings = $cat->is_instance(SBuiltObj->new(3, 4, 5, 6));
 is($bindings->{start}, 3, "Bindings correct for 3 4 5 6");
 is($bindings->{end}, 6, "Bindings correct for 3 4 5 6");
 
-$bindings = $cat->is_instance(3, 6, 7);
+$bindings = $cat->is_instance(SBuiltObj->new(3, 6, 7));
 undef_ok($bindings);
 

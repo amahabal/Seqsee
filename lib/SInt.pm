@@ -1,5 +1,6 @@
 package SInt;
 use Perl6::Subs;
+use MyFilter;
 
 sub new{
   my ($package, $val) = @_;
@@ -40,6 +41,10 @@ sub structure_ok{
   Test::More::ok($self->structure_is($potential_struct), $msg);
 }
 
+method get_structure{
+  $.m;
+}
+
 method as_int(){
   $self->{'m'};
 }
@@ -47,5 +52,7 @@ method as_int(){
 method can_be_as_int($int){
   $self->{'m'} == $int;
 }
+
+sub is_empty{ 0 }
 
 1;

@@ -44,11 +44,11 @@ package main;
 
 my $y = new Foo;
 $y.add7 = sub { my ($self, $arg1, $arg2) = @_; return [$self, $arg1, $arg2] };
-is &y.add7(1, 2)->[0], $y;
-is &y.add7(1, 2)->[1], 1;
+is &y.add7($y, 1, 2)->[0], $y;
+is &y.add7($y, 1, 2)->[1], 1;
 
 
 for my $self ($y) {
-  is &.add7()->[0], $self;
+  is &.add7($self)->[0], $self;
 }
 

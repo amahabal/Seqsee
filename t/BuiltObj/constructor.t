@@ -4,7 +4,7 @@ use Test::Seqsee;
 use SCat;
 use SBuiltObj;
 
-BEGIN { plan tests => 21; }
+BEGIN { plan tests => 24; }
 
 
 
@@ -49,6 +49,11 @@ NEW_DEEP: {
   is scalar(@{$bo3->items}), 4;
   isa_ok $bo3->items()->[3]->items()->[0]->items()->[1], "SInt";
   is $bo3->items()->[3]->items()->[0]->items()->[1]{'m'}, 2;
+
+  my $structure = $bo3->get_structure;
+  is $structure->[0], 1;
+  is $structure->[1][1], 3;
+  cmp_deeply $structure, [1, [2, 3], [1, 2, 3], [[1, 2], 3]];
 }
 
 

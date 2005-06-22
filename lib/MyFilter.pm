@@ -12,7 +12,7 @@ sub change{
   }
   if ($sigil eq '&') {
     if ($next eq '(') {
-      return "\$$name"."->\{$arg}->(\$$name, ";
+      return "\$$name"."->\{$arg}->(";
     } else {
       die "When using &.name method call syntax, this must be followed by a '('. I see the syntax '$sigil$name.$arg$next', and I think it is an error";
     }

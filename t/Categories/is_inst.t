@@ -19,11 +19,11 @@ my $bo_bl = $bo->apply_blemish_at($double, $pos2);
 
 $bo_bl->structure_ok([2, [3, 3], 4, 5, 4, 3, 2]);
 
-my $double_cat = $double->get_blemish_category;
-my $item2 = $bo_bl->items()->[1];
-instance_of_cat_ok $item2, $double_cat;
 
-my $bindings = $item2->get_cat_bindings($double_cat);
+my $item2 = $bo_bl->items()->[1];
+instance_of_cat_ok $item2, $double;
+
+my $bindings = $item2->get_cat_bindings($double);
 isa_ok $bindings, "HASH";
 isa_ok $bindings->{what}, "SInt"; 
 

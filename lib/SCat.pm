@@ -42,9 +42,8 @@ sub build{
 
 sub is_instance{
   my $self = shift;
-  my $builtobj = ((@_ == 1) and UNIVERSAL::isa($_[0], "SBuiltObj")) ?
-    $_[0] : SBuiltObj->new()->set_items(@_);
-  return $.instancer->($self, $builtobj);
+  my @args = map { ref($_) ? $_ : SInt->new($_) } @_;
+  return $.instancer->($self, @args);
 }
 
 
@@ -56,7 +55,7 @@ method is_blemished_cat(){
   $._blemished;
 }
 
-method guess_attribute(SBuiltObj $obj, $att){
+method guess_attribute($obj of SBuiltObj, $att){
   my $guesser = $.guesser{$att};
   die "Don't know how to guess attribute $att" unless $guesser;
   return $guesser->($self, $obj);
@@ -73,7 +72,7 @@ method generate_instancer(){
   my $empty_ok = $.empty_ok || 0;
   $.instancer = sub {
 	my ($me, $builtobj) = @_;
-	if ($builtobj->is_empty) {
+	if (not($builtobj) or $builtobj->is_empty) {
 	   return SBindings->new() if $empty_ok;
 	   return undef;
 	}

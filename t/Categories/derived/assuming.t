@@ -23,11 +23,11 @@ $bindings = $cat2->is_instance($ret);
 isa_ok($bindings, "SBindings");
 is($bindings->{end}, 4);
 
-$bindings = $cat2->is_instance(1, 2, 3, 4, 5, 6);
+$bindings = $cat2->is_instance(SBuiltObj->new(1, 2, 3, 4, 5, 6));
 is($bindings->{start}, 1);
 is($bindings->{end}, 6);
 
-$bindings = $cat2->is_instance(3, 4, 5);
+$bindings = $cat2->is_instance(SBuiltObj->new(3, 4, 5));
 undef_ok($bindings);
 
 {

@@ -50,14 +50,14 @@ my $bo5 = new_deep SBuiltObj([2, 3], [2, 3, 4]);
 
 my $bindings;
 
-$bindings = $bl->is_blemished($bo2);
+$bindings = $bl->is_instance($bo2);
 ok exists($bindings->{what});
 
-$bindings = $bl->is_blemished($bo3);
+$bindings = $bl->is_instance($bo3);
 undef_ok $bindings;
 
-$bindings = $bl->is_blemished($bo4);
+$bindings = $bl->is_instance($bo4);
 ok exists($bindings->{what});
 
-$bindings = $bl->is_blemished($bo5);
+$bindings = $bl->is_instance($bo5);
 undef_ok $bindings;

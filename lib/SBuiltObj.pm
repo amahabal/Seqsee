@@ -49,7 +49,7 @@ sub items{
 
 sub flatten{
   my $self = shift;
-  return map { ref $_ ? $_->flatten() : $_ } @.items;
+  return map { $_->flatten() } @.items;
 }
 
 method find_at_position($position of SPos){
@@ -154,6 +154,8 @@ sub compare_deep{
   return 1;
 }
 
+
+
 sub structure_is{ # To be called by structure_ok
   my ($self, $potential_struct) = @_;
   my @struct_parts = @$potential_struct;
@@ -173,6 +175,25 @@ sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
   Test::More::ok($self->structure_is($potential_struct), $msg);
 }
 
+method get_structure(){
+  [ map { $_->get_structure } @.items ];
+}
+
+method semiflattens_ok(*@objects){
+  # XXX clearly incomplete. Stopgap
+  # should flatten only part way
+  my @self_flatten = $self->flatten;
+  my @other_flatten = map { $_->flatten } @objects;
+  return 0 unless @self_flatten == @other_flatten;
+  for (my $i = 0; $i < @self_flatten; $i++) {
+    return 0 unless $self_flatten[$i] == $other_flatten[$i];
+  }
+  return 1;
+}
+
+method structure_exactly_ok($other){
+  return $self->structure_is($other->get_structure);
+}
 
 method as_int(){
   return $.items[0]->as_int() if scalar(@.items) == 1;
