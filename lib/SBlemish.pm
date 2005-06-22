@@ -1,5 +1,5 @@
 package SBlemish;
-use Perl6::Attributes;
+use MyFilter;
 
 sub new{
   my $package = shift;

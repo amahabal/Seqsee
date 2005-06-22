@@ -5,7 +5,7 @@ use SPos;
 use SBlemish;
 use SInstance;
 
-use Perl6::Attributes;
+use MyFilter;
 use Perl6::Subs;
 
 our @ISA = qw{SInstance};

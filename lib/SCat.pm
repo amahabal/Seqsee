@@ -10,7 +10,7 @@ use SCat::Derive::assuming;
 use SCat::Derive::blemished;
 
 use Perl6::Subs;
-use Perl6::Attributes;
+use MyFilter;;
 
 our @ISA = qw{SInstance};
 our %Cats;

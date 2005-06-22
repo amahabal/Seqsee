@@ -1,6 +1,6 @@
 package SPos;
 use strict;
-use Perl6::Attributes;
+use MyFilter;
 
 use SPosFinder;
 use SPos::Global;

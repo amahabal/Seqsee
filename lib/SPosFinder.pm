@@ -1,7 +1,7 @@
 package SPosFinder;
 use SErr;
 use Perl6::Subs;
-use Perl6::Attributes;
+use MyFilter;
 
 method new($package: +$multi is required, +$sub of Code is required ){
   my $self = bless {}, $package;

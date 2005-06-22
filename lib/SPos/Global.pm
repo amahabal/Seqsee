@@ -2,7 +2,7 @@ package SPos::Global;
 use base 'SPos';
 
 use Perl6::Subs;
-use Perl6::Attributes;
+use MyFilter;
 
 method new($package: +$finder of SPosFinder is required){
   my $self = bless {}, $package;

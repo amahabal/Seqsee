@@ -1,6 +1,6 @@
 package SPos::Named;
 use Perl6::Subs;
-use Perl6::Attributes;
+use MyFilter;
 use base 'SPos';
 
 our %Memoize;

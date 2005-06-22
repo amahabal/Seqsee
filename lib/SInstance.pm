@@ -1,6 +1,6 @@
 package SInstance;
 
-use Perl6::Attributes;
+use MyFilter;
 use Perl6::Subs;
 use SCat;
 
