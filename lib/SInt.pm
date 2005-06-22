@@ -2,6 +2,9 @@ package SInt;
 use Perl6::Subs;
 use MyFilter;
 
+use SInstance;
+our @ISA = qw{SInstance};
+
 sub new{
   my ($package, $val) = @_;
   bless { 'm' => $val}, $package;
