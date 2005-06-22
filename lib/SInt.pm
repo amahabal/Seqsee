@@ -55,4 +55,5 @@ method can_be_as_int($int){
 
 sub is_empty{ 0 }
 
+
 1;
