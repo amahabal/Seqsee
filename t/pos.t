@@ -11,7 +11,7 @@ use SCat::mountain;
 use MyFilter;
 
 my $mtn = $SCat::mountain::mountain;
-my $bo  = $mtn->build(foot => 3, peak => 5);
+my $bo  = $mtn->build({foot => 3, peak => 5});
 
 ok UNIVERSAL::isa("SPos::Global", "SPos");
 ok UNIVERSAL::isa("SPos::Global::Absolute", "SPos::Global");
@@ -51,8 +51,16 @@ Named: {
   is $pos_peak, $pos_peak_copy;
 
   isa_ok $pos_peak, "SPos::Named";
-  my $cat_random = new SCat();
-  my $cat_arbit  = new SCat();
+  my $cat_random = new SCat({
+			     builder => {},
+			     guesser_of => {},
+			     guesser_pos_of => {},
+			    });
+  my $cat_arbit  = new SCat({
+			     builder => {},
+			     guesser_of => {},
+			     guesser_pos_of => {},
+			    });
 
   $pos_peak->install_finder
     (cat    => $cat_random,

@@ -14,14 +14,14 @@ my $double_blemish = $SBlemish::double::double;
 isa_ok $cat, "SCat";
 
 BUILDING: {
-  my $cat_5 = $cat->build(mag => 5);
-  my $cat_5_copy = $cat->build(mag => 5);
+  my $cat_5 = $cat->build({ mag => 5 });
+  my $cat_5_copy = $cat->build({ mag => 5 });
   is $cat_5, $cat_5_copy, "memoized";
   isa_ok $cat_5, "SCat";
   instance_of_cat_ok $cat_5, $cat;
   
  BUILD: {
-    $cat_5->build()->structure_ok([5]); 
+    $cat_5->build({})->structure_ok([5]); 
   }
   
  IS_INSTANCE: {

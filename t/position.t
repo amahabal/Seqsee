@@ -19,12 +19,12 @@ my $cat_asc = $SCat::ascending::ascending;
 my $cat_dsc = $SCat::descending::descending;
 my $cat_mnt = $SCat::mountain::mountain;
 
-my $bo1 = $cat_asc->build(start => 5, end => 8);
+my $bo1 = $cat_asc->build({start => 5, end => 8});
 $bo1->structure_ok ([5, 6, 7, 8]);
 
-my $bo2 = $cat_dsc->build(start => 9, end => 1);
-my $bo3 = $cat_mnt->build(foot => 3, peak => 6);
-my $bo_small = $cat_mnt->build(foot => 4, peak => 4);
+my $bo2 = $cat_dsc->build({start => 9, end => 1});
+my $bo3 = $cat_mnt->build({foot => 3, peak => 6});
+my $bo_small = $cat_mnt->build({foot => 4, peak => 4});
 
 my $pos_first = new SPos(1);
 isa_ok($pos_first, "SPos");

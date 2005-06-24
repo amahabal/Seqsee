@@ -26,12 +26,15 @@ my $guesser_flat = {
 		   };
 
 
-our $double = new SBlemish(att           => new Set::Scalar(),
-			   blemisher     => $blemisher,
-			   empty_ok      => 1,
-			   empty_what    => new SBuiltObj(),
-			   guesser       => $guesser,
-			   guesser_flat  => $guesser_flat
+our $double = new SBlemish({att           => new Set::Scalar(),
+			    blemisher     => $blemisher,
+			    empty_ok      => 1,
+			    empty_what    => new SBuiltObj(),
+			    guesser_of       => $guesser,
+			    guesser_flat_of  => $guesser_flat,
+			    builder => 1, # will get reset later
+			    guesser_pos_of => {}
+			   }
 			  );
 my $blemish = $double;
 

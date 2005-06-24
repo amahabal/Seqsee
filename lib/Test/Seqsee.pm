@@ -16,7 +16,7 @@ sub undef_ok{
 sub instance_of_cat_ok{
   my ($what, $cat, $msg) = @_;
   no warnings;
-  $msg ||= "$what is an instance of $cat($cat->{name})";
+  $msg ||= "$what is an instance of $cat";
   ok( $what->instance_of_cat($cat), $msg );
 }
 

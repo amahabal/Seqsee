@@ -14,10 +14,10 @@ sub BUILD{
 sub add_cat{
   (@_ == 3) or croak "add cat requires three args";
   my ($self, $cat, $bindings) = @_;
-  UNIVERSAL::isa($cat, "SCat") or die "cat passed to add_cat ain't a cat";
+  UNIVERSAL::isa($cat, "SCat") or croak "cat passed to add_cat ain't a cat";
   
   foreach (keys %$bindings) {
-    $cat->has_attribute($_) or die;
+    $cat->has_attribute($_) or croak "$cat doesn't have attribute $_";
   }
   $SCat::Str2Cat{$cat} = $cat;
   $cats{ident $self}{$cat} = $bindings;

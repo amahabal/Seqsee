@@ -14,7 +14,7 @@ use SCat::mountain;
 my $bl      = $SBlemish::double::double;
 my $cat_mtn = $SCat::mountain::mountain;
 
-my $bo = $cat_mtn->build(foot => 2, peak => 5);
+my $bo = $cat_mtn->build({foot => 2, peak => 5});
 
 #################################
 # ADDING BLEMISHES

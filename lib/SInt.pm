@@ -4,8 +4,11 @@ use Class::Std;
 use SInstance;
 our @ISA = qw{SInstance};
 
-my %mag :ATTR( :init_arg<mag> :get<mag>);
+my %mag :ATTR( :get<mag>);
 
+sub BUILD {
+  $mag{ $_[1] } = $_[2]->{mag};
+}
 sub flatten{
   $mag{ident shift};
 }

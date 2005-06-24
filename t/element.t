@@ -12,4 +12,4 @@ isa_ok $e, "SElement";
 isa_ok $e, "SInt";
 is $e->get_mag(), 5;
 
-instance_of_cat_ok( $e,  $SCat::number::number->build(mag => 5) );
+instance_of_cat_ok( $e,  $SCat::number::number->build({mag => 5}) );

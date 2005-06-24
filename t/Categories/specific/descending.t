@@ -15,12 +15,12 @@ isa_ok($cat, "SCat" );
 
 BUILDING: {
   my $ret;
-  $ret = $cat->build(start => 5, end => 2);
+  $ret = $cat->build({start => 5, end => 2});
   isa_ok($ret, "SBuiltObj");
   $ret->structure_ok([5, 4, 3, 2], "start => 5, end => 2");
-  $ret = $cat->build(start => 2, end => 2);
+  $ret = $cat->build({start => 2, end => 2});
   $ret->structure_ok([2], "start => 2, end => 2");
-  $ret = $cat->build(start => 1, end => 2);
+  $ret = $cat->build({start => 1, end => 2});
   $ret->structure_ok([], "start => 1, end => 2");
 }
 

@@ -30,7 +30,7 @@ LAST_BUT_ONE: {
 
 NAMED: {
   my $cat = $SCat::mountain::mountain;
-  my $bo_mtn = $cat->build(foot => 2, peak => 4);
+  my $bo_mtn = $cat->build({ foot => 2, peak => 4 });
   my $pos = new SPos "peak";
   my $bo_mtn2 = $bo_mtn->apply_blemish_at($bl, $pos);
   $bo_mtn2->structure_ok([2, 3, [4, 4], 3, 2]);

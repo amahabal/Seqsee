@@ -40,20 +40,23 @@ my $guesser_flat = {
 		    }
 		   };
 
-lives_ok { $bl = new SBlemish(blemisher    => $blemisher,
-			      empty_ok     => 1,
-			      empty_what   => new SBuiltObj(),
-			      att          => new Set::Scalar(),
-			      guesser      => $guesser,
-			      guesser_flat => $guesser_flat,
-			     ); };
+lives_ok { $bl = new SBlemish({blemisher    => $blemisher,
+			       empty_ok     => 1,
+			       empty_what   => new SBuiltObj(),
+			       att          => new Set::Scalar(),
+			       guesser_of      => $guesser,
+			       guesser_flat_of => $guesser_flat,
+			       guesser_pos_of  => {},
+			       builder => 1,
+			      }
+			      ); };
 
 isa_ok $bl,                  "SBlemish";
 isa_ok $bl,                  "SCat";
-    ok $bl._blemished;
-isa_ok $bl.blemisher,        "CODE";
-isa_ok $bl.instancer,        "CODE";
-isa_ok $bl.instancer_flat,   "CODE";
+    ok $bl>get_blemished;
+isa_ok $bl->get_blemisher,        "CODE";
+isa_ok $bl->get_instancer,        "CODE";
+isa_ok $bl->get_instancer_flat,   "CODE";
 
 
 #diag "TESTING BLEMISHER";

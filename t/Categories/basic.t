@@ -7,18 +7,21 @@ use SBindings;
 
 use_ok("SCat");
 
-my $cat = new SCat;
+my $cat = new SCat({ attributes => [qw/start end/],
+		     builder => 1,
+		     guesser_pos_of => {},
+		     guesser_of => {},
+		   });
 isa_ok($cat, "SCat");
-$cat->add_attributes(qw/start end/);
-$cat->{builder} = sub {
-  my ($self, %args) = @_;
-  die "need start" unless $args{start};
-  die "need end"   unless $args{end};
+$cat->set_builder ( sub {
+  my ($self, $args_ref) = @_;
+  die "need start" unless $args_ref->{start};
+  die "need end"   unless $args_ref->{end};
   my $ret = new SBuiltObj;
-  $ret->set_items([$args{start} .. $args{end}]);
+  $ret->set_items([$args_ref->{start} .. $args_ref->{end}]);
   $ret;
-};
-$cat->{instancer} = sub {
+});
+$cat->set_instancer(sub {
   my ($self, $builtobj) = @_;
   my @items =  @{$builtobj->items};
   my $len = scalar(@items);
@@ -29,13 +32,13 @@ $cat->{instancer} = sub {
   return SBindings->new(start => $items[0]->get_mag(),
 			end => $items[-1]->get_mag()
 		       );
-};
+});
 
 my $ret;
 
 dies_ok  {        $cat->build() } "Needs the arguments";
-dies_ok  {        $cat->build(start => 1) } "Needs the arguments";
-lives_ok { $ret = $cat->build(start => 1, end => 3) } "Needs the arguments";
+dies_ok  {        $cat->build({start => 1}) } "Needs the arguments";
+lives_ok { $ret = $cat->build({start => 1, end => 3}) } "Needs the arguments";
 
 isa_ok($ret, "SBuiltObj", "Built object is a SBuiltObj");
 $ret->structure_ok([1,2,3], "built the right object");

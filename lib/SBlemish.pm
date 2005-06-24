@@ -1,72 +1,84 @@
 package SBlemish;
 use SCat;
-use MyFilter;
-use Perl6::Subs;
+use strict;
+#use MyFilter;
+#use Perl6::Subs;
+#use Smart::Comments;
 use Set::Scalar;
 our @ISA = qw{SCat};
 
-method new($package: 
-	   +$blemisher of Code,
-	   +$empty_ok,
-	   +$empty_what,
-	   +$att of Set::Scalar,
-	   +$guesser,
-	   +$guesser_flat
-	  ){
-  my $self = new SCat;
-  $.att    = $att;
-  $.att->insert("what");
+use Class::Std;
 
-  $blemisher or die "The blemisher must be provided!";
+my %blemisher_of    :ATTR( :get<blemisher>        :set<blemisher>);
+my %empty_what_of   :ATTR(:init_arg<empty_what>   :set<empty_what>);
+my %guesser_flat_of_of :ATTR(:init_arg<guesser_flat_of> :set<guesser_flat_of>);
+my %instancer_deep_of :ATTR;
+my %instancer_flat_of :ATTR(:get<instancer_flat>);
+sub BUILD{
+  my ( $self, $id, $opts ) = @_;
+  $self->get_att()->insert("what");
 
-  $.blemisher = 
-    sub($self, $what, *%options) { 
-      &.builder($self, %options, what => $what); 
+  my $blemisher = delete($opts->{blemisher}) 
+    or die "The blemisher must be provided!";
+
+  #if (%$opts) {
+  #  print "Unknown arguments to SBlemish->BUILD():\n";
+  #  while (my ($k, $v) = each %$opts) {
+  #    print "\t$k => $v\n";
+  #  }
+  #  die;
+  #}
+
+  $self->set_builder($blemisher); # jesus!
+
+  $blemisher_of{$id} = 
+    sub {
+      my ( $self, $what, %options ) = @_;
+      $self->get_builder->($self, { %options, what => $what } );
     };
-  $.builder       = $blemisher;
-  $.empty_ok      = $empty_ok;
-  $.empty_what    = $empty_what;
-  $.guesser       = $guesser;
-  $.guesser_flat  = $guesser_flat;
 
   $self->compose;
-  bless $self, $package;
-  $._blemished = 1;
-  # Now we'll do something evil
-  $.instancer_flat = $self->generate_instancer_flat($guesser_flat);
-  $.instancer_deep = $.instancer;
-  $.instancer = 
-     sub {
+
+  $self->set_blemished(1);
+  $instancer_flat_of{$id} = 
+    $self->generate_instancer_flat($opts->{guesser_flat_of});
+  $instancer_deep_of{$id} = $self->get_instancer;
+  $self->set_instancer(
+    sub {
       my $self = shift;
+      my $id   = ident $self;
       #print "In instancer\n";
       if (not(@_) or (@_ == 1 and $_[0]->is_empty)) {
-	return $.empty_what if $.empty_ok;
+	return $empty_what_of{$id} if $self->get_empty_ok();
 	return undef;
       }
       my $bindings;
       if (@_ == 1) {
 	#print "\tSingle object, only a deep check($_[0])\n";
-	$bindings = $.instancer_deep->($self, $_[0]);
+	$bindings = $instancer_deep_of{$id}->($self, $_[0]);
 	return $bindings if $bindings;
       } else {
 	#print "\tSeveral objects, only a shallow check\n";
-	$bindings = $.instancer_flat->($self, @_);
+	$bindings = $instancer_flat_of{$id}->($self, @_);
 	return $bindings;
       }
-    };
-
-  $self;
+    });
 }
 
-
-method blemish($object){
-  my $ret = &.builder($self, what => $object) or return undef;
+sub blemish{
+  my ($self, $object) = @_;
+  my $ret = $self->get_builder()->($self, what => $object) 
+    or return;
+  ### $ret
   $ret->add_cat($self, { what => $object });
   $ret;
 }
 
-method generate_instancer_flat($guesser_hash){
-  my @atts = $.att->members;
+sub generate_instancer_flat{
+  my ( $self, $guesser_hash ) = @_;
+  ### $guesser_hash
+  my $id = ident $self;
+  my @atts = $self->get_att()->members;
   foreach (@atts) {
     $guesser_hash->{$_} or die "cannot generate flat instancer; do not know how to guess $_";
   }
@@ -95,7 +107,8 @@ method generate_instancer_flat($guesser_hash){
   };
 }
 
-method unblemish($object){
+sub unblemish{
+  my ( $self, $object ) = @_;
   my $bindings = $self->is_instance($object) or return undef;
   $bindings->{what};
 }
@@ -103,22 +116,7 @@ method unblemish($object){
 sub is_blemished{
   my $self = shift;
   my $obj  = shift;
-  $.instancer->($self, $obj);
-}
-
-sub get_blemish_category{
-  my $self = shift;
-  $self->{blemish_cat} ||= $self->make_blemish_category;
-}
-
-sub make_blemish_category{
-  my $self;
-  my $ret = new SCat;
-  $ret->{builder} = $.blemisher;
-  $ret->{instancer} = $.instancer;
-  $ret->{_blemished} = $self;
-  $self->{blemish_cat} = $ret;
-  $ret;
+  $self->get_instancer($self, $obj);
 }
 
 1;

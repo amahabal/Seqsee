@@ -8,16 +8,20 @@ sub derive_blemished{
   die "Position must be a SPos" unless UNIVERSAL::isa($position, "SPos");
  
 
-  my $new_cat = new SCat;
-  $new_cat->{builder} = sub {
-    shift;
-    my $bo = $self->build(@_);
-    return $bo->apply_blemish_at($blemish, $position);
-  };
-
-  $new_cat->{instancer} = sub {
-    die "Unimplemented";
-  };
+  my $new_cat = new SCat
+    ({ builder =>  sub {
+	 shift;
+	 my $bo = $self->build(@_);
+	 return $bo->apply_blemish_at($blemish, $position);
+       },
+       instancer => sub {
+	 die "unimplemented";
+       },
+       empty_ok => 0,
+       guesser_pos_of => {},
+       guesser_of => {},
+       
+     });
   $new_cat;
 }
 
