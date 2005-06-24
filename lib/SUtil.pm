@@ -1,4 +1,9 @@
 package SUtil;
+use Perl6::Subs;
+use SPos;
+use SCat;
+use SBlemish;
+
 our @EXPORT = qw{uniq equal_when_flattened};
 our @ISA = qw{Exporter};
 
@@ -27,6 +32,15 @@ sub equal_when_flattened{
     return undef unless $flattened1[$i] == $flattened2[$i];
   }
   return 1;
+}
+
+sub generate_blemished(+$cat     of SCat,
+                       +$blemish of SBlemish,
+                       +$pos     of SPos,
+		       *%args){
+   my $bo = $cat->build(%args);
+   my $blemished = $bo->apply_blemish_at($blemish, $pos);
+  return $blemished;
 }
 
 1;

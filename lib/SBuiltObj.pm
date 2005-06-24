@@ -169,6 +169,15 @@ sub structure_is{ # To be called by structure_ok
   return 1;
 }
 
+sub has_structure_one_of{
+  my $self = shift;
+  for (@_) {
+    my $struct = (UNIVERSAL::isa($_, "SBuiltObj")) ? $_->get_structure() : $_;
+    return 1 if $self->structure_is($struct);
+  }
+  return 0;
+}
+
 sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
   my ($self, $potential_struct, $msg ) = @_;
   $msg ||= "structure of $self";
