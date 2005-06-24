@@ -9,6 +9,8 @@ use SCat::ascending;
 use SCat::descending;
 use SCat::mountain;
 
+# use Smart::Comments;
+
 BEGIN{
   use_ok("SPos");
 }
@@ -62,9 +64,13 @@ ASCENDING: {
   for my $pair ([$pos_first, 5], [$pos_second, 6],
 		[$pos_last_butone, 7], [$pos_last, 8]
 	       ) {
+    ### $pair->[0]
+    ### $bo1
     my @sub_objects = $bo1->find_at_position($pair->[0]);
+    ### [map { $_->get_mag() }@sub_objects ]
+    ### $pair->[1]
     $count++;
-    cmp_deeply([map { $_->{'m'} } @sub_objects], [$pair->[1]], "ascending 5 8, subobj test $count");
+    cmp_deeply([map { $_->get_mag() } @sub_objects], [$pair->[1]], "ascending 5 8, subobj test $count");
   }
 }
 
@@ -75,7 +81,7 @@ DESCENDING: {
 	       ) {
     my @sub_objects = $bo2->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply([map { $_->{'m'} } @sub_objects], [$pair->[1]], "descending 9 1, subobj test $count");
+    cmp_deeply([map { $_->get_mag() } @sub_objects], [$pair->[1]], "descending 9 1, subobj test $count");
   }
 }
 
@@ -86,7 +92,7 @@ MOUNTAIN: {
 	       ) {
     my @sub_objects = $bo3->find_at_position($pair->[0]);
     $count++;
-    cmp_deeply([map { $_->{'m'} }@sub_objects], [$pair->[1]], "mountain 3 6, subobj test $count");
+    cmp_deeply([map { $_->get_mag() }@sub_objects], [$pair->[1]], "mountain 3 6, subobj test $count");
   }
 
 
@@ -101,6 +107,6 @@ PEAK: {
   my $range = $pos_peak->find_range($bo3);
   cmp_deeply $range, [3];
   @sub_objects = $bo3->find_at_position($pos_peak);
-  cmp_deeply([map { $_->{'m'} } @sub_objects], [6], "mountain 3 6, subobj peak");  
+  cmp_deeply([map { $_->get_mag() } @sub_objects], [6], "mountain 3 6, subobj peak");  
 }
  

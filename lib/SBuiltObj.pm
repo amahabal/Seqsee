@@ -1,25 +1,24 @@
 package SBuiltObj;
+use strict;
 use SInt;
 use SCat;
 use SPos;
 use SBlemish;
 use SInstance;
 
-use MyFilter;
 use Perl6::Subs;
-
 our @ISA = qw{SInstance};
 
-method new($package: *@items){
-  my $self = bless {}, $package;
-  $self->set_items(@items);
-  $.cats = {};
-  $self;
+use Class::Std;
+my %items :ATTR;
+
+sub BUILD{
+  my ( $self, $id, $opts_ref ) = @_;
+  $self->set_items($opts_ref->{items});
 }
 
 sub new_deep{
   my $package = shift;
-  my $self = bless {}, $package;
   my @items = map { 
     if (ref $_) {
       if (ref($_) eq 'ARRAY') {
@@ -28,71 +27,74 @@ sub new_deep{
 	$_->clone;
       }
     } else {
-      SInt->new($_)
+      SInt->new({mag => $_})
     }
   } @_;
-  $self->set_items(@items);
-  $.cats = {};
+  my $self = $package->new({items => [@items]});
   $self;
 }
 
 sub set_items{
-  my $self = shift;
-  $.items = [map { (ref $_) ? $_->clone : SInt->new($_) } @_];
+  my ( $self, $items_ref )  = @_;
+  $items{ ident $self } = 
+    [map {(ref $_) ? $_->clone : SInt->new({mag => $_})} @$items_ref];
   $self;
 }
 
 sub items{
-  shift->{items};
+  $items{ident shift};
 }
 
 
 sub flatten{
   my $self = shift;
-  return map { $_->flatten() } @.items;
+  return map { $_->flatten() } @{ $items{ident $self} };
 }
 
-method find_at_position($position of SPos){
-  my $range = $position->find_range($self);
-  return $self->subobj_given_range($range);
+sub find_at_position{
+  my ( $self, $position ) = @_;
+  UNIVERSAL::isa( $position, "SPos" ) or die;
+  my $range = $position->find_range( $self );
+  return $self->subobj_given_range( $range );
 }
 
-
-#method range_given_position($position){
-#  return $position->find_range($self);
-#}
-
-method subobj_given_range($range){ # Name should be changed!
+sub subobj_given_range{
+  my ( $self, $range ) = @_;
+  my $items_ref = $items{ ident $self };
   my @ret;
-  my $items = $.items;
   for (@$range) {
-    my $what = $items->[$_];
-    die "out of range" if not defined $what;
+    my $what = $items_ref->[$_];
+    defined $what or die "out of range";
     push @ret, $what;
   }
-  @ret;
+  return @ret;
 }
 
-method get_position_finder($str){ #XXX should really deal with the category of the built object, and I have not dealt with that yet....
+sub get_position_finder{
+  my ( $self, $str ) = @_;
   my @cats = $self->get_cats();
-  my @cats_with_position = grep { $_->has_named_position($str) } @cats;
-  die "Could not find any way for finding the position '$str' for $self" unless @cats_with_position;
+  my @cats_with_position = 
+    grep { $_->has_named_position($str) } @cats;
+  @cats_with_position or die "Could not find any way for finding the position '$str' for $self";
   # XXX what if multiple categories have a position of this name??
   return $cats_with_position[0]->{position_finder}{$str};
 }
 
-method splice($from, $len, *@rest){
-  my $items = $.items;
-  splice(@$items, $from, $len, @rest);
-  $self;
+sub splice{
+  (@_ == 4) or die "syntax of splice has changed"; 
+  my ( $self, $from, $len, $rest_ref  ) = @_;
+  my $items_ref = $items{ident $self};
+  splice(@$items_ref, $from, $len, @$rest_ref);
+  return $self;
 }
 
-method apply_blemish_at(SBlemish $blemish, $position of SPos where {$_}){ 
-	# Assumption: position returns a single item
+sub apply_blemish_at{
+  my ($self, $blemish, $position) = @_;
+  UNIVERSAL::isa($blemish,  "SBlemish") or die;
+  UNIVERSAL::isa($position, "SPos")     or die;
   $self = $self->clone;
-  my $range = $position->find_range($self);
+  my $range = $position->find_range( $self );
   die "position $position undefined for $self" unless $range;
-  # XXX should check that range is contiguous....
   my @subobjs = $self->subobj_given_range($range);
   if (@subobjs >= 2) {
     die "applying blemished over a range longer than 1 not yet implemented";
@@ -101,20 +103,16 @@ method apply_blemish_at(SBlemish $blemish, $position of SPos where {$_}){
   #$blemished->show();
   my $range_start = $range->[0];
   my $range_length = scalar(@$range);
-  $self->splice($range_start, $range_length, $blemished);
+  $self->splice($range_start, $range_length, [$blemished]);
   #$self->show;
   $self;
 }
 
-method clone(){
-  my $new_obj = new SBuiltObj;
-  my $items = $new_obj->{items};
-  foreach (@.items) {
-    push (@$items, ref($_) ? $_->clone() : $_ ); 
-  }
-  while (my($k, $v) = each %.cats) {
-    $new_obj->{cats}{$k} = $v; #XXX should I clone this???
-  }
+sub clone{
+  my $self = shift;
+  my @items = map {ref($_) ? $_->clone() : $_} @{$items{ident $self}};
+  my $new_obj = new SBuiltObj({items => \@items});
+  $new_obj->set_cats_hash( $self->get_cats_hash());
   $new_obj;
 }
 
@@ -122,7 +120,7 @@ sub show{
   my $self = shift;
   print "Showing the structure of $self:\n";
   print "\nItems:\n";
-  foreach (@.items) {
+  foreach (@{$items{ident $self}}) {
     print "\t$_\n";
     if (ref $_) {
       $_->show_shallow(2);
@@ -185,7 +183,7 @@ sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
 }
 
 method get_structure(){
-  [ map { $_->get_structure } @.items ];
+  [ map { $_->get_structure } @{$items{ident $self}} ];
 }
 
 method semiflattens_ok(*@objects){
@@ -204,8 +202,11 @@ method structure_exactly_ok($other){
   return $self->structure_is($other->get_structure);
 }
 
-method as_int(){
-  return $.items[0]->as_int() if scalar(@.items) == 1;
+sub as_int{
+  my $self = shift;
+  return $items{ident $self}[0]->as_int()  
+    if scalar(@{$items{ident $self}}) == 1;
+  
   my $bl_cats = $self->get_blemish_cats;
   my %ret;
   while (my ($blemish, $what) = each %$bl_cats) {
@@ -215,21 +216,23 @@ method as_int(){
   return sort { $ret{$b} <=> $ret{$a} } keys %ret;
 }
 
-method can_be_as_int($int){
+sub can_be_as_int{
+  my ( $self, $int ) = @_;
   my @int_vals = $self->as_int();
   for (@int_vals) { return 1 if $_ == $int }
   return undef;
 }
 
-method structure_blearily_ok($template){
-  my @my_items        = @.items;
+sub structure_blearily_ok{
+  my ( $self, $template ) = @_;
+  my @my_items        = @{ $items{ident $self} };
   my @template_items  = @{$template->items};
   return undef unless scalar(@my_items) == scalar(@template_items);
   for (my $i = 0; $i < scalar(@my_items); $i++){
     my $my_item = $my_items[$i];
     my $t_item  = $template_items[$i];
     if (UNIVERSAL::isa($t_item, "SInt")) {
-      next if $my_item->can_be_as_int($t_item->{'m'});
+      next if $my_item->can_be_as_int($t_item->get_mag());
     } else {
       next if $my_item->structure_blearily_ok($t_item);
     }
@@ -238,8 +241,9 @@ method structure_blearily_ok($template){
   return SBindings->new();
 }
 
-method is_empty{
-  return 1 unless @.items;
+sub is_empty{
+  my $self = shift;
+  return 1 unless @{ $items{ident $self}};
   return 0;
 }
 

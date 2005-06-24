@@ -4,7 +4,7 @@ BEGIN { plan tests => 9; }
 
 use SBuiltObj;
 
-my $bo = new SBuiltObj(1, 2, 3);
+my $bo = new SBuiltObj({items => [1, 2, 3]});
 ok($bo->structure_is([1, 2, 3]));
 $bo->structure_ok([1, 2, 3]);
 

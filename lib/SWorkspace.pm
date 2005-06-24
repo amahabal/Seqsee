@@ -13,8 +13,9 @@ method setup($package: *@rest){
 
 method insert_elements($package: *@rest){
   for (@rest) {
-    push @elements, (ref($_) and $_->isa("SElement")) ? $_ : SElement->new($_);
-    $elements[-1]->{left_edge} = $elements[-1]->{right_edge} = $elements_count;
+    push @elements, (ref($_) and $_->isa("SElement")) ? $_ : SElement->new({mag => $_});
+    $elements[-1]->set_left_edge($elements_count);
+    $elements[-1]->set_right_edge($elements_count);
     $elements_count++;
   }
 }

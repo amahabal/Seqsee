@@ -70,7 +70,7 @@ ASCENDING_BLEMISHED:
 {
   my $cat      = $SCat::ascending::ascending;
   my $blemish  = $SBlemish::double::double;
-  
+  $SBlemish::double::double;
   my $bo_2_5_none   = $cat->build(start => 2, end => 5);
   my $bo_2_5_second  = generate_blemished(cat   => $cat, blemish => $blemish,
 					 start => 2,    end     => 5,

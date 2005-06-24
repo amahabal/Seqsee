@@ -70,11 +70,11 @@ Named: {
 
   isa_ok $pos_peak.find_by_cat{$cat_arbit}, "SPosFinder";
 
-  my $bo_arbit         = new SBuiltObj(1, 2, 3, 4);
-  $bo_arbit->add_cat($cat_arbit);
+  my $bo_arbit         = new SBuiltObj({items => [1, 2, 3, 4]});
+  $bo_arbit->add_cat($cat_arbit, {});
 
-  my $bo_random        = new SBuiltObj(1, 2, 3, 4);
-  $bo_random->add_cat($cat_random);
+  my $bo_random        = new SBuiltObj({items => [1, 2, 3, 4]});
+  $bo_random->add_cat($cat_random, {});
 
   @objs = $bo_arbit->find_at_position($pos_peak);
   ok(@objs == 1);
@@ -84,6 +84,6 @@ Named: {
   ok(@objs == 1);
   $objs[0]->structure_ok([3]);
 
-  $bo_arbit->add_cat($cat_random);
+  $bo_arbit->add_cat($cat_random, {});
   throws_ok { @objs = $bo_arbit->find_at_position($pos_peak) } "SErr::Pos::MultipleNamed";
 }

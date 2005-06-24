@@ -17,10 +17,10 @@ $cat->{builder} = sub {
 
   my $ret = new SCat;
 
-  $ret->add_cat($self);
+  $ret->add_cat($self, {});
 
   $ret->{builder} = sub {
-    return SBuiltObj->new($magnitude);
+    return SBuiltObj->new({ items => [ $magnitude ]});
   };
   
   $ret->{instancer} = sub {

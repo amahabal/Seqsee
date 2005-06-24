@@ -26,9 +26,9 @@ BUILDING: {
   
  IS_INSTANCE: {
     my $bindings;
-    my $bo_is    = new SBuiltObj(5);
-    my $bo_isnt  = new SBuiltObj(6);
-    my $bo_is_bl = $double_blemish->blemish(SBuiltObj->new(5));
+    my $bo_is    = new SBuiltObj({items => [5]});
+    my $bo_isnt  = new SBuiltObj({items => [6]});
+    my $bo_is_bl = $double_blemish->blemish(SBuiltObj->new({items => [5]}));
 
     $bindings = $cat_5->is_instance($bo_is);
     isa_ok $bindings, "SBindings";

@@ -4,7 +4,7 @@ BEGIN { plan tests => 2; }
 
 use SInt;
 
-my $si = new SInt(5);
+my $si = new SInt({mag => 5});
 isa_ok $si, "SInt";
-is $si->{'m'}, 5;
+is $si->get_mag(), 5;
 

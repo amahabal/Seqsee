@@ -20,7 +20,7 @@ my $blemisher =  sub {
   my ($self, %args) = @_;
   my $what = delete $args{what};
   my $new_obj = new SBuiltObj;
-  $new_obj->set_items($what, $what);
+  $new_obj->set_items([$what, $what]);
   $new_obj;
 };
 
@@ -36,7 +36,7 @@ my $guesser_flat = {
 		      return undef if (@bo % 2);
 		      my @parts = @bo[0 .. (@bo/2) - 1];
 		      #print "#\tparts are: @parts\n";
-		      return SBuiltObj->new(@parts);
+		      return SBuiltObj->new({items => \@parts});
 		    }
 		   };
 
@@ -57,7 +57,7 @@ isa_ok $bl.instancer_flat,   "CODE";
 
 
 #diag "TESTING BLEMISHER";
-my $bo = SBuiltObj->new(1, 2, 3);
+my $bo = SBuiltObj->new({items => [1, 2, 3]});
 my $blemished = $bl->blemish($bo);
 $blemished->structure_ok([[1, 2, 3], [1, 2, 3]]);
 instance_of_cat_ok $blemished, $bl;
@@ -84,9 +84,9 @@ $unblemished = $bl->unblemish($maybe_blemished_but_not);
 undef_ok $unblemished;
 
 #diag "TESTING AUTO-GENERATED FUNCTIONS FOR FLAT INSTANCE";
-my $maybe_blemished_flat = SBuiltObj->new(1, 2, 3, 1, 2, 3);
+my $maybe_blemished_flat = SBuiltObj->new({items => [1, 2, 3, 1, 2, 3]});
 #diag @maybe_blemished_flat.items;
-$bindings = $bl->is_instance(@maybe_blemished_flat.items);
+$bindings = $bl->is_instance(@{$maybe_blemished_flat->items});
 ok $bindings;
 isa_ok $bindings->{what}, "SBuiltObj";
 $bindings->{what}->structure_ok([1, 2, 3]);
@@ -95,8 +95,9 @@ $bindings->{what}->structure_ok([1, 2, 3]);
 #$unblemished->structure_ok([1, 2, 3]);
 
 #diag "TESTING AUTO-GENERATED FUNCTIONS FOR FLAT NON-INSTANCE";
-my $maybe_blemished_flat_but_not = SBuiltObj->new(1, 2, 3, 5, 1, 2, 3, 4);
-$bindings = $bl->is_instance(@maybe_blemished_flat_but_not.items);
+my $maybe_blemished_flat_but_not = 
+  SBuiltObj->new({items => [1, 2, 3, 5, 1, 2, 3, 4]});
+$bindings = $bl->is_instance(@{$maybe_blemished_flat_but_not->items});
 undef_ok $bindings;
 $unblemished = $bl->unblemish($maybe_blemished_flat_but_not);
 undef_ok $unblemished;

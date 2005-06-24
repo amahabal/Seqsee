@@ -17,7 +17,7 @@ sub instance_of_cat_ok{
   my ($what, $cat, $msg) = @_;
   no warnings;
   $msg ||= "$what is an instance of $cat($cat->{name})";
-  ok( (exists($what->{cats}{$cat}) ? 1 : 0), $msg );
+  ok( $what->instance_of_cat($cat), $msg );
 }
 
 1;

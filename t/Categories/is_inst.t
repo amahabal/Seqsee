@@ -9,6 +9,9 @@ use SBlemish;
 use SBlemish::double;
 use SCat::mountain;
 use SPos;
+# use Smart::Comments;
+
+
 
 my $double = $SBlemish::double::double;
 my $mtn    = $SCat::mountain::mountain;
@@ -24,6 +27,7 @@ my $item2 = $bo_bl->items()->[1];
 instance_of_cat_ok $item2, $double;
 
 my $bindings = $item2->get_cat_bindings($double);
+### $bindings
 isa_ok $bindings, "HASH";
 isa_ok $bindings->{what}, "SInt"; 
 

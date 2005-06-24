@@ -8,7 +8,7 @@ my $blemisher = sub {
   my ($self, %args) = @_;
   my $what = delete $args{what};
   my $new_obj = new SBuiltObj;
-  $new_obj->set_items($what, $what);
+  $new_obj->set_items([$what, $what]);
   $new_obj;
 };
 

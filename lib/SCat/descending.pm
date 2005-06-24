@@ -10,8 +10,8 @@ $cat->{builder} = sub {
   die "need start" unless $args{start};
   die "need end"   unless $args{end};
   my $ret = new SBuiltObj;
-  $ret->set_items(reverse($args{end} .. $args{start}));
-  $ret->add_cat($cat, %args);
+  $ret->set_items([ reverse($args{end} .. $args{start}) ]);
+  $ret->add_cat($cat, \%args);
   $ret;
 };
 

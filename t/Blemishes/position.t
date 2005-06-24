@@ -13,7 +13,7 @@ my $bl = $SBlemish::double::double;
 
 SECOND: {
   my $pos = new SPos 2;
-  my $obj = new SBuiltObj(4, 5, 6, 7);
+  my $obj = new SBuiltObj({items => [4, 5, 6, 7]});
   
   $obj2 = $obj->apply_blemish_at($bl, $pos);
   $obj2->structure_ok([4, [5, 5], 6, 7]);
@@ -23,7 +23,7 @@ SECOND: {
 
 LAST_BUT_ONE: {
   my $pos = new SPos -2;  
-  my $obj = new SBuiltObj(4, 5, 6, 7);
+  my $obj = new SBuiltObj({items => [4, 5, 6, 7]});
   $obj2 = $obj->apply_blemish_at($bl, $pos);
   $obj2->structure_ok([4, 5, [6, 6], 7]);
 }

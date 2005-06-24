@@ -61,7 +61,7 @@ method new($package:
 
 method blemish($object){
   my $ret = &.builder($self, what => $object) or return undef;
-  $ret->add_cat($self, what => $object);
+  $ret->add_cat($self, { what => $object });
   $ret;
 }
 

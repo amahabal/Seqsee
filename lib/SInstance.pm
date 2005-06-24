@@ -1,42 +1,55 @@
 package SInstance;
-
-use MyFilter;
 use Perl6::Subs;
 use SCat;
+use Carp;
 
-method add_cat(SCat $cat, *%bindings){
-  foreach (keys %bindings) {
-    die "Category $cat does not take the attribute $_" unless
-      $cat->has_attribute($_);
+use Class::Std;
+
+my %cats :ATTR( :get<cats_hash> :set<cats_hash>);
+
+sub BUILD{
+  $cats{$_[1]} = {};
+}
+
+sub add_cat{
+  (@_ == 3) or croak "add cat requires three args";
+  my ($self, $cat, $bindings) = @_;
+  UNIVERSAL::isa($cat, "SCat") or die "cat passed to add_cat ain't a cat";
+  
+  foreach (keys %$bindings) {
+    $cat->has_attribute($_) or die;
   }
   $SCat::Str2Cat{$cat} = $cat;
-  $.cats{$cat} = \%bindings;
-  $self;
-} 
-
-method get_cat_bindings(SCat $cat){
-  return undef unless exists $.cats{$cat};
-  $.cats{$cat};
+  $cats{ident $self}{$cat} = $bindings;
+  return $self;
 }
 
-method get_cats(){
-  map { $SCat::Str2Cat{$_} } keys %.cats;
+sub get_cat_bindings{
+  my ( $self, $cat ) = @_;
+  return unless exists $cats{ident $self}{$cat};
+  return $cats{ident $self}{$cat};
 }
 
-method get_blemish_cats(){
+sub get_cats{
+  my $self = shift;
+  return map { $SCat::Str2Cat{$_} } keys %{$cats{ident $self}};
+}
+
+sub get_blemish_cats{
+  my $self = shift;
   my %ret;
-  while (my ($k, $binding) = each %.cats) {
+  while (my ($k, $binding) = each %{$cats{ident $self}}) {
     if ($SCat::Str2Cat{$k}->is_blemished_cat) {
       $ret{$k} = $binding->{what};
     }
   }
-  \%ret;
+  return \%ret;
 }
 
-method instance_of_cat(SCat $cat){
-  exists $.cats{$cat};
+sub instance_of_cat{
+  my ( $self, $cat ) = @_;
+  UNIVERSAL::isa($cat, "SCat") or die;
+  return exists $cats{ident $self}{$cat};
 }
-
-
 
 1;

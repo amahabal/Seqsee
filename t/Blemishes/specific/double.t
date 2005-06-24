@@ -43,8 +43,8 @@ Everywhere: {
 ################################
 # Testing for blemishes
 
-my $bo2 = new SBuiltObj(3, 3);
-my $bo3 = new SBuiltObj(3, 3, 4);
+my $bo2 = new SBuiltObj({items => [3, 3]});
+my $bo3 = new SBuiltObj({items => [3, 3, 4]});
 my $bo4 = new_deep SBuiltObj([2, 3], [2, 3]);
 my $bo5 = new_deep SBuiltObj([2, 3], [2, 3, 4]);
 

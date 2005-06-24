@@ -10,12 +10,12 @@ BEGIN { plan tests => 24; }
 
 NEW: {
   my $bo = new SBuiltObj();
-  $bo->set_items(qw{1 2 3});
+  $bo->set_items([qw{1 2 3}]);
   isa_ok($bo, "SBuiltObj");
   $bo->structure_ok([1,2,3], "Items stored fine");
   isa_ok $bo->items()->[0], "SInt";
 
-  my $bo2 = new SBuiltObj(3, 7, 9, 11);
+  my $bo2 = new SBuiltObj({items => [3, 7, 9, 11]});
   isa_ok($bo2, "SBuiltObj");
   $bo2->structure_ok([3, 7, 9, 11]);
 
@@ -27,7 +27,7 @@ NEW: {
   }
   
  CLONE_NEW: {
-    my $bo3 = new SBuiltObj($bo, 5, $bo);
+    my $bo3 = new SBuiltObj({ items => [$bo, 5, $bo] });
     isa_ok $bo3, "SBuiltObj";
     my @items = @{ $bo3->items };
     isa_ok $items[0], "SBuiltObj";
@@ -48,7 +48,7 @@ NEW_DEEP: {
   is scalar(@{$bo2->items}), 2;
   is scalar(@{$bo3->items}), 4;
   isa_ok $bo3->items()->[3]->items()->[0]->items()->[1], "SInt";
-  is $bo3->items()->[3]->items()->[0]->items()->[1]{'m'}, 2;
+  is $bo3->items()->[3]->items()->[0]->items()->[1]->get_mag(), 2;
 
   my $structure = $bo3->get_structure;
   is $structure->[0], 1;

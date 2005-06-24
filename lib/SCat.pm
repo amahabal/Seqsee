@@ -42,7 +42,7 @@ sub build{
 
 sub is_instance{
   my $self = shift;
-  my @args = map { ref($_) ? $_ : SInt->new($_) } @_;
+  my @args = map { ref($_) ? $_ : SInt->new({mag => $_}) } @_;
   return $.instancer->($self, @args);
 }
 

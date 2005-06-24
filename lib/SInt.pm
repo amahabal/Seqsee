@@ -1,41 +1,36 @@
 package SInt;
-use Perl6::Subs;
-use MyFilter;
+use Class::Std;
 
 use SInstance;
 our @ISA = qw{SInstance};
 
-sub new{
-  my ($package, $val) = @_;
-  bless { 'm' => $val}, $package;
-}
+my %mag :ATTR( :init_arg<mag> :get<mag>);
 
 sub flatten{
-  shift->{'m'};
+  $mag{ident shift};
 }
 
 sub clone{
   my $self = shift;
-  my $ret = SInt->new($self->{'m'});
-  $ret;
+  return SInt->new({mag => $mag{ ident $self }});
 }
 
 sub show_shallow{
   my ($self, $depth) = @_;
-  print "\t" x $depth, $self->{'m'}, "\n";
+  print "\t" x $depth, $mag{ ident $self }, "\n";
 }
 
 sub compare_deep{
   my ($self, $other) = @_;
   return undef if UNIVERSAL::isa($other, "SBuiltObj");
-  return ($self->{'m'} == $other->{'m'});
+  return ($mag{ident $self} == $mag{ident $other});
 }
 
 sub structure_is{
   my ($self, $struct) = @_;
   my @parts = (ref $struct) ? @$struct : ($struct);
   return 0 unless (@parts == 1);
-  return ($self->{'m'} == $parts[0]);
+  return ($mag{ident $self} == $parts[0]);
 }
 
 sub structure_ok{
@@ -44,16 +39,17 @@ sub structure_ok{
   Test::More::ok($self->structure_is($potential_struct), $msg);
 }
 
-method get_structure{
-  $.m;
+sub get_structure{
+  $mag{ident shift};
 }
 
-method as_int(){
-  $self->{'m'};
+sub as_int{
+  $mag{ident shift};
 }
 
-method can_be_as_int($int){
-  $self->{'m'} == $int;
+sub can_be_as_int{
+  my ( $self, $int ) = @_;
+  $mag{ident $self} == $int;
 }
 
 sub is_empty{ 0 }

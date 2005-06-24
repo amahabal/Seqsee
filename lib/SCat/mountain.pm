@@ -9,9 +9,9 @@ my $cat = $mountain;
 $cat->add_attributes(qw/foot peak/);
 $cat->{builder} = sub ($self, +$foot is required, +$peak is required){
   my $ret = new SBuiltObj;
-  $ret->set_items($foot .. $peak, 
-		  reverse($foot .. $peak - 1));
-  $ret->add_cat($cat, foot => $foot, peak => $peak);
+  $ret->set_items([$foot .. $peak, 
+		   reverse($foot .. $peak - 1)]);
+  $ret->add_cat($cat, { foot => $foot, peak => $peak });
   $ret;
 };
 

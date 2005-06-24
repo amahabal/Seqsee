@@ -26,12 +26,12 @@ BUILDING: {
 
 IS_INSTANCE: {
   my $bindings;
-  $bindings = $cat->is_instance(SBuiltObj->new(4, 3, 2));
+  $bindings = $cat->is_instance(SBuiltObj->new({items => [4, 3, 2]}));
   isa_ok($bindings, "SBindings");
   is($bindings->{start}, 4);
   is($bindings->{end}, 2);
 
-  $bindings = $cat->is_instance(SBuiltObj->new(2));
+  $bindings = $cat->is_instance(SBuiltObj->new({items => [2]}));
   is($bindings->{start}, 2);
   is($bindings->{end}, 2);
 

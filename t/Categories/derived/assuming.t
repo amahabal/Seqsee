@@ -23,19 +23,20 @@ $bindings = $cat2->is_instance($ret);
 isa_ok($bindings, "SBindings");
 is($bindings->{end}, 4);
 
-$bindings = $cat2->is_instance(SBuiltObj->new(1, 2, 3, 4, 5, 6));
+$bindings = $cat2->is_instance
+  (SBuiltObj->new({items => [1, 2, 3, 4, 5, 6]}));
 is($bindings->{start}, 1);
 is($bindings->{end}, 6);
 
-$bindings = $cat2->is_instance(SBuiltObj->new(3, 4, 5));
+$bindings = $cat2->is_instance(SBuiltObj->new({items => [3, 4, 5]}));
 undef_ok($bindings);
 
 {
-	my $blemished_obj2 = SBuiltObj->new(
+	my $blemished_obj2 = SBuiltObj->new( { items => [
 				3, 
 				$SBlemish::double::double
-				   ->blemish(SInt->new(4)),
-				5, 6, 7);
+				   ->blemish(SInt->new({mag => 4})),
+				5, 6, 7]});
 
 
 	my $bindings = $cat2->is_instance($blemished_obj2);
@@ -49,11 +50,11 @@ undef_ok($bindings);
 
 {
 	use SBlemish::double;
-	my $blemished_obj = SBuiltObj->new(
-				1, 
+	my $blemished_obj = SBuiltObj->new( { items => [
+					   1, 
 				$SBlemish::double::double
-				   ->blemish(SInt->new(2)),
-				3, 4, 5);
+				   ->blemish(SInt->new({mag => 2})),
+				3, 4, 5]});
 	$blemished_obj->structure_ok([1, [2, 2], 3, 4, 5]);
 
 	my $bindings = $cat->is_instance($blemished_obj);
@@ -66,11 +67,11 @@ undef_ok($bindings);
 
 
 {
-	my $blemished_obj2 = SBuiltObj->new(
+	my $blemished_obj2 = SBuiltObj->new( {items => [
 				3, 
 				$SBlemish::double::double
-				   ->blemish(SBuiltObj->new(4)),
-				5, 6, 7);
+				   ->blemish(SBuiltObj->new({mag => 4})),
+				5, 6, 7]});
 
 
 	my $bindings = $cat2->is_instance($blemished_obj2);
