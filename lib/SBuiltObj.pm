@@ -17,6 +17,12 @@ sub BUILD{
   $self->set_items($opts_ref->{items});
 }
 
+=pod
+
+new_deep does a bunch of things...
+
+=cut
+
 sub new_deep{
   my $package = shift;
   my @items = map { 
@@ -33,6 +39,12 @@ sub new_deep{
   my $self = $package->new({items => [@items]});
   $self;
 }
+
+=pod
+
+set_items also does something
+
+=cut
 
 sub set_items{
   my ( $self, $items_ref )  = @_;
@@ -182,11 +194,13 @@ sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
   Test::More::ok($self->structure_is($potential_struct), $msg);
 }
 
-method get_structure(){
+sub get_structure{
+  my $self = shift;
   [ map { $_->get_structure } @{$items{ident $self}} ];
 }
 
-method semiflattens_ok(*@objects){
+sub semiflattens_ok{
+  my ($self, @objects) = @_;
   # XXX clearly incomplete. Stopgap
   # should flatten only part way
   my @self_flatten = $self->flatten;
@@ -198,7 +212,8 @@ method semiflattens_ok(*@objects){
   return 1;
 }
 
-method structure_exactly_ok($other){
+sub structure_exactly_ok{
+  my ( $self, $other ) = @_;
   return $self->structure_is($other->get_structure);
 }
 

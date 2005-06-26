@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 
-BEGIN { plan tests => 23; }
+BEGIN { plan tests => 22; }
 
 use SBuiltObj;
 use SBindings;
@@ -17,8 +17,8 @@ my $bl;
 dies_ok { $bl = new SBlemish } "SBlemished is composed.. need data!";
 
 my $blemisher =  sub {
-  my ($self, %args) = @_;
-  my $what = delete $args{what};
+  my ($self, $args) = @_;
+  my $what = delete $args->{what};
   my $new_obj = new SBuiltObj;
   $new_obj->set_items([$what, $what]);
   $new_obj;
@@ -40,21 +40,20 @@ my $guesser_flat = {
 		    }
 		   };
 
-lives_ok { $bl = new SBlemish({blemisher    => $blemisher,
+lives_ok { $bl = new SBlemish({
 			       empty_ok     => 1,
 			       empty_what   => new SBuiltObj(),
 			       att          => new Set::Scalar(),
 			       guesser_of      => $guesser,
 			       guesser_flat_of => $guesser_flat,
 			       guesser_pos_of  => {},
-			       builder => 1,
+			       builder =>  $blemisher,
 			      }
 			      ); };
 
 isa_ok $bl,                  "SBlemish";
 isa_ok $bl,                  "SCat";
-    ok $bl>get_blemished;
-isa_ok $bl->get_blemisher,        "CODE";
+    ok $bl->get_blemished;
 isa_ok $bl->get_instancer,        "CODE";
 isa_ok $bl->get_instancer_flat,   "CODE";
 

@@ -112,23 +112,31 @@ sub generate_instancer{
   my $empty_ok = $empty_ok_of{$ident} || 0;
   $instancer_of{$ident} = sub {
 	my ($me, $builtobj) = @_;
+	# print "Generated instancer called: $me, $builtobj\n";
 	if (not($builtobj) or $builtobj->is_empty) {
 	   return SBindings->new() if $empty_ok;
 	   return undef;
 	}
 	my %guess;
 	for (@atts){
+	  #print "\tGuessing $_...";
 	  my $guess = $me->guess_attribute($builtobj, $_);
 	  return undef unless defined $guess;
+	  #print " $guess\n";
 	  $guess{$_} = $guess;
 	}
-	my $guess_built = $me->build(\%guess);
+	my $guess_built = $me->build({ %guess });
+	#print "Guess built: Guessed "; $guess_built->show;
+	#print "Original object: "; $builtobj->show;
 	my $bindings = $builtobj->structure_blearily_ok($guess_built);
+	#print "Bindings: '$bindings'\n";
 	if ($bindings) {
 	  for (keys %guess) {
+	    #print "Setting key $_ to $guess{$_}\n";
 	    $bindings->{$_} = $guess{$_};
 	  }
 	}
+	#print "returning: $bindings\n";
 	return $bindings;
   };
 }

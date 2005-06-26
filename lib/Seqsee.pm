@@ -15,4 +15,13 @@ Seqsee - seqsee
 
 =cut
 
+
+# Just horsing around!
+
+=pod
+
+Some more pod here....
+
+=cut
+
 1;

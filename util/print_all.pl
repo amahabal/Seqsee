@@ -99,7 +99,8 @@ sub print_file($file){
   my $file_ = $file;
   $file_ =~ s#_#\\_#g;
   print OUT "\\section*{$file_}\n";
-  open IN, $file;
+  my $open_what = ($file =~ m#\.p.$#) ? "perltidy -st $file | " : $file;
+  open IN, $open_what;
   print OUT "\\begin{verbatim}\n";
   while ($_ = <IN>) { print OUT;}
   print OUT "\\end{verbatim}\n";

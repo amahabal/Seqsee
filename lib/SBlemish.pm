@@ -9,7 +9,6 @@ our @ISA = qw{SCat};
 
 use Class::Std;
 
-my %blemisher_of    :ATTR( :get<blemisher>        :set<blemisher>);
 my %empty_what_of   :ATTR(:init_arg<empty_what>   :set<empty_what>);
 my %guesser_flat_of_of :ATTR(:init_arg<guesser_flat_of> :set<guesser_flat_of>);
 my %instancer_deep_of :ATTR;
@@ -17,25 +16,6 @@ my %instancer_flat_of :ATTR(:get<instancer_flat>);
 sub BUILD{
   my ( $self, $id, $opts ) = @_;
   $self->get_att()->insert("what");
-
-  my $blemisher = delete($opts->{blemisher}) 
-    or die "The blemisher must be provided!";
-
-  #if (%$opts) {
-  #  print "Unknown arguments to SBlemish->BUILD():\n";
-  #  while (my ($k, $v) = each %$opts) {
-  #    print "\t$k => $v\n";
-  #  }
-  #  die;
-  #}
-
-  $self->set_builder($blemisher); # jesus!
-
-  $blemisher_of{$id} = 
-    sub {
-      my ( $self, $what, %options ) = @_;
-      $self->get_builder->($self, { %options, what => $what } );
-    };
 
   $self->compose;
 
@@ -56,6 +36,8 @@ sub BUILD{
       if (@_ == 1) {
 	#print "\tSingle object, only a deep check($_[0])\n";
 	$bindings = $instancer_deep_of{$id}->($self, $_[0]);
+	#print "In blemished instancer: got $bindings\n";
+	#print "\$bindings->{what}: $bindings->{what}\n";
 	return $bindings if $bindings;
       } else {
 	#print "\tSeveral objects, only a shallow check\n";
@@ -67,7 +49,7 @@ sub BUILD{
 
 sub blemish{
   my ($self, $object) = @_;
-  my $ret = $self->get_builder()->($self, what => $object) 
+  my $ret = $self->build({ what => $object }) 
     or return;
   ### $ret
   $ret->add_cat($self, { what => $object });
@@ -84,7 +66,7 @@ sub generate_instancer_flat{
   }
   return sub {
     my ($me, @objects) = @_;
-    #print "#\tIn flat instancer...args: @objects\n";
+    # print "#\tIn flat instancer...args: @objects\n";
     my %guess;
     for (@atts) {
       #print "#\t\tguessing '$_'\n";
@@ -94,7 +76,7 @@ sub generate_instancer_flat{
       $guess{$_} = $guess;
       #$guess->show;
     }
-    my $guess_built = $me->build(%guess);
+    my $guess_built = $me->build({ %guess });
     #$guess_built->show;
     #print "\t\t guess built: $guess_built. Flattens to: ", $guess_built->flatten(), "\n";
     #print "\t\tOriginal objects flatten to: ", map { $_->flatten } @objects;
@@ -116,7 +98,7 @@ sub unblemish{
 sub is_blemished{
   my $self = shift;
   my $obj  = shift;
-  $self->get_instancer($self, $obj);
+  $self->is_instance($obj);
 }
 
 1;

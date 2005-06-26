@@ -4,9 +4,9 @@ use SBindings;
 use Perl6::Subs;
 use MyFilter;
 
-my $blemisher = sub {
-  my ($self, %args) = @_;
-  my $what = delete $args{what};
+my $builder = sub {
+  my ($self, $args) = @_;
+  my $what = delete $args->{what};
   my $new_obj = new SBuiltObj;
   $new_obj->set_items([$what, $what]);
   $new_obj;
@@ -27,12 +27,11 @@ my $guesser_flat = {
 
 
 our $double = new SBlemish({att           => new Set::Scalar(),
-			    blemisher     => $blemisher,
+			    builder       => $builder,
 			    empty_ok      => 1,
 			    empty_what    => new SBuiltObj(),
 			    guesser_of       => $guesser,
 			    guesser_flat_of  => $guesser_flat,
-			    builder => 1, # will get reset later
 			    guesser_pos_of => {}
 			   }
 			  );
