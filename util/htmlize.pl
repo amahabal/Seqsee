@@ -9,8 +9,8 @@ sub process{
   my $fname = shift;
   my $suffix = shift;
   $fname =~ s#\.$suffix$##;
-  system "perltidy $fname.$suffix";
-  my $cmd = "perltidy -html -nnn -pod $fname.$suffix.tdy -o /u/amahabal/.hyplan/src/$fname.html";
+  system "perltidy -l=200 $fname.$suffix";
+  my $cmd = "perltidy -html -nnn -l=200 -pod $fname.$suffix.tdy -o /u/amahabal/.hyplan/src/$fname.html";
   # print $cmd, "\n";
   system $cmd;
   system "rm $fname.$suffix.tdy";
