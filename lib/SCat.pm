@@ -30,12 +30,12 @@ our %Global_attributes = map { $_ => 1 } qw{what};
 
 sub BUILD {
   my ( $self, $id, $opts ) = @_;
-  $att_of{$id}            = delete( $opts->{att} ) || Set::Scalar->new();
-  $builder_of{$id}        = delete( $opts->{builder} );
-  $instancer_of{$id}      = delete( $opts->{instancer} );
-  $guesser_of_of{$id}     = delete( $opts->{guesser_of} );
-  $empty_ok_of{$id}       = delete( $opts->{empty_ok} );
-  $guesser_pos_of_of{$id} = delete( $opts->{guesser_pos_of} );
+  $att_of{$id}            = $opts->{att}  || Set::Scalar->new();
+  $builder_of{$id}        = $opts->{builder};
+  $instancer_of{$id}      = $opts->{instancer};
+  $guesser_of_of{$id}     = $opts->{guesser_of};
+  $empty_ok_of{$id}       = $opts->{empty_ok};
+  $guesser_pos_of_of{$id} = $opts->{guesser_pos_of};
   if ( exists $opts->{attributes} ) {
     $att_of{$id}->insert( @{ $opts->{attributes} } );
   }

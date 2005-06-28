@@ -8,8 +8,8 @@ our @ISA = qw{SCat};
 
 use Class::Std;
 
-my %empty_what_of :ATTR( :init_arg<empty_what> :set<empty_what> );
-my %guesser_flat_of_of :ATTR(:init_arg<guesser_flat_of> :set<guesser_flat_of> );
+my %empty_what_of :ATTR( :set<empty_what> );
+my %guesser_flat_of_of :ATTR(:set<guesser_flat_of> );
 my %instancer_deep_of :ATTR;
 my %instancer_flat_of :ATTR( :get<instancer_flat> );
 
@@ -18,6 +18,9 @@ sub BUILD {
   $self->get_att()->insert("what");
 
   $self->compose;
+  
+  $empty_what_of{$id}      = $opts->{empty_what_of};
+  $guesser_flat_of_of{$id} = $opts->{guesser_flat_of};
 
   $self->set_blemished(1);
   $instancer_flat_of{$id} =
