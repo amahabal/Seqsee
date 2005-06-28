@@ -24,7 +24,7 @@ sub new {
     $self = new SPos::Global::Absolute($what);
   }
   else {
-    $self = new SPos::Named($what);
+    $self = new SPos::Named({ str => $what });
   }
   $self;
 }

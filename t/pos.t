@@ -1,7 +1,7 @@
 use blib;
 use strict;
 use Test::Seqsee;
-BEGIN { plan tests => 24 }
+BEGIN { plan tests => 23 }
 
 use SBuiltObj;
 use SCat;
@@ -46,8 +46,8 @@ Absolute: {
 
 Named: {
   my @objs;
-  my $pos_peak      = new SPos::Named("peak");
-  my $pos_peak_copy = new SPos::Named("peak");
+  my $pos_peak      = new SPos("peak");
+  my $pos_peak_copy = new SPos("peak");
   is $pos_peak, $pos_peak_copy;
 
   isa_ok $pos_peak, "SPos::Named";
@@ -84,7 +84,8 @@ Named: {
     )
   );
 
-  isa_ok $pos_peak->{find_by_cat}{$cat_arbit}, "SPosFinder";
+  # Next test commented out: its fishing for internal details
+  #isa_ok $pos_peak->{find_by_cat}{$cat_arbit}, "SPosFinder";
 
   my $bo_arbit = new SBuiltObj( { items => [ 1, 2, 3, 4 ] } );
   $bo_arbit->add_cat( $cat_arbit, {} );

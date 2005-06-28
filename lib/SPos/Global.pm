@@ -1,6 +1,6 @@
 package SPos::Global;
 use strict;
-use base 'SPos';
+use base "SPos";
 
 sub new {
   my ( $package, %opts ) = @_;
