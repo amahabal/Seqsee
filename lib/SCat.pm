@@ -199,9 +199,10 @@ sub install_position_finder {
   my ( $self, $name, $sub, $multi ) = @_;
   SPos->new($name)->install_finder(
     cat    => $self,
-    finder => new SPosFinder(
-      multi => $multi,
-      sub   => $sub
+    finder => new SPosFinder({
+			      multi => $multi,
+			      sub   => $sub
+			      }
     )
   );
   $position_finder_of_of{ ident $self}{$name} = $sub;

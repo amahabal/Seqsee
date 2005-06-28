@@ -68,17 +68,19 @@ Named: {
 
   $pos_peak->install_finder(
     cat    => $cat_random,
-    finder => new SPosFinder(
-      multi => 0,
-      sub   => sub { return [2] }
+    finder => new SPosFinder({
+			      multi => 0,
+			      sub   => sub { return [2] }
+			      }
     )
   );
 
   $pos_peak->install_finder(
     cat    => $cat_arbit,
-    finder => new SPosFinder(
-      multi => 0,
-      sub   => sub { return [3] }
+    finder => new SPosFinder({
+			      multi => 0,
+			      sub   => sub { return [3] }
+			      }
     )
   );
 

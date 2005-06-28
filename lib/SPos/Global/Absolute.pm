@@ -26,7 +26,7 @@ sub new {
       SErr::Pos::OutOfRange->throw("out of range: $built_obj, $index");
     };
   }
-  my $finder = new SPosFinder( sub => $sub, multi => 0 );
+  my $finder = new SPosFinder( { sub => $sub, multi => 0 } );
   $Memoize{$index} = SPos::Global::new( $package, finder => $finder );
 
   #XXX SUPER in the line above??
