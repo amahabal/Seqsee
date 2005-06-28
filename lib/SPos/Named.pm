@@ -1,11 +1,10 @@
 package SPos::Named;
-use Perl6::Subs;
-#use MyFilter;
 use base 'SPos';
 
 our %Memoize;
 
-method new($package: $str){
+sub new{
+  my ( $package, $str ) = @_;
   return $Memoize{$str} if $Memoize{$str};
   my $self = bless { }, $package;
   $self->{find_by_cat} = {};
@@ -13,12 +12,15 @@ method new($package: $str){
   $Memoize{$str} = $self;
 }
 
-method install_finder(+$cat    of SCat       is required, 
-		      +$finder of SPosFinder is required){
+sub install_finder{
+  my ( $self, %opts ) = @_;
+  my $cat = delete $opts{cat};
+  my $finder = delete $opts{finder};
   $self->{find_by_cat}{$cat} = $finder;
 } 
 
-method find_range($built_obj){
+sub find_range{
+  my ( $self, $built_obj ) = @_;
   my @cats = $built_obj->get_cats;
   my @matching_cats = grep { exists $self->{find_by_cat}{$_} } @cats;
   return undef unless @matching_cats;

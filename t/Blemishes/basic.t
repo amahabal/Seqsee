@@ -9,8 +9,6 @@ use SCat;
 
 use SBlemish;
 use SUtil;
-#use MyFilter;
-use Perl6::Subs;
 
 my $bl;
 
@@ -25,13 +23,15 @@ my $blemisher =  sub {
 };
 
 my $guesser = {
-	       what => sub($self, $bo) { 
+	       what => sub {
+		 my ( $self, $bo ) = @_;
 		 my $ret = $bo->items()->[0];
 		 $ret;
 	       }
 	      };
 my $guesser_flat = {
-		    what => sub($self, *@bo) { 
+		    what => sub {
+		      my ( $self, @bo ) = @_;
 		      #print "#\tsignature checked okay", scalar(@bo), "\n";
 		      return undef if (@bo % 2);
 		      my @parts = @bo[0 .. (@bo/2) - 1];

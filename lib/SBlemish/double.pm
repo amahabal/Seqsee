@@ -1,8 +1,6 @@
 package SBlemish::double;
 use SBlemish;
 use SBindings;
-use Perl6::Subs;
-#use MyFilter;
 
 my $builder = sub {
   my ($self, $args) = @_;
@@ -13,13 +11,15 @@ my $builder = sub {
 };
 
 my $guesser = {
-	       what => sub ($self, $bo){
+	       what => sub {
+		 my  ( $self, $bo ) = @_;
 		 $bo->items()->[0];
 	       },
 	      };
 
 my $guesser_flat = {
-		    what => sub($self, *@bo){
+		    what => sub {
+		      my ($self, @bo) = @_;
 		      return undef if @bo % 2;
 		      return SBuiltObj->new( @bo[0.. (@bo / 2) - 1]);
 		    },

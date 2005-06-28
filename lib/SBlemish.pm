@@ -1,8 +1,6 @@
 package SBlemish;
 use SCat;
 use strict;
-#use MyFilter;
-#use Perl6::Subs;
 #use Smart::Comments;
 use Set::Scalar;
 our @ISA = qw{SCat};

@@ -1,16 +1,20 @@
 package SPosFinder;
 use SErr;
-use Perl6::Subs;
-# use MyFilter;
 
-method new($package: +$multi is required, +$sub of Code is required ){
+sub new{
+  my ($package, %options) = @_;
+  exists $options{multi} or die;
+  my $multi = $options{multi};
+  my $sub   = $options{sub}   or die;
+  UNIVERSAL::isa($sub, "CODE") or die;
   my $self = bless {}, $package;
   $self->{multi} = $multi;
   $self->{sub}   = $sub;
   $self;
 }
 
-method find_range($built_obj){
+sub find_range{
+  my ( $self, $built_obj ) = @_;
   my $range = $self->{sub}->($built_obj);
   if (@$range > 1) {
     SErr::Pos::UnExpMulti->throw(error => "found multiple matches: @$range")

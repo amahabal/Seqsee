@@ -1,5 +1,4 @@
 package SUtil;
-use Perl6::Subs;
 use SPos;
 use SCat;
 use SBlemish;
@@ -34,10 +33,11 @@ sub equal_when_flattened{
   return 1;
 }
 
-sub generate_blemished(+$cat     of SCat,
-                       +$blemish of SBlemish,
-                       +$pos     of SPos,
-		       *%args){
+sub generate_blemished{
+   my ($self, %args ) = @_;
+   my $cat = delete $args{cat};
+   my $blemish = delete $args{blemish};
+   my $pos = delete $args{pos};
    my $bo = $cat->build(%args);
    my $blemished = $bo->apply_blemish_at($blemish, $pos);
   return $blemished;

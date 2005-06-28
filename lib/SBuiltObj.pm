@@ -6,7 +6,6 @@ use SPos;
 use SBlemish;
 use SInstance;
 
-use Perl6::Subs;
 our @ISA = qw{SInstance};
 
 use Class::Std;

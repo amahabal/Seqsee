@@ -1,5 +1,4 @@
 package SInstance;
-use Perl6::Subs;
 use SCat;
 use Carp;
 

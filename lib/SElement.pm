@@ -1,7 +1,6 @@
 package SElement;
 use strict;
 use SInt;
-use Perl6::Subs;
 use SCat::number;
 our @ISA = qw{SInt};
 

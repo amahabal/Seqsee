@@ -1,17 +1,18 @@
 package SWorkspace;
 use strict;
-use Perl6::Subs;
 
 our $elements_count;
 our @elements  = ();
 
-method setup($package: *@rest){
+sub setup{
+  my ( $package, @rest ) = @_;
   @elements = ();
   $elements_count = 0;
   SWorkspace->insert_elements(@rest);
 }
 
-method insert_elements($package: *@rest){
+sub insert_elements{
+  my ( $package, @rest ) = @_;
   for (@rest) {
     push @elements, (ref($_) and $_->isa("SElement")) ? $_ : SElement->new({mag => $_});
     $elements[-1]->set_left_edge($elements_count);

@@ -1,11 +1,11 @@
 package SPos::Global::Absolute;
 use base 'SPos::Global';
-use Perl6::Subs;
 use SErr;
 
 our %Memoize;
 
-method new($package: $index){
+sub new{
+  my ( $package, $index ) = @_;
   return $Memoize{$index} if $Memoize{$index};
   my $sub;
   
