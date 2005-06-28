@@ -19,12 +19,9 @@ my $yada = sub { die "yada yada yada" };
 
 my %att_of                 :ATTR(:get<att> 
 				 :set<att>  
-				 :init_arg<att>  
 				);
 my %builder_of             :ATTR(:get<builder> 
 				 :set<builder>
-				 :init_arg<builder>
-				 :default(yada)
 				);
 my %instancer_of           :ATTR(:get<instancer>
 				 :set<instancer>
@@ -33,26 +30,23 @@ my %position_finder_of_of  :ATTR;
 my %_blemished_of          :ATTR(:set<blemished>
 				 :get<blemished>
 				);
-my %guesser_of_of          :ATTR(:init_arg<guesser_of>,
-				 :default({})
-
-				);
+my %guesser_of_of          :ATTR();
 my %empty_ok_of            :ATTR(:get<empty_ok> 
 				 :set<empty_ok>
-				 :init_arg<empty_ok>
-				 :default<0>
 				);
-my %guesser_pos_of_of      :ATTR( :init_arg<guesser_pos_of>
-				  :default({})
-				);
+my %guesser_pos_of_of      :ATTR();
 
 our %Global_attributes = map { $_ => 1 }
   qw{what};
 
 sub BUILD{
   my ( $self, $id, $opts ) = @_;
-  $instancer_of{$id} = delete $opts->{instancer};
-  $att_of{$id} = new Set::Scalar;
+  $att_of{$id}         = delete($opts->{att}) || Set::Scalar->new();
+  $builder_of{$id}     = delete($opts->{builder});
+  $instancer_of{$id}   = delete($opts->{instancer});
+  $guesser_of_of{$id}  = delete($opts->{guesser_of});
+  $empty_ok_of{$id}    = delete($opts->{empty_ok});
+  $guesser_pos_of_of{$id} = delete($opts->{guesser_pos_of});
   if (exists $opts->{attributes}) {
     $att_of{$id}->insert(@{ $opts->{attributes} });
   }
