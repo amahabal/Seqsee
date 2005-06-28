@@ -1,4 +1,5 @@
 use CGI qw{:standard};
+use Smart::Comments;
 open OUT, ">/u/amahabal/.hyplan/src/index.html";
 
 print OUT start_html();
@@ -17,11 +18,11 @@ sub process{
   print OUT "\t<li><a href=\"$fname.html\"> $fname.$suffix </a>\n";  
 }
 
-for my $fname (<lib/*.pm lib/*/*.pm lib/*/*/*.pm>) {
+for my $fname (<lib/*.pm lib/*/*.pm lib/*/*/*.pm>) { ### libs  @@@>              done[%]
   process($fname, "pm");
 }
 
-for my $fname (<t/*.t t/*/*.t t/*/*/*.t>) {
+for my $fname (<t/*.t t/*/*.t t/*/*/*.t>) { ### tests @@@>               done[%]
   process($fname, "t");
 }
 
