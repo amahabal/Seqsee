@@ -1,8 +1,9 @@
 package SBindings;
 use strict;
-sub new{
+
+sub new {
   my $package = shift;
-  bless { @_ }, $package;
+  bless {@_}, $package;
 }
 
 1;
