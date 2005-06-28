@@ -10,7 +10,7 @@ use SInt;
 
 my $cat = $SCat::ascending::ascending;
 
-my $cat2 = $cat->derive_assuming( start => 1 );
+my $cat2 = $cat->derive_assuming( { start => 1 } );
 my $ret;
 dies_ok  { $ret = $cat2->build() } "Needs the missing arguments";
 lives_ok { $ret = $cat2->build( { end => 4 } ) } "all arguments present";

@@ -2,8 +2,8 @@ package SCat;
 use strict;
 
 sub derive_assuming {
-  my ( $self, @rest ) = @_;
-  my %assuming = @rest;
+  my ( $self, $assuming_ref ) = @_;
+  my %assuming = %$assuming_ref;
   my $new_cat  = new SCat(
     {
       attributes => [],

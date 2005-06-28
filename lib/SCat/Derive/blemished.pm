@@ -2,9 +2,9 @@ package SCat;
 use strict;
 
 sub derive_blemished {
-  my ( $self, %options ) = @_;
-  my $blemish  = $options{blemish}  or die "Must provide a blemish";
-  my $position = $options{position} or die "Must provide a position";
+  my ( $self, $options_ref ) = @_;
+  my $blemish  = $options_ref->{blemish}  or die "Must provide a blemish";
+  my $position = $options_ref->{position} or die "Must provide a position";
   die "Blemish must be a SBlemish"
     unless UNIVERSAL::isa( $blemish, "SBlemish" );
   die "Position must be a SPos" unless UNIVERSAL::isa( $position, "SPos" );

@@ -21,7 +21,7 @@ sub new {
   my $self;
 
   if ( $what =~ m/^-?\d+$/ ) {
-    $self = new SPos::Global::Absolute($what);
+    $self = new SPos::Global::Absolute({index => $what});
   }
   else {
     $self = new SPos::Named({ str => $what });

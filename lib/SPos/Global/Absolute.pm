@@ -1,16 +1,17 @@
 package SPos::Global::Absolute;
 use strict;
+use Carp;
 use base 'SPos::Global';
 use SErr;
 
-our %Memoize;
+use Class::Std;
 
-sub new {
-  my ( $package, $index ) = @_;
-  return $Memoize{$index} if $Memoize{$index};
+sub BUILD{
+  my ( $self, $id, $opts_ref ) = @_;
+  my $index = $opts_ref->{index};
   my $sub;
 
-  die "index is one based; index 0 illegal" unless $index;
+  croak "index is one based; index 0 illegal" unless $index;
   if ( $index > 0 ) {
     $sub = sub {
       my $built_obj = shift;
@@ -27,9 +28,7 @@ sub new {
     };
   }
   my $finder = new SPosFinder( { sub => $sub, multi => 0 } );
-  $Memoize{$index} = SPos::Global::new( $package, finder => $finder );
-
-  #XXX SUPER in the line above??
+  $self->set_finder($finder);
 }
 
 1;

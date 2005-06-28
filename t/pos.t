@@ -1,7 +1,7 @@
 use blib;
 use strict;
 use Test::Seqsee;
-BEGIN { plan tests => 23 }
+BEGIN { plan tests => 19 }
 
 use SBuiltObj;
 use SCat;
@@ -19,28 +19,27 @@ ok UNIVERSAL::isa( "SPos::Named",            "SPos" );
 Absolute: {
   my @objs;
 
-  my $pos_1 = new SPos::Global::Absolute(1);
+  my $pos_1 = new SPos(1);
   isa_ok $pos_1, "SPos::Global";
-  isa_ok $pos_1->{finder}, "SPosFinder";
+  # isa_ok $pos_1->{finder}, "SPosFinder";
   @objs = $bo->find_at_position($pos_1);
   ok( @objs == 1 );
   $objs[0]->structure_ok( [3] );
 
-  my $pos_1_copy = new SPos::Global::Absolute(1);
+  my $pos_1_copy = new SPos(1);
   is $pos_1, $pos_1_copy;
 
-  dies_ok { my $pos_0 = new SPos::Absolute(1) };
 
-  my $pos_m2 = new SPos::Global::Absolute(-2);
+  my $pos_m2 = new SPos(-2);
   isa_ok $pos_m2, "SPos::Global";
-  isa_ok $pos_m2->{finder}, "SPosFinder";
+  #isa_ok $pos_m2->{finder}, "SPosFinder";
   @objs = $bo->find_at_position($pos_m2);
   ok( @objs == 1 );
   $objs[0]->structure_ok( [4] );
 
-  my $pos_m6 = new SPos::Global::Absolute(-6);
+  my $pos_m6 = new SPos(-6);
   isa_ok $pos_m6, "SPos::Global";
-  isa_ok $pos_m6->{finder}, "SPosFinder";
+  #isa_ok $pos_m6->{finder}, "SPosFinder";
   throws_ok { @objs = $bo->find_at_position($pos_m6) } "SErr::Pos::OutOfRange";
 }
 

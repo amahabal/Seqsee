@@ -16,14 +16,15 @@ my $pos10    = new SPos 10;
 my $pos_peak = new SPos "peak";
 
 dies_ok { $cat->derive_blemished() };
-dies_ok { $cat->derive_blemished( blemish => "foo" ) };
-dies_ok { $cat->derive_blemished( blemish => $blemish, position => "foo" ) };
+dies_ok { $cat->derive_blemished( { blemish => "foo" } ) };
+dies_ok { $cat->derive_blemished( { blemish => $blemish, position => "foo"}) };
 
 my $blemished2;
 lives_ok {
-  $blemished2 = $cat->derive_blemished(
-    blemish  => $blemish,
-    position => $pos2
+  $blemished2 = $cat->derive_blemished({
+					blemish  => $blemish,
+					position => $pos2
+					}
   );
 };
 
