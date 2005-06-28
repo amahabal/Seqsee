@@ -1,4 +1,5 @@
 package SBlemish::double;
+use strict;
 use SBlemish;
 use SBindings;
 

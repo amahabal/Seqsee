@@ -1,4 +1,5 @@
 package SPos::Global;
+use strict;
 use base 'SPos';
 
 sub new{

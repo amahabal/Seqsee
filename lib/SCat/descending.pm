@@ -1,4 +1,5 @@
 package SCat::descending;
+use strict;
 use SCat;
 
 our $descending = new SCat

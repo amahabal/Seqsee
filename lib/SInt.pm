@@ -1,4 +1,5 @@
 package SInt;
+use strict;
 use Class::Std;
 
 use SInstance;

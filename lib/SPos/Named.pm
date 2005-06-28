@@ -1,4 +1,5 @@
 package SPos::Named;
+use strict;
 use base 'SPos';
 
 our %Memoize;

@@ -1,4 +1,5 @@
 # I am perhaps erring on the side of using too many..
+use strict;
 use Exception::Class 
   (
    'SErr::Pos::OutOfRange'       => {},

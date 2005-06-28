@@ -1,4 +1,5 @@
 package SPosFinder;
+use strict;
 use SErr;
 
 sub new{

@@ -1,4 +1,5 @@
 package SInstance;
+use strict;
 use SCat;
 use Carp;
 

@@ -1,4 +1,5 @@
 package CodeConfig;
+use strict;
 our %Post;
 
 $Post{"SThought"}{"bond_evaluator"} =

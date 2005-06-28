@@ -1,4 +1,5 @@
 package SCat::number;
+use strict;
 use SCat;
 
 our %Memoize;

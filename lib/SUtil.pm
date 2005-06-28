@@ -1,4 +1,5 @@
 package SUtil;
+use strict;
 use SPos;
 use SCat;
 use SBlemish;

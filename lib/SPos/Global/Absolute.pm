@@ -1,4 +1,5 @@
 package SPos::Global::Absolute;
+use strict;
 use base 'SPos::Global';
 use SErr;
 

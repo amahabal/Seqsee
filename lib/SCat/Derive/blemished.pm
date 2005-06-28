@@ -1,4 +1,5 @@
 package SCat;
+use strict;
 
 sub derive_blemished{
   my ($self, %options) = @_;
