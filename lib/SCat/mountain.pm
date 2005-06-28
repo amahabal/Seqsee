@@ -10,8 +10,8 @@ our $mountain = new SCat(
     builder    => sub {
       ( @_ == 2 ) or confess "mountain builder takes only two args";
       my ( $self, $options_ref ) = @_;
-      my $foot = $options_ref->{foot} or die "Need foot";
-      my $peak = $options_ref->{peak} or die "Need peak";
+      my $foot = $options_ref->{foot} or croak "Need foot";
+      my $peak = $options_ref->{peak} or croak "Need peak";
       my $ret  = new SBuiltObj;
       $ret->set_items( [ $foot .. $peak, reverse( $foot .. $peak - 1 ) ] );
       $ret->add_cat( $self, { foot => $foot, peak => $peak } );

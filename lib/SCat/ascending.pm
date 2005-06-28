@@ -1,5 +1,6 @@
 package SCat::ascending;
 use strict;
+use Carp;
 use SCat;
 
 our $ascending = new SCat(
@@ -7,8 +8,8 @@ our $ascending = new SCat(
     attributes => [qw{start end}],
     builder    => sub {
       my ( $self, $args_ref ) = @_;
-      die "need start" unless $args_ref->{start};
-      die "need end"   unless $args_ref->{end};
+      croak "need start" unless $args_ref->{start};
+      croak "need end"   unless $args_ref->{end};
       my $ret = new SBuiltObj;
       $ret->set_items( [ $args_ref->{start} .. $args_ref->{end} ] );
       $ret->add_cat( $self, $args_ref );

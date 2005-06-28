@@ -1,13 +1,14 @@
 package SCat::descending;
 use strict;
+use Carp;
 use SCat;
 
 our $descending = new SCat(
   {
     builder => sub {
       my ( $self, $args_ref ) = @_;
-      die "need start" unless $args_ref->{start};
-      die "need end"   unless $args_ref->{end};
+      croak "need start" unless $args_ref->{start};
+      croak "need end"   unless $args_ref->{end};
       my $ret = new SBuiltObj;
       $ret->set_items( [ reverse( $args_ref->{end} .. $args_ref->{start} ) ] );
       $ret->add_cat( $self, $args_ref );

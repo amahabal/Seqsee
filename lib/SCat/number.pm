@@ -1,5 +1,6 @@
 package SCat::number;
 use strict;
+use Carp;
 use SCat;
 
 our %Memoize;
@@ -8,7 +9,7 @@ our $number = new SCat(
   {
     builder => sub {
       my ( $self, $args_ref ) = @_;
-      die "need mag" unless exists $args_ref->{mag};
+      croak "need mag" unless exists $args_ref->{mag};
 
       my $magnitude = $args_ref->{mag};
 
@@ -28,7 +29,7 @@ our $number = new SCat(
               return $bindings;
             }
 
-# Now check if the object belongs to some blemished category, whose what has that structure...
+	    # Now check if the object belongs to some blemished category, whose what has that structure...
             my $bl_cats = $builtobj->get_blemish_cats();
             while ( my ( $bl, $what ) = each %$bl_cats ) {
               if ( $what->structure_is( [$magnitude] ) ) {

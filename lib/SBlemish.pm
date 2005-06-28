@@ -1,6 +1,7 @@
 package SBlemish;
 use SCat;
 use strict;
+use Carp;
 
 #use Smart::Comments;
 use Set::Scalar;
@@ -72,7 +73,7 @@ sub generate_instancer_flat {
   my @atts = $self->get_att()->members;
   foreach (@atts) {
     $guesser_hash->{$_}
-      or die "cannot generate flat instancer; do not know how to guess $_";
+      or croak "cannot generate flat instancer; do not know how to guess $_";
   }
   return sub {
     my ( $me, @objects ) = @_;

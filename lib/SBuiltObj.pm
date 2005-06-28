@@ -1,5 +1,6 @@
 package SBuiltObj;
 use strict;
+use Carp;
 use SInt;
 use SCat;
 use SPos;
@@ -66,7 +67,7 @@ sub flatten {
 
 sub find_at_position {
   my ( $self, $position ) = @_;
-  UNIVERSAL::isa( $position, "SPos" ) or die;
+  UNIVERSAL::isa( $position, "SPos" ) or croak "Need SPos";
   my $range = $position->find_range($self);
   return $self->subobj_given_range($range);
 }
@@ -77,7 +78,7 @@ sub subobj_given_range {
   my @ret;
   for (@$range) {
     my $what = $items_ref->[$_];
-    defined $what or die "out of range";
+    defined $what or croak "out of range";
     push @ret, $what;
   }
   return @ret;
@@ -89,14 +90,14 @@ sub get_position_finder {
   my @cats_with_position =
     grep { $_->has_named_position($str) } @cats;
   @cats_with_position
-    or die "Could not find any way for finding the position '$str' for $self";
+    or croak "Could not find any way for finding the position '$str' for $self";
 
   # XXX what if multiple categories have a position of this name??
   return $cats_with_position[0]->{position_finder}{$str};
 }
 
 sub splice {
-  ( @_ == 4 ) or die "syntax of splice has changed";
+  ( @_ == 4 ) or croak "syntax of splice has changed";
   my ( $self, $from, $len, $rest_ref ) = @_;
   my $items_ref = $items{ ident $self};
   splice( @$items_ref, $from, $len, @$rest_ref );
@@ -105,14 +106,14 @@ sub splice {
 
 sub apply_blemish_at {
   my ( $self, $blemish, $position ) = @_;
-  UNIVERSAL::isa( $blemish,  "SBlemish" ) or die;
-  UNIVERSAL::isa( $position, "SPos" )     or die;
+  UNIVERSAL::isa( $blemish,  "SBlemish" ) or croak "need SBlemish";
+  UNIVERSAL::isa( $position, "SPos" )     or croak "need SPos";
   $self = $self->clone;
   my $range = $position->find_range($self);
-  die "position $position undefined for $self" unless $range;
+  croak "position $position undefined for $self" unless $range;
   my @subobjs = $self->subobj_given_range($range);
   if ( @subobjs >= 2 ) {
-    die "applying blemished over a range longer than 1 not yet implemented";
+    croak "applying blemished over a range longer than 1 not yet implemented";
   }
   my $blemished = $blemish->blemish( $subobjs[0] );
 

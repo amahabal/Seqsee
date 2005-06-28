@@ -15,7 +15,7 @@ use Carp;
 our @ISA = qw{SInstance};
 our %Cats;
 
-my $yada = sub { die "yada yada yada" };
+my $yada = sub { croak "yada yada yada" };
 
 my %att_of :ATTR( :get<att> :set<att> );
 my %builder_of :ATTR( :get<builder> :set<builder> );
@@ -75,20 +75,20 @@ sub is_blemished_cat {
 
 sub guess_attribute {
   my ( $self, $obj, $att ) = @_;
-  UNIVERSAL::isa( $obj, "SBuiltObj" ) or die "need SBuiltObj";
+  UNIVERSAL::isa( $obj, "SBuiltObj" ) or croak "need SBuiltObj";
   my $guesser = $guesser_of_of{ ident $self}{$att};
-  die "Don't know how to guess attribute $att" unless $guesser;
+  croak "Don't know how to guess attribute $att" unless $guesser;
   return $guesser->( $self, $obj );
 }
 
 sub generate_instancer {
   my $self  = shift;
   my $ident = ident $self;
-  die "generate instancer called when instancer already present"
+  croak "generate instancer called when instancer already present"
     if $instancer_of{$ident};
   my @atts = $att_of{$ident}->members;
   foreach (@atts) {
-    die "cannot generate instancer: do not know how to guess attribute $_"
+    croak "cannot generate instancer: do not know how to guess attribute $_"
       unless exists $guesser_of_of{$ident}{$_};
   }
   my $empty_ok = $empty_ok_of{$ident} || 0;
@@ -162,12 +162,12 @@ sub compose {
   # The task of this is to tie all loose ends, check sanity etc
 
   # must have a builder...
-  die "New category has no builder!" unless $builder_of{$ident};
+  croak "New category has no builder!" unless $builder_of{$ident};
   unless ( $instancer_of{$ident} ) {
 
     # Must define what to do with empty objects...
     defined( $empty_ok_of{$ident} )
-      or die
+      or croak
 "No instancer given, and I was not told what to do with empty objects, and so I cannot provide my own instancer";
 
     # Try and generate guessers for those that are missing
@@ -176,7 +176,7 @@ sub compose {
       unless ( exists( $guesser_pos_of_of{$ident}{$_} )
         or $position_finder_of_of{$ident}{$_} )
       {
-        die "Cannot generate guesser for $_: need at least a guesser_pos";
+        croak "Cannot generate guesser for $_: need at least a guesser_pos";
       }
       if ( exists $guesser_pos_of_of{$ident}{$_} ) {
         $self->generate_guesser_from_pos( $_, $guesser_pos_of_of{$ident}{$_} );
@@ -188,14 +188,14 @@ sub compose {
     }
 
     eval { $self->generate_instancer };
-    die "No instancer given, and something went wrong when I attempted 
+    croak "No instancer given, and something went wrong when I attempted 
 to provide one: $@" if $@;
   }
 
 }
 
 sub install_position_finder {
-  ( @_ == 4 ) or die "install_position_finder requires 4 args";
+  ( @_ == 4 ) or croak "install_position_finder requires 4 args";
   my ( $self, $name, $sub, $multi ) = @_;
   SPos->new($name)->install_finder(
     cat    => $self,
