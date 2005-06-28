@@ -37,12 +37,6 @@ sub structure_is{
   return ($mag{ident $self} == $parts[0]);
 }
 
-sub structure_ok{
-  my ($self, $potential_struct, $msg ) = @_;
-  $msg ||= "structure of $self";
-  Test::More::ok($self->structure_is($potential_struct), $msg);
-}
-
 sub get_structure{
   $mag{ident shift};
 }

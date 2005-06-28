@@ -187,12 +187,6 @@ sub has_structure_one_of{
   return 0;
 }
 
-sub structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
-  my ($self, $potential_struct, $msg ) = @_;
-  $msg ||= "structure of $self";
-  Test::More::ok($self->structure_is($potential_struct), $msg);
-}
-
 sub get_structure{
   my $self = shift;
   [ map { $_->get_structure } @{$items{ident $self}} ];

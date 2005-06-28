@@ -21,4 +21,19 @@ sub instance_of_cat_ok{
   ok( $what->instance_of_cat($cat), $msg );
 }
 
+sub SInt::structure_ok{
+  my ($self, $potential_struct, $msg ) = @_;
+  $msg ||= "structure of $self";
+  Test::More::ok($self->structure_is($potential_struct), $msg);
+}
+
+sub SBuiltObj::structure_ok{ # ONLY TO BE USED FROM TEST SCRIPTS
+  my ($self, $potential_struct, $msg ) = @_;
+  $msg ||= "structure of $self";
+  Test::More::ok($self->structure_is($potential_struct), $msg);
+}
+
+
+
+
 1;
