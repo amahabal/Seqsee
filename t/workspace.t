@@ -3,7 +3,7 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 18; }
 
-use MyFilter;
+#use MyFilter;
 
 use SWorkspace;
 use SElement;

@@ -2,7 +2,7 @@ package SBlemish::double;
 use SBlemish;
 use SBindings;
 use Perl6::Subs;
-use MyFilter;
+#use MyFilter;
 
 my $builder = sub {
   my ($self, $args) = @_;

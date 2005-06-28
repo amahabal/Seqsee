@@ -9,7 +9,7 @@ use SCat;
 
 use SBlemish;
 use SUtil;
-use MyFilter;
+#use MyFilter;
 use Perl6::Subs;
 
 my $bl;

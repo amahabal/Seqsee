@@ -3,7 +3,7 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 13; }
 
-use MyFilter;
+#use MyFilter;
 use SCat::ascending;
 use SCat::descending;
 use SCat::mountain;

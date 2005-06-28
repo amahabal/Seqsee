@@ -1,6 +1,6 @@
 package SPos;
 use strict;
-use MyFilter;
+# use MyFilter;
 
 use SPosFinder;
 use SPos::Global;

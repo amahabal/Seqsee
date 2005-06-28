@@ -3,7 +3,7 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 10; }
 
-use MyFilter;
+# use MyFilter;
 use Test::MockObject;
 use SCodelet;
 
