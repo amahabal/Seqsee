@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 7; }
+BEGIN { plan tests => 10; }
 
 use SBuiltObj;
 use SCat;
@@ -54,12 +54,17 @@ my $bindings;
 
 $bindings = $bl->is_instance($bo2);
 ok exists( $bindings->{value}{what} );
+blemished_where_ok     ( $bindings, [] );
+blemished_starred_okay ( $bindings, [] );
+blemished_real_okay    ( $bindings, []);
+
 
 $bindings = $bl->is_instance($bo3);
 undef_ok $bindings;
 
 $bindings = $bl->is_instance($bo4);
 ok exists( $bindings->{value}{what} );
+
 
 $bindings = $bl->is_instance($bo5);
 undef_ok $bindings;

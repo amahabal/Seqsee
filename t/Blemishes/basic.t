@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 
-BEGIN { plan tests => 22; }
+BEGIN { plan tests => 24; }
 
 use SBuiltObj;
 use SBindings;
@@ -78,6 +78,10 @@ my $bindings = $bl->is_instance($maybe_blemished);
 ok $bindings, "The deep object was recognized as an instance";
 isa_ok $bindings->{value}{what}, "SBuiltObj";
 $bindings->{value}{what}->structure_ok( [ 1, 2, 3 ] );
+SKIP:{
+  skip "Don't know how to phrase this", 1;
+  # Basically, why would bindings be blemished here?
+}
 
 my $unblemished = $bl->unblemish($maybe_blemished);
 $unblemished->structure_ok( [ 1, 2, 3 ] );
@@ -98,6 +102,10 @@ $bindings = $bl->is_instance_flat( @{ $maybe_blemished_flat->items } );
 ok $bindings;
 isa_ok $bindings->{value}{what}, "SBuiltObj";
 $bindings->{value}{what}->structure_ok( [ 1, 2, 3 ] );
+SKIP:{
+  skip "Don't know how to phrase this", 1;
+  # how do I say that $bindings is blemished?
+}
 
 # The following is nonsense
 #$unblemished = $bl->unblemish($maybe_blemished_flat);

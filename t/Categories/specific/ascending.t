@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 21; }
+BEGIN { plan tests => 27; }
 
 use SBuiltObj;
 use SCat;
@@ -46,6 +46,11 @@ BLEMISHED_IS_INST: {
       ->apply_blemish_at( $SBlemish::double::double, SPos->new(2) ) );
   is $bindings->{value}{start}, 3;
   is $bindings->{value}{end},   8;
+  blemished_where_ok     ( $bindings, [1] );
+  blemished_starred_okay ( $bindings, [4] );
+  blemished_real_okay    ( $bindings, [[4, 4]]);
+
+
 TODO: {
     local $TODO = "instancer does not yet add blemish bindings";
     ok $bindings->{_blemish};
@@ -60,6 +65,10 @@ TODO: {
   $bindings = $cat->is_instance($very_blemished_obj);
   is $bindings->{value}{start}, 3, "start ok";
   is $bindings->{value}{end},   8, "end ok";
+  blemished_where_ok     ( $bindings, [0, 5] );
+  blemished_starred_okay ( $bindings, [3, 8] );
+  blemished_real_okay    ( $bindings, [[3, 3], [8, 8]]);
+
 TODO: {
     local $TODO = "instancer does not yet add blemish bindings";
     ok $bindings->{_blemish};

@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 9; }
+BEGIN { plan tests => 13; }
 
 use SBuiltObj;
 use SCat;
@@ -36,3 +36,8 @@ is $mtn->guess_attribute( $bo_bl, "peak" ), 5;
 $bindings = $mtn->is_instance($bo_bl);
 is $bindings->{value}{foot}, 2;
 is $bindings->{value}{peak}, 5;
+ok scalar(@{$bindings->{blemishes}});
+
+blemished_where_ok     ( $bindings, [1] );
+blemished_starred_okay ( $bindings, [3] );
+blemished_real_okay    ( $bindings, [[3, 3]]);

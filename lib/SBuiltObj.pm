@@ -244,6 +244,7 @@ sub can_be_seen_as_int {
   if (scalar (@{ $items{ident $self} } ) == 1 and
       my $bindings = $items{ident $self}[0]->can_be_seen_as_int($int)
      ) {
+    $bindings->{real} = $self;
     return $bindings;
   }
   my $bl_cats = $self->get_blemish_cats;
@@ -276,6 +277,7 @@ sub structure_blearily_ok {
       my $bindings = $my_item->can_be_seen_as_int( $t_item->get_mag() );
       if ($bindings->{blemished}) {
 	$bindings->{where} = $i;
+	$bindings->{real} = $my_item;
 	push @blemishes, $bindings;
       }
       next if $bindings;

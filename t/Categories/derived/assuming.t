@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 13; }
+BEGIN { plan tests => 16; }
 
 use SCat::ascending;
 use SBuiltObj;
@@ -20,6 +20,10 @@ $ret->structure_ok( [ 1, 2, 3, 4 ], "derived built the right object" );
 my $bindings;
 $bindings = $cat2->is_instance($ret);
 is( $bindings->{value}{end}, 4 );
+blemished_where_ok     ( $bindings, [] );
+blemished_starred_okay ( $bindings, [] );
+blemished_real_okay    ( $bindings, []);
+
 
 $bindings =
   $cat2->is_instance( SBuiltObj->new( { items => [ 1, 2, 3, 4, 5, 6 ] } ) );
