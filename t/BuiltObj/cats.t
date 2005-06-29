@@ -8,24 +8,9 @@ use SCat;
 my $bo = new SBuiltObj( { items => [ 1, 2, 3 ] } );
 dies_ok { $bo->add_cat(); } "add_cat needs arguments";
 dies_ok { $bo->add_cat("foo") } "add_cat first argument must be isa SCat";
-my $cat1 = new SCat(
-  {
-    attributes     => [],
-    builder        => 1,
-    guesser_pos_of => {},
-    guesser_of     => {},
+my $cat1 = new SCat({});
+my $cat2 = SCat->new({ attributes     => [qw/start/], });
 
-  }
-);
-my $cat2 = SCat->new(
-  {
-    attributes     => [qw/start/],
-    builder        => 1,
-    guesser_pos_of => {},
-    guesser_of     => {},
-  }
-
-);
 lives_ok { $bo->add_cat( $cat1, {} ) } "add_cat lives okay with cat arg";
 dies_ok { $bo->add_cat( $cat2, { foo => 3 } ) }
   "if bindings present, they must be attributes";

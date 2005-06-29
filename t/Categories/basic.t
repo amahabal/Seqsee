@@ -7,14 +7,7 @@ use SBindings;
 
 use_ok("SCat");
 
-my $cat = new SCat(
-  {
-    attributes     => [qw/start end/],
-    builder        => 1,
-    guesser_pos_of => {},
-    guesser_of     => {},
-  }
-);
+my $cat = new SCat({attributes => [qw/start end/]});
 isa_ok( $cat, "SCat" );
 $cat->set_builder(
   sub {

@@ -50,20 +50,8 @@ Named: {
   is $pos_peak, $pos_peak_copy;
 
   isa_ok $pos_peak, "SPos::Named";
-  my $cat_random = new SCat(
-    {
-      builder        => {},
-      guesser_of     => {},
-      guesser_pos_of => {},
-    }
-  );
-  my $cat_arbit = new SCat(
-    {
-      builder        => {},
-      guesser_of     => {},
-      guesser_pos_of => {},
-    }
-  );
+  my $cat_random = new SCat({});
+  my $cat_arbit = new SCat({});
 
   $pos_peak->install_finder(
     cat    => $cat_random,

@@ -41,8 +41,6 @@ our $number = new SCat(
             return undef;
 
           },
-          guesser_of     => {},
-          guesser_pos_of => {},
         }
       );
 
@@ -51,9 +49,6 @@ our $number = new SCat(
       $Memoize{$magnitude} = $ret;
       $ret;
     },
-    guesser_pos_of => {},
-    empty_ok       => 0,
-    guesser_of     => {},
   }
 );
 my $cat = $number;

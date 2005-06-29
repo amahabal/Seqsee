@@ -15,9 +15,8 @@ our $ascending = new SCat(
       $ret->add_cat( $self, $args_ref );
       $ret;
     },
-    empty_ok       => 1,
+    empty_ok => 1,
     guesser_pos_of => { start => 0, end => -1 },
-    guesser_of     => {},
   }
 );
 my $cat = $ascending;

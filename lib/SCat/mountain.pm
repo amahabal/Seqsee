@@ -19,7 +19,6 @@ our $mountain = new SCat(
     },
     empty_ok       => 1,
     guesser_pos_of => { foot => 0 },
-    guesser_of     => {},
   }
 );
 

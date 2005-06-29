@@ -13,17 +13,13 @@ sub derive_blemished {
   my $new_cat = new SCat(
     {
       builder => sub {
-        shift;
-        my $bo = $self->build(@_);
+        my ( $blemished, $opts_ref ) = @_;
+        my $bo = $self->build( $opts_ref );
         return $bo->apply_blemish_at( $blemish, $position );
       },
       instancer => sub {
         croak "unimplemented";
       },
-      empty_ok       => 0,
-      guesser_pos_of => {},
-      guesser_of     => {},
-
     }
   );
   $new_cat;

@@ -16,23 +16,14 @@ sub derive_assuming {
         shift;
         my %assuming = %assuming;
         my $bindings = $self->is_instance(@_);
-
-   #print "In instancer. Got bindings $bindings; start is $bindings->{start}\n";
-   #print "\t\tend is $bindings->{end}\n";
         return undef unless $bindings;
 
-        #print "assuming is:", %assuming, "\n";
         while ( my ( $k, $v ) = each %assuming ) {
           return undef unless $bindings->{$k} eq $v;
-
-          #print "\t assumption $k = $v held up!\n";
         }
         return $bindings;
       },
       empty_ok       => $self->get_empty_ok,
-      guesser_pos_of => {},                    # not needed
-      guesser_of     => {},                    #not needed
-
     }
   );
 
