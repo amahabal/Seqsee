@@ -36,5 +36,5 @@ is $mtn->guess_attribute( $bo_bl, "peak" ), 5;
 
 $bindings = $mtn->is_instance($bo_bl);
 isa_ok $bindings, "SBindings";
-is $bindings->{foot}, 2;
-is $bindings->{peak}, 5;
+is $bindings->{value}{foot}, 2;
+is $bindings->{value}{peak}, 5;

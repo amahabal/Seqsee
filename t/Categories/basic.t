@@ -7,7 +7,10 @@ use SBindings;
 
 use_ok("SCat");
 
-my $cat = new SCat({attributes => [qw/start end/]});
+my $cat = new SCat({attributes => [qw/start end/],
+		    empty_ok   => 1,
+		    guesser_pos_of => { start => 0, end => -1}
+		   });
 isa_ok( $cat, "SCat" );
 $cat->set_builder(
   sub {
@@ -19,22 +22,8 @@ $cat->set_builder(
     $ret;
   }
 );
-$cat->set_instancer(
-  sub {
-    my ( $self, $builtobj ) = @_;
-    my @items = @{ $builtobj->items };
-    my $len   = scalar(@items);
-    for my $i ( 0 .. $len - 2 ) {
-      return undef
-        unless $items[ $i + 1 ]->get_mag() == $items[$i]->get_mag() + 1;
-    }
-    return SBindings->new(
-      start => $items[0]->get_mag(),
-      end   => $items[-1]->get_mag()
-    );
-  }
-);
 
+$cat->compose;
 my $ret;
 
 dies_ok  { $cat->build() } "Needs the arguments";
@@ -47,11 +36,11 @@ $ret->structure_ok( [ 1, 2, 3 ], "built the right object" );
 
 my $bindings = $cat->is_instance($ret);
 isa_ok( $bindings, "SBindings" );
-is( $bindings->{end}, 3, "Bindings correct when obj is SObj" );
+is( $bindings->{value}{end}, 3, "Bindings correct when obj is SObj" );
 
 $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 3, 4, 5, 6 ] } ) );
-is( $bindings->{start}, 3, "Bindings correct for 3 4 5 6" );
-is( $bindings->{end},   6, "Bindings correct for 3 4 5 6" );
+is( $bindings->{value}{start}, 3, "Bindings correct for 3 4 5 6" );
+is( $bindings->{value}{end},   6, "Bindings correct for 3 4 5 6" );
 
 $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 3, 6, 7 ] } ) );
 undef_ok($bindings);

@@ -53,13 +53,13 @@ my $bo5 = new_deep SBuiltObj( [ 2, 3 ], [ 2, 3, 4 ] );
 my $bindings;
 
 $bindings = $bl->is_instance($bo2);
-ok exists( $bindings->{what} );
+ok exists( $bindings->{value}{what} );
 
 $bindings = $bl->is_instance($bo3);
 undef_ok $bindings;
 
 $bindings = $bl->is_instance($bo4);
-ok exists( $bindings->{what} );
+ok exists( $bindings->{value}{what} );
 
 $bindings = $bl->is_instance($bo5);
 undef_ok $bindings;

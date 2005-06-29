@@ -87,6 +87,7 @@ sub guess_attribute {
 }
 
 sub generate_instancer {
+  # use Smart::Comments;
   my $self  = shift;
   my $ident = ident $self;
   croak "generate instancer called when instancer already present"
@@ -101,7 +102,7 @@ sub generate_instancer {
     my ( $me, $builtobj ) = @_;
 
     return unless $builtobj;
-    # print "Generated instancer called: $me, $builtobj\n";
+    ### Generated instancer called: $me, $builtobj
     if ( $builtobj->is_empty ) {
       return SBindings->new() if $empty_ok;
       return undef;
@@ -109,11 +110,11 @@ sub generate_instancer {
     my %guess;
     for (@atts) {
 
-      #print "\tGuessing $_...";
+      ### Guessing: $_
       my $guess = $me->guess_attribute( $builtobj, $_ );
       return undef unless defined $guess;
 
-      #print " $guess\n";
+      ### Guessed: $guess
       $guess{$_} = $guess;
     }
     my $guess_built = $me->build( {%guess} );
@@ -122,16 +123,16 @@ sub generate_instancer {
     #print "Original object: "; $builtobj->show;
     my $bindings = $builtobj->structure_blearily_ok($guess_built);
 
-    #print "Bindings: '$bindings'\n";
+    ### $bindings
     if ($bindings) {
       for ( keys %guess ) {
 
         #print "Setting key $_ to $guess{$_}\n";
-        $bindings->{$_} = $guess{$_};
+        $bindings->{value}{$_} = $guess{$_};
       }
     }
 
-    #print "returning: $bindings\n";
+    ### Returning: $bindings
     return $bindings;
   };
 }

@@ -70,14 +70,14 @@ instance_of_cat_ok $blemished, $bl;
 my $blemished_cat_hash = $blemished->get_blemish_cats();
 ok exists $blemished_cat_hash->{$bl};
 
-#diag "TESTING AUTO-GENERATED FUNCTIONS FOR INSTANCE";
+# diag "TESTING AUTO-GENERATED FUNCTIONS FOR INSTANCE";
 my $maybe_blemished = SBuiltObj->new_deep( [ 1, 2, 3 ], [ 1, 2, 3 ] );
 my $guess_what = $bl->guess_attribute( $maybe_blemished, "what" );
 $guess_what->structure_ok( [ 1, 2, 3 ] );
 my $bindings = $bl->is_instance($maybe_blemished);
 ok $bindings, "The deep object was recognized as an instance";
-isa_ok $bindings->{what}, "SBuiltObj";
-$bindings->{what}->structure_ok( [ 1, 2, 3 ] );
+isa_ok $bindings->{value}{what}, "SBuiltObj";
+$bindings->{value}{what}->structure_ok( [ 1, 2, 3 ] );
 
 my $unblemished = $bl->unblemish($maybe_blemished);
 $unblemished->structure_ok( [ 1, 2, 3 ] );
@@ -96,8 +96,8 @@ my $maybe_blemished_flat = SBuiltObj->new( { items => [ 1, 2, 3, 1, 2, 3 ] } );
 #diag @maybe_blemished_flat.items;
 $bindings = $bl->is_instance_flat( @{ $maybe_blemished_flat->items } );
 ok $bindings;
-isa_ok $bindings->{what}, "SBuiltObj";
-$bindings->{what}->structure_ok( [ 1, 2, 3 ] );
+isa_ok $bindings->{value}{what}, "SBuiltObj";
+$bindings->{value}{what}->structure_ok( [ 1, 2, 3 ] );
 
 # The following is nonsense
 #$unblemished = $bl->unblemish($maybe_blemished_flat);

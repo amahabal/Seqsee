@@ -70,7 +70,7 @@ sub generate_instancer_flat {
     my $guess_built = $me->build( {%guess} );
 
     if ( $guess_built->semiflattens_ok(@objects) ) {
-      return \%guess;
+      return { value => \%guess };
     }
     else {
       return undef;
@@ -81,7 +81,7 @@ sub generate_instancer_flat {
 sub unblemish {
   my ( $self, $object ) = @_;
   my $bindings = $self->is_instance($object) or return undef;
-  $bindings->{what};
+  $bindings->{value}{what};
 }
 
 sub is_blemished {
