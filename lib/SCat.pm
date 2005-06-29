@@ -59,9 +59,8 @@ sub build {
 }
 
 sub is_instance {
-  my $self = shift;
-  my @args = map { ref($_) ? $_ : SInt->new( { mag => $_ } ) } @_;
-  return $instancer_of{ ident $self}->( $self, @args );
+  my ( $self, $built_obj ) = @_;
+  return $instancer_of{ ident $self}->( $self, $built_obj );
 }
 
 sub is_instance_flat {
