@@ -64,6 +64,12 @@ sub is_instance {
   return $instancer_of{ ident $self}->( $self, @args );
 }
 
+sub is_instance_flat {
+  my ( $self, @objects ) = @_;
+  my $bo = new SBuiltObj({ items => \@objects });
+  $self->is_instance( $bo );
+}
+
 sub has_named_position {
   my ( $self, $str ) = @_;
   return ( exists $position_finder_of_of{ ident $self}{$str} );

@@ -1,7 +1,10 @@
+GENERAL:
+	* finish the several refactorings identified
+	* Get cracking on gennext!
+
 BLEMISHES:
-	* refactor to have a compose() method
 	* think about how blemishes can be applied at several places
-	* think about how to store blemish info...
+	* return blemish info correctly
 	
 SPos:
 	* More tests, including sanity tests

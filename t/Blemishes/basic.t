@@ -94,7 +94,7 @@ undef_ok $unblemished;
 my $maybe_blemished_flat = SBuiltObj->new( { items => [ 1, 2, 3, 1, 2, 3 ] } );
 
 #diag @maybe_blemished_flat.items;
-$bindings = $bl->is_instance( @{ $maybe_blemished_flat->items } );
+$bindings = $bl->is_instance_flat( @{ $maybe_blemished_flat->items } );
 ok $bindings;
 isa_ok $bindings->{what}, "SBuiltObj";
 $bindings->{what}->structure_ok( [ 1, 2, 3 ] );
@@ -106,7 +106,7 @@ $bindings->{what}->structure_ok( [ 1, 2, 3 ] );
 #diag "TESTING AUTO-GENERATED FUNCTIONS FOR FLAT NON-INSTANCE";
 my $maybe_blemished_flat_but_not =
   SBuiltObj->new( { items => [ 1, 2, 3, 5, 1, 2, 3, 4 ] } );
-$bindings = $bl->is_instance( @{ $maybe_blemished_flat_but_not->items } );
+$bindings = $bl->is_instance_flat( @{ $maybe_blemished_flat_but_not->items } );
 undef_ok $bindings;
 $unblemished = $bl->unblemish($maybe_blemished_flat_but_not);
 undef_ok $unblemished;

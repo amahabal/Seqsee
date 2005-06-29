@@ -1,5 +1,6 @@
 use Perl6::Subs;
 use Getopt::Long;
+use Smart::Comments;
 
 my $diff_only;
 
@@ -89,7 +90,7 @@ sub print_all_files{
     }
   }
 
-  for (@files) {
+  for (@files) { ### Generating Latex ===>           Done[%]
     print_file($_) if $PrintOK{$_};
   }
 }

@@ -26,35 +26,6 @@ sub BUILD {
   $self->set_blemished(1);
   $instancer_flat_of{$id} =
     $self->generate_instancer_flat( $opts->{guesser_flat_of} );
-  $instancer_deep_of{$id} = $self->get_instancer;
-  $self->set_instancer(
-    sub {
-      my $self = shift;
-      my $id   = ident $self;
-
-      #print "In instancer\n";
-      if ( not(@_) or ( @_ == 1 and $_[0]->is_empty ) ) {
-        return $empty_what_of{$id} if $self->get_empty_ok();
-        return undef;
-      }
-      my $bindings;
-      if ( @_ == 1 ) {
-
-        #print "\tSingle object, only a deep check($_[0])\n";
-        $bindings = $instancer_deep_of{$id}->( $self, $_[0] );
-
-        #print "In blemished instancer: got $bindings\n";
-        #print "\$bindings->{what}: $bindings->{what}\n";
-        return $bindings if $bindings;
-      }
-      else {
-
-        #print "\tSeveral objects, only a shallow check\n";
-        $bindings = $instancer_flat_of{$id}->( $self, @_ );
-        return $bindings;
-      }
-    }
-  );
 }
 
 sub blemish {
@@ -64,6 +35,11 @@ sub blemish {
   ### $ret
   $ret->add_cat( $self, { what => $object } );
   $ret;
+}
+
+sub is_instance_flat{
+  my ( $self, @objects ) = @_;
+  $instancer_flat_of{ident $self}->($self, @objects);
 }
 
 sub generate_instancer_flat {
@@ -78,7 +54,7 @@ sub generate_instancer_flat {
   return sub {
     my ( $me, @objects ) = @_;
 
-    # print "#\tIn flat instancer...args: @objects\n";
+    #print "#\tIn flat instancer...args: @objects\n";
     my %guess;
     for (@atts) {
 
@@ -93,10 +69,6 @@ sub generate_instancer_flat {
     }
     my $guess_built = $me->build( {%guess} );
 
-#$guess_built->show;
-#print "\t\t guess built: $guess_built. Flattens to: ", $guess_built->flatten(), "\n";
-#print "\t\tOriginal objects flatten to: ", map { $_->flatten } @objects;
-#print "\n";
     if ( $guess_built->semiflattens_ok(@objects) ) {
       return \%guess;
     }
