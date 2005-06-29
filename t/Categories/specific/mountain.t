@@ -2,11 +2,10 @@ use blib;
 use Test::Seqsee;
 
 BEGIN {
-  plan tests => 15;
+  plan tests => 14;
 }
 
 use SBuiltObj;
-use SBindings;
 use SCat;
 
 BEGIN {
@@ -39,7 +38,6 @@ IS_INSTANCE: {
   my $bindings;
   $bindings =
     $cat->is_instance( SBuiltObj->new( { items => [ 1, 2, 3, 2, 1 ] } ) );
-  isa_ok( $bindings, "SBindings" );
   is( $bindings->{value}{foot}, 1 );
   is( $bindings->{value}{peak}, 3 );
 

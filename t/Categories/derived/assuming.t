@@ -1,10 +1,9 @@
 use strict;
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 14; }
+BEGIN { plan tests => 13; }
 
 use SCat::ascending;
-use SBindings;
 use SBuiltObj;
 use SInt;
 
@@ -20,7 +19,6 @@ $ret->structure_ok( [ 1, 2, 3, 4 ], "derived built the right object" );
 
 my $bindings;
 $bindings = $cat2->is_instance($ret);
-isa_ok( $bindings, "SBindings" );
 is( $bindings->{value}{end}, 4 );
 
 $bindings =

@@ -51,6 +51,12 @@ sub can_be_as_int {
   $mag{ ident $self} == $int;
 }
 
+sub can_be_seen_as_int {
+  my ( $self, $int ) = @_;
+  return {} if $mag{ident $self} == $int;
+  return;
+}
+
 sub is_empty { 0 }
 
 1;

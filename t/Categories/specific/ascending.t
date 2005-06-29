@@ -1,9 +1,8 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 25; }
+BEGIN { plan tests => 21; }
 
 use SBuiltObj;
-use SBindings;
 use SCat;
 
 use SBlemish::double;
@@ -30,7 +29,6 @@ BUILDING: {
 IS_INSTANCE: {
   my $bindings;
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 2, 3, 4 ] } ) );
-  isa_ok( $bindings, "SBindings" );
   is( $bindings->{value}{start}, 2 );
   is( $bindings->{value}{end},   4 );
 
@@ -46,7 +44,6 @@ BLEMISHED_IS_INST: {
   $bindings =
     $cat->is_instance( $cat->build( { start => 3, end => 8 } )
       ->apply_blemish_at( $SBlemish::double::double, SPos->new(2) ) );
-  isa_ok $bindings, "SBindings";
   is $bindings->{value}{start}, 3;
   is $bindings->{value}{end},   8;
 TODO: {
@@ -61,7 +58,6 @@ TODO: {
   $very_blemished_obj->structure_ok( [ [ 3, 3 ], 4, 5, 6, 7, [ 8, 8 ] ] );
 
   $bindings = $cat->is_instance($very_blemished_obj);
-  isa_ok $bindings, "SBindings";
   is $bindings->{value}{start}, 3, "start ok";
   is $bindings->{value}{end},   8, "end ok";
 TODO: {
@@ -77,7 +73,6 @@ TODO: {
     [ [ [ 3, 3 ], [ 3, 3 ] ], 4, 5, 6, 7, 8 ] );
 
   $bindings = $cat->is_instance($very_blemished_obj);
-  isa_ok $bindings, "SBindings";
   is $bindings->{value}{start}, 3, "start ok";
   is $bindings->{value}{end},   8, "end ok";
 TODO: {

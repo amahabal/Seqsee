@@ -1,9 +1,8 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 10; }
+BEGIN { plan tests => 9; }
 
 use SBuiltObj;
-use SBindings;
 use SCat;
 use SBlemish;
 use SBlemish::double;
@@ -35,6 +34,5 @@ is $mtn->guess_attribute( $bo_bl, "foot" ), 2;
 is $mtn->guess_attribute( $bo_bl, "peak" ), 5;
 
 $bindings = $mtn->is_instance($bo_bl);
-isa_ok $bindings, "SBindings";
 is $bindings->{value}{foot}, 2;
 is $bindings->{value}{peak}, 5;

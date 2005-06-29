@@ -239,23 +239,56 @@ sub can_be_as_int {
   return undef;
 }
 
+sub can_be_seen_as_int {
+  my ( $self, $int ) = @_;
+  if (scalar (@{ $items{ident $self} } ) == 1 and
+      my $bindings = $items{ident $self}[0]->can_be_seen_as_int($int)
+     ) {
+    return $bindings;
+  }
+  my $bl_cats = $self->get_blemish_cats;
+  while (my ( $blemish, $what ) = each %$bl_cats ) {
+    my $bindings = $what->can_be_seen_as_int( $int );
+    next unless $bindings;
+    $bindings->{real} = $what;
+    $bindings->{starred} = $int;
+    $bindings->{blemished} = 1;
+    return $bindings;
+  }
+  return;
+}
+
 sub structure_blearily_ok {
   my ( $self, $template ) = @_;
   my @my_items       = @{ $items{ ident $self} };
-  my @template_items = @{ $template->items };
+  my @template_items;
+  if (ref($template) eq "ARRAY") {
+    @template_items = map { SInt->new({mag => $_}) }@$template;
+  } else {
+    @template_items = @{ $template->items };
+  }
   return undef unless scalar(@my_items) == scalar(@template_items);
+  my @blemishes;
   for ( my $i = 0 ; $i < scalar(@my_items) ; $i++ ) {
     my $my_item = $my_items[$i];
     my $t_item  = $template_items[$i];
     if ( UNIVERSAL::isa( $t_item, "SInt" ) ) {
-      next if $my_item->can_be_as_int( $t_item->get_mag() );
+      my $bindings = $my_item->can_be_seen_as_int( $t_item->get_mag() );
+      if ($bindings->{blemished}) {
+	$bindings->{where} = $i;
+	push @blemishes, $bindings;
+      }
+      next if $bindings;
     }
     else {
+      # XXX THIS WILL NOT RETURN BINDINGS CORRECTLY IF TEMPLATE IS NOT SHALLOW
       next if $my_item->structure_blearily_ok($t_item);
     }
     return undef;
   }
-  return SBindings->new();
+  return { blemishes => \@blemishes,
+	   actual    => $template,
+	 };
 }
 
 sub is_empty {

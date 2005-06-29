@@ -1,9 +1,8 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 12; }
+BEGIN { plan tests => 11; }
 
 use SBuiltObj;
-use SBindings;
 
 use_ok("SCat");
 
@@ -35,7 +34,6 @@ isa_ok( $ret, "SBuiltObj", "Built object is a SBuiltObj" );
 $ret->structure_ok( [ 1, 2, 3 ], "built the right object" );
 
 my $bindings = $cat->is_instance($ret);
-isa_ok( $bindings, "SBindings" );
 is( $bindings->{value}{end}, 3, "Bindings correct when obj is SObj" );
 
 $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 3, 4, 5, 6 ] } ) );
