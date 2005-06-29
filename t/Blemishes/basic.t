@@ -47,7 +47,7 @@ lives_ok {
     {
       empty_ok        => 1,
       empty_what      => new SBuiltObj(),
-      att             => new Set::Scalar(),
+      att             => new SSet(),
       guesser_of      => $guesser,
       guesser_flat_of => $guesser_flat,
       guesser_pos_of  => {},

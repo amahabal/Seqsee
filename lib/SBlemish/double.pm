@@ -28,7 +28,7 @@ my $guesser_flat = {
 
 our $double = new SBlemish(
   {
-    att             => new Set::Scalar(),
+    att             => new SSet(),
     builder         => $builder,
     empty_ok        => 1,
     empty_what      => new SBuiltObj(),

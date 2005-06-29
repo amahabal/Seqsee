@@ -2,7 +2,7 @@ package SCat;
 use strict;
 use SUtil;
 use SBuiltObj;
-use Set::Scalar;
+use SSet;
 use SInstance;
 use SPos;
 
@@ -30,7 +30,7 @@ our %Global_attributes = map { $_ => 1 } qw{what};
 
 sub BUILD {
   my ( $self, $id, $opts ) = @_;
-  $att_of{$id}            = $opts->{att}  || Set::Scalar->new();
+  $att_of{$id}            = $opts->{att}  || SSet->new();
   $builder_of{$id}        = $opts->{builder};
   $instancer_of{$id}      = $opts->{instancer};
   $guesser_of_of{$id}     = $opts->{guesser_of};

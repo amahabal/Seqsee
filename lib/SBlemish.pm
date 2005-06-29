@@ -4,7 +4,6 @@ use strict;
 use Carp;
 
 #use Smart::Comments;
-use Set::Scalar;
 our @ISA = qw{SCat};
 
 use Class::Std;

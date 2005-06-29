@@ -27,7 +27,7 @@ sub derive_assuming {
     }
   );
 
-  $new_cat->set_att( $self->get_att - ( new Set::Scalar( keys %assuming ) ) );
+  $new_cat->set_att( $self->get_att );
 
   $new_cat;
 
