@@ -2,7 +2,7 @@ use blib;
 use Test::Seqsee;
 
 BEGIN {
-  plan tests => 16;
+  plan tests => 15;
 }
 
 use SBuiltObj;
@@ -50,7 +50,5 @@ IS_INSTANCE: {
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 5, 6 ] } ) );
   undef_ok($bindings);
 
-  $bindings = $cat->is_instance();
-  isa_ok( $bindings, "SBindings" );
 }
 

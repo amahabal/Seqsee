@@ -89,8 +89,9 @@ sub get_position_finder {
   my @cats               = $self->get_cats();
   my @cats_with_position =
     grep { $_->has_named_position($str) } @cats;
-  @cats_with_position
-    or croak "Could not find any way for finding the position '$str' for $self";
+  (@cats_with_position == 1)
+    or croak "Could not find any way for finding the position '$str' for $self"
+      . " Or maybe found too many ways";
 
   # XXX what if multiple categories have a position of this name??
   return $cats_with_position[0]->{position_finder}{$str};

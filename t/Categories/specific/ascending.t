@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 26; }
+BEGIN { plan tests => 25; }
 
 use SBuiltObj;
 use SBindings;
@@ -38,8 +38,7 @@ IS_INSTANCE: {
   is( $bindings->{start}, 2 );
   is( $bindings->{end},   2 );
 
-  $bindings = $cat->is_instance();
-  isa_ok( $bindings, "SBindings" );
+
 }
 
 BLEMISHED_IS_INST: {

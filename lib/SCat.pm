@@ -100,8 +100,9 @@ sub generate_instancer {
   $instancer_of{$ident} = sub {
     my ( $me, $builtobj ) = @_;
 
+    return unless $builtobj;
     # print "Generated instancer called: $me, $builtobj\n";
-    if ( not($builtobj) or $builtobj->is_empty ) {
+    if ( $builtobj->is_empty ) {
       return SBindings->new() if $empty_ok;
       return undef;
     }
