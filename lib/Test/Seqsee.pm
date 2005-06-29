@@ -34,6 +34,76 @@ sub SBuiltObj::structure_ok {    # ONLY TO BE USED FROM TEST SCRIPTS
   Test::More::ok( $self->structure_is($potential_struct), $msg );
 }
 
+sub SBindings::Blemish::where_ok{
+  my ($self, $what) = @_;
+  is $self->get_where(), $what, "$self where okay";
+}
+
+sub SBindings::Blemish::starred_ok{
+  my ($self, $what) = @_;
+  is $self->get_starred(), $what, "$self starred okay";
+}
+
+sub SBindings::Blemish::real_ok{
+  my ($self, $what) = @_;
+  ok $self->get_real()->structure_is($what), "$self real okay";
+}
+
+sub SBindings::where_ok{
+  my ($self, $what_ref) = @_;
+  my @blemishes = @{ $self->get_blemishes() };
+  my $msg = "$self where okay";
+  unless (@blemishes == @$what_ref) {
+    ok 0, $msg;
+    return;
+  }
+  for (my $i = 0; $i < @blemishes; $i++) {
+    next if $blemishes[$i]->get_where() == $what_ref->[$i];
+    ok 0, $msg;
+  }
+  ok 1, $msg;
+}
+
+sub SBindings::starred_ok{
+  my ($self, $what_ref) = @_;
+  my @blemishes = @{ $self->get_blemishes() };
+  my $msg = "$self starred okay";
+  unless (@blemishes == @$what_ref) {
+    ok 0, $msg;
+    return;
+  }
+  for (my $i = 0; $i < @blemishes; $i++) {
+    next if $blemishes[$i]->get_starred() eq $what_ref->[$i];
+    ok 0, $msg;
+  }
+  ok 1, $msg;
+}
+
+sub SBindings::real_ok{
+  my ($self, $what_ref) = @_;
+  my @blemishes = @{ $self->get_blemishes() };
+  my $msg = "$self real okay";
+  unless (@blemishes == @$what_ref) {
+    ok 0, $msg;
+    return;
+  }
+  for (my $i = 0; $i < @blemishes; $i++) {
+    next if $blemishes[$i]->get_real()->structure_is($what_ref->[$i]);
+    ok 0, $msg;
+  }
+  ok 1, $msg;
+}
+
+sub SBindings::value_ok{
+  my ( $self, $name, $val ) = @_;
+  my $got_val = $self->get_values_of()->{$name};
+  if (ref $got_val) {
+    ok $got_val->structure_is( $val );
+  } else {
+    ok ($got_val eq $val);
+  }
+}
+
 sub blemished_where_ok {
   my ( $bindings, $where_ref ) = @_;
   my @where = map { $_->{where} } @{$bindings->{blemishes}};

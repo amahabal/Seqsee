@@ -33,8 +33,8 @@ our $number = new SCat(
             my $bl_cats = $builtobj->get_blemish_cats();
             while ( my ( $bl, $what ) = each %$bl_cats ) {
               if ( $what->structure_is( [$magnitude] ) ) {
-                $bindings->{_blemished} = 1;
-                $bindings->{blemish}    = $bl;
+                #XXX $bindings->{_blemished} = 1;
+                #XXX $bindings->{blemish}    = $bl;
                 return $bindings;
               }
             }
