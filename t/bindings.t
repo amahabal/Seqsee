@@ -31,7 +31,8 @@ CONSTRUCT: {
   my $bindings = new SBindings();
   isa_ok $bindings, "SBindings";
   
-  $bindings->set_values_of({ what => "foo" });
+  $bindings->set_value_of({ what => "foo" });
+  
   $bindings->add_blemish
     (
      SBindings::Blemish->new({ where => 3, starred => 2, 

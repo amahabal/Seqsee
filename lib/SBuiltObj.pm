@@ -241,19 +241,24 @@ sub can_be_as_int {
 
 sub can_be_seen_as_int {
   my ( $self, $int ) = @_;
+  # use Smart::Comments;
+  ### can_be_seen_as_int: $self, $int
   if (scalar (@{ $items{ident $self} } ) == 1 and
       my $bindings = $items{ident $self}[0]->can_be_seen_as_int($int)
      ) {
-    $bindings->{real} = $self;
+    ### Single item: $bindings
     return $bindings;
   }
   my $bl_cats = $self->get_blemish_cats;
   while (my ( $blemish, $what ) = each %$bl_cats ) {
     my $bindings = $what->can_be_seen_as_int( $int );
+    ### bindings for $bl_cats: $bindings
     next unless $bindings;
-    $bindings->{real} = $what;
-    $bindings->{starred} = $int;
-    $bindings->{blemished} = 1;
+    unless (ref $bindings) {
+      $bindings = new SBindings::Blemish;
+    }
+    $bindings->set_real($what);
+    $bindings->set_starred($int);
     return $bindings;
   }
   return;
@@ -261,6 +266,8 @@ sub can_be_seen_as_int {
 
 sub structure_blearily_ok {
   my ( $self, $template ) = @_;
+  # no Smart::Comments;
+  ### $self, $template
   my @my_items       = @{ $items{ ident $self} };
   my @template_items;
   if (ref($template) eq "ARRAY") {
@@ -269,28 +276,34 @@ sub structure_blearily_ok {
     @template_items = @{ $template->items };
   }
   return undef unless scalar(@my_items) == scalar(@template_items);
+  ### Item count identical:
   my @blemishes;
   for ( my $i = 0 ; $i < scalar(@my_items) ; $i++ ) {
     my $my_item = $my_items[$i];
     my $t_item  = $template_items[$i];
+    ### i,my_items, t_item: $i, $my_item, $t_item
     if ( UNIVERSAL::isa( $t_item, "SInt" ) ) {
       my $bindings = $my_item->can_be_seen_as_int( $t_item->get_mag() );
-      if ($bindings->{blemished}) {
-	$bindings->{where} = $i;
-	$bindings->{real} = $my_item;
+      ### bindings: $bindings
+      if (ref $bindings) {
+	$bindings->set_where($i);
+	$bindings->set_real($my_item);
 	push @blemishes, $bindings;
       }
       next if $bindings;
     }
     else {
       # XXX THIS WILL NOT RETURN BINDINGS CORRECTLY IF TEMPLATE IS NOT SHALLOW
+      print "TEMPLATE ITEM NOT AN SINT!!\n";
       next if $my_item->structure_blearily_ok($t_item);
     }
     return undef;
   }
-  return { blemishes => \@blemishes,
-	   actual    => $template,
-	 };
+  my $return = new SBindings;
+  for (@blemishes) {
+    $return->add_blemish($_);
+  }
+  return $return;
 }
 
 sub is_empty {

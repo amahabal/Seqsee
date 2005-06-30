@@ -29,12 +29,12 @@ BUILDING: {
 IS_INSTANCE: {
   my $bindings;
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 2, 3, 4 ] } ) );
-  is( $bindings->{value}{start}, 2 );
-  is( $bindings->{value}{end},   4 );
+  $bindings->value_ok(start => 2);
+  $bindings->value_ok(end   => 4);
 
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [2] } ) );
-  is( $bindings->{value}{start}, 2 );
-  is( $bindings->{value}{end},   2 );
+  $bindings->value_ok(start => 2);
+  $bindings->value_ok(end   => 2);
 
 
 }
@@ -44,17 +44,13 @@ BLEMISHED_IS_INST: {
   $bindings =
     $cat->is_instance( $cat->build( { start => 3, end => 8 } )
       ->apply_blemish_at( $SBlemish::double::double, SPos->new(2) ) );
-  is $bindings->{value}{start}, 3;
-  is $bindings->{value}{end},   8;
+  $bindings->value_ok(start => 3);
+  $bindings->value_ok(end   => 8);
+  
   blemished_where_ok     ( $bindings, [1] );
   blemished_starred_okay ( $bindings, [4] );
   blemished_real_okay    ( $bindings, [[4, 4]]);
-
-
-TODO: {
-    local $TODO = "instancer does not yet add blemish bindings";
-    ok $bindings->{_blemish};
-  }
+  $bindings->blemished_ok;
 
   my $very_blemished_obj =
     $cat->build( { start => 3, end => 8 } )
@@ -63,16 +59,13 @@ TODO: {
   $very_blemished_obj->structure_ok( [ [ 3, 3 ], 4, 5, 6, 7, [ 8, 8 ] ] );
 
   $bindings = $cat->is_instance($very_blemished_obj);
-  is $bindings->{value}{start}, 3, "start ok";
-  is $bindings->{value}{end},   8, "end ok";
+  $bindings->value_ok(start => 3);
+  $bindings->value_ok(end   => 8);
   blemished_where_ok     ( $bindings, [0, 5] );
   blemished_starred_okay ( $bindings, [3, 8] );
   blemished_real_okay    ( $bindings, [[3, 3], [8, 8]]);
-
-TODO: {
-    local $TODO = "instancer does not yet add blemish bindings";
-    ok $bindings->{_blemish};
-  }
+  $bindings->blemished_ok;
+  
 
   $very_blemished_obj =
     $cat->build( { start => 3, end => 8 } )
@@ -82,12 +75,10 @@ TODO: {
     [ [ [ 3, 3 ], [ 3, 3 ] ], 4, 5, 6, 7, 8 ] );
 
   $bindings = $cat->is_instance($very_blemished_obj);
-  is $bindings->{value}{start}, 3, "start ok";
-  is $bindings->{value}{end},   8, "end ok";
-TODO: {
-    local $TODO = "instancer does not yet add blemish bindings";
-    ok $bindings->{_blemish};
-  }
+  $bindings->value_ok(start => 3);
+  $bindings->value_ok(end   => 8);
+  $bindings->blemished_ok;
+
 
 }
 

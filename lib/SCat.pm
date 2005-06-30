@@ -11,7 +11,7 @@ use SCat::Derive::blemished;
 
 use Class::Std;
 use Carp;
-
+use SBindings;
 our @ISA = qw{SInstance};
 our %Cats;
 
@@ -125,11 +125,7 @@ sub generate_instancer {
 
     ### $bindings
     if ($bindings) {
-      for ( keys %guess ) {
-
-        #print "Setting key $_ to $guess{$_}\n";
-        $bindings->{value}{$_} = $guess{$_};
-      }
+      $bindings->set_value_of( { %guess });
     }
 
     ### Returning: $bindings

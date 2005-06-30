@@ -19,7 +19,7 @@ sub derive_assuming {
         return undef unless $bindings;
 
         while ( my ( $k, $v ) = each %assuming ) {
-          return undef unless $bindings->{value}{$k} eq $v;
+          return undef unless $bindings->get_values_of()->{$k} eq $v;
         }
         return $bindings;
       },

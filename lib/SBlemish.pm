@@ -80,7 +80,7 @@ sub generate_instancer_flat {
 sub unblemish {
   my ( $self, $object ) = @_;
   my $bindings = $self->is_instance($object) or return undef;
-  $bindings->{value}{what};
+  $bindings->get_values_of()->{what};
 }
 
 sub is_blemished {

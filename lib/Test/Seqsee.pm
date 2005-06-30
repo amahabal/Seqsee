@@ -104,22 +104,28 @@ sub SBindings::value_ok{
   }
 }
 
+sub SBindings::blemished_ok{
+  my ( $self ) = shift;
+  my $msg = "$self is blemished";
+  ok scalar(@{ $self->get_blemishes() }), $msg;
+}
+
 sub blemished_where_ok {
   my ( $bindings, $where_ref ) = @_;
-  my @where = map { $_->{where} } @{$bindings->{blemishes}};
+  my @where = map { $_->get_where() } @{$bindings->get_blemishes};
   cmp_deeply \@where, $where_ref, "Location of Blemished";
 }
 
 sub blemished_starred_okay {
   my ( $bindings, $star_ref ) = @_;
-  my @starred = map { $_->{starred} } @{$bindings->{blemishes}};
+  my @starred = map { $_->get_starred } @{$bindings->get_blemishes};
   cmp_deeply \@starred, $star_ref, "Starred versions of Blemished";
 }
 
 sub blemished_real_okay {
   use Smart::Comments;
   my ( $bindings, $real_ref ) = @_;
-  my @real = map { $_->{real} } @{$bindings->{blemishes}};
+  my @real = map { $_->get_real } @{$bindings->get_blemishes};
   my $msg = "Original (unstarred) versions of Blemished"; 
   if (@real == @$real_ref){
     for (my $i=0; $i < @real; $i++) {

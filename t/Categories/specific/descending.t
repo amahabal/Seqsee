@@ -26,11 +26,11 @@ BUILDING: {
 IS_INSTANCE: {
   my $bindings;
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 4, 3, 2 ] } ) );
-  is( $bindings->{value}{start}, 4 );
-  is( $bindings->{value}{end},   2 );
+  $bindings->value_ok(start => 4);
+  $bindings->value_ok(end => 2);
 
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [2] } ) );
-  is( $bindings->{value}{start}, 2 );
-  is( $bindings->{value}{end},   2 );
+  $bindings->value_ok(start => 2);
+  $bindings->value_ok(end => 2);
 
 }

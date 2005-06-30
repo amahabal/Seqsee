@@ -53,7 +53,7 @@ my $bo5 = new_deep SBuiltObj( [ 2, 3 ], [ 2, 3, 4 ] );
 my $bindings;
 
 $bindings = $bl->is_instance($bo2);
-ok exists( $bindings->{value}{what} );
+ok exists( $bindings->get_values_of()->{what} );
 blemished_where_ok     ( $bindings, [] );
 blemished_starred_okay ( $bindings, [] );
 blemished_real_okay    ( $bindings, []);
@@ -63,7 +63,7 @@ $bindings = $bl->is_instance($bo3);
 undef_ok $bindings;
 
 $bindings = $bl->is_instance($bo4);
-ok exists( $bindings->{value}{what} );
+ok exists( $bindings->get_values_of()->{what} );
 
 
 $bindings = $bl->is_instance($bo5);

@@ -19,7 +19,7 @@ $ret->structure_ok( [ 1, 2, 3, 4 ], "derived built the right object" );
 
 my $bindings;
 $bindings = $cat2->is_instance($ret);
-is( $bindings->{value}{end}, 4 );
+$bindings->value_ok(end => 4);
 blemished_where_ok     ( $bindings, [] );
 blemished_starred_okay ( $bindings, [] );
 blemished_real_okay    ( $bindings, []);
@@ -27,8 +27,8 @@ blemished_real_okay    ( $bindings, []);
 
 $bindings =
   $cat2->is_instance( SBuiltObj->new( { items => [ 1, 2, 3, 4, 5, 6 ] } ) );
-is( $bindings->{value}{start}, 1 );
-is( $bindings->{value}{end},   6 );
+$bindings->value_ok(start => 1);
+$bindings->value_ok(end => 6);
 
 $bindings = $cat2->is_instance( SBuiltObj->new( { items => [ 3, 4, 5 ] } ) );
 undef_ok($bindings);
@@ -65,8 +65,8 @@ undef_ok($bindings);
   $blemished_obj->structure_ok( [ 1, [ 2, 2 ], 3, 4, 5 ] );
 
   my $bindings = $cat->is_instance($blemished_obj);
-  is( $bindings->{value}{start}, 1 );
-  is( $bindings->{value}{end},   5 );
+  $bindings->value_ok( start => 1);
+  $bindings->value_ok( end   => 5);
 }
 
 #diag "cat  instancer is: $cat->{instancer}";

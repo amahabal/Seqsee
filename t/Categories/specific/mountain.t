@@ -38,12 +38,12 @@ IS_INSTANCE: {
   my $bindings;
   $bindings =
     $cat->is_instance( SBuiltObj->new( { items => [ 1, 2, 3, 2, 1 ] } ) );
-  is( $bindings->{value}{foot}, 1 );
-  is( $bindings->{value}{peak}, 3 );
+  $bindings->value_ok(foot => 1);
+  $bindings->value_ok(peak => 3);
 
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [5] } ) );
-  is( $bindings->{value}{foot}, 5 );
-  is( $bindings->{value}{peak}, 5 );
+  $bindings->value_ok(foot => 5);
+  $bindings->value_ok(peak => 5);
 
   $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 5, 6 ] } ) );
   undef_ok($bindings);

@@ -34,9 +34,9 @@ is $mtn->guess_attribute( $bo_bl, "foot" ), 2;
 is $mtn->guess_attribute( $bo_bl, "peak" ), 5;
 
 $bindings = $mtn->is_instance($bo_bl);
-is $bindings->{value}{foot}, 2;
-is $bindings->{value}{peak}, 5;
-ok scalar(@{$bindings->{blemishes}});
+$bindings->value_ok( foot => 2 );
+$bindings->value_ok( peak => 5 );
+ok scalar(@{$bindings->get_blemishes});
 
 blemished_where_ok     ( $bindings, [1] );
 blemished_starred_okay ( $bindings, [3] );

@@ -34,11 +34,11 @@ isa_ok( $ret, "SBuiltObj", "Built object is a SBuiltObj" );
 $ret->structure_ok( [ 1, 2, 3 ], "built the right object" );
 
 my $bindings = $cat->is_instance($ret);
-is( $bindings->{value}{end}, 3, "Bindings correct when obj is SObj" );
+$bindings->value_ok(end => 3);
 
 $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 3, 4, 5, 6 ] } ) );
-is( $bindings->{value}{start}, 3, "Bindings correct for 3 4 5 6" );
-is( $bindings->{value}{end},   6, "Bindings correct for 3 4 5 6" );
+$bindings->value_ok(start => 3);
+$bindings->value_ok(end => 6);
 
 $bindings = $cat->is_instance( SBuiltObj->new( { items => [ 3, 6, 7 ] } ) );
 undef_ok($bindings);

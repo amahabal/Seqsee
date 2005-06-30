@@ -53,7 +53,7 @@ sub can_be_as_int {
 
 sub can_be_seen_as_int {
   my ( $self, $int ) = @_;
-  return {} if $mag{ident $self} == $int;
+  return 1 if $mag{ident $self} == $int;
   return;
 }
 
