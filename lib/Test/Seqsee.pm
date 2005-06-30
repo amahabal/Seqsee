@@ -110,6 +110,12 @@ sub SBindings::blemished_ok{
   ok scalar(@{ $self->get_blemishes() }), $msg;
 }
 
+sub SBindings::non_blemished_ok{
+  my ( $self ) = shift;
+  my $msg = "$self is blemished";
+  ok !scalar(@{ $self->get_blemishes() }), $msg;
+}
+
 sub blemished_where_ok {
   my ( $bindings, $where_ref ) = @_;
   my @where = map { $_->get_where() } @{$bindings->get_blemishes};

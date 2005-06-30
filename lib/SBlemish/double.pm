@@ -3,6 +3,7 @@ use strict;
 use SBlemish;
 use SBindings;
 
+
 my $builder = sub {
   my ( $self, $args ) = @_;
   my $what    = delete $args->{what};
@@ -31,7 +32,7 @@ our $double = new SBlemish(
     att             => new SSet(),
     builder         => $builder,
     empty_ok        => 1,
-    empty_what      => new SBuiltObj(),
+    empty_what      => SBuiltObj->new_deep(),
     guesser_of      => $guesser,
     guesser_flat_of => $guesser_flat,
     guesser_pos_of  => {}

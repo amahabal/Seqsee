@@ -5,6 +5,7 @@ use SInt;
 use SCat;
 use SPos;
 use SBlemish;
+#use SBlemish::double;
 use SInstance;
 
 our @ISA = qw{SInstance};
@@ -310,6 +311,62 @@ sub is_empty {
   my $self = shift;
   return 1 unless @{ $items{ ident $self} };
   return 0;
+}
+
+sub describe_as{
+  (@_ == 2) or croak "need two arguments";
+  my ( $self, $cat ) = @_;
+  # XXX Next line hardcoded... shouldn't be
+  $self->seek_blemishes( [ $SBlemish::double::double ] );
+  return $cat->is_instance( $self );
+}
+
+sub seek_blemishes{
+  my ( $self, $blemish_list ) = @_;
+  my $items_ref = ( $items{ident $self} ||= [] );
+  foreach my $item (@$items_ref) {
+    next if UNIVERSAL::isa($item, "SInt");
+    foreach my $bl (@$blemish_list) {
+      if (my $bindings = $bl->is_instance($item)) {
+	$item->add_cat( $bl, $bindings);
+      }
+    }
+  }
+}
+
+sub blemish_positions_may_be{
+  my ( $self, $bindings, $pos_ref ) = @_;
+  # use Smart::Comments;
+  ### blemish_positions_may_be: $self, $bindings, $pos_ref
+  my $where_ref = $bindings->get_where();
+  return unless (@$where_ref == @$pos_ref);
+  ### Same size:
+  ### where: $where_ref
+  for (my $i = 0; $i < @$pos_ref; $i++) {
+    # XXX: what if the damned thing returns a large range?
+    my $range = $pos_ref->[$i]->find_range( $self );
+    ### range: $range
+    return unless $range;
+    croak "No clue what to do if range is large!"
+      if (@$range > 1);
+    next if $range->[0] == $where_ref->[$i];
+    return;
+  }
+  return 1;
+}
+
+sub blemish_type_may_be{
+  my ( $self, $bindings, $type_ref ) = @_;
+  my $real_ref = $bindings->get_real;
+  my $starred_ref = $bindings->get_starred;
+  return unless (@$real_ref == @$type_ref);  
+  for (my $i = 0; $i < @$type_ref; $i++) {
+    my $bindings_inner = 
+      $type_ref->[$i]->is_instance($real_ref->[$i]);
+    return unless $bindings_inner;
+    return unless $bindings_inner->{what}->structure_is( $starred_ref );
+  }
+  return 1;
 }
 
 1;

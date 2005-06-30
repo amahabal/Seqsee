@@ -9,12 +9,14 @@ use SPos::Global::Absolute;
 use SPos::Named;
 
 use Carp;
-use Memoize;
-memoize('new');
+
+my %Memoize;
+
 
 sub new {
   my $package = shift;
   my $what    = shift;
+  return $Memoize{$what} if $Memoize{$what};
   my %args    = @_;
   croak "A position must have a number or a string as the first argument to new."
     unless $what;
@@ -26,7 +28,7 @@ sub new {
   else {
     $self = new SPos::Named({ str => $what });
   }
-  $self;
+  $Memoize{$what} = $self;
 }
 
 1;

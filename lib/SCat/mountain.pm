@@ -35,7 +35,7 @@ $cat->install_position_finder(
   },
   0
 );
-
+#print "mountain is $mountain\n";
 $cat->compose();
 
 1;

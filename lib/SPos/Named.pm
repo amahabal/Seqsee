@@ -15,19 +15,25 @@ sub BUILD{
 
 sub install_finder {
   my ( $self, %opts ) = @_;
-  my $cat    = delete $opts{cat};
-  my $finder = delete $opts{finder};
+  my $cat    = $opts{cat};
+  my $finder = $opts{finder};
   $find_by_cat_of_of{ident $self}{$cat} = $finder;
+  # print "########## FOR ", ident $self," set finder for $cat\n";
 }
 
 sub find_range {
   my ( $self, $built_obj ) = @_;
   my $id = ident $self;
+  # use Smart::Comments;
+  ### self: $id
   my @cats = $built_obj->get_cats;
+  ### cats: @cats
   my @matching_cats = grep { exists $find_by_cat_of_of{$id}{$_} } @cats;
+  ### Matching cats for peak finding: @matching_cats
   return undef unless @matching_cats;
   my @matching_ranges =
     map { $find_by_cat_of_of{$id}{$_}->find_range($built_obj);} @matching_cats;
+  ### Matching ranges for peak finding: @matching_ranges
   return $matching_ranges[0] if @matching_ranges == 1;
 
   # XXX I should check whether the different answers are the same,
