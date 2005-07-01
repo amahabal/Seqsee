@@ -4,7 +4,7 @@ use SPos;
 use SCat;
 use SBlemish;
 
-our @EXPORT = qw{uniq equal_when_flattened};
+our @EXPORT = qw{uniq equal_when_flattened generate_blemished};
 our @ISA    = qw{Exporter};
 
 sub uniq {
@@ -36,11 +36,11 @@ sub equal_when_flattened {
 }
 
 sub generate_blemished {
-  my ( $self, %args ) = @_;
+  my ( %args ) = @_;
   my $cat       = delete $args{cat};
   my $blemish   = delete $args{blemish};
   my $pos       = delete $args{pos};
-  my $bo        = $cat->build(%args);
+  my $bo        = $cat->build({ %args });
   my $blemished = $bo->apply_blemish_at( $blemish, $pos );
   return $blemished;
 }

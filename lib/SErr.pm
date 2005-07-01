@@ -1,6 +1,7 @@
 # I am perhaps erring on the side of using too many..
 use strict;
 use Exception::Class (
+  'SErr' => {},
   'SErr::Pos::OutOfRange'    => {},
   'SErr::Pos::UnExpMulti'    => {},
   'SErr::Pos::MultipleNamed' => {},

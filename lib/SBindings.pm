@@ -46,4 +46,9 @@ sub get_starred{
   return [map { $_->get_starred } @{ $blemishes_of{ident $self}} ]; 
 }
 
+sub get_blemished{
+  my ( $self ) = shift;
+  return scalar @{ $blemishes_of{ident $self}};
+}
+
 1;
