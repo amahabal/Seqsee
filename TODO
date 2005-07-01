@@ -1,21 +1,36 @@
-GENERAL:
-	* finish the several refactorings identified
-	* Get cracking on gennext!
+*** Other Blemishes
+  ---> to ensure I have not hardcoded many assumptions
+  ---> other blemishes that take arguments, like "repeat"
+  ---> Explore whether and how I may compose() by default
 
-BLEMISHES:
-	* think about how blemishes can be applied at several places
-	* return blemish info correctly
-	
-SPos:
-	* More tests, including sanity tests
+*** Other Positions
+  ---> "the 3" or "the length 3"
+  ---> "after the peak", "after the 3"
 
-Fascinations:
-	* For built objects, think of a way of evaluation fascinations
+*** Other categories
+  ---> what I used to describe as literal categories, like "1 2 3"
+   ---> should not be hard, and also, needed for "the 3" and "the 123"
+  ---> could give a completely new look and feel to is_blearily_ok
+     ---> but I may still need something more literal like 
+	  is_blearily_ok around.
 
-SCat:
-	* Can I compose() not SBuiltObj returning stuff?
+*** SBuiltObj
+  ---> I really need to resolve the plethora of structure commands
 
-SCat/Derived:
-	* Cleanup the assuming() mess
-	* take a closer look at blemished()
+*** Test::Seqsee
+  ---> consider splitting this up
+  ---> ensure uniformity in naming conventions
 
+*** THINKING
+  ---> changes cannot be decoupled from descriptions
+    ---> write millions of examples and represent change/desc pairs
+  ---> Current describe is pretty brute-forcish
+    ---> thoughts on how the stream can be brought to bear?
+
+*** ANOTHER REFACTORING ROUND!
+
+*** Blemishes applied at several places ("everywhere", "somewhere")
+*** Fascinations. 
+*** Roll a release. Today, now!
+*** Clean up tests. More tests absolutely needed. Did I say clean up?
+*** Composing meta-categories?
