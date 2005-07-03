@@ -25,12 +25,6 @@ sub show_shallow {
   print "\t" x $depth, $mag{ ident $self }, "\n";
 }
 
-sub compare_deep {
-  my ( $self, $other ) = @_;
-  return undef if UNIVERSAL::isa( $other, "SBuiltObj" );
-  return ( $mag{ ident $self} == $mag{ ident $other} );
-}
-
 sub structure_is {
   my ( $self, $struct ) = @_;
   my @parts = ( ref $struct ) ? @$struct : ($struct);

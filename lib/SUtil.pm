@@ -3,6 +3,7 @@ use strict;
 use SPos;
 use SCat;
 use SBlemish;
+use Carp;
 
 our @EXPORT = qw{uniq equal_when_flattened generate_blemished};
 our @ISA    = qw{Exporter};
@@ -13,6 +14,26 @@ sub uniq {
     $hash{$_} = $_;
   }
   values %hash;
+}
+
+sub compare_deep{
+  (@_ == 2) or confess;
+  my ( $deep_list1, $deep_list2 ) = @_;
+  my $is_ref1 = ref $deep_list1;
+  my $is_ref2 = ref $deep_list2;
+  if (!$is_ref1 and !$is_ref2) {
+    return ( $deep_list1 == $deep_list2 );
+  }
+  if ($is_ref1 and $is_ref2) {
+    return unless @$deep_list1 == @$deep_list2;
+    for (my $i=0; $i<@$deep_list1; $i++) {
+      return unless compare_deep($deep_list1->[$i],
+				 $deep_list2->[$i]
+				);
+    }
+    return 1;
+  }
+  return;
 }
 
 sub equal_when_flattened {

@@ -159,30 +159,12 @@ sub show_shallow {
   }
 }
 
-sub compare_deep {
-  my ( $self, $other ) = @_;
-  return undef if UNIVERSAL::isa( $other, "SInt" );
-  my $self_items  = $self->items;
-  my $other_items = $other->items;
-  return undef unless scalar(@$self_items) == scalar(@$other_items);
-  my $count = scalar(@$self_items);
-  for ( my $i = 0 ; $i < $count ; $i++ ) {
-    return undef unless $self_items->[$i]->compare_deep( $other_items->[$i] );
-  }
-  return 1;
-}
-
 sub structure_is {    # To be called by structure_ok
   my ( $self, $potential_struct ) = @_;
-  my @struct_parts = @$potential_struct;
-  my @items        = @{ $self->items };
-  unless ( scalar(@items) == scalar(@struct_parts) ) {
-    return 0;
-  }
-  for ( my $i = 0 ; $i < scalar(@items) ; $i++ ) {
-    return 0 unless $items[$i]->structure_is( $struct_parts[$i] );
-  }
-  return 1;
+  my $self_struct = $self->get_structure();
+  $potential_struct = $potential_struct->get_structure()
+    unless ref($potential_struct) eq "ARRAY";
+  return SUtil::compare_deep( $self_struct, $potential_struct );
 }
 
 sub has_structure_one_of {
@@ -212,11 +194,6 @@ sub semiflattens_ok {
     return 0 unless $self_flatten[$i] == $other_flatten[$i];
   }
   return 1;
-}
-
-sub structure_exactly_ok {
-  my ( $self, $other ) = @_;
-  return $self->structure_is( $other->get_structure );
 }
 
 sub as_int {

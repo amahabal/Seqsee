@@ -6,6 +6,7 @@ BEGIN { plan tests => 10; }
 use SBindings;
 use SBindings::Blemish;
 use SBuiltObj;
+use warnings;
 
 CONSTRUCT:{
   my $bb = new SBindings::Blemish;
