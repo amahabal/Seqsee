@@ -64,12 +64,15 @@ sub generate_instancer_flat {
       return undef unless defined $guess;
       $guess{$_} = $guess;
 
-      #$guess->show;
+      # $guess->show;
     }
     my $guess_built = $me->build( {%guess} );
 
     if ( $guess_built->semiflattens_ok(@objects) ) {
-      return { value => \%guess };
+      # return { value => \%guess };
+      my $return = new SBindings;
+      $return->set_value_of(\%guess);
+      return $return;
     }
     else {
       return undef;

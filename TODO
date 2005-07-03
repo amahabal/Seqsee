@@ -1,3 +1,8 @@
+*** SANITY AND TESTS FOR SBuiltObj->new and new_deep
+  --> edge case etc. I need to be sure of the EXACT behaviour
+  --> This is the *HIGHEST URGENCY* right now.
+
+
 *** Other Blemishes
   ---> to ensure I have not hardcoded many assumptions
   ---> other blemishes that take arguments, like "repeat"

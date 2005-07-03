@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 
-BEGIN { plan tests => 24; }
+BEGIN { plan tests => 23; }
 
 use SBuiltObj;
 use SBindings;
@@ -100,8 +100,7 @@ my $maybe_blemished_flat = SBuiltObj->new( { items => [ 1, 2, 3, 1, 2, 3 ] } );
 #diag @maybe_blemished_flat.items;
 $bindings = $bl->is_instance_flat( @{ $maybe_blemished_flat->items } );
 ok $bindings;
-isa_ok $bindings->{value}{what}, "SBuiltObj";
-$bindings->{value}{what}->structure_ok( [ 1, 2, 3 ] );
+$bindings->value_ok(what => [1, 2, 3]);
 SKIP:{
   skip "Don't know how to phrase this", 1;
   # how do I say that $bindings is blemished?
