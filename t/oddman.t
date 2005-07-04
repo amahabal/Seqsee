@@ -4,6 +4,14 @@ use Test::Seqsee;
 use Test::Base;
 use Test::Seqsee::filters;
 
+use SCat;
+use SCat::ascending;
+use SCat::mountain;
+
+use SBlemish;
+use SBlemish::triple;
+use SBlemish::double;
+
 BEGIN { plan tests => 10; }
 
 
@@ -29,7 +37,7 @@ __END__
 1 2 3 4
 5 6
 --- expected
-5 6
+8 7 6
 ascending
 
 ===

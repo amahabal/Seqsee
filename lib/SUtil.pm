@@ -69,11 +69,29 @@ sub generate_blemished {
 }
 
 sub oddman{
+  use Smart::Comments;
   my (@objects) = @_;
   for (@objects) {
     $_->seek_blemishes([$SBlemish::triple::triple,
 			$SBlemish::double::double
 		       ]);
+  }
+  for my $cat ($SCat::ascending::ascending,
+       $SCat::mountain::mountain
+      ) {
+    my @bindings = map { $cat->is_instance($_) } @objects;
+    ## @bindings
+    my @definedness = map { defined($_)? 1 : 0} @bindings;
+    ### @definedness
+    my $odd_position;
+    $odd_position = odd_position( @definedness );
+    if (defined $odd_position) {
+      # Cool, we have a solution!
+      ### position of odd: $odd_position
+      ### Found odd man: $objects[$odd_position]->show
+      return;
+    }
+    print "Press Enter"; <STDIN>;
   }
   
 }
@@ -116,6 +134,26 @@ sub odd_position{
     }
   }
   return $odd_pos;
+}
+
+sub naive_brittle_chunking{
+  my $array_ref = shift;
+  my @items = @$array_ref;
+  my @ret;
+  while (@items > 1) {
+    my $next_item = shift(@items);
+    my @next_item_arr = ( $next_item );
+    while (@items and $items[0] == $next_item) {
+      push @next_item_arr, shift(@items);
+    }
+    if (@next_item_arr > 1) {
+      push @ret, [@next_item_arr];
+    } else {
+      push @ret, $next_item;
+    }
+  }
+  push @ret, @items; # at most one left
+  return @ret;
 }
 
 1;

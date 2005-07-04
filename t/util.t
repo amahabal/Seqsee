@@ -2,7 +2,7 @@ use strict;
 use blib;
 use Test::Seqsee;
 use warnings;
-BEGIN { plan tests => 17; }
+BEGIN { plan tests => 20; }
 
 #use MyFilter;
 
@@ -34,3 +34,12 @@ is SUtil::odd_position(3, 2, 2, 2), 0;
 undef_ok( SUtil::odd_position(2, 2, 2, 2) );
 dies_ok { SUtil::odd_position(2, 3) };
 is SUtil::odd_position( qw{foo foo foo bar}), 3;
+
+ok SUtil::compare_deep([ SUtil::naive_brittle_chunking([1, 2, 3]) ], 
+		[1, 2, 3]);
+
+ok SUtil::compare_deep([ SUtil::naive_brittle_chunking([1, 2, 2, 3]) ], 
+		[1, [2, 2], 3]);
+
+ok SUtil::compare_deep([ SUtil::naive_brittle_chunking([1, 5, 4, 4, 4, 4, 4]) ], 
+		[1, 5, [4, 4, 4, 4, 4]]);

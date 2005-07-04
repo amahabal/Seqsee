@@ -8,7 +8,9 @@ sub Test::Base::Filter::oddman{
   my ( $self, @data ) = @_;
   my @built_objects = 
     map { 
-      SBuiltObj->new_deep( split(/\s+/, $_) ) 
+      my @parts = split /\s+/, $_;
+      my @chunked = SUtil::naive_brittle_chunking([@parts]);
+      SBuiltObj->new_deep( @chunked ) 
     } @data;
   # print "Oddman filter: data = '", join("'\n---\n'", @built_objects), "'\n";
   return scalar( SUtil::oddman(@built_objects) );
