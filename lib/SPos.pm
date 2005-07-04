@@ -7,11 +7,12 @@ use SPosFinder;
 use SPos::Global;
 use SPos::Global::Absolute;
 use SPos::Named;
+use SPos::The;
 
 use Carp;
 
 my %Memoize;
-
+my %Memoize_the;
 
 sub new {
   my $package = shift;
@@ -29,6 +30,11 @@ sub new {
     $self = new SPos::Named({ str => $what });
   }
   $Memoize{$what} = $self;
+}
+
+sub new_the{
+  my ( $package, $cat ) = @_;
+  return ( $Memoize_the{$cat} ||= SPos::The->new( { cat => $cat} ));
 }
 
 1;

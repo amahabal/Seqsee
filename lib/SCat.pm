@@ -80,7 +80,9 @@ sub is_blemished_cat {
 
 sub guess_attribute {
   my ( $self, $obj, $att ) = @_;
-  UNIVERSAL::isa( $obj, "SBuiltObj" ) or croak "need SBuiltObj";
+  UNIVERSAL::isa( $obj, "SBuiltObj" )
+      or UNIVERSAL::isa( $obj, "SInt" )
+	or croak "need SBuiltObj";
   my $guesser = $guesser_of_of{ ident $self}{$att};
   croak "Don't know how to guess attribute $att" unless $guesser;
   return $guesser->( $self, $obj );
@@ -138,6 +140,7 @@ sub generate_guesser_from_pos {
   my ( $self, $attribute, $pos ) = @_;
   $guesser_of_of{ ident $self}{$attribute} = sub {
     my ( $self, $bo ) = @_;
+    return if $bo->isa("SInt");
     my $obj      = $bo->items()->[$pos];
     my @int_vals = $obj->as_int();
     if ( @int_vals == 1 ) { return $int_vals[0]; }
