@@ -28,11 +28,11 @@ $blemished_22->structure_ok([ [2, 3], [2, 3]]);
 my $bindings;
 
 $bindings = $bl->is_instance( SBuiltObj->new_deep( 5, 5, 5 ));
-$bindings->value_ok( 'what', [5] );
+$bindings->value_ok( 'what', 5 );
 $bindings->value_ok( n => 3);
 
 $bindings = $bl->is_instance( SBuiltObj->new_deep( [1, 2], [1, 2] ));
-$bindings->value_ok( 'what', [[1,2]] ); # works with [1,2]. Sigh.
+$bindings->value_ok( 'what', [1,2] );
 $bindings->value_ok( n => 2);
 
 ## FLAT VERSION NOT DEFINED

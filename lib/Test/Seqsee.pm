@@ -28,6 +28,12 @@ sub SInt::structure_ok {
   Test::More::ok( $self->structure_is($potential_struct), $msg );
 }
 
+sub SInt::structure_nok {    # ONLY TO BE USED FROM TEST SCRIPTS
+  my ( $self, $potential_struct, $msg ) = @_;
+  $msg ||= "structure of $self isn't";
+  Test::More::ok( !$self->structure_is($potential_struct), $msg );
+}
+
 sub SBuiltObj::structure_ok {    # ONLY TO BE USED FROM TEST SCRIPTS
   my ( $self, $potential_struct, $msg ) = @_;
   $msg ||= "structure of $self";

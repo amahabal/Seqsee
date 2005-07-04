@@ -28,7 +28,7 @@ my $bindings;
 {
   $bindings = $bl->is_instance( SBuiltObj->new_deep(5, 5, 5) );
   ok $bindings;
-  $bindings->value_ok('what', [5]);
+  $bindings->value_ok('what', 5);
   
 
   my $bo = SBuiltObj->new_deep(1, 2, 1, 2, 1, 2);

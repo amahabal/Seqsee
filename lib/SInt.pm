@@ -27,9 +27,10 @@ sub show_shallow {
 
 sub structure_is {
   my ( $self, $struct ) = @_;
-  my @parts = ( ref $struct ) ? @$struct : ($struct);
-  return 0 unless ( @parts == 1 );
-  return ( $mag{ ident $self} == $parts[0] );
+  
+  #my @parts = ( ref $struct ) ? @$struct : ($struct);
+  #return 0 unless ( @parts == 1 );
+  return ( $mag{ ident $self} == $struct );
 }
 
 sub get_structure {

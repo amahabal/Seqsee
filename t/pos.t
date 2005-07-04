@@ -24,7 +24,7 @@ Absolute: {
   # isa_ok $pos_1->{finder}, "SPosFinder";
   @objs = $bo->find_at_position($pos_1);
   ok( @objs == 1 );
-  $objs[0]->structure_ok( [3] );
+  $objs[0]->structure_ok( 3 );
 
   my $pos_1_copy = new SPos(1);
   is $pos_1, $pos_1_copy;
@@ -35,7 +35,7 @@ Absolute: {
   #isa_ok $pos_m2->{finder}, "SPosFinder";
   @objs = $bo->find_at_position($pos_m2);
   ok( @objs == 1 );
-  $objs[0]->structure_ok( [4] );
+  $objs[0]->structure_ok( 4 );
 
   my $pos_m6 = new SPos(-6);
   isa_ok $pos_m6, "SPos::Global";
@@ -82,11 +82,11 @@ Named: {
 
   @objs = $bo_arbit->find_at_position($pos_peak);
   ok( @objs == 1 );
-  $objs[0]->structure_ok( [4] );
+  $objs[0]->structure_ok( 4 );
 
   @objs = $bo_random->find_at_position($pos_peak);
   ok( @objs == 1 );
-  $objs[0]->structure_ok( [3] );
+  $objs[0]->structure_ok( 3 );
 
   $bo_arbit->add_cat( $cat_random, {} );
   throws_ok { @objs = $bo_arbit->find_at_position($pos_peak) }

@@ -163,7 +163,8 @@ sub structure_is {    # To be called by structure_ok
   my ( $self, $potential_struct ) = @_;
   my $self_struct = $self->get_structure();
   $potential_struct = $potential_struct->get_structure()
-    unless ref($potential_struct) eq "ARRAY";
+    unless (!ref($potential_struct) or 
+	    ref($potential_struct) eq "ARRAY");
   return SUtil::compare_deep( $self_struct, $potential_struct );
 }
 
@@ -334,14 +335,18 @@ sub blemish_positions_may_be{
 
 sub blemish_type_may_be{
   my ( $self, $bindings, $type_ref ) = @_;
+  #use Smart::Comments;
+  ### blemish_type_may_be: $self, $bindings, $type_ref
   my $real_ref = $bindings->get_real;
   my $starred_ref = $bindings->get_starred;
   return unless (@$real_ref == @$type_ref);  
   for (my $i = 0; $i < @$type_ref; $i++) {
     my $bindings_inner = 
       $type_ref->[$i]->is_instance($real_ref->[$i]);
+    ### In Loop: $i, $bindings_inner, $starred_ref
     return unless $bindings_inner;
-    return unless $bindings_inner->{what}->structure_is( $starred_ref );
+    return unless $bindings_inner->{what}
+      ->structure_is( $starred_ref->[$i] );
   }
   return 1;
 }
