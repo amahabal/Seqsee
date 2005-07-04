@@ -2,7 +2,7 @@ use strict;
 use blib;
 use Test::Seqsee;
 use warnings;
-BEGIN { plan tests => 12; }
+BEGIN { plan tests => 17; }
 
 #use MyFilter;
 
@@ -27,3 +27,10 @@ ok SUtil::compare_deep([2, 3, [4, 5], [6, [7, 8]]],
 		       [2, 3, [4, 5], [6, [7, 8]]]);
 ok !SUtil::compare_deep([2, 3, [4, 5], [6, 7, 8]],
 			[2, 3, [4, 5], [6, [7, 8]]]);
+
+
+is SUtil::odd_position(2, 3, 2, 2, 2), 1;
+is SUtil::odd_position(3, 2, 2, 2), 0;
+undef_ok( SUtil::odd_position(2, 2, 2, 2) );
+dies_ok { SUtil::odd_position(2, 3) };
+is SUtil::odd_position( qw{foo foo foo bar}), 3;

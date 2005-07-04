@@ -3,6 +3,8 @@ use strict;
 use SPos;
 use SCat;
 use SBlemish;
+#use SBlemish::double;
+#use SBlemish::triple;
 use Carp;
 
 our @EXPORT = qw{uniq equal_when_flattened generate_blemished};
@@ -64,6 +66,56 @@ sub generate_blemished {
   my $bo        = $cat->build({ %args });
   my $blemished = $bo->apply_blemish_at( $blemish, $pos );
   return $blemished;
+}
+
+sub oddman{
+  my (@objects) = @_;
+  for (@objects) {
+    $_->seek_blemishes([$SBlemish::triple::triple,
+			$SBlemish::double::double
+		       ]);
+  }
+  
+}
+
+sub odd_position{
+  my @input = @_;
+  croak "need at least three arguments" unless @input >= 3;
+  my ($odd_pos, $odd_value, $repeated_value);
+  if ($input[0] eq $input[1]) {
+    # odd isn't first or second!
+    $repeated_value = $input[0];
+    for (my $i=2; $i < @input; $i++) {
+      next if $input[$i] eq $input[0];
+      $odd_pos = $i;
+      $odd_value = $input[$i];
+      last;
+    }
+  } else { # first or second is odd
+    if ($input[0] eq $input[2]) {
+      $odd_pos = 1;
+      $odd_value = $input[1];
+      $repeated_value = $input[0];
+    } else {
+      $odd_pos = 0;
+      $odd_value = $input[0];
+      $repeated_value = $input[1];
+    }
+  }
+
+  return unless defined $odd_pos;
+
+  # So: a problematic position is guesses, along with value
+  for (my $i=0; $i < @input; $i++) {
+    if ($i == $odd_pos) {
+      next if $input[$i] eq $odd_value;
+      return;
+    } else {
+      next if $input[$i] eq $repeated_value;
+      return;
+    }
+  }
+  return $odd_pos;
 }
 
 1;
