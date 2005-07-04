@@ -87,12 +87,13 @@ sub guess_attribute {
 }
 
 sub generate_instancer {
-  # use Smart::Comments;
+  #use Smart::Comments;
   my $self  = shift;
   my $ident = ident $self;
   croak "generate instancer called when instancer already present"
     if $instancer_of{$ident};
   my @atts = $att_of{$ident}->members;
+   ### @atts
   foreach (@atts) {
     croak "cannot generate instancer: do not know how to guess attribute $_"
       unless exists $guesser_of_of{$ident}{$_};

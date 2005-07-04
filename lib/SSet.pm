@@ -10,6 +10,7 @@ sub insert{
   for (@_) {
     $ref->{$_} = $_;
   }
+  return $self;
 }
 
 sub members{

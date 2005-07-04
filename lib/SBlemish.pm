@@ -16,7 +16,7 @@ my %instancer_flat_of :ATTR( :get<instancer_flat> );
 sub BUILD {
   my ( $self, $id, $opts ) = @_;
   $self->get_att()->insert("what");
-
+  
   $self->compose;
   
   $empty_what_of{$id}      = $opts->{empty_what_of};
@@ -28,8 +28,9 @@ sub BUILD {
 }
 
 sub blemish {
-  my ( $self, $object ) = @_;
-  my $ret = $self->build( { what => $object } )
+  my ( $self, $object, $opts ) = @_;
+  $opts ||= {};
+  my $ret = $self->build( { %$opts, what => $object } )
     or return;
   ### $ret
   $ret->add_cat( $self, { what => $object } );
