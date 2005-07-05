@@ -1,7 +1,6 @@
 package SElement;
 use strict;
-use SInt;
-use SCat::number;
+
 our @ISA = qw{SInt};
 
 use Class::Std;

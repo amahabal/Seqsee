@@ -3,12 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 4; }
 
-use SCat;
-use SCat::literal;
-
-use SBuiltObj;
-use SBlemish::double;
-
 my $cat_literal = $SCat::literal::literal;
 my $double = $SBlemish::double::double;
 

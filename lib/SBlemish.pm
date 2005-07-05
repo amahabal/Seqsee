@@ -1,12 +1,11 @@
 package SBlemish;
-use SCat;
 use strict;
 use Carp;
-
-#use Smart::Comments;
+use Class::Std;
 our @ISA = qw{SCat};
 
-use Class::Std;
+#use Smart::Comments;
+
 
 my %empty_what_of :ATTR( :set<empty_what> );
 my %guesser_flat_of_of :ATTR(:set<guesser_flat_of> );

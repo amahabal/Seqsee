@@ -3,10 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 5; }
 
-use SBlemish;
-use SBlemish::triple;
-use SBuiltObj;
-
 my $bl = $SBlemish::triple::triple;
 
 my $bo1 = SBuiltObj->new_deep(3);

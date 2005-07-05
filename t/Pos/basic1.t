@@ -2,13 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 27; }
 
-use SBuiltObj;
-use SCat;
-
-use SCat::ascending;
-use SCat::descending;
-use SCat::mountain;
-
 # use Smart::Comments;
 
 BEGIN {

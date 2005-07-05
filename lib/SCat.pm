@@ -1,17 +1,9 @@
 package SCat;
 use strict;
-use SUtil;
-use SBuiltObj;
-use SSet;
-use SInstance;
-use SPos;
-
-use SCat::Derive::assuming;
-use SCat::Derive::blemished;
-
-use Class::Std;
 use Carp;
-use SBindings;
+use SUtil;
+use Class::Std;
+
 our @ISA = qw{SInstance};
 our %Cats;
 

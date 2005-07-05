@@ -2,12 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 4; }
 
-use SBuiltObj;
-use SPos;
-use SBlemish;
-
-use SCat::mountain;
-use SBlemish::double;
 
 my $bl = $SBlemish::double::double;
 

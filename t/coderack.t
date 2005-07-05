@@ -15,8 +15,6 @@ BEGIN {
   }
 }
 
-use SCoderack;
-use SCodelet;
 
 my $cl_def  = new SCodelet( "test", 10 );
 my $cl_def2 = new SCodelet( "test", 15, foo => 1 );

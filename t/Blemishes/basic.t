@@ -3,11 +3,6 @@ use Test::Seqsee;
 
 BEGIN { plan tests => 23; }
 
-use SBuiltObj;
-use SBindings;
-use SCat;
-
-use SBlemish;
 use SUtil;
 
 my $bl;

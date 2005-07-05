@@ -1,18 +1,10 @@
 package SGenNext;
 # Currently a fake module, in that I don't know how its going to look like, and it'll change immensely!
 
+use S;
+
 use Smart::Comments;
 
-use SCat;
-use SCat::mountain;
-use SCat::ascending;
-use SCat::descending;
-use SCat::number;
-
-use SBlemish;
-use SBlemish::double;
-
-use SErr;
 
 my @CATEGORIES =
   ( $SCat::descending::descending,

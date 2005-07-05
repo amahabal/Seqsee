@@ -3,14 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 25; }
 
-use SBuiltObj;
-use SCat;
-use SCat::mountain;
-use SCat::ascending;
-use SCat::descending;
-use SBlemish;
-use SBlemish::double;
-use SPos;
 
 my $mtn = $SCat::mountain::mountain;
 my $ascending = $SCat::ascending::ascending;

@@ -2,7 +2,6 @@ package SPos::Global::Absolute;
 use strict;
 use Carp;
 use base 'SPos::Global';
-use SErr;
 
 use Class::Std;
 

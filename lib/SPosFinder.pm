@@ -1,6 +1,5 @@
 package SPosFinder;
 use strict;
-use SErr;
 use Carp;
 
 use Class::Std;

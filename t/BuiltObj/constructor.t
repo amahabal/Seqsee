@@ -1,9 +1,6 @@
 use blib;
 use Test::Seqsee;
 
-use SCat;
-use SBuiltObj;
-
 BEGIN { plan tests => 24; }
 
 NEW: {

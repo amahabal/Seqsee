@@ -1,8 +1,5 @@
 package SBlemish::ntimes;
 
-use SBlemish;
-use SBuiltObj;
-
 my $builder = sub {
   my ( $self, $args ) = @_;
   my $object = $args->{what};

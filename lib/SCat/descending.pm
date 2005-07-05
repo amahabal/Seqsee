@@ -1,7 +1,6 @@
 package SCat::descending;
 use strict;
 use Carp;
-use SCat;
 
 our $descending = new SCat(
   { name => "descending",

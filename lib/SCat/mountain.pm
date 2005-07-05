@@ -1,7 +1,5 @@
 package SCat::mountain;
 use strict;
-use SCat;
-use SPos;
 use Carp;
 
 our $mountain = new SCat(

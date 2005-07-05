@@ -1,8 +1,6 @@
 package SPos;
 use strict;
 
-# use MyFilter;
-
 use SPosFinder;
 use SPos::Global;
 use SPos::Global::Absolute;

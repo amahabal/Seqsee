@@ -2,8 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 10; }
 
-use SBuiltObj;
-use SCat;
 
 BEGIN {
   use_ok "SCat::descending";

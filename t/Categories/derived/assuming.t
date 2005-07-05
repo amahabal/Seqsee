@@ -3,9 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 16; }
 
-use SCat::ascending;
-use SBuiltObj;
-use SInt;
 
 my $cat = $SCat::ascending::ascending;
 

@@ -1,7 +1,6 @@
 package SCat::number;
 use strict;
 use Carp;
-use SCat;
 
 our %Memoize;
 

@@ -5,7 +5,6 @@ BEGIN { plan tests => 10; }
 
 # use MyFilter;
 use Test::MockObject;
-use SCodelet;
 
 BEGIN {
   Test::MockObject->fake_module('SCF::family_foo');

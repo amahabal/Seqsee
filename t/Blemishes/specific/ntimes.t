@@ -3,9 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 8; }
 
-use SBlemish;
-use SBlemish::ntimes;
-use SBuiltObj;
 
 my $bl = $SBlemish::ntimes::ntimes;
 

@@ -2,8 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 8; }
 
-use SBuiltObj;
-use SCat;
 
 my $bo = new SBuiltObj( { items => [ 1, 2, 3 ] } );
 dies_ok { $bo->add_cat(); } "add_cat needs arguments";

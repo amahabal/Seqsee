@@ -3,10 +3,6 @@ use strict;
 use Test::Seqsee;
 BEGIN { plan tests => 19 }
 
-use SBuiltObj;
-use SCat;
-use SPos;
-use SCat::mountain;
 
 #use MyFilter;
 

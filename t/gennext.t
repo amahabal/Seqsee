@@ -4,11 +4,6 @@ use Test::Seqsee;
 BEGIN { plan tests => 13; }
 
 use SGenNext;
-#use MyFilter;
-use SCat::ascending;
-use SCat::descending;
-use SCat::mountain;
-use SCat::number;
 use SUtil;
 
 sub throws_ok_gennext {

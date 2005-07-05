@@ -3,10 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 18; }
 
-#use MyFilter;
-
-use SWorkspace;
-use SElement;
 
 SWorkspace->setup( 1, 2, 3, 4 );
 is $SWorkspace::elements_count, 4;

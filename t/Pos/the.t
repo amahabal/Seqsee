@@ -3,14 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 5; }
 
-use SPos;
-
-use SCat;
-use SCat::literal;
-use SCat::ascending;
-use SCat::mountain;
-
-use SBlemish::double;
 my $double = $SBlemish::double::double;
 
 my $cat_lit_11 = $SCat::literal::literal->build({structure =>[1, 1]});

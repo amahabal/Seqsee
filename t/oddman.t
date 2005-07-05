@@ -4,14 +4,6 @@ use Test::Seqsee;
 use Test::Base;
 use Test::Seqsee::filters;
 
-use SCat;
-use SCat::ascending;
-use SCat::mountain;
-
-use SBlemish;
-use SBlemish::triple;
-use SBlemish::double;
-
 BEGIN { plan tests => 10; }
 
 

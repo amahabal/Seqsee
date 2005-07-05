@@ -3,6 +3,8 @@ use Test::More;
 use Test::Exception;
 use Test::Deep;
 
+use S;
+
 sub undef_ok {
   my ( $what, $msg ) = @_;
   if ( not( defined $what ) ) {

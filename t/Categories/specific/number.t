@@ -2,13 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 8; }
 
-use SBuiltObj;
-use SBindings;
-use SCat;
-
-use SCat::number;
-use SBlemish::double;
-
 my $cat            = $SCat::number::number;
 my $double_blemish = $SBlemish::double::double;
 isa_ok $cat, "SCat";

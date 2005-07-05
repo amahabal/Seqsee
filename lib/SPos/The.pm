@@ -1,7 +1,6 @@
 package SPos::The;
 use Class::Std;
 use Carp;
-use SErr;
 use base 'SPos';
 
 my %cat_of :ATTR;

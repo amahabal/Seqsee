@@ -2,11 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 11; }
 
-use SCat;
-use SCat::mountain;
-use SBlemish;
-use SBlemish::double;
-use SPos;
 
 my $cat     = $SCat::mountain::mountain;
 my $blemish = $SBlemish::double::double;

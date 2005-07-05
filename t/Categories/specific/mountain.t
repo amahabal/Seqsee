@@ -2,14 +2,7 @@ use blib;
 use Test::Seqsee;
 
 BEGIN {
-  plan tests => 14;
-}
-
-use SBuiltObj;
-use SCat;
-
-BEGIN {
-  use_ok "SCat::mountain";
+  plan tests => 13;
 }
 
 my $cat = $SCat::mountain::mountain;

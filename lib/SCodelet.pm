@@ -1,6 +1,6 @@
 package SCodelet;
 use strict;
-use SErr;
+use Carp;
 
 sub new {
   my ( $package, $family, $urgency, %args ) = @_;

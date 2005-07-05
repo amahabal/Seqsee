@@ -2,12 +2,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 27; }
 
-use SBuiltObj;
-use SCat;
-
-use SBlemish::double;
-use SPos;
-
 BEGIN {
   use_ok "SCat::ascending";
 }

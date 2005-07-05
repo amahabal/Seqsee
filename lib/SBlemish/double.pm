@@ -1,8 +1,5 @@
 package SBlemish::double;
 use strict;
-use SBlemish;
-use SBindings;
-
 
 my $builder = sub {
   my ( $self, $args ) = @_;

@@ -3,7 +3,6 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 4; }
 
-use SSet;
 my $set = new SSet;
 
 $set->insert('a', 'b', 'c');

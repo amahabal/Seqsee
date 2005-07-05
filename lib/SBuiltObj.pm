@@ -1,16 +1,10 @@
 package SBuiltObj;
 use strict;
 use Carp;
-use SInt;
-use SCat;
-use SPos;
-use SBlemish;
-#use SBlemish::double;
-use SInstance;
+use Class::Std;
 
 our @ISA = qw{SInstance};
 
-use Class::Std;
 my %items : ATTR;
 
 sub BUILD {
