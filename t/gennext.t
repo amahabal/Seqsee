@@ -46,17 +46,17 @@ INTEGERS:
 
 ASCENDING_UNBLEMISHED:
   {
-    my $bo_3_7 = $SCat::ascending::ascending->build
+    my $bo_3_7 = $S::ascending->build
       ( { start => 3, end => 7 } );
-    my $bo_3_8 = $SCat::ascending::ascending->build
+    my $bo_3_8 = $S::ascending->build
       ( { start => 3, end => 8 });
-    my $bo_2_7 = $SCat::ascending::ascending->build
+    my $bo_2_7 = $S::ascending->build
       ( { start => 2, end => 7 } );
-    my $bo_3_6 = $SCat::ascending::ascending->build
+    my $bo_3_6 = $S::ascending->build
       ( { start => 3, end => 6 });
-    my $bo_2_6 = $SCat::ascending::ascending->build
+    my $bo_2_6 = $S::ascending->build
       ( { start => 2, end => 6 });
-    my $bo_5_9 = $SCat::ascending::ascending->build
+    my $bo_5_9 = $S::ascending->build
       ( { start => 5, end => 9 });
 
     ok_gennext $bo_3_7, $bo_3_7, $bo_3_7;
@@ -69,8 +69,8 @@ ASCENDING_UNBLEMISHED:
 
 ASCENDING_BLEMISHED:
   {
-    my $cat     = $SCat::ascending::ascending;
-    my $blemish = $SBlemish::double::double;
+    my $cat     = $S::ascending;
+    my $blemish = $S::double;
     my $bo_2_5_none = $cat->build( { start => 2, end => 5 } );
     my $bo_2_5_second = generate_blemished(
       cat     => $cat,

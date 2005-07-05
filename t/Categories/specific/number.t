@@ -2,8 +2,8 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 8; }
 
-my $cat            = $SCat::number::number;
-my $double_blemish = $SBlemish::double::double;
+my $cat            = $S::number;
+my $double_blemish = $S::double;
 isa_ok $cat, "SCat";
 
 BUILDING: {

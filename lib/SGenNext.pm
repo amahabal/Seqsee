@@ -7,16 +7,16 @@ use Smart::Comments;
 
 
 my @CATEGORIES =
-  ( $SCat::descending::descending,
-    $SCat::ascending::ascending,
-    $SCat::mountain::mountain,
+  ( $S::descending,
+    $S::ascending,
+    $S::mountain,
   );
 
 my @BLEMISHES =
-  ( $SBlemish::double::double,
+  ( $S::double,
   );
 
-my $double = $SBlemish::double::double;
+my $double = $S::double;
 
 sub main::gennext{
   my ( $object1, $object2 ) = @_;

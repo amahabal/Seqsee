@@ -3,8 +3,8 @@ use Test::Seqsee;
 BEGIN { plan tests => 11; }
 
 
-my $cat     = $SCat::mountain::mountain;
-my $blemish = $SBlemish::double::double;
+my $cat     = $S::mountain;
+my $blemish = $S::double;
 
 my $pos2     = new SPos 2;
 my $pos10    = new SPos 10;

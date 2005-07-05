@@ -4,7 +4,7 @@ use Test::Seqsee;
 BEGIN { plan tests => 8; }
 
 
-my $bl = $SBlemish::ntimes::ntimes;
+my $bl = $S::ntimes;
 
 my $bo1 = SInt->new( { mag => 3 });
 my $bo2 = SBuiltObj->new_deep(2, 3);

@@ -3,7 +3,7 @@ use Test::Seqsee;
 BEGIN { plan tests => 4; }
 
 
-my $bl = $SBlemish::double::double;
+my $bl = $S::double;
 
 SECOND: {
   my $pos = new SPos 2;
@@ -23,7 +23,7 @@ LAST_BUT_ONE: {
 }
 
 NAMED: {
-  my $cat     = $SCat::mountain::mountain;
+  my $cat     = $S::mountain;
   my $bo_mtn  = $cat->build( { foot => 2, peak => 4 } );
   my $pos     = new SPos "peak";
   my $bo_mtn2 = $bo_mtn->apply_blemish_at( $bl, $pos );

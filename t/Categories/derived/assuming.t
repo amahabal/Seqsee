@@ -4,7 +4,7 @@ use Test::Seqsee;
 BEGIN { plan tests => 16; }
 
 
-my $cat = $SCat::ascending::ascending;
+my $cat = $S::ascending;
 
 my $cat2 = $cat->derive_assuming( { start => 1 } );
 my $ret;
@@ -34,7 +34,7 @@ undef_ok($bindings);
   my $blemished_obj2 = SBuiltObj->new(
     {
       items => [
-        3, $SBlemish::double::double->blemish( SInt->new( { mag => 4 } ) ),
+        3, $S::double->blemish( SInt->new( { mag => 4 } ) ),
         5, 6, 7
       ]
     }
@@ -54,7 +54,7 @@ undef_ok($bindings);
   my $blemished_obj = SBuiltObj->new(
     {
       items => [
-        1, $SBlemish::double::double->blemish( SInt->new( { mag => 2 } ) ),
+        1, $S::double->blemish( SInt->new( { mag => 2 } ) ),
         3, 4, 5
       ]
     }
@@ -73,7 +73,7 @@ undef_ok($bindings);
   my $blemished_obj2 = SBuiltObj->new(
     {
       items => [
-        3, $SBlemish::double::double->blemish( SBuiltObj->new( { mag => 4 } ) ),
+        3, $S::double->blemish( SBuiltObj->new( { mag => 4 } ) ),
         5, 6, 7
       ]
     }

@@ -3,8 +3,8 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 4; }
 
-my $cat_literal = $SCat::literal::literal;
-my $double = $SBlemish::double::double;
+my $cat_literal = $S::literal;
+my $double = $S::double;
 
 my $cat_123 = $cat_literal->build( { structure => [1, 2, 3] } );
 

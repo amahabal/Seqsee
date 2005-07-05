@@ -9,7 +9,7 @@ my %right_edge_of :ATTR( :set<right_edge> :get<right_edge> );
 
 sub BUILD {
   my ( $self, $id, $opts ) = @_;
-  $self->add_cat( $SCat::number::number->build( { mag => $opts->{mag} } ), {} );
+  $self->add_cat( $S::number->build( { mag => $opts->{mag} } ), {} );
 }
 
 1;

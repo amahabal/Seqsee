@@ -8,9 +8,9 @@ BEGIN {
   use_ok("SPos");
 }
 
-my $cat_asc = $SCat::ascending::ascending;
-my $cat_dsc = $SCat::descending::descending;
-my $cat_mnt = $SCat::mountain::mountain;
+my $cat_asc = $S::ascending;
+my $cat_dsc = $S::descending;
+my $cat_mnt = $S::mountain;
 
 my $bo1 = $cat_asc->build( { start => 5, end => 8 } );
 $bo1->structure_ok( [ 5, 6, 7, 8 ] );

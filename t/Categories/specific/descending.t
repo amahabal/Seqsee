@@ -7,7 +7,7 @@ BEGIN {
   use_ok "SCat::descending";
 }
 
-my $cat = $SCat::descending::descending;
+my $cat = $S::descending;
 isa_ok( $cat, "SCat" );
 
 BUILDING: {

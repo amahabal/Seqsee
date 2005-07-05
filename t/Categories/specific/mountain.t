@@ -5,7 +5,7 @@ BEGIN {
   plan tests => 13;
 }
 
-my $cat = $SCat::mountain::mountain;
+my $cat = $S::mountain;
 isa_ok( $cat, "SCat" );
 
 BUILDING: {

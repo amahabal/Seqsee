@@ -6,7 +6,7 @@ BEGIN {
   use_ok "SCat::ascending";
 }
 
-my $cat = $SCat::ascending::ascending;
+my $cat = $S::ascending;
 isa_ok( $cat, "SCat" );
 
 BUILDING: {
@@ -37,7 +37,7 @@ BLEMISHED_IS_INST: {
   my $bindings;
   $bindings =
     $cat->is_instance( $cat->build( { start => 3, end => 8 } )
-      ->apply_blemish_at( $SBlemish::double::double, SPos->new(2) ) );
+      ->apply_blemish_at( $S::double, SPos->new(2) ) );
   $bindings->value_ok(start => 3);
   $bindings->value_ok(end   => 8);
   
@@ -48,8 +48,8 @@ BLEMISHED_IS_INST: {
 
   my $very_blemished_obj =
     $cat->build( { start => 3, end => 8 } )
-    ->apply_blemish_at( $SBlemish::double::double, SPos->new(1) )
-    ->apply_blemish_at( $SBlemish::double::double, SPos->new(-1) );
+    ->apply_blemish_at( $S::double, SPos->new(1) )
+    ->apply_blemish_at( $S::double, SPos->new(-1) );
   $very_blemished_obj->structure_ok( [ [ 3, 3 ], 4, 5, 6, 7, [ 8, 8 ] ] );
 
   $bindings = $cat->is_instance($very_blemished_obj);
@@ -63,8 +63,8 @@ BLEMISHED_IS_INST: {
 
   $very_blemished_obj =
     $cat->build( { start => 3, end => 8 } )
-    ->apply_blemish_at( $SBlemish::double::double, SPos->new(1) )
-    ->apply_blemish_at( $SBlemish::double::double, SPos->new(1) );
+    ->apply_blemish_at( $S::double, SPos->new(1) )
+    ->apply_blemish_at( $S::double, SPos->new(1) );
   $very_blemished_obj->structure_ok(
     [ [ [ 3, 3 ], [ 3, 3 ] ], 4, 5, 6, 7, 8 ] );
 

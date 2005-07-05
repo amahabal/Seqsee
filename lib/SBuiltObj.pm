@@ -289,7 +289,7 @@ sub describe_as{
   (@_ == 2) or croak "need two arguments";
   my ( $self, $cat ) = @_;
   # XXX Next line hardcoded... shouldn't be
-  $self->seek_blemishes( [ $SBlemish::double::double ] );
+  $self->seek_blemishes( [ $S::double ] );
   return $cat->is_instance( $self );
 }
 

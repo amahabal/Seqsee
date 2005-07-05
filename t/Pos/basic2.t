@@ -6,7 +6,7 @@ BEGIN { plan tests => 19 }
 
 #use MyFilter;
 
-my $mtn = $SCat::mountain::mountain;
+my $mtn = $S::mountain;
 my $bo  = $mtn->build( { foot => 3, peak => 5 } );
 
 ok UNIVERSAL::isa( "SPos::Global",           "SPos" );

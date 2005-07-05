@@ -4,10 +4,10 @@ use Test::Seqsee;
 BEGIN { plan tests => 25; }
 
 
-my $mtn = $SCat::mountain::mountain;
-my $ascending = $SCat::ascending::ascending;
-my $descending = $SCat::descending::descending;
-my $double = $SBlemish::double::double;
+my $mtn = $S::mountain;
+my $ascending = $S::ascending;
+my $descending = $S::descending;
+my $double = $S::double;
 
 {
   my $bo = SBuiltObj->new_deep(1, 2, 3);

@@ -4,8 +4,8 @@ BEGIN { plan tests => 13; }
 
 # use Smart::Comments;
 
-my $double = $SBlemish::double::double;
-my $mtn    = $SCat::mountain::mountain;
+my $double = $S::double;
+my $mtn    = $S::mountain;
 my $pos2   = SPos->new(2);
 
 my $bo = $mtn->build( { foot => 2, peak => 5 } );

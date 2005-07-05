@@ -2,8 +2,8 @@ use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 10; }
 
-my $bl      = $SBlemish::double::double;
-my $cat_mtn = $SCat::mountain::mountain;
+my $bl      = $S::double;
+my $cat_mtn = $S::mountain;
 
 my $bo = $cat_mtn->build( { foot => 2, peak => 5 } );
 
