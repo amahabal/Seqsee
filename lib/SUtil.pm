@@ -82,18 +82,35 @@ sub oddman{
     my @bindings = map { $cat->is_instance($_) } @objects;
     ## @bindings
     my @definedness = map { defined($_)? 1 : 0} @bindings;
-    ### @definedness
+    ## definedness for: $cat->get_name(), @definedness
     my $odd_position;
     $odd_position = odd_position( @definedness );
     if (defined $odd_position) {
       # Cool, we have a solution!
-      ### position of odd: $odd_position
-      ### Found odd man: $objects[$odd_position]->show
-      return;
+      ## position of odd: $odd_position
+      ## Found odd man: $objects[$odd_position]->show
+      my $msg;
+      if ($definedness[$odd_position]) {
+	$msg = "The only " . $cat->get_name() . ":";
+      } else {
+	$msg = "Everything else is a " . $cat->get_name() . ":";
+      }
+      return join(" ", $msg,
+		  $objects[$odd_position]->flatten );
     }
-    print "Press Enter"; <STDIN>;
+    if (all(@definedness)) {
+      return "All are instances of " .$cat->get_name();
+    }
+    # print "Press Enter"; <STDIN>;
   }
   
+}
+
+sub all{
+  for (@_) {
+    return unless $_;
+  }
+  return 1;
 }
 
 sub odd_position{

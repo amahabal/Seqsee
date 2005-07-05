@@ -4,7 +4,7 @@ use Carp;
 use SCat;
 
 our $descending = new SCat(
-  {
+  { name => "descending",
     builder => sub {
       my ( $self, $args_ref ) = @_;
       croak "need start" unless $args_ref->{start};

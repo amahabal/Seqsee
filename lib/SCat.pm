@@ -17,6 +17,7 @@ our %Cats;
 
 my $yada = sub { croak "yada yada yada" };
 
+my %name_of :ATTR( :get<name> :set<name> );
 my %att_of :ATTR( :get<att> :set<att> );
 my %builder_of :ATTR( :get<builder> :set<builder> );
 my %instancer_of :ATTR( :get<instancer> :set<instancer> );
@@ -25,6 +26,7 @@ my %_blemished_of :ATTR( :set<blemished> :get<blemished> );
 my %guesser_of_of :ATTR();
 my %empty_ok_of :ATTR( :get<empty_ok> :set<empty_ok> );
 my %guesser_pos_of_of :ATTR();
+
 
 our %Global_attributes = map { $_ => 1 } qw{what};
 
@@ -36,6 +38,7 @@ sub BUILD {
   $guesser_of_of{$id}     = $opts->{guesser_of};
   $empty_ok_of{$id}       = $opts->{empty_ok};
   $guesser_pos_of_of{$id} = $opts->{guesser_pos_of};
+  $name_of{$id}           = $opts->{name} || "???";
   if ( exists $opts->{attributes} ) {
     $att_of{$id}->insert( @{ $opts->{attributes} } );
   }

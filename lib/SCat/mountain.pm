@@ -5,7 +5,7 @@ use SPos;
 use Carp;
 
 our $mountain = new SCat(
-  {
+  { name => "mountain",
     attributes => [qw{foot peak}],
     builder    => sub {
       ( @_ == 2 ) or confess "mountain builder takes only two args";

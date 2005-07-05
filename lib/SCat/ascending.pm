@@ -4,7 +4,7 @@ use Carp;
 use SCat;
 
 our $ascending = new SCat(
-  {
+  { name => "ascending",
     attributes => [qw{start end}],
     builder    => sub {
       my ( $self, $args_ref ) = @_;

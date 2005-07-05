@@ -21,10 +21,10 @@ filters { oddman => [qw{lines chomp oddman}]};
 for my $block (blocks()) {
   # print $block, "Name= ", $block->name,"\n";
   my $oddman = $block->{oddman};
-  print "oddman evaluated to $oddman\n";
-  #if (ref $oddman eq "ARRAY") {
-  #  print "@$oddman\n";
-  #}
+  print "=" x 10, "\n";
+  print $block->original_values()->{oddman};
+  print "@$oddman\n";
+  
 
 }
 
@@ -74,7 +74,7 @@ mountain peaking with 4
 --- oddman
 1 1 2 3
 7 7 8 9
-5 5 6 7 6 5
+5 5 6 7 8 9
 4 5 5 6
 --- expected
 4 5 5 6
@@ -85,7 +85,7 @@ blemished at position '1'
 1 2 3 3 3 4
 1 1 1 2 3 4 5 6
 3 4 5 4 4 4 3
-2 3 4 5 5 6
+2 3 4 5 5 6 5 4 3 2
 
 --- expected
 2 3 4 5 5 6
