@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 5; }
+BEGIN { plan tests => 6; }
 
 my $double = $S::double;
 
@@ -35,3 +35,9 @@ $blemished_mtn->structure_ok([[1, 2, 3], [[2, 3, 2], [2, 3, 2]], [5,6]]);
 
 throws_ok {$another_composite->apply_blemish_at( $double, $pos_asc )}
   "SErr::Pos::MultipleNamed";
+
+
+my $pos = SPos->new_the( $S::literal->build( { structure => 2 }));
+my $built_object = SBuiltObj->new_deep(2, 3, 4, 5);
+$built_object->apply_blemish_at($S::double, $pos);
+$built_object->structure_ok([[2, 2], 3, 4, 5]);

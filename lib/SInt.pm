@@ -53,4 +53,12 @@ sub can_be_seen_as_int {
 
 sub is_empty { 0 }
 
+sub structure_blearily_ok{
+  # XXX could easily be wrong.. check
+  my ( $self, $template ) = @_;
+  return if ref $template;
+  return unless $mag{ident $self} == $template;
+  return SBindings->new();
+}
+
 1;

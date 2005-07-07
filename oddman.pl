@@ -104,6 +104,22 @@ sub SCat::generate_secondary_blemish_cats{
     return ( $new_cat );    
   }
 
+#  print "THE\n";
+#  # Lets try "backward positions", now!
+#  my @the_pos = map { 
+#    $bindings_ref->[$_]->describe_position("the",
+#					   $obj_ref->[$_]
+#					  );
+#  } (0 .. $object_count - 1);
+#  $oddness = find_odd( @the_pos );
+#  if ($oddness) {
+#    print "Yeah. Some difference based on what is blemished\n";
+#    my $new_cat = 
+#      $self->derive_blemish_position( $oddness->{repeated_value} );
+#    print "Returning new category $new_cat\n";
+#    return ( $new_cat );
+#  }
+
 
 
   return ();
@@ -119,6 +135,16 @@ sub SBindings::describe_position{
   } elsif ($string eq "backward") {
     my $obj_size = scalar( @{ $built_obj->items });
     return SPos->new( $where[0] - $obj_size);
+  } elsif ($string eq "the") {
+    my $what = $self->get_starred()->[0];
+    ## XXX Not sure of structure. Should it be $what in the next line,
+    ##   some structure there of etc...
+    my $pos = SPos->new_the( 
+			    $S::literal->build
+			    ( { structure => $what } ) 
+			   );
+    print "in THE: pos = $pos\n";
+    return $pos;
   }
 
 

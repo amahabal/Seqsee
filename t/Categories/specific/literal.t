@@ -1,12 +1,15 @@
 use strict;
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 4; }
+BEGIN { plan tests => 5; }
 
 my $cat_literal = $S::literal;
 my $double = $S::double;
 
 my $cat_123 = $cat_literal->build( { structure => [1, 2, 3] } );
+
+my $cat_123_again = $cat_literal->build( { structure => [1, 2, 3]});
+is $cat_123, $cat_123_again, "Memoized!";
 
 my $instance = $cat_123->build({});
 $instance->structure_ok([1, 2, 3]);
