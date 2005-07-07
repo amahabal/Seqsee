@@ -4,8 +4,12 @@ use strict;
 sub derive_assuming {
   my ( $self, $assuming_ref ) = @_;
   my %assuming = %$assuming_ref;
+  my $name = $self->get_name(). ", with ";
+  $name .= " $_ => $assuming{$_}," for keys %assuming;
+  chop $name;
   my $new_cat  = new SCat(
     {
+     name => $name,
       attributes => [],
       builder    => sub {
         shift;

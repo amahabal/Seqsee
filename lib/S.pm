@@ -30,7 +30,7 @@ use SBlemish::ntimes;
 
 use SCat::Derive::assuming;
 use SCat::Derive::blemished;
-
+use SCat::Derive::blemish_count;
 
 # use SUtil;
 
