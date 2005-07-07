@@ -27,12 +27,15 @@ sub new {
   else {
     $self = new SPos::Named({ str => $what });
   }
+  $self->set_name( $what );
   $Memoize{$what} = $self;
 }
 
 sub new_the{
   my ( $package, $cat ) = @_;
-  return ( $Memoize_the{$cat} ||= SPos::The->new( { cat => $cat} ));
+  my $self = ($Memoize_the{$cat} ||= SPos::The->new( { cat => $cat}));
+  $self->set_name("the ". $cat->get_name());
+  return $self;
 }
 
 1;

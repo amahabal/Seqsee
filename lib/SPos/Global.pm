@@ -5,6 +5,7 @@ use base "SPos";
 
 use Class::Std;
 my %finder_of :ATTR( :set<finder> );
+my %name_of :ATTR( :set<name> :get<name> );
 
 sub find_range {
   my ( $self, $built_obj ) = @_;

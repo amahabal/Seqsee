@@ -4,6 +4,7 @@ use Carp;
 use base 'SPos';
 
 my %cat_of :ATTR;
+my %name_of :ATTR( :get<name> :set<name>);
  
 sub BUILD{
   my ( $self, $id, $opts ) = @_;

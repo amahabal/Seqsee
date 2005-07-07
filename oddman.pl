@@ -73,10 +73,57 @@ sub SCat::generate_secondary_blemish_cats{
   # Excellent. Now I can try the position of the blemishes!
   # I'll further assume that I need there to be a single blemish.
   return () unless $num_blemishes[0] == 1;
-  
+ 
+  my $object_count = scalar( @$obj_ref );
+
+  # Lets try "forward positions", now!
+  #print "FORWARD:\n";
+  my @forward_pos = map { 
+    $bindings_ref->[$_]->describe_position("forward",
+					   $obj_ref->[$_]
+					  );
+  } (0 .. $object_count - 1);
+  $oddness = find_odd( @forward_pos );
+  if ($oddness) {
+    my $new_cat = 
+      $self->derive_blemish_position( $oddness->{repeated_value} );
+    return ( $new_cat );    
+  }
+
+  #print "BACKWARD\n";
+  # Lets try "backward positions", now!
+  my @backward_pos = map { 
+    $bindings_ref->[$_]->describe_position("backward",
+					   $obj_ref->[$_]
+					  );
+  } (0 .. $object_count - 1);
+  $oddness = find_odd( @backward_pos );
+  if ($oddness) {
+    my $new_cat = 
+      $self->derive_blemish_position( $oddness->{repeated_value} );
+    return ( $new_cat );    
+  }
+
+
+
   return ();
+
 }
 
+sub SBindings::describe_position{
+  my ( $self, $string, $built_obj ) = @_;
+  my @where = @{ $self->get_where };
+  @where == 1 or confess "This half baked function should not have been called when the number of blemishes is " . scalar(@where); 
+  if ($string eq "forward") {
+    return SPos->new($where[0] + 1);
+  } elsif ($string eq "backward") {
+    my $obj_size = scalar( @{ $built_obj->items });
+    return SPos->new( $where[0] - $obj_size);
+  }
+
+
+  croak "unknown string argument '$string' passed to describe_position\n";
+}
 
 sub oddman_categorical{
   my ( $obj_ref, $cat_ref ) = @_;

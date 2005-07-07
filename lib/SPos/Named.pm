@@ -4,7 +4,7 @@ use Carp;
 use base "SPos";
 
 use Class::Std;
-my %name_of           :ATTR;
+my %name_of           :ATTR( :set<name> :get<name>);
 my %find_by_cat_of_of :ATTR;
 
 sub BUILD{
