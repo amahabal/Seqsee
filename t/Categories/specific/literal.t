@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 5; }
+BEGIN { plan tests => 9; }
 
 my $cat_literal = $S::literal;
 my $double = $S::double;
@@ -25,4 +25,20 @@ IS_INSTANCE: {
   ok $bindings;
   $bindings->where_ok([1]);
   
+}
+
+my $cat_1 = $cat_literal->build( { structure => 1 });
+$cat_1->build({})->structure_ok( 1 );
+
+{ 
+  my $bindings = $cat_1->is_instance( SInt->new( { mag => 1 }));
+  ok $bindings, "SInt can be instance of the category";
+
+  $bindings = $cat_1->is_instance( SInt->new( { mag => 2 }));
+  ok !$bindings;
+  
+  $bindings = $cat_1->is_instance( SBuiltObj->new_deep(1));
+  ok $bindings;
+
+
 }

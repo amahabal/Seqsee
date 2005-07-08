@@ -239,15 +239,21 @@ sub can_be_seen_as_int {
 
 sub structure_blearily_ok {
   my ( $self, $template ) = @_;
-  # no Smart::Comments;
+  # use Smart::Comments;
   ### $self, $template
   my @my_items       = @{ $items{ ident $self} };
   my @template_items;
   if (ref($template) eq "ARRAY") {
     @template_items = map { SInt->new({mag => $_}) }@$template;
-  } else {
+  } elsif (ref($template) eq "SBuiltObj") {
     @template_items = @{ $template->items };
-  }
+  } elsif (ref($template) eq "SInt") {
+    return unless @my_items == 1;
+    return $my_items[0]->structure_blearily_ok( $template->get_mag );
+  } else {
+    return unless @my_items == 1;
+    return $my_items[0]->structure_blearily_ok( $template );
+  } 
   return undef unless scalar(@my_items) == scalar(@template_items);
   ### Item count identical:
   my @blemishes;

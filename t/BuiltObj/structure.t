@@ -1,6 +1,6 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 9; }
+BEGIN { plan tests => 13; }
 
 use SBuiltObj;
 
@@ -37,3 +37,14 @@ TODO: {
 
 }
 
+
+BLEARILY: {
+  my $bo = SInt->new( { mag => 3 });
+  ok $bo->structure_blearily_ok( 3 );
+  ok !$bo->structure_blearily_ok( [ 3 ] );
+
+  $bo = SBuiltObj->new_deep( 3 );
+  ok $bo->structure_blearily_ok( 3 );
+  ok $bo->structure_blearily_ok( [ 3 ] );
+
+}

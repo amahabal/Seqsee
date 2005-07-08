@@ -84,7 +84,7 @@ sub guess_attribute {
 }
 
 sub generate_instancer {
-  #use Smart::Comments;
+  # use Smart::Comments;
   my $self  = shift;
   my $ident = ident $self;
   croak "generate instancer called when instancer already present"
@@ -116,11 +116,12 @@ sub generate_instancer {
       $guess{$_} = $guess;
     }
     my $guess_built = $me->build( {%guess} );
-
+    ### $guess_built
     #print "Guess built: Guessed "; $guess_built->show;
     #print "Original object: "; $builtobj->show;
     my $bindings = $builtobj->structure_blearily_ok($guess_built);
-
+    #$builtobj->show;
+    #$guess_built->show;
     ### $bindings
     if ($bindings) {
       $bindings->set_value_of( { %guess });
