@@ -21,28 +21,44 @@ sub Test::Base::Filter::Sconstruct{
   } else {
     $Object = SBuiltObj->new_deep( @{ eval "($dataline)" } );
   }
-  if (@data) {
-    # More work to do!
-    for my $dataline (@data) {
-      # print "Will process: '$dataline'\n";
-      my ( $first_part, $rest ) = split(/\s+/, $dataline, 2);
-      no strict 'refs';
-      if ($first_part eq "blemish") {
-	my $blemish = ${"S::$rest"};
-	UNIVERSAL::isa($blemish, "SBlemish") 
-	    or confess "'$rest' is not a blemish I know! ($blemish)";
-	$Object = $blemish->blemish( $Object );
-      } elsif ($first_part eq "blemish_at") {
-	my ( $name, $pos ) = eval $rest;
-	# print "name = $name, pos = $pos\n"; 
-	my $blemish = ${"S::$name"};
-	UNIVERSAL::isa($blemish, "SBlemish") 
-	    or confess "'$rest' is not a blemish I know! ($blemish)";
-	$pos = SPos->new($pos) unless UNIVERSAL::isa($pos, "SPos");
-	$Object = $Object->apply_blemish_at( $blemish, $pos );
-      } else {
-	confess "Don't know how to '$dataline'\n";
-      }
+  $Object = _construction_command_processing($Object, @data);
+  return $Object;
+}
+
+sub Test::Base::Filter::Sbuild{
+  my ( $self, @data ) = @_;
+  my $dataline = shift( @data );
+  my ( $type, $args ) = split(/\s+/, $dataline, 2);
+  $args =  eval "{ $args }";
+  no strict 'refs';
+  my $cat = $ { "S::$type" };
+  UNIVERSAL::isa($cat, "SCat") or confess "$type not a cat!";
+  my $Object = $cat->build( $args );
+  $Object = _construction_command_processing($Object, @data);
+  return $Object;
+}
+
+sub _construction_command_processing{
+  my $Object = shift;
+  for my $dataline (@_) {
+    # print "Will process: '$dataline'\n";
+    my ( $first_part, $rest ) = split(/\s+/, $dataline, 2);
+    no strict 'refs';
+    if ($first_part eq "blemish") {
+      my $blemish = ${"S::$rest"};
+      UNIVERSAL::isa($blemish, "SBlemish") 
+	  or confess "'$rest' is not a blemish I know! ($blemish)";
+      $Object = $blemish->blemish( $Object );
+    } elsif ($first_part eq "blemish_at") {
+      my ( $name, $pos ) = eval $rest;
+      # print "name = $name, pos = $pos\n"; 
+      my $blemish = ${"S::$name"};
+      UNIVERSAL::isa($blemish, "SBlemish") 
+	  or confess "'$rest' is not a blemish I know! ($blemish)";
+      $pos = SPos->new($pos) unless UNIVERSAL::isa($pos, "SPos");
+      $Object = $Object->apply_blemish_at( $blemish, $pos );
+    } else {
+      confess "Don't know how to '$dataline'\n";
     }
   }
   return $Object;
@@ -87,9 +103,26 @@ sub run_command{
     my $value = $object->$method();
     my $rest  = eval $rest;
     # print "Got value = '$value', rest = '$rest'\n";
-    return my_comapre_deep($value, $rest);
+    my $ret =  my_comapre_deep($value, $rest);
+    unless ($ret) {
+      diag "Expected \n";
+      diag as_string( $rest ); 
+      diag "\n\nGot \n";
+      diag as_string( $value );
+    }
+    return $ret;
   }
   confess "Unknown MTL command '$command'";
+}
+
+sub as_string{
+  my $structure = shift;
+  if (ref $structure) {
+    return "[ " . join(", ", map { as_string($_) 
+				 } @$structure) . " ]";
+  } else {
+    return $structure;
+  }
 }
 
 sub my_comapre_deep{
@@ -116,7 +149,7 @@ sub my_comapre_deep{
 
 sub construct_and_commands{
   for my $block (blocks()) {
-    my $constructed = $block->{construct}[0];
+    my $constructed = $block->{construct}[0] || $block->{build}[0];
     # print $constructed, "\n";
     my $commands = $block->{mtl};
     ok ( run_commands( $constructed, $commands ) );
