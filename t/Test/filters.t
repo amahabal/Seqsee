@@ -35,29 +35,29 @@ __END__
  1
 --- mtl
 isa SInt
-.get_mag 1
-.get_structure 1
+.get_mag, 1
+.get_structure, 1
 
 ===
 --- construct
 [1]
 --- mtl
 isa SBuiltObj
-.get_structure [1]
+.get_structure, [1]
 
 ===
 --- construct
 [1, 2]
 --- mtl
 isa SBuiltObj
-.get_structure [1, 2]
+.get_structure, [1, 2]
 
 === 
 --- construct
 [1, [2, 3]]
 --- mtl
 isa SBuiltObj
-.get_structure [1, [2, 3]]
+.get_structure, [1, [2, 3]]
 
 
 ===
@@ -66,7 +66,7 @@ isa SBuiltObj
 blemish double
 --- mtl
 isa SBuiltObj
-.get_structure [1, 1]
+.get_structure, [1, 1]
 
 ===
 --- construct
@@ -74,7 +74,7 @@ isa SBuiltObj
 blemish double
 blemish triple
 --- mtl
-.get_structure [ [1, 1], [1, 1], [1, 1] ]
+.get_structure, [ [1, 1], [1, 1], [1, 1] ]
 
 
 ===
@@ -82,14 +82,14 @@ blemish triple
 [1, 2]
 blemish double
 --- mtl
-.get_structure [[1, 2], [1, 2]]
+.get_structure, [[1, 2], [1, 2]]
 
 ===
 --- construct
 [1, 2]
 blemish_at ("double", 1)
 --- mtl
-.get_structure [ [1, 1], 2 ]
+.get_structure, [ [1, 1], 2 ]
 
 
 ===
@@ -97,11 +97,19 @@ blemish_at ("double", 1)
 [[1, 2, 1] , [2, 3]]
 blemish_at ("double", SPos->new_the($S::mountain));
 --- mtl
-.get_structure [ [ [1,2,1], [1,2,1] ], [2, 3]]
+.get_structure, [ [ [1,2,1], [1,2,1] ], [2, 3]]
 
 ===
 --- build
 mountain foot => 2, peak => 4
 blemish_at ("double", "peak")
 --- mtl
-.get_structure [2, 3, [4, 4], 3, 2]
+.get_structure, [2, 3, [4, 4], 3, 2]
+
+===
+--- build
+mountain foot => 2, peak => 4
+is_instance mountain
+--- mtl
+isa SBindings
+

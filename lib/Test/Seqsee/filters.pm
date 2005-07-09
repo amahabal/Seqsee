@@ -11,6 +11,7 @@ our @EXPORT = qw{run_commands
 use Test::Base;
 use Test::Base::Filter -base;
 use S;
+use Text::Balanced qw{extract_variable};
 
 sub Test::Base::Filter::Sconstruct{
   my ( $self, @data ) = @_;
@@ -57,6 +58,11 @@ sub _construction_command_processing{
 	  or confess "'$rest' is not a blemish I know! ($blemish)";
       $pos = SPos->new($pos) unless UNIVERSAL::isa($pos, "SPos");
       $Object = $Object->apply_blemish_at( $blemish, $pos );
+    } elsif ($first_part eq "is_instance") {
+      my $cat = $rest;
+      $cat = ${"S::$cat"};
+      confess "need cat" unless UNIVERSAL::isa($cat, "SCat");
+      $Object = $cat->is_instance($Object);
     } else {
       confess "Don't know how to '$dataline'\n";
     }
@@ -97,12 +103,21 @@ sub run_command{
   if ($first_part eq "isa" ) {
     return UNIVERSAL::isa( $object, $rest );
   }
-  if ($first_part =~ /^\.(.*)/) {
-    # method call!
-    my $method = $1;
-    my $value = $object->$method();
-    my $rest  = eval $rest;
-    # print "Got value = '$value', rest = '$rest'\n";
+  if ($first_part eq "is_undef") {
+    return (defined $object) ? 0: 1;
+  }
+  if ($command =~ /^\.(.*)/) {
+    my $string = '$object->' . $1;
+    #print "String: $string\n";
+    my ($first_part, $rest) = extract_variable( $string );
+    $rest =~ s#^\s*,##;
+    #print "First Part: $first_part\n";
+    #print "Rest: $rest\n";
+    my $value = eval $first_part;
+    $rest = eval $rest;
+    #print "First Part: $value => '", as_string($value), "'\n";
+    #print "Rest: $rest => '", as_string($rest), "'\n";
+    #<STDIN>;
     my $ret =  my_comapre_deep($value, $rest);
     unless ($ret) {
       diag "Expected \n";
@@ -113,6 +128,13 @@ sub run_command{
     return $ret;
   }
   confess "Unknown MTL command '$command'";
+  if ($first_part =~ /^\.(.*)/) {
+    # method call!
+    my $method = $1;
+    my $value = $object->$method();
+    my $rest  = eval $rest;
+    # print "Got value = '$value', rest = '$rest'\n";
+  }
 }
 
 sub as_string{
