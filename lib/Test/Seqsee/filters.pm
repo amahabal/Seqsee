@@ -30,6 +30,7 @@ sub Test::Base::Filter::Sbuild{
   my ( $self, @data ) = @_;
   my $dataline = shift( @data );
   my ( $type, $args ) = split(/\s+/, $dataline, 2);
+  $args ||= ""; # to silence warnings
   $args =  eval "{ $args }";
   no strict 'refs';
   my $cat = $ { "S::$type" };
@@ -45,7 +46,10 @@ sub _construction_command_processing{
     # print "Will process: '$dataline'\n";
     my ( $first_part, $rest ) = split(/\s+/, $dataline, 2);
     no strict 'refs';
-    if ($first_part eq "blemish") {
+    if ($first_part =~ /^\s*!/) {
+      $dataline =~ /^\s*!(.*)/;
+      eval $1;
+    } elsif ($first_part eq "blemish") {
       my $blemish = ${"S::$rest"};
       UNIVERSAL::isa($blemish, "SBlemish") 
 	  or confess "'$rest' is not a blemish I know! ($blemish)";
@@ -105,6 +109,9 @@ sub run_command{
   }
   if ($first_part eq "is_undef") {
     return (defined $object) ? 0: 1;
+  }
+  if ($first_part eq "self") {
+    return $object eq eval($rest);
   }
   if ($command =~ /^\.(.*)/) {
     my $string = '$object->' . $1;

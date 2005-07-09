@@ -104,21 +104,21 @@ sub SCat::generate_secondary_blemish_cats{
     return ( $new_cat );    
   }
 
-#  print "THE\n";
-#  # Lets try "backward positions", now!
-#  my @the_pos = map { 
-#    $bindings_ref->[$_]->describe_position("the",
-#					   $obj_ref->[$_]
-#					  );
-#  } (0 .. $object_count - 1);
-#  $oddness = find_odd( @the_pos );
-#  if ($oddness) {
-#    print "Yeah. Some difference based on what is blemished\n";
-#    my $new_cat = 
-#      $self->derive_blemish_position( $oddness->{repeated_value} );
-#    print "Returning new category $new_cat\n";
-#    return ( $new_cat );
-#  }
+  print "THE\n";
+  # Lets try "the 'the' positions", now!
+  my @the_pos = map { 
+    $bindings_ref->[$_]->describe_position("the",
+					   $obj_ref->[$_]
+					  );
+  } (0 .. $object_count - 1);
+  $oddness = find_odd( @the_pos );
+  if ($oddness) {
+    print "Yeah. Some difference based on what is blemished\n";
+    my $new_cat = 
+      $self->derive_blemish_position( $oddness->{repeated_value} );
+    print "Returning new category $new_cat\n";
+    return ( $new_cat );
+  }
 
 
 
