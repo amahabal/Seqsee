@@ -19,6 +19,7 @@ sub find_range{
   my @items = @{ $built_obj->items() };
   for (my $i=0; $i<@items; $i++) {
     push(@matching, $i) if $cat->is_instance($items[$i]);
+    #print "$items[$i]\tmatching now: @matching\n";
   }
   return unless @matching;
   SErr::Pos::MultipleNamed->throw("Several objects matching cat")

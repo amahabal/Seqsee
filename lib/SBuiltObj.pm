@@ -238,6 +238,7 @@ sub can_be_seen_as_int {
 }
 
 sub structure_blearily_ok {
+  # XXX THIS FUNCTION IS REDICULOUSLY KLUDGY!!
   my ( $self, $template ) = @_;
   # use Smart::Comments;
   ### $self, $template
@@ -248,8 +249,10 @@ sub structure_blearily_ok {
   } elsif (ref($template) eq "SBuiltObj") {
     @template_items = @{ $template->items };
   } elsif (ref($template) eq "SInt") {
-    return unless @my_items == 1;
-    return $my_items[0]->structure_blearily_ok( $template->get_mag );
+    #return unless @my_items == 1;
+    #return $my_items[0]->structure_blearily_ok( $template->get_mag );
+    return unless $self->can_be_seen_as_int( $template->get_mag );
+    return SBindings->new();
   } else {
     return unless @my_items == 1;
     return $my_items[0]->structure_blearily_ok( $template );

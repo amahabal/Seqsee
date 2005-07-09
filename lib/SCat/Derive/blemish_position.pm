@@ -14,17 +14,27 @@ sub derive_blemish_position{
 	},
 	instancer => sub {
 	  shift;
-	  my $bindings = $self->is_instance(@_);
+	  my $built_obj = shift;
+	  my $bindings = $self->is_instance($built_obj);
 	  my $where = $bindings->get_where()->[0];
 	  my $range;
-	  print "In blemish_position instancer..\n";
-	  print "\twhere is $where\n";
-	  eval { $range = $pos->find_range( @_ ) };
-	  return undef if $@;
-	  print "\trange is $range->[0]\n";
-	  return $range->[0] == $where
-	    ? $bindings
-	      : undef;
+	  #print "In blemish_position instancer..\n";
+	  #print "\twhere is $where\n";
+	  eval { $range = $pos->find_range( $built_obj ) };
+	  if ($@) {
+	    print "Died here! Reason: $@\n";
+	    return;
+	  }
+	  if ($range) {
+	    #print "\trange is @$range\n";
+	    return $range->[0] == $where
+	      ? $bindings
+		: undef;
+
+	  } else {
+	    #print "\tno range!\n";
+	    return undef;
+	  }
 	},
  
       }

@@ -115,8 +115,10 @@ sub SCat::generate_secondary_blemish_cats{
   if ($oddness) {
     print "Yeah. Some difference based on what is blemished\n";
     my $new_cat = 
-      $self->derive_blemish_position( $oddness->{repeated_value} );
-    print "Returning new category $new_cat\n";
+      $self->derive_blemish_position
+	( $oddness->{repeated_value} 
+	);
+    # print "Returning new category $new_cat, based on $oddness->{repeated_value}\n";
     return ( $new_cat );
   }
 
@@ -137,11 +139,12 @@ sub SBindings::describe_position{
     return SPos->new( $where[0] - $obj_size);
   } elsif ($string eq "the") {
     my $what = $self->get_starred()->[0];
+    print "what is: '$what'\n";
     ## XXX Not sure of structure. Should it be $what in the next line,
     ##   some structure there of etc...
     my $pos = SPos->new_the( 
 			    $S::literal->build
-			    ( { structure => $what } ) 
+			    ( { structure => $what }) 
 			   );
     print "in THE: pos = $pos\n";
     return $pos;
