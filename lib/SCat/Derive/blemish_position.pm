@@ -16,6 +16,7 @@ sub derive_blemish_position{
 	  shift;
 	  my $built_obj = shift;
 	  my $bindings = $self->is_instance($built_obj);
+	  return unless $bindings;
 	  my $where = $bindings->get_where()->[0];
 	  my $range;
 	  #print "In blemish_position instancer..\n";
