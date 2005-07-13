@@ -1,3 +1,5 @@
+*** Put the CGI scripts unver SVN... I tried using symlinks, but that does not seemed to have worked very well. Hard links, perhaps?
+
 *** Namespace for categories and blemishes to love in
   --> right now I am having to do way too much work to refer to these categories.
   --> perhaps something like $S::ascending or $S::double would be appropriate!
