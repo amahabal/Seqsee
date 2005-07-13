@@ -11,6 +11,7 @@ use S;
 use SUtil;
 use SOddman;
 use SOddmanCGI;
+use SOddman::Examples;
 our @cats = ( $S::ascending, $S::descending, $S::mountain );
 our @blemishes = ( $S::double, $S::triple, $S::ntimes );
 
@@ -21,16 +22,28 @@ my $style = "oddman.css";
 my $q = new CGI;
 
 
+
 print $q->header(), $q->start_html({-style => $style ,
 				    -title => "The Seqsee Odd man!"});
 
-if ($q->param('example')) {
+if ($q->param('example')) {{
   my $example_name = $q->param('example');
-  print "Aha! I have been asked to do example $example_name\n";
-}
+  #print "Aha! I have been asked to do example $example_name\n";
+  my $example = $ {"SOddman::Examples::example_$example_name"};
+  unless ($example) {
+    print $q->h2("Error...");
+    print "I did not find the example in my database. Strange. I'll just pretend that you were trying to run an example from scratch...";
+    last;
+  }
+  #print "example seq_1 is $example->{seq_1}\n";
+  #print "It is example $example\n";
+  #print "Q was $q...";
+  $q = new CGI({ %$example });
+  #print "... and now it is $q. Param 1 is ", $q->param('seq_1');
+}}
 
 
-print SBuiltObj->new_deep(1, 2, 3);
+
 process_input();
 show_form();
 
@@ -41,7 +54,7 @@ sub process_input{
   if ($q->param) {
     my @seq_fragments;
     for (1..6) {
-      push @seq_fragments, $q->param("seq_$_") if param("seq_$_") =~ /\S/;
+      push @seq_fragments, $q->param("seq_$_") if $q->param("seq_$_") =~ /\S/;
     }
     # print "You gave ", scalar(@seq_fragments), " parts!<br>\n";
 
@@ -49,8 +62,21 @@ sub process_input{
       s/^\s*//;
       s/\s*$//;
     }
+    @seq_fragments = grep { $_ } @seq_fragments;
+    
+    if (@seq_fragments < 3) {
+      if (@seq_fragments) {
+	print "I need at least three elements for Oddman to be discovered!<br>";
+	return;
 
-    print h2("Stuff I got to process:");
+      } else {
+	return;
+      }
+    } 
+
+
+
+    print h2("Inputs I received:");
     print "<ul> ";
     print "<li> $_\n" for @seq_fragments;
     print "</ul>\n";
@@ -58,10 +84,8 @@ sub process_input{
     $_ = [split(/\s+/, $_)] for @seq_fragments;
 
 
-    if (@seq_fragments < 3) {
-      print "I need at least three elements for Oddman to be discovered!<br>";
-      return;
-    }
+    print "<hline>\n";
+    print $q->h2("Analysis");
 
     my $cat = process_oddman(@seq_fragments);
 
@@ -69,52 +93,61 @@ sub process_input{
 
     my @test_fragments;
     for (1..6) {
-      push @test_fragments, param("test_$_") 
-	if param("test_$_") =~ /\S/;
+      push @test_fragments, $q->param("test_$_") 
+	if $q->param("test_$_") =~ /\S/;
     }
 
     for (@test_fragments) {
       s/^\s*//;
       s/\s*$//;
-      $_ = [ split(/\s+/, $_) ];
     }
 
-    if (@test_fragments) {
-      print "<ul>\n";
+    @test_fragments = grep { $_ } @test_fragments;
+    return unless @test_fragments;
 
-      for (@test_fragments) {
-	my $bindings = process_test( $cat, $_ );
-	SOddman::Display_is_instance( 
-				     join(", ", @$_), 
-				     $cat, 
-				     $bindings);
-      }
-      print "</ul>\n";
+    print $q->h2("Testing for category membership");
 
+    $_ = [ split(/\s+/, $_) ] for @test_fragments;
+
+    print "<ul>\n";
+
+    for (@test_fragments) {
+      my $bindings = process_test( $cat, $_ );
+      SOddman::Display_is_instance( 
+				   join(", ", @$_), 
+				   $cat, 
+				   $bindings);
     }
+    print "</ul>\n";
     
   }
 }
 
 sub show_form{
   print $q->start_form( -action => 'http://www.cs.indiana.edu/cgi-pub/amahabal/oddman.cgi');
+
+  print $q->h2("Another task");
+  #print $q->h4("Sequence fragments for oddman");
   
-  print $q->h2("Sequence fragments for oddman");
-  
-  print "<table border=\"1\">\n";
+  print "<table border=\"5\" bgcolor=\"#cccc99\"> \n";
+  print "<tr> <th> Input for oddman <th> Fragments for Tests </tr>\n";
+  print "<tr><td>";
+
+  print "<table border=\"1\" cellpadding=\"5\" bgcolor=\"#cccc99\">\n";
   for (1..6) {
-    print "<tr> <td> Fragment $_ </td><td> ", textfield("seq_".$_), "</td></tr>\n\n";
+    print "<tr> <td> Fragment $_ </td><td> ", $q->textfield("seq_".$_), "</td></tr>\n\n";
   }
   print "</table>\n\n";
   
-  print $q->h2("Sequence fragments for testing learned category");
-  
-  print "<table border=\"1\">\n";
+  # print $q->h4("Sequence fragments for testing");
+  print "<td>";
+  print "<table border=\"1\" cellpadding=\"5\" bgcolor=\"#cccc99\">\n";
   for (1..6) {
-    print "<tr> <td> Fragment $_ </td><td> ", textfield("test_".$_), "</td></tr>\n\n";
+    print "<tr> <td> Fragment $_ </td><td> ", $q->textfield("test_".$_), "</td></tr>\n\n";
   }
   print "</table>\n\n";
-  
+  print "</table>\n\n";
+
   print $q->submit();
 
   print $q->end_form();

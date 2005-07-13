@@ -1,6 +1,10 @@
 my $path = "/l/cgi/amahabal/site_perl/lib/site_perl/5.8.3";
+my $cgi_path = '/l/cgi/amahabal/cgi-pub';
 
 for (<lib/*.pm lib/*/*.pm lib/*/*/*.pm>) {
-  print "cp $_ $path/$_\n";
+  s#^lib/##;
+  system "cp lib/$_ $path/$_\n";
 }
+
+system "cp Apps/oddman.* $cgi_path/";
 
