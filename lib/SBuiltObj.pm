@@ -38,11 +38,29 @@ sub new_deep {
   $self;
 }
 
-=pod
-
-set_items also does something
-
-=cut
+sub new_from_string{
+  my ($package, $string) = @_;
+  #print "String is: '$string'\n";
+  chomp $string;
+  confess "strings may only use digits and (), not anything else. I got the string '$string'" 
+    if $string =~ m/[^\s\d,\(\)]/;
+  $string = " $string ";
+  for ($string) {
+    #print "String is: '$_'\n";
+    s#[^\s\d\(\)]# #g;
+    s#(\d)(\D)#$1, $2#g;
+    #print "String is: '$_'\n";
+    s#\)#), #g;
+    $_ = "( $_ )";
+    s#,\s*\)#)#g;
+    s#\(#[#g;
+    s#\)#]#g;
+    #print "String is: '$_'\n";
+  }
+  #print "String is: '$string'\n";
+  my $arr_ref = eval $string;
+  return $package->new_deep( @$arr_ref );
+}
 
 sub set_items {
   my ( $self, $items_ref ) = @_;
@@ -276,7 +294,7 @@ sub structure_blearily_ok {
     }
     else {
       # XXX THIS WILL NOT RETURN BINDINGS CORRECTLY IF TEMPLATE IS NOT SHALLOW
-      print "TEMPLATE ITEM NOT AN SINT!!\n";
+      # print "TEMPLATE ITEM NOT AN SINT!!\n";
       next if $my_item->structure_blearily_ok($t_item);
     }
     return undef;
@@ -311,6 +329,21 @@ sub seek_blemishes{
       if (my $bindings = $bl->is_instance($item)) {
 	$item->add_cat( $bl, $bindings);
       }
+    }
+  }
+}
+
+sub seek_categories{
+  my $self = shift;
+  my $cat_ref = shift;
+  for (@{$self->items}) {
+    if ($_->isa("SBuiltObj")) {
+      $_->seek_categories($cat_ref);
+    }
+  }
+  for (@$cat_ref) {
+    if (my $bindings = $_->is_instance( $self )) {
+      $self->add_cat( $_, $bindings );
     }
   }
 }

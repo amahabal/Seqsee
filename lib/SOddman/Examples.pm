@@ -104,7 +104,7 @@ our $example_9 = new SOddman::Examples
 our $example_10 = new SOddman::Examples
   ([' 1 1 2 3 3 ' ,
     ' 8 9 9 10 10 11 12' ,
-    ' 7 7 8 9 9 10 11' ,
+    ' 7 7 8 9 10 11' ,
     ' 5 5 6 6'
    ],
 

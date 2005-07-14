@@ -15,6 +15,9 @@ use SOddman::Examples;
 our @cats = ( $S::ascending, $S::descending, $S::mountain );
 our @blemishes = ( $S::double, $S::triple, $S::ntimes );
 
+our $blemish_and_cat_ref = [ @cats, @blemishes ];
+
+
 $| = 1;
 
 my $style = "oddman.css";
@@ -44,7 +47,15 @@ if ($q->param('example')) {{
 
 
 
-process_input();
+eval { process_input() };
+if ($@) {
+  
+  print $q->h2("Error! ");
+  print "It appears that there was some problem with the input or with my processing: here is the error message: ";
+  my $msg = $@;
+  print $q->blockquote($msg);
+  print "I am sorry, but I have to give up processing this particular input";
+}
 show_form();
 
 print "############";
@@ -81,7 +92,7 @@ sub process_input{
     print "<li> $_\n" for @seq_fragments;
     print "</ul>\n";
 
-    $_ = [split(/\s+/, $_)] for @seq_fragments;
+    # $_ = [split(/\s+/, $_)] for @seq_fragments;
 
 
     print "<hline>\n";

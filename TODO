@@ -1,12 +1,3 @@
-*** Put the CGI scripts unver SVN... I tried using symlinks, but that does not seemed to have worked very well. Hard links, perhaps?
-
-*** Namespace for categories and blemishes to love in
-  --> right now I am having to do way too much work to refer to these categories.
-  --> perhaps something like $S::ascending or $S::double would be appropriate!
-
-*** Load order cleanup
-  --> that is another thing fully capable of becoming a headache
-
 *** Quite a bit of moving code around may be needed.
 
 *** Other Blemishes
@@ -47,3 +38,15 @@
 *** Composing meta-categories?
 
 *** Perl6! Get a bunch of these things working in perl6. Should be absolutely doable!
+
+
+**** AFTER DISCUSSION WITH DAVID
+* Elusis?
+* Bug: 1 1 2 3/ 1 2 3 3 4/ 3 3 4 3/ 5 5 6 7 6 5
+* Explanation of why I cannot get at some pressures and how gennext would be a good place for that
+* Build up (two parts, where the first is a mountain), as well as down.
+* The user input can use parentheses to group things together. The easiest, and will do a lot to get harder things to happen. So many more categories that I can get at. A MUCH MUCH larger set of derived categories would become available.
+* I should write code for this today, perhaps. But No: I'll wait, plan a bit more and then do it. But the friday deadline for shipping this code is fast approaching!
+
+
+

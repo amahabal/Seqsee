@@ -4,21 +4,18 @@ use Test::Seqsee;
 use Test::Base;
 use Test::Seqsee::filters;
 
-BEGIN { plan tests => 10; }
+use SOddman;
+use SOddman::Test;
+
+plan tests => scalar(  blocks() );
 
 
 
-filters { oddman => [qw{lines chomp oddman}]};
+filters { oddman => [qw{lines chomp oddman}],
+	    expected => [qw{chomp}],
+	};
 
-for my $block (blocks()) {
-  # print $block, "Name= ", $block->name,"\n";
-  my $oddman = $block->{oddman};
-  print "=" x 10, "\n";
-  print $block->original_values()->{oddman};
-  print "@$oddman\n";
-  
-
-}
+run_is;
 
 __END__
 
@@ -29,7 +26,6 @@ __END__
 1 2 3 4
 5 6
 --- expected
-8 7 6
 ascending
 
 ===
@@ -39,8 +35,7 @@ ascending
 1 2
 1 2 3 4 5 6
 --- expected
-3 4 5
-ascending starting with 1
+ascending, with  start => 1
 
 ===
 --- oddman
@@ -49,18 +44,16 @@ ascending starting with 1
 3 4 3
 4
 --- expected
-1 2 1
-mountain peaking with 4
+mountain, with  peak => 4
 
 ===
 --- oddman
 1 1 2 3
 1 2 3 3 3
-1 2 3 4
+2 3 4
 1 1 2 3 3
 --- expected
-1 2 3 4
-1 2 3
+ascending, with  end => 3, start => 1
 
 ===
 --- oddman
@@ -69,10 +62,10 @@ mountain peaking with 4
 5 5 6 7 8 9
 4 5 5 6
 --- expected
-4 5 5 6
-blemished at position '1'
+ascending containing a blemish at position 1
 
 ===
+--- SKIP Want this to be TODO, really
 --- oddman
 1 2 3 3 3 4
 1 1 1 2 3 4 5 6
@@ -80,7 +73,6 @@ blemished at position '1'
 2 3 4 5 5 6 5 4 3 2
 
 --- expected
-2 3 4 5 5 6
 triple
 
 ===
@@ -90,18 +82,16 @@ triple
 3 4 5 6 7 8 9 9 10
 5 6 6 7 8 9
 --- expected
-5 6 6 7 8 9
-blemished at position '-2'
+ascending containing a blemish at position -2
 
 ===
 --- oddman
 1 2 3 3 4
 3 3 4 5 6 7 8
 2 3 4 4 5 6
-1 2 3 3 4 5 6 7 8
+-1 0 1 2 3 3 4 5 6 7 8
 --- expected
-2 3 4 4 5 6
-blemished at position 'the 3'
+ascending containing a blemish at position the 3
 
 ===
 --- oddman
@@ -110,6 +100,6 @@ blemished at position 'the 3'
 4 5 5 6
 7 7 8 8 9
 --- expected
-4 5 5 6
-blemished multiple times
+ascending containing 2 blemish(es)
+
 

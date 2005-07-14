@@ -13,6 +13,14 @@ use Test::Base::Filter -base;
 use S;
 use Text::Balanced qw{extract_variable};
 
+sub Test::Base::Filter::Sfrom_string{
+  my ( $self, @data ) = @_;
+  my $dataline = shift( @data );
+  my $Object = SBuiltObj->new_from_string($dataline);
+  $Object = _construction_command_processing($Object, @data);
+  return $Object;
+}
+
 sub Test::Base::Filter::Sconstruct{
   my ( $self, @data ) = @_;
   my $dataline = shift( @data );
@@ -75,15 +83,14 @@ sub _construction_command_processing{
 }
 
 sub Test::Base::Filter::oddman{
-  my ( $self, @data ) = @_;
-  my @built_objects = 
-    map { 
-      my @parts = split /\s+/, $_;
-      my @chunked = SUtil::naive_brittle_chunking([@parts]);
-      SBuiltObj->new_deep( @chunked ) 
-    } @data;
+  my ( $self, @built_object_strings ) = @_;
   # print "Oddman filter: data = '", join("'\n---\n'", @built_objects), "'\n";
-  return scalar( SUtil::oddman(@built_objects) );
+  my $cat =  main::process_oddman(@built_object_strings);
+  if ($cat) {
+    return $cat->get_name();
+  } else {
+    return "???";
+  }
 }
 
 
@@ -178,8 +185,10 @@ sub my_comapre_deep{
 
 sub construct_and_commands{
   for my $block (blocks()) {
-    my $constructed = $block->{construct}[0] || $block->{build}[0];
-    # print $constructed, "\n";
+    my $constructed = $block->{construct}[0] || $block->{build}[0] || 
+      $block->{string_build}[0];
+    #print $constructed, "\n";
+    #$constructed->show;
     my $commands = $block->{mtl};
     ok ( run_commands( $constructed, $commands ) );
   }

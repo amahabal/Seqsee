@@ -1,5 +1,11 @@
 use Carp;
 use SUtil;
+
+@::cats = ( $S::ascending, $S::descending, $S::mountain );
+@::blemishes = ( $S::double, $S::triple, $S::ntimes );
+$blemish_and_cat_ref = [ @::cats, @::blemishes ];
+
+
 sub loop {
   MAIN: while (1) {
     print "Enter the sequence fragments, one per line. Separate each element therein by a space. End by a solitary . on a line by itself. Type done now if you want to stop.\n";
@@ -25,11 +31,13 @@ sub loop {
 
 sub process_test{
   my ($cat, $input) = @_;
-  my $object = SBuiltObj->new_deep
-    (
-     SUtil::naive_brittle_chunking($input)
-    );
-  $object->seek_blemishes(\@blemishes);
+  my $object = ($input =~ /\(/) ? SBuiltObj->new_from_string($input):
+    SBuiltObj->new_deep
+      (
+       SUtil::naive_brittle_chunking($input)
+      );
+  # $object->seek_blemishes(\@blemishes);
+  $object->seek_categories($blemish_and_cat_ref);
   return $cat->is_instance( $object );
 }
 
@@ -38,15 +46,25 @@ sub process_oddman{
   # print "I got ", scalar( @input ), " elements to process\n";
   my @objects = 
     map { #print "Building object <br>\n";
-      SBuiltObj->new_deep( 
-			  SUtil::naive_brittle_chunking($_) 
-			 ) 
+      if (/\(/) {
+	SBuiltObj->new_from_string($_);
+      } else {
+	SBuiltObj->new_deep( 
+			    SUtil::naive_brittle_chunking([split(/\s+/, $_)]) 
+			   ) 
+
+      }
     } @input;
+  for (@objects) {
+    confess "ERROR! Not an object!" unless $_->isa("SBuiltObj");
+  }
   #print "<br> Objects are: @objects\n\n";
-  $_->seek_blemishes(\@blemishes) for @objects;
+  #$_->seek_blemishes(\@blemishes) for @objects;
   #print "<br> After seeking blemishes are: @objects\n\n";
 
-  #$_->show for @objects;
+  $_->seek_categories($blemish_and_cat_ref) for @objects;
+
+  # $_->show for @objects;
 
   my $ret = oddman_both( \@objects );
   SOddman::no_dice() unless $ret;
@@ -146,7 +164,7 @@ sub SBindings::describe_position{
     return SPos->new( $where[0] - $obj_size);
   } elsif ($string eq "the") {
     my $what = $self->get_starred()->[0];
-    print "what is: '$what'\n";
+    # print "what is: '$what'\n";
     ## XXX Not sure of structure. Should it be $what in the next line,
     ##   some structure there of etc...
     my $pos = SPos->new_the( 
