@@ -118,14 +118,14 @@ sub process_input{
 
     print $q->h2("Testing for category membership");
 
-    $_ = [ split(/\s+/, $_) ] for @test_fragments;
+    #$_ = [ split(/\s+/, $_) ] for @test_fragments;
 
     print "<ul>\n";
 
     for (@test_fragments) {
       my $bindings = process_test( $cat, $_ );
       SOddman::Display_is_instance( 
-				   join(", ", @$_), 
+				   $_, # join(", ", $_), 
 				   $cat, 
 				   $bindings);
     }

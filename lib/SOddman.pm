@@ -34,7 +34,7 @@ sub process_test{
   my $object = ($input =~ /\(/) ? SBuiltObj->new_from_string($input):
     SBuiltObj->new_deep
       (
-       SUtil::naive_brittle_chunking($input)
+       SUtil::naive_brittle_chunking([split(/\s+/,$input)])
       );
   # $object->seek_blemishes(\@blemishes);
   $object->seek_categories($blemish_and_cat_ref);
