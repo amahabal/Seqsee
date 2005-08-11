@@ -1,7 +1,7 @@
 package SElement;
 use strict;
 
-our @ISA = qw{SInt};
+use base qw{SInt};
 
 use Class::Std;
 my %left_edge_of : ATTR( :set<left_edge> :get<left_edge> );

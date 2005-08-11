@@ -2,7 +2,7 @@ package SInt;
 use strict;
 use Class::Std;
 
-our @ISA = qw{SInstance};
+use base qw{SInstance};
 
 my %mag : ATTR( :get<mag> );
 

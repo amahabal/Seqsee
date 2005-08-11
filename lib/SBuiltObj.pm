@@ -3,7 +3,7 @@ use strict;
 use Carp;
 use Class::Std;
 
-our @ISA = qw{SInstance};
+use base qw{SInstance};
 
 my %items : ATTR;
 

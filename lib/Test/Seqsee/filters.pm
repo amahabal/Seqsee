@@ -3,7 +3,7 @@ package Test::Seqsee::filters;
 use Exporter;
 use Carp;
 
-our @ISA    = qw{Exporter};
+use base qw{Exporter};
 our @EXPORT = qw{run_commands
     construct_and_commands
 };

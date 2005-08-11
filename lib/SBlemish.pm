@@ -2,7 +2,7 @@ package SBlemish;
 use strict;
 use Carp;
 use Class::Std;
-our @ISA = qw{SCat};
+use base qw{SCat};
 
 #use Smart::Comments;
 

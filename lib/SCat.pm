@@ -4,7 +4,7 @@ use Carp;
 use SUtil;
 use Class::Std;
 
-our @ISA = qw{SInstance};
+use base  qw{SInstance};
 our %Cats;
 
 my $yada = sub { croak "yada yada yada" };

@@ -9,7 +9,7 @@ use SBlemish;
 use Carp;
 
 our @EXPORT = qw{uniq equal_when_flattened generate_blemished};
-our @ISA    = qw{Exporter};
+use base qw{Exporter};
 
 sub uniq {
     my %hash;
