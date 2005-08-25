@@ -14,9 +14,9 @@ sub BUILD {
 }
 
 sub install_finder {
-    my ( $self, %opts ) = @_;
-    my $cat    = $opts{cat};
-    my $finder = $opts{finder};
+    my ( $self, $opts_ref ) = @_;
+    my $cat    = $opts_ref->{cat};
+    my $finder = $opts_ref->{finder};
     $find_by_cat_of_of{ ident $self}{$cat} = $finder;
 
     # print "########## FOR ", ident $self," set finder for $cat\n";

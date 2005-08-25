@@ -205,12 +205,13 @@ sub install_position_finder {
     ( @_ == 4 ) or croak "install_position_finder requires 4 args";
     my ( $self, $name, $sub, $multi ) = @_;
     SPos->new($name)->install_finder(
-        cat    => $self,
-        finder => new SPosFinder(
-            {   multi => $multi,
-                sub   => $sub
-            }
-        )
+        { cat    => $self,
+          finder => new SPosFinder(
+              {   multi => $multi,
+                  sub   => $sub
+                      }
+          
+        )}
     );
     $position_finder_of_of{ ident $self}{$name} = $sub;
 

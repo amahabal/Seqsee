@@ -50,21 +50,22 @@ Named: {
   my $cat_arbit = new SCat({});
 
   $pos_peak->install_finder(
-    cat    => $cat_random,
-    finder => new SPosFinder({
-			      multi => 0,
-			      sub   => sub { return [2] }
-			      }
-    )
-  );
+      { cat    => $cat_random,
+        finder => new SPosFinder({
+            multi => 0,
+            sub   => sub { return [2] }
+                }
+                                     )
+            }
+          );
 
   $pos_peak->install_finder(
-    cat    => $cat_arbit,
+    {cat    => $cat_arbit,
     finder => new SPosFinder({
 			      multi => 0,
 			      sub   => sub { return [3] }
 			      }
-    )
+    )}
   );
 
   # Next test commented out: its fishing for internal details
