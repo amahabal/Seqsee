@@ -1,9 +1,13 @@
-package SPos::Global::Absolute;
+package SPos::Absolute;
 use strict;
 use Carp;
-use base 'SPos::Global';
+
+use base "SPos";
 
 use Class::Std;
+my %finder_of :ATTR;
+my %name_of :ATTR(:set<name> :get<name> );
+
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -28,7 +32,12 @@ sub BUILD {
         };
     }
     my $finder = new SPosFinder( { sub => $sub, multi => 0 } );
-    $self->set_finder($finder);
+    $finder_of{$id} = $finder;
+}
+
+sub find_range {
+    my ( $self, $built_obj ) = @_;
+    $finder_of{ ident $self}->find_range( $built_obj );
 }
 
 1;

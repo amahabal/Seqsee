@@ -12,6 +12,15 @@ sub BUILD {
     $blemishes_of{$id} = [];
 }
 
+
+
+#### method add_blemish
+# description    :marks the binding as being based on this blemish
+# argument list  :$self: SBindings::Blemish $blemish
+# return type    :none
+# context of call:void
+# exceptions     :none
+
 sub add_blemish {
     my ( $self, $blemish ) = @_;
     UNIVERSAL::isa( $blemish, "SBindings::Blemish" )

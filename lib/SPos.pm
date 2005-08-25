@@ -2,8 +2,7 @@ package SPos;
 use strict;
 
 use SPosFinder;
-use SPos::Global;
-use SPos::Global::Absolute;
+use SPos::Absolute;
 use SPos::Named;
 use SPos::The;
 
@@ -23,7 +22,7 @@ sub new {
     my $self;
 
     if ( $what =~ m/^-?\d+$/ ) {
-        $self = new SPos::Global::Absolute( { index => $what } );
+        $self = new SPos::Absolute( { index => $what } );
     }
     else {
         $self = new SPos::Named( { str => $what } );

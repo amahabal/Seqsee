@@ -1,7 +1,7 @@
 use blib;
 use strict;
 use Test::Seqsee;
-BEGIN { plan tests => 19 }
+BEGIN { plan tests => 18 }
 
 
 #use MyFilter;
@@ -9,14 +9,14 @@ BEGIN { plan tests => 19 }
 my $mtn = $S::mountain;
 my $bo  = $mtn->build( { foot => 3, peak => 5 } );
 
-ok UNIVERSAL::isa( "SPos::Global",           "SPos" );
-ok UNIVERSAL::isa( "SPos::Global::Absolute", "SPos::Global" );
+ok UNIVERSAL::isa( "SPos::Absolute",           "SPos" );
+#ok UNIVERSAL::isa( "SPos::Global::Absolute", "SPos::Global" );
 ok UNIVERSAL::isa( "SPos::Named",            "SPos" );
 Absolute: {
   my @objs;
 
   my $pos_1 = new SPos(1);
-  isa_ok $pos_1, "SPos::Global";
+  isa_ok $pos_1, "SPos::Absolute";
   # isa_ok $pos_1->{finder}, "SPosFinder";
   @objs = $bo->find_at_position($pos_1);
   ok( @objs == 1 );
@@ -27,14 +27,14 @@ Absolute: {
 
 
   my $pos_m2 = new SPos(-2);
-  isa_ok $pos_m2, "SPos::Global";
+  isa_ok $pos_m2, "SPos::Absolute";
   #isa_ok $pos_m2->{finder}, "SPosFinder";
   @objs = $bo->find_at_position($pos_m2);
   ok( @objs == 1 );
   $objs[0]->structure_ok( 4 );
 
   my $pos_m6 = new SPos(-6);
-  isa_ok $pos_m6, "SPos::Global";
+  isa_ok $pos_m6, "SPos::Absolute";
   #isa_ok $pos_m6->{finder}, "SPosFinder";
   throws_ok { @objs = $bo->find_at_position($pos_m6) } "SErr::Pos::OutOfRange";
 }

@@ -1,11 +1,12 @@
-#!/l/perl-5.8.3/bin/perl
+#!/usr/bin/perl
  
 use CGI qw/:standard/;
 use CGI::Carp qw{fatalsToBrowser};
 # use CGI::HTMLError;
-use lib "/u/amahabal/site_perl/lib/5.8.3";
-use lib "/u/amahabal/site_perl/lib/site_perl/5.8.3";
-use lib "/u/amahabal/site_perl/lib/sun4-solaris";
+use lib "/u/amahabal/site_perl/lib/5.8.5";
+use lib "/u/amahabal/site_perl/lib/site_perl/5.8.5";
+use lib "/u/amahabal/site_perl/lib/perl5/site_perl/5.8.5";
+use lib "/u/amahabal/site_perl/lib/i686-linux";
 use S;
 
 use SUtil;
