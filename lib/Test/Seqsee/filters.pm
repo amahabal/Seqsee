@@ -62,7 +62,7 @@ sub _construction_command_processing {
         }
         elsif ( $first_part eq "blemish" ) {
             my $blemish = ${"S::$rest"};
-            UNIVERSAL::isa( $blemish, "SBlemish" )
+            UNIVERSAL::isa( $blemish, "SBlemishType" )
                 or confess "'$rest' is not a blemish I know! ($blemish)";
             $Object = $blemish->blemish($Object);
         }
@@ -71,7 +71,7 @@ sub _construction_command_processing {
 
             # print "name = $name, pos = $pos\n";
             my $blemish = ${"S::$name"};
-            UNIVERSAL::isa( $blemish, "SBlemish" )
+            UNIVERSAL::isa( $blemish, "SBlemishType" )
                 or confess "'$rest' is not a blemish I know! ($blemish)";
             $pos = SPos->new($pos) unless UNIVERSAL::isa( $pos, "SPos" );
             $Object = $Object->apply_blemish_at( $blemish, $pos );
