@@ -1,4 +1,4 @@
-package SBlemish::triple;
+package SBlemishType::triple;
 
 my $builder = sub {
     my ( $self, $args ) = @_;
@@ -21,7 +21,7 @@ my $guesser_flat = {
         }
 };
 
-our $triple = new SBlemish(
+our $triple = new SBlemishType(
     {   builder         => $builder,
         empty_ok        => 1,
         empty_what      => SBuiltObj->new_deep(),

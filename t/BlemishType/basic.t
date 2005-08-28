@@ -7,7 +7,7 @@ use SUtil;
 
 my $bl;
 
-dies_ok { $bl = new SBlemish } "SBlemished is composed.. need data!";
+dies_ok { $bl = new SBlemishType } "SBlemished is composed.. need data!";
 
 my $blemisher = sub {
   my ( $self, $args ) = @_;
@@ -38,7 +38,7 @@ my $guesser_flat = {
 };
 
 lives_ok {
-  $bl = new SBlemish(
+  $bl = new SBlemishType(
     {
       empty_ok        => 1,
       empty_what      => new SBuiltObj(),
@@ -51,7 +51,7 @@ lives_ok {
   );
 };
 
-isa_ok $bl, "SBlemish";
+isa_ok $bl, "SBlemishType";
 isa_ok $bl, "SCat";
 ok $bl->get_blemished;
 isa_ok $bl->get_instancer,      "CODE";

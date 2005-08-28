@@ -1,4 +1,4 @@
-package SBlemish;
+package SBlemishType;
 use strict;
 use Carp;
 use Class::Std;

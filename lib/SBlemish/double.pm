@@ -1,4 +1,4 @@
-package SBlemish::double;
+package SBlemishType::double;
 use strict;
 
 my $builder = sub {
@@ -24,7 +24,7 @@ my $guesser_flat = {
     },
 };
 
-our $double = new SBlemish(
+our $double = new SBlemishType(
     {   att             => new SSet(),
         builder         => $builder,
         empty_ok        => 1,

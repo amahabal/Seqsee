@@ -2,7 +2,7 @@ package SUtil;
 use strict;
 use SPos;
 use SCat;
-use SBlemish;
+use SBlemishType;
 
 #use SBlemish::double;
 #use SBlemish::triple;
@@ -73,7 +73,7 @@ sub oddman {
     my (@objects) = @_;
     for (@objects) {
         $_->seek_blemishes(
-            [ $SBlemish::triple::triple, $SBlemish::double::double ] );
+            [ $SBlemishType::triple::triple, $SBlemishType::double::double ] );
     }
     for my $cat ( $SCat::ascending::ascending, $SCat::mountain::mountain ) {
         my @bindings = map { $cat->is_instance($_) } @objects;

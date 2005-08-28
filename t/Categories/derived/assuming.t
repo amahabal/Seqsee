@@ -50,7 +50,7 @@ undef_ok($bindings);
 #diag "cat2 instancer is: $cat2->{instancer}";
 
 {
-  use SBlemish::double;
+  use SBlemishType::double;
   my $blemished_obj = SBuiltObj->new(
     {
       items => [

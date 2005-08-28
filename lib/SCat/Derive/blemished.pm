@@ -7,8 +7,8 @@ sub derive_blemished {
     my $blemish = $options_ref->{blemish} or croak "Must provide a blemish";
     my $position = $options_ref->{position}
         or croak "Must provide a position";
-    croak "Blemish must be a SBlemish"
-        unless UNIVERSAL::isa( $blemish, "SBlemish" );
+    croak "Blemish must be a SBlemishType"
+        unless UNIVERSAL::isa( $blemish, "SBlemishType" );
     croak "Position must be a SPos"
         unless UNIVERSAL::isa( $position, "SPos" );
 

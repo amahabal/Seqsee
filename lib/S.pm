@@ -23,10 +23,10 @@ use SCat::literal;
 use SElement;
 use SWorkspace;
 
-use SBlemish;
-use SBlemish::double;
-use SBlemish::triple;
-use SBlemish::ntimes;
+use SBlemishType;
+use SBlemishType::double;
+use SBlemishType::triple;
+use SBlemishType::ntimes;
 
 use SCat::Derive::assuming;
 use SCat::Derive::blemished;
@@ -41,8 +41,8 @@ our $mountain   = $SCat::mountain::mountain;
 our $literal    = $SCat::literal::literal;
 our $number     = $SCat::number::number;
 
-our $double = $SBlemish::double::double;
-our $triple = $SBlemish::triple::triple;
-our $ntimes = $SBlemish::ntimes::ntimes;
+our $double = $SBlemishType::double::double;
+our $triple = $SBlemishType::triple::triple;
+our $ntimes = $SBlemishType::ntimes::ntimes;
 
 1;

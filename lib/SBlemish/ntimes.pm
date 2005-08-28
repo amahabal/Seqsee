@@ -1,4 +1,4 @@
-package SBlemish::ntimes;
+package SBlemishType::ntimes;
 
 my $builder = sub {
     my ( $self, $args ) = @_;
@@ -28,7 +28,7 @@ my $guesser_flat = {
     n    => sub { return; },
 };
 
-our $ntimes = new SBlemish(
+our $ntimes = new SBlemishType(
     {   builder         => $builder,
         empty_ok        => 0,
         guesser_of      => $guesser,

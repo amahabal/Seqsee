@@ -128,7 +128,7 @@ sub splice {
 
 sub apply_blemish_at {
     my ( $self, $blemish, $position ) = @_;
-    UNIVERSAL::isa( $blemish,  "SBlemish" ) or croak "need SBlemish";
+    UNIVERSAL::isa( $blemish,  "SBlemishType" ) or croak "need SBlemish";
     UNIVERSAL::isa( $position, "SPos" )     or croak "need SPos";
     $self = $self->clone;
     my $range = $position->find_range($self);
