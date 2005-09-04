@@ -1,8 +1,10 @@
 package SBindings;
 use strict;
 use Carp;
+use English;
 use Class::Std;
 use SBindings::Blemish;
+use Class::Multimethods;
 
 my %values_of_of : ATTR( :get<values_of> );
 my %blemishes_of : ATTR( :get<blemishes> );
@@ -60,5 +62,51 @@ sub get_blemished {
     my ($self) = shift;
     return scalar @{ $blemishes_of{ ident $self} };
 }
+
+multimethod 'find_reln';
+
+#### method _find_reln
+# description    :finds relationship between two bindings. Intended to be private: does not return an SReln object, but just something that others may use.
+# argument list  :SBlemish, SBlemish
+# return type    :hashref: keys are the keys for the bindings, values are SRelns
+# context of call:scalar
+# exceptions     :??
+
+multimethod _find_reln => qw(SBindings SBindings) => sub
+    {
+        my ($b1, $b2) = @_;
+        my $ret_hash_ref;
+        my @unrelated_attributes;
+        my $v_hash_1 = $values_of_of{ident $b1};
+        my $v_hash_2 = $values_of_of{ident $b2};
+        while (my ($k, $v1) = each %$v_hash_1) {
+            next unless exists $v_hash_2->{$k};
+            my $v2 = $v_hash_2->{$k};
+            my $reln;
+            eval { $reln = find_reln($v1, $v2) };
+            if ($EVAL_ERROR or not(defined $reln)) {
+                push @unrelated_attributes, $k;
+                print "\tthe bindings seem unrelated regarding $k\n";
+                #XXX do something about this!
+                next;
+            }
+            $ret_hash_ref->{$k} = $reln;
+        }
+        if (%$ret_hash_ref) {
+            # aha. I have something to return!
+            return $ret_hash_ref;
+        } else {
+            return;
+        }
+    };
+
+multimethod build_right => qw(SBuiltObj HASH) =>
+    sub {
+        my ( $bindings, $reln_hash ) = @_;
+        my $v_hash_1 = $values_of_of{ident $bindings};
+        my $new_bindings_hash;
+        #... should now apply relns to this, return the hash...
+    };
+
 
 1;

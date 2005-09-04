@@ -34,6 +34,7 @@ use SCat::Derive::blemish_count;
 use SCat::Derive::blemish_position;
 
 use SReln;
+use SThought;
 
 # use SUtil;
 
@@ -46,5 +47,8 @@ our $number     = $SCat::number::number;
 our $double = $SBlemishType::double::double;
 our $triple = $SBlemishType::triple::triple;
 our $ntimes = $SBlemishType::ntimes::ntimes;
+
+our $cats_and_blemish_ref =
+    [$ascending, $descending, $mountain, $double, $triple, $ntimes];
 
 1;
