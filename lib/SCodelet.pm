@@ -3,8 +3,8 @@ use strict;
 use Carp;
 
 sub new {
-    my ( $package, $family, $urgency, %args ) = @_;
-    bless [ $family, $urgency, $::CurrentEpoch, \%args ], $package;
+    my ( $package, $family, $urgency, $args_ref ) = @_;
+    bless [ $family, $urgency, $::CurrentEpoch, $args_ref ], $package;
 }
 
 sub run {

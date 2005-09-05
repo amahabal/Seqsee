@@ -17,7 +17,7 @@ BEGIN {
 }
 
 $::CurrentEpoch = 20;
-my $cl = SCodelet->new( "family_foo", 10, a => 3, b => 5 );
+my $cl = SCodelet->new( "family_foo", 10, { a => 3, b => 5 } );
 
 isa_ok $cl, "SCodelet";
 is $cl->[0], "family_foo";    # family name
