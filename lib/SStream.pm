@@ -11,14 +11,14 @@ my %ComponentStrength         = ();
 my $CurrentThought;
 
 
-#### method Reset
+#### method clear
 # description    :Gets stream back into the state where there are no thoughts, no trace of what happened
 # argument list  :()
 # return type    :
 # context of call:void
 # exceptions     :
 
-sub Reset{
+sub clear{
     $OlderThoughtCount   = 0;
     @OlderThoughts       = ();
     $CurrentThought      = undef;
@@ -92,3 +92,17 @@ sub _recalculate_Compstrength{
         }
     }
 }
+
+
+#### method init
+# description    :puts in the initial thought(s), to get us off the ground.
+# argument list  :
+# return type    :
+# context of call:
+# exceptions     :
+
+sub init{
+    die "not implemented";
+}
+
+1;

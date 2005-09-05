@@ -1,27 +1,41 @@
 package SWorkspace;
 use strict;
+use Class::Multimethods;
 
 our $elements_count;
 our @elements = ();
 
-sub setup {
+sub clear{
+    $elements_count = 0;
+    @elements       = ();
+}
+
+sub init {
     my ( $package, @rest ) = @_;
     @elements       = ();
     $elements_count = 0;
-    SWorkspace->insert_elements(@rest);
-}
-
-sub insert_elements {
-    my ( $package, @rest ) = @_;
-    for (@rest) {
-        push @elements,
-            ( ref($_) and $_->isa("SElement") )
-            ? $_
-            : SElement->new( { mag => $_ } );
-        $elements[-1]->set_left_edge($elements_count);
-        $elements[-1]->set_right_edge($elements_count);
-        $elements_count++;
+    for ( @rest ) {
+        _insert_element( $_ );
     }
 }
+
+sub insert_elements{
+    shift;
+    for (@_) {
+        _insert_element( $_ );
+    }
+}
+
+multimethod _insert_element => ( '#' ) => sub {
+    _insert_element( SElement->new( { mag => shift } ) );
+};
+
+multimethod _insert_element => ( 'SElement') => sub {
+    my $elt = shift;
+    $elt->set_left_edge($elements_count);
+    $elt->set_right_edge($elements_count);
+    push( @elements, $elt );
+    $elements_count++;
+};
 
 1;

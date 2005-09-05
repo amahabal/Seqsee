@@ -1,26 +1,12 @@
 package Seqsee;
-our $VERSION = 0.03;
+use version;
+our $VERSION = version->new( "0.0.3" );
 
-=head1 NAME
-
-Seqsee - seqsee
-
-=head1 SYNOPSIS
-
-
-
-=head1 DESCRIPTION
-
-
-
-=cut
-
-# Just horsing around!
-
-=pod
-
-Some more pod here....
-
-=cut
+sub run{
+    my (@sequence) = @_;
+    SWorkspace->clear(); SWorkspace->init(@sequence);
+    SStream->clear();    SStream->init();
+    SCoderack->clear();  SCoderack->init();
+}
 
 1;

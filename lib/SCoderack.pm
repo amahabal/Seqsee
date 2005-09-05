@@ -2,16 +2,37 @@ package SCoderack;
 use strict;
 use Carp;
 
-our $bucket_count  = 10;
-our $urgencies_sum = 0;
-our $last_bucket   = $bucket_count - 1;
-our $codelet_count = 0;                  # Number of codelets in the coderack
-our @buckets       = ();
-our @bucket_sum    = ();
-our $MAX_CODELETS  = 150;                # Maximum number of codelets allowed.
+my $BUCKET_COUNT  = 10;
+my $MAX_CODELETS  = 150;                # Maximum number of codelets allowed.
+my $urgencies_sum;
+my $last_bucket;
+my $codelet_count;                  # Number of codelets in the coderack
+my @buckets;
+my @bucket_sum;
 
-our %FamilyUrgency;
-our %FamilyCount;
+
+my %FamilyUrgency;
+my %FamilyCount;
+
+clear();
+
+#### method clear
+# description    :makes it all empty
+# argument list  :
+# return type    :
+# context of call:
+# exceptions     :
+
+sub clear{
+    $urgencies_sum    = 0;
+    $last_bucket      = $BUCKET_COUNT - 1;
+    $codelet_count    = 0;
+    @buckets          = ();
+    @bucket_sum       = ();
+    
+    %FamilyUrgency    = ();
+    %FamilyCount      = ();
+}
 
 sub add_codelet {
     my ( $package, $codelet ) = @_;
@@ -32,7 +53,7 @@ sub add_codelet {
         }
         $urgencies_sum = 0;
         $codelet_count = 0;
-        for my $i ( 0 .. $bucket_count - 1 ) {
+        for my $i ( 0 .. $BUCKET_COUNT - 1 ) {
             my $sum = 0;
             foreach my $cl ( @{ $buckets[$i] } ) {
                 $sum += $cl->[1];
@@ -47,7 +68,7 @@ sub add_codelet {
     return unless $urgency;
 
     $last_bucket = $last_bucket + 1;
-    $last_bucket = 0 if ( $last_bucket == $bucket_count );
+    $last_bucket = 0 if ( $last_bucket == $BUCKET_COUNT );
     push( @{ $buckets[$last_bucket] }, $codelet );
     $urgencies_sum            += $urgency;
     $bucket_sum[$last_bucket] += $urgency;
@@ -99,6 +120,24 @@ sub choose_codelet {
 
     # $::CODERACK_gui->Update() if ::GUI();
     return $return_codelet;
+}
+
+############## ACCESSORS, mostly for testing
+
+sub get_last_bucket { return $last_bucket }
+sub get_urgencies_sum { return $urgencies_sum }
+sub get_codelet_count { return $codelet_count }
+
+{
+    my $buckets_ref = \@buckets;
+    my $bucket_sum_ref = \@bucket_sum;
+
+    use Scalar::Util qw(weaken);
+    weaken( $buckets_ref );
+    weaken( $bucket_sum_ref );
+
+    sub get_buckets { return $buckets_ref }
+    sub get_bucket_sum { return $bucket_sum_ref }
 }
 
 1;

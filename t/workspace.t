@@ -4,7 +4,7 @@ use Test::Seqsee;
 BEGIN { plan tests => 18; }
 
 
-SWorkspace->setup( 1, 2, 3, 4 );
+SWorkspace->init( 1, 2, 3, 4 );
 is $SWorkspace::elements_count, 4;
 isa_ok $SWorkspace::elements[2], "SElement";
 isa_ok $SWorkspace::elements[2], "SInt";
@@ -20,7 +20,7 @@ is $SWorkspace::elements[5]->get_mag(), 6;
 is $SWorkspace::elements[5]->get_left_edge,  5;
 is $SWorkspace::elements[5]->get_right_edge, 5;
 
-SWorkspace->setup( 8, 9, 10, 11 );
+SWorkspace->init( 8, 9, 10, 11 );
 is $SWorkspace::elements_count, 4;
 isa_ok $SWorkspace::elements[2], "SElement";
 isa_ok $SWorkspace::elements[2], "SInt";
