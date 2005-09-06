@@ -1,6 +1,8 @@
 package SLog;
 use strict;  
 use Log::Log4perl;
+use S;
+use SUtil;
 use List::Util;
 
 

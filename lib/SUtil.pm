@@ -69,7 +69,7 @@ sub generate_blemished {
 }
 
 sub oddman {
-    use Smart::Comments;
+    # use Smart::Comments;
     my (@objects) = @_;
     for (@objects) {
         $_->seek_blemishes(
@@ -175,6 +175,18 @@ sub naive_brittle_chunking {
     }
     push @ret, @items;    # at most one left
     return @ret;
+}
+
+sub next_available_file_number{
+    # use Smart::Comments;
+    my $dir = shift;
+    ### $dir
+    my @filelist = glob("$dir/*");
+    ### @filelist
+    my @numbers = grep { $_ } map { s/\D//g; $_ } @filelist;
+    ### @numbers
+    return 1 unless @numbers;
+    return 1 + List::Util::max( @numbers );
 }
 
 1;

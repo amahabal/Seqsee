@@ -14,7 +14,7 @@ sub run {
     no strict;
     my $code = *{"SCF::$self->[0]::run"}{CODE}
         or fishy_codefamily( $self->[0] );
-    $code->( $self->[3] );
+    $code->( $self );
 }
 
 sub fishy_codefamily {
@@ -26,6 +26,21 @@ sub fishy_codefamily {
     }
     SErr::Code::MalFormed->throw(
         "COuld not find codeobject for family $family. Problem?");
+}
+
+
+#### method generate_log_msg
+# description    :generates the log message for logging. Called only if it will get logged
+# argument list  :
+# return type    :
+# context of call:called from individual codefamilies
+# exceptions     :
+
+sub generate_log_msg{
+    my $codelet = shift;
+    return 
+        join("", "="x10, "\n", 
+             "--- (Time: \$::CurrentEpoch; Family: $codelet->[0])\n",);
 }
 
 1;

@@ -11,8 +11,9 @@ BEGIN {
   Test::MockObject->fake_module('SCF::family_malformed');
 
   sub SCF::family_foo::run {
-    my $args = shift;
-    97 + $args->{a};
+    my $codelet = shift;
+    my $args_ref = $codelet->[3];
+    97 + $args_ref->{a};
   }
 }
 
