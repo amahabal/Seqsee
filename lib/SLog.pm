@@ -15,10 +15,13 @@ use List::Util;
 
 sub init{
     my ( $pack, $opts_ref ) = @_;
-    my $logging = $opts_ref->{logging} || 0;
-    my $sequence = $opts_ref->{sequence} || [];
-    my $seed = $opts_ref->{seed} || 0;
-    my $steps = $opts_ref->{steps} || 0;
+    unless (exists $opts_ref->{log}) {
+        die "Expected information about whether to log";
+    }
+    my $logging = $opts_ref->{log} || 0;
+    my $sequence = $opts_ref->{seq} || die "Expected to see a sequence";
+    my $seed = $opts_ref->{seed} || die "expected to see a seed";
+    my $steps = $opts_ref->{max_steps} || die "expected max  steps";
 
     $sequence = join(", ", @$sequence);
 
@@ -49,8 +52,11 @@ NOLOG
                            );
         $logger->info($msg);
     }
-    unlink "log/latest";
-    system "ln -s $SLog::filename log/latest";
+
+    if ($logging) {
+        unlink "log/latest";
+        system "ln -s $SLog::filename log/latest";
+    }
 }
 
 1;

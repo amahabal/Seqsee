@@ -2,7 +2,7 @@ use strict;
 use Test::More;
 use Test::Exception;
 use Test::Deep;
-use English;
+use English qw(-no_match_vars);
 
 use S;
 

@@ -36,6 +36,8 @@ use SCat::Derive::blemish_position;
 use SReln;
 use SThought;
 
+use SLog;
+
 # use SUtil;
 
 our $ascending  = $SCat::ascending::ascending;

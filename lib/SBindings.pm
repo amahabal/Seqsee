@@ -1,7 +1,7 @@
 package SBindings;
 use strict;
 use Carp;
-use English;
+use English qw( -no_match_vars );
 use Class::Std;
 use SBindings::Blemish;
 use Class::Multimethods;
