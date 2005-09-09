@@ -34,6 +34,23 @@ sub clear{
     %FamilyCount      = ();
 }
 
+
+#### method init
+# usage          :Initializes the coderack, using data from the configuarion for codelet types and numbers to use
+# description    :
+# argument list  :OPTIONS_ref
+# return type    :
+# context of call:
+# exceptions     :error in config
+
+sub init{
+    shift; # $package
+    my $OPTIONS_ref = shift;
+    # I am not going to use any of the options here, at least for now.
+    # Codelet configuarion for startup should be read in from another configuration file config/start_codelets.conf
+    die "This is where I left yesterday";
+}
+
 sub add_codelet {
     my ( $package, $codelet ) = @_;
     confess "A non codelet is being added" unless $codelet->isa("SCodelet");
