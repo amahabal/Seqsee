@@ -6,13 +6,14 @@ use Getopt::Long;
 
 use S;
 use SUtil;
+use Seqsee;
 
 use Smart::Comments;
 use List::Util qw(min);
 use UNIVERSAL::require;
 use Sub::Installer;
 use IO::Prompt;
-
+use English qw(-no_match_vars );
 
 # Defaults for configuration: used if not spec'd in config file
 #   or on the command line.
@@ -36,6 +37,8 @@ GET_GOING(); # Potentially "infinite" loop
 # exceptions     :
 
 sub INITIALIZE{
+
+    Seqsee->initialize_codefamilies();
 
     # Initialize logging
     SLog->init( $OPTIONS_ref );
@@ -267,4 +270,33 @@ sub TextMainLoop{
             print "Unknown command '$line': should be s, s n, c or e\n";
         }
     }
+}
+
+
+
+#### method Seqsee_Step
+# usage          :
+# description    :One step of Seqsee execution. That involves pulling one codelet off the stack and seeing what happens, I think
+# argument list  :
+# return type    : true if prog finished, false o/w
+# context of call:
+# exceptions     :
+
+sub Seqsee_Step{
+    my $codelet = SCoderack->choose_codelet();
+    ## $codelet
+    unless ($codelet) {
+        die "No codelet in coderack. Don't know what I should do here";
+    }
+
+    eval { $codelet->run() };
+    if ($EVAL_ERROR) {
+        my $err = $EVAL_ERROR;
+        if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
+            return 1; # i.e., program finished
+        } else {
+            ref $err ? $err->rethrow() : die $err;
+        }
+    }
+    return; # false: so, the show must go on.
 }

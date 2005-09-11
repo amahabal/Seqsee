@@ -2,6 +2,7 @@ package SCoderack;
 use strict;
 use Carp;
 use Config::Std;
+use Smart::Comments;
 
 my $BUCKET_COUNT  = 10;
 my $MAX_CODELETS  = 150;                # Maximum number of codelets allowed.
@@ -53,8 +54,12 @@ sub init{
 
     read_config 'config/start_codelets.conf' => my %launch_config;
     for my $family (keys %launch_config) {
-        my $urgencies = $launch_config{$_}{urgency};
+        next unless $family;
+        ## Family: $family
+        my $urgencies = $launch_config{$family}{urgency};
+        ## $urgencies
         my @urgencies = (ref $urgencies) ? (@$urgencies) : ($urgencies);
+        ## @urgencies
         for (@urgencies) {
             # launch!
             $package->add_codelet(
@@ -67,6 +72,7 @@ sub init{
 sub add_codelet {
     my ( $package, $codelet ) = @_;
     confess "A non codelet is being added" unless $codelet->isa("SCodelet");
+    ## Adding codelet to coderack: $codelet
     if ( $codelet_count > $MAX_CODELETS ) {
         my $half_of_avg_urgency = 0.5 * $urgencies_sum / $codelet_count;
         foreach my $b (@buckets) {

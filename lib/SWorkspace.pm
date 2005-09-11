@@ -16,7 +16,7 @@ sub init {
     $elements_count = 0;
     my @seq = @{ $OPTIONS_ref->{seq} };
     for ( @seq ) {
-        print "Inserting '$_'\n";
+        # print "Inserting '$_'\n";
         _insert_element( $_ );
     }
 }

@@ -12,6 +12,8 @@ use Exception::Class (
     'SErr::Code::UnknownFamily' => { isa => 'SErr::Code' },
     'SErr::Code::MalFormed'     => { isa => 'SErr::Code' },
 
+    'SErr::ProgOver'             => {},
+
 );
 1;
 
