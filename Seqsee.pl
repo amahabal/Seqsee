@@ -11,6 +11,9 @@ use Smart::Comments;
 use List::Util qw(min);
 use UNIVERSAL::require;
 use Sub::Installer;
+use IO::Prompt;
+
+
 # Defaults for configuration: used if not spec'd in config file
 #   or on the command line.
 my %DEFAULTS 
@@ -216,6 +219,7 @@ sub init_display{
 
     if ($tk) {
         "Tk"->require();
+        import Tk;
         $::MW = new MainWindow();
 
         my $update_display_sub = sub {
@@ -234,3 +238,33 @@ sub init_display{
     }
 }
 
+
+#### method TextMainLoop
+# usage          :
+# description    :Main interaction loop for text mode: just uses commands 's', 's \d+', 'c' and 'e'
+# argument list  :
+# return type    :
+# context of call:
+# exceptions     :
+
+sub TextMainLoop{
+    while (my $line = prompt -require => { "Seqsee> " =>  qr{\S}},
+           "Seqsee> ") {
+        if ($line =~ m/^ \s* s \s*$/xi) {
+            Interaction_step( { n => 1, update_after => 1 } );
+        } elsif ( $line =~ m/^ \s* s \s* (\d+) \s* $/xi) {
+            Interaction_step( { n => $1, 
+                                update_after=> $OPTIONS_ref->{update_interval},
+                            } );
+        } elsif ( $line =~ m/^ \s* c \s* $/ix) {
+            Interaction_continue();
+        } elsif ($line =~ m/^ \s* e \s* $/ix) {
+            if (prompt "Really quit? ", "-yn") {
+                return;
+            }
+        } else {
+            chomp($line);
+            print "Unknown command '$line': should be s, s n, c or e\n";
+        }
+    }
+}

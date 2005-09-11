@@ -1,6 +1,7 @@
 package SCoderack;
 use strict;
 use Carp;
+use Config::Std;
 
 my $BUCKET_COUNT  = 10;
 my $MAX_CODELETS  = 150;                # Maximum number of codelets allowed.
@@ -44,11 +45,23 @@ sub clear{
 # exceptions     :error in config
 
 sub init{
-    shift; # $package
+    my $package = shift; # $package
     my $OPTIONS_ref = shift;
     # I am not going to use any of the options here, at least for now.
     # Codelet configuarion for startup should be read in from another configuration file config/start_codelets.conf
-    die "This is where I left yesterday";
+    # die "This is where I left yesterday";
+
+    read_config 'config/start_codelets.conf' => my %launch_config;
+    for my $family (keys %launch_config) {
+        my $urgencies = $launch_config{$_}{urgency};
+        my @urgencies = (ref $urgencies) ? (@$urgencies) : ($urgencies);
+        for (@urgencies) {
+            # launch!
+            $package->add_codelet(
+                new SCodelet( $family, $_, {})
+                    );
+        }
+    }
 }
 
 sub add_codelet {

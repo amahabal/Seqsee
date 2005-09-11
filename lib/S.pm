@@ -35,6 +35,7 @@ use SCat::Derive::blemish_position;
 
 use SReln;
 use SThought;
+use SStream;
 
 use SLog;
 

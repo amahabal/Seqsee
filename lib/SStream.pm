@@ -102,7 +102,7 @@ sub _recalculate_Compstrength{
 # exceptions     :
 
 sub init{
-    die "not implemented";
+    
 }
 
 1;
