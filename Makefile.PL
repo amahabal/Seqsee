@@ -13,6 +13,9 @@ TEST:
 \t\tHARNESS_PERL_SWITCHES=-MDevel::Cover make test
 \t\tcover
 
+docs:
+\t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -o HTML /u/amahabal/.hyplan/ND/ -p Proj 
+
 MAKE_FRAG
 }
 

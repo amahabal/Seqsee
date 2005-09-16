@@ -1,14 +1,31 @@
+#####################################################
+#
+#    Package: SWorkspace
+#
+#####################################################
+#####################################################
+
 package SWorkspace;
 use strict;
 use Class::Multimethods;
 
+
 our $elements_count;
 our @elements = ();
+
+# method: clear
+#  starts workspace off as new
 
 sub clear{
     $elements_count = 0;
     @elements       = ();
 }
+
+# method: init
+#   Given the options ref, initializes the workspace
+#
+# exceptions:
+#   none
 
 sub init {
     my ( $package, $OPTIONS_ref ) = @_;
@@ -27,6 +44,14 @@ sub insert_elements{
         _insert_element( $_ );
     }
 }
+
+# section: _insert_element
+
+# method: _insert_element(#)
+
+# method: _insert_element($)
+
+# method: _insert_element(SElement)
 
 multimethod _insert_element => ( '#' ) => sub {
     _insert_element( SElement->new( { mag => shift } ) );

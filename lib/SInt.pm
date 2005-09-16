@@ -1,8 +1,21 @@
+#####################################################
+#
+#    Package: SInt
+#
+#####################################################
+#   Stores Integer objects.
+#   Elements use these
+#####################################################
+
 package SInt;
 use strict;
 use Class::Std;
 
 use base qw{SInstance};
+
+
+# variable: mag
+#    stores magnitudes
 
 my %mag : ATTR( :get<mag> );
 

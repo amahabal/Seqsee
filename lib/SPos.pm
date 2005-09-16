@@ -1,3 +1,11 @@
+#####################################################
+#
+#    Package: SPos
+#
+#####################################################
+#   Manages positions
+#####################################################
+
 package SPos;
 use strict;
 
@@ -11,6 +19,31 @@ use Carp;
 my %Memoize;
 my %Memoize_the;
 
+
+
+
+# method: new
+#    -
+#
+#    usage:
+#     new SPos(3)
+#
+#    description:
+#      Creates a new Spos object. When $what is a
+#
+#        positive integer - position from start. 1 is first
+#        negative integer - position from end. -1 is last
+#        string           - a named position (like "peak")
+#
+#    parameter list:
+#        $what - 
+#
+#    return value:
+#      
+#
+#    possible exceptions:
+
+
 sub new {
     my $package = shift;
     my $what    = shift;
@@ -20,7 +53,6 @@ sub new {
         "A position must have a number or a string as the first argument to new."
         unless $what;
     my $self;
-
     if ( $what =~ m/^-?\d+$/ ) {
         $self = new SPos::Absolute( { index => $what } );
     }

@@ -14,12 +14,11 @@ sub run{
 }
 
 
-#### method initialize_codefamilies
-# description    :loads up all the codefamilies. Their list occurs in SCF.list
-# argument list  :
-# return type    :
-# context of call:void
-# exceptions     :missing codefamily etc. 
+# method: initialize_codefamilies
+#  loads up all the codefamilies. Their list occurs in SCF.list
+#
+# exceptions:
+#     missing codefamily etc. 
 
 sub initialize_codefamilies{
     use UNIVERSAL::require;
