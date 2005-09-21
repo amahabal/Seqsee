@@ -1,3 +1,16 @@
+#####################################################
+#
+#    Package: SCoderack
+#
+#####################################################
+#   Manages the coderack.
+#    
+#   TODO:
+#    * I am thinking of limiting $MAX_CODELETS to about 25; In that scenario, the entire bucket system would be a needless overhead.
+#    * When a codelet is created, it would have weakened any references it makes. There should be a function called purge_defunct() that would get rid of codelets whose some argument is undef. Also, a call to get codelet should check for this. 
+#   * need methods to schedule thoughts, to add several codelets and a method get_runnable()
+#####################################################
+
 package SCoderack;
 use strict;
 use Carp;

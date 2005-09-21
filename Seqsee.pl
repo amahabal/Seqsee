@@ -317,31 +317,62 @@ sub TextMainLoop{
 # One step of Seqsee execution. 
 # 
 # Details:
+#  Backround activity is things that should happen between steps, update activation etc. Done using a call to do_background_activity()
+#
 #  The call SCoderack->get_next_runnable() returns a codelet or a thought, taking into account whether a thought is scheduled, etc.
 # 
 #  If a thought is returned, we should call SStream->add_thought(), which, er, thinks the thought.
 #
 #  If it is a codelet, it should be executed, and its return value looked at: If the return value is a thought, that should also result in SStream->add_thought(), too.
 # 
-#  This is NOT yet implemented. 
+# Error Checking:
+#   * If running a codelet, traps SErr::ProgOver and SErr::Think
+#   * If running a thought, traps SErr::Think
+#
 # return value: 
 #    true if prog finished
 
 sub Seqsee_Step{
-    my $codelet = SCoderack->choose_codelet();
-    ## $codelet
-    unless ($codelet) {
-        die "No codelet in coderack. Don't know what I should do here";
-    }
+    do_background_activity();
 
-    eval { $codelet->run() };
-    if ($EVAL_ERROR) {
-        my $err = $EVAL_ERROR;
-        if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
-            return 1; # i.e., program finished
-        } else {
-            ref $err ? $err->rethrow() : die $err;
+    my $runnable = SCoderack->get_next_runnable();
+    return unless $runnable; # prog not yet finished!
+    
+    if ($runnable->isa("SCodelet")) {
+        eval { $runnable->run() };
+        if ($EVAL_ERROR) {
+            my $err = $EVAL_ERROR;
+            if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
+                return 1; # i.e., program finished
+            } elsif (UNIVERSAL::isa($err, 'SErr::Think')) {
+                my $thought = $err->{thought};
+                eval { SStream->add_thought($thought); };
+                if ($EVAL_ERROR) {
+                    my $err = $EVAL_ERROR;
+                    if ($err->isa('SErr::ProgOver')) {
+                        return 1;
+                    } else {
+                        $err->rethrow();
+                    }
+                }
+                
+            } else {
+                ref $err ? $err->rethrow() : die $err;
+            }
         }
+
+    } elsif ($runnable->isa("SThought")) {
+        eval { SStream->add_thought( $runnable ) };
+        if ($EVAL_ERROR) {
+            my $err = $EVAL_ERROR;
+            if ($err->isa('SErr::ProgOver')) {
+                return 1;
+            } else {
+                $err->rethrow();
+            }
+        }
+    } else {
+        die "Runnable object is $runnable: expected an SThought or a SCodelet!";
     }
     return; # false: so, the show must go on.
 }
