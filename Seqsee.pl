@@ -15,14 +15,35 @@ use Sub::Installer;
 use IO::Prompt;
 use English qw(-no_match_vars );
 
-# Defaults for configuration: used if not spec'd in config file
-#   or on the command line.
+# var: %DEFAULTS
+# Defaults for configuration
+#
+# used if not spec'd in config file or on the command line.
 my %DEFAULTS 
     = ( seed => int( rand() * 32000 ),
         update_interval => 0, # If default used, carps when interactive 
             );
 
+
+# variable: $Steps_Finished
+#    number of steps taken so far
+
 my $Steps_Finished = 0;
+
+
+# variable: $OPTIONS_ref
+#    final configuration hash
+#     
+#    This is the result after passing through all the three stages (config, command line, default)
+#     
+#     This is passed on to initialize several others, and is thus very important
+#     
+#  seed - the random number seed
+#  log  - whether logging should be on or off
+#  tk   - to tk or not
+#  seq  - the sequence seqsee will deal with: an arrayref
+#  update_interval - force redisplay after so many steps
+#  interactive - for non-tk, this specifies interactivity
 
 my $OPTIONS_ref = _read_config_and_commandline();
 INITIALIZE();
@@ -295,8 +316,14 @@ sub TextMainLoop{
 # method: Seqsee_Step
 # One step of Seqsee execution. 
 # 
-# That involves pulling one codelet off the stack and seeing what happens, I think
+# Details:
+#  The call SCoderack->get_next_runnable() returns a codelet or a thought, taking into account whether a thought is scheduled, etc.
 # 
+#  If a thought is returned, we should call SStream->add_thought(), which, er, thinks the thought.
+#
+#  If it is a codelet, it should be executed, and its return value looked at: If the return value is a thought, that should also result in SStream->add_thought(), too.
+# 
+#  This is NOT yet implemented. 
 # return value: 
 #    true if prog finished
 
