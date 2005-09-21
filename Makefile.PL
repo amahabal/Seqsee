@@ -14,7 +14,11 @@ TEST:
 \t\tcover
 
 docs:
-\t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -o HTML /u/amahabal/.hyplan/ND/ -p Proj 
+\t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -i /u/amahabal/SeqseeTree/summer05/pod -o FramedHTML /u/amahabal/.hyplan/ND/ -p Proj 
+
+pdfdocs:
+\t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -i /u/amahabal/SeqseeTree/summer05/pod -o PDF /tmp/Output -p Proj 
+\t\tcd /tmp/Output; lmake Main
 
 MAKE_FRAG
 }
