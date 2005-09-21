@@ -28,13 +28,12 @@ my $OPTIONS_ref = _read_config_and_commandline();
 INITIALIZE();
 GET_GOING(); # Potentially "infinite" loop
 
-#### method INITIALIZE
-# usage          :INITIALIZE()
-# description    :pulls all the pieces in, initializes them etc. 
-# argument list  :
-# return type    :
-# context of call:
-# exceptions     :
+# method: INITIALIZE
+# pulls all the pieces(logging, display etc) in, initializes 
+#   them
+# 
+#context of call: 
+#   should get called only once, at the beginning
 
 sub INITIALIZE{
 
@@ -59,13 +58,26 @@ sub INITIALIZE{
 }
 
 
-#### method GET_GOING
-# usage          :GET_GOING( $OPTIONS_ref )
-# description    :what happens depends on whether interaction is turned on, and whether Tk is turned on.
-# argument list  :
-# return type    :
-# context of call:
-# exceptions     :
+
+# method: GET_GOING
+#      Goes into an infinite loop: what loop depends upon whether there is interaction, whether or not we are running Tk
+#
+#    details:
+#
+#        tk - (this implies interactive) Calls MainLoop
+#        interactive - Calls TextMainLoop()
+#        batch mode - Calls Interaction_continue()
+#
+#    usage:
+#     GET_GOING( $OPTIONS_ref )
+#
+#    parameter list:
+#        $OPTIONS_ref - 
+#
+#    return value:
+#      may never return
+#
+#    possible exceptions:
 
 sub GET_GOING{
     # This should be the last "setup" function: the real work begins here. Don't expect this to ever return.
@@ -84,14 +96,13 @@ sub GET_GOING{
 
 
 
-
-#### method _read_config_and_commandline
-# usage          :
-# description    :Reads the configuration (conf/seqsee.conf), updates what it sees using the commandline arguments, sets defaults, and returns the whole thing in a HASH
-# argument list  :
-# return type    :
-# context of call:
-# exceptions     :
+# method: _read_config_and_commandline
+# reads in config/commandline/defaults
+#
+# Reads the configuration (conf/seqsee.conf), updates what it sees using the commandline arguments, sets defaults, and returns the whole thing in a HASH
+#
+#    return value:
+#       The OptionsRef      
 
 sub _read_config_and_commandline{
     my $RETURN_ref = {};
@@ -139,13 +150,24 @@ sub _read_config_and_commandline{
     return $RETURN_ref;
 }
 
-#### method Interaction_step_n
-# usage          :
-# description    :Takes upto n steps
-# argument list  :n, and update_after
-# return type    :true if the program should stop
-# context of call: scalar
-# exceptions     :
+
+
+# method: Interaction_step_n
+# Takes upto n steps
+#
+#    Updates display after update_after
+#
+#    usage:
+#       Interaction_step_n( $options_ref )     
+#
+#    parameter list:
+#        n - steps to take
+#        update_after - update display every so many steps
+#
+#    return value:
+#      bool, whether program has finished
+#
+#    possible exceptions:
 
 sub Interaction_step_n{
     my $opts_ref = shift;
@@ -175,13 +197,12 @@ sub Interaction_step_n{
     return $program_finished;
 }
 
-#### method Interaction_continue
-# usage          :
-# description    :goes into a loop, taking one step at a time
-# argument list  :
-# return type    :
-# context of call:
-# exceptions     :
+
+
+# method: Interaction_continue
+# Keeps taking steps until done
+#
+# The word Interaction is a misnomer
 
 sub Interaction_continue{
     return
@@ -193,13 +214,12 @@ sub Interaction_continue{
 }
 
 
-#### method Interaction_step
-# usage          :
-# description    :A single step of interaction
-# argument list  :
-# return type    :True if program should stop
-# context of call:
-# exceptions     :
+
+# method: Interaction_step
+# A single step, with update display
+#
+#    return value:
+#      True if program should stop
 
 sub Interaction_step{
     return 
@@ -209,13 +229,10 @@ sub Interaction_step{
 }
 
 
-#### method init_display
-# usage          :
-# description    :Initializes display related attributes, windows(if necessary) etc. Also pulls in the Tk modules if called for. Sets up update_display() as well.
-# argument list  :
-# return type    :
-# context of call:
-# exceptions     :
+#method: init_display
+# Initializes display related attributes, windows(if necessary) etc.
+#
+# Also pulls in the Tk modules if called for. Sets up update_display() as well.
 
 sub init_display{
     my $tk = $OPTIONS_ref->{tk};
@@ -242,13 +259,14 @@ sub init_display{
 }
 
 
-#### method TextMainLoop
-# usage          :
-# description    :Main interaction loop for text mode: just uses commands 's', 's \d+', 'c' and 'e'
-# argument list  :
-# return type    :
-# context of call:
-# exceptions     :
+#method: TextMainLoop
+# Main interaction loop for text mode
+#
+# Available commands:
+#
+# 's', 's \d+' - Takes one or the specified number of steps
+# 'c' - continue all the way to the end
+# 'e' - exit
 
 sub TextMainLoop{
     while (my $line = prompt -require => { "Seqsee> " =>  qr{\S}},
@@ -274,13 +292,13 @@ sub TextMainLoop{
 
 
 
-#### method Seqsee_Step
-# usage          :
-# description    :One step of Seqsee execution. That involves pulling one codelet off the stack and seeing what happens, I think
-# argument list  :
-# return type    : true if prog finished, false o/w
-# context of call:
-# exceptions     :
+# method: Seqsee_Step
+# One step of Seqsee execution. 
+# 
+# That involves pulling one codelet off the stack and seeing what happens, I think
+# 
+# return value: 
+#    true if prog finished
 
 sub Seqsee_Step{
     my $codelet = SCoderack->choose_codelet();
