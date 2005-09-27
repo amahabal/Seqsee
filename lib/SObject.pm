@@ -11,8 +11,8 @@
 package SObject;
 use strict;
 use Carp;
-use Class::Std
-use base qw{ SInstance};
+use Class::Std;
+use base qw{SInstance};
 
 
 # variable: %items_of
@@ -31,7 +31,7 @@ my %items_of : ATTR;
 my %group_p_of : ATTR;
 
 #
-# Section: Construction
+# subsection: Construction
 
 # method: BUILD
 #  Builds.
@@ -88,7 +88,7 @@ sub create{
     }
 
     # Finally, convert all arrays to objects, too!
-    @arguments = map { ref($_) ? $package->create($_) : $_ } @arguments;
+    @arguments = map { _create_or_int($_) } @arguments;
 
     my $group_p = (@arguments == 1) ? 0 : 1;
 
@@ -96,6 +96,120 @@ sub create{
                             group_p => $group_p,
                         });
 
+}
+
+
+
+# method: _create_or_int
+# creates the object, or just returns int
+#
+# clearly just a helper
+
+sub _create_or_int{
+    my $object = shift;
+
+    if (ref $object) {
+        # An array ref..
+        my @objects = @$object;
+        if (@objects == 1) {
+            return _create_or_int( $objects[0] );
+        } else {
+            return SObject->create(@objects);
+        }
+    } else {
+        return $object;
+    }
+}
+
+
+# method: create_from_string
+# TODO
+#
+#    Creates an object given a string.
+
+sub create_from_string{
+    my ( $package, $string ) = @_;
+    # XXX: ...
+}
+
+#
+# SubSection: Structure related methods
+#
+
+# method: get_structure
+# returns the structure, a deep array of integers
+#
+#    Returns an array ref of integers and other array refs of integers, unblessed.
+
+sub get_structure{
+    my ( $self ) = shift;
+    my $id = ident $self;
+
+    my $items_ref = $items_of{$id};
+    my @new_items = map { ref($_) ? $_->get_structure() : $_ } @$items_ref;
+    return \@new_items;
+
+}
+
+
+
+# method: get_flattened
+# get a flattened version
+#
+#    Returns an arrayref of integers.
+
+sub get_flattened{
+    my ($self) = @_;
+    my $id = ident $self;
+    
+    my $items_ref = $items_of{$id};
+    my @items = map { ref($_) ? $_->get_flattened() : ($_) } @$items_ref;
+
+    return \@items;
+}
+
+#
+# subsection: Positions and ranges
+#
+# Methods dealing with positions
+#
+#
+
+
+
+# method: get_subobj_given_range
+#  Get the subobject
+#
+#    Range is a flat array of indices in the array. This method returns an array ref of items in that range.
+#
+#  Exceptions:
+#      SErr::Pos::OutOfRange
+
+sub get_subobj_given_range {
+    my ( $self, $range ) = @_;
+    my $items_ref = $items_of{ ident $self };
+
+    my @ret;
+    for (@$range) {
+        my $what = $items_ref->[$_];
+        defined $what or SErr::Pos::OutOfRange->throw();
+        push @ret, $what;
+    }
+    return \@ret;
+}
+
+
+
+# method: get_at_position
+# Returns subobject at given position
+#
+
+sub get_at_position { #( $self: $position )
+    my ( $self, $position ) = @_;
+    UNIVERSAL::isa( $position, "SPos" ) or croak "Need SPos";
+
+    my $range = $position->find_range($self);
+    return $self->get_subobj_given_range($range);
 }
 
 1;

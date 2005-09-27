@@ -11,7 +11,7 @@
 package SInstance;
 use strict;
 use Carp;
-use Class::Std
+use Class::Std;
 use base qw{};
 
 
