@@ -1,25 +1,41 @@
+#####################################################
+#
+#    Package: SCat::ascending
+#
+#####################################################
+#   Sets up the category "ascending"
+#####################################################
+
 package SCat::ascending;
 use strict;
 use Carp;
+use base qw{};
 
-our $ascending = new SCat(
-    {   name       => "ascending",
-        attributes => [qw{start end}],
-        builder    => sub {
-            my ( $self, $args_ref ) = @_;
-            croak "need start" unless $args_ref->{start};
-            croak "need end"   unless $args_ref->{end};
-            my $ret = new SBuiltObj;
-            $ret->set_items( [ $args_ref->{start} .. $args_ref->{end} ] );
-            $ret->add_cat( $self, $args_ref );
-            $ret;
-        },
-        empty_ok       => 1,
-        guesser_pos_of => { start => 0, end => -1 },
-    }
-);
-my $cat = $ascending;
+my $builder = sub {
+    my ( $self, $args_ref ) = @_;
+    croak "need start" unless $args_ref->{start};
+    croak "need end"   unless $args_ref->{end};
 
-$cat->compose();
+    my $ret = SObject->create( $args_ref->{start} .. $args_ref->{end} );
+    $ret->add_cat( $self, 
+                   SBindings->create( [], $args_ref, $ret)
+                       );
+    return $ret;
+};
+
+our $ascending =
+    SCat::OfObj->new(
+        {
+            name    => "ascending",
+            builder => $builder,
+
+            to_guess  => [qw/start end/],
+            positions => { start => SPos->new(1),
+                           end   => SPos->new(-1),
+                       },
+        }
+            );
 
 1;
+
+

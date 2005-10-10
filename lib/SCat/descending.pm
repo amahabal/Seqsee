@@ -1,27 +1,41 @@
+#####################################################
+#
+#    Package: SCat::descending
+#
+#####################################################
+#   Sets up the category "descending"
+#####################################################
+
 package SCat::descending;
 use strict;
 use Carp;
+use base qw{};
 
-our $descending = new SCat(
-    {   name    => "descending",
-        builder => sub {
-            my ( $self, $args_ref ) = @_;
-            croak "need start" unless $args_ref->{start};
-            croak "need end"   unless $args_ref->{end};
-            my $ret = new SBuiltObj;
-            $ret->set_items(
-                [ reverse( $args_ref->{end} .. $args_ref->{start} ) ] );
-            $ret->add_cat( $self, $args_ref );
-            $ret;
-        },
-        empty_ok       => 1,
-        guesser_pos_of => { start => 0, end => -1 },
-    }
-);
-my $cat = $descending;
+my $builder = sub {
+    my ( $self, $args_ref ) = @_;
+    croak "need start" unless $args_ref->{start};
+    croak "need end"   unless $args_ref->{end};
 
-$cat->add_attributes(qw/start end/);
+    my $ret = SObject->create
+        ( reverse($args_ref->{end} .. $args_ref->{start} ));
+    $ret->add_cat( $self, 
+                   SBindings->create( [], $args_ref, $ret)
+                       );
+    return $ret;
+};
 
-$cat->compose();
+our $descending =
+    SCat::OfObj->new(
+        {
+            name    => "descending",
+            builder => $builder,
+
+            to_guess  => [qw/start end/],
+            positions => { start => SPos->new(1),
+                           end   => SPos->new(-1),
+                       },
+        }
+            );
 
 1;
+

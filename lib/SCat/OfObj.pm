@@ -19,6 +19,11 @@ use Class::Std;
 use base qw{ SCat};
 
 
+
+# variable: %name_of
+#    Name of the category
+my %name_of :ATTR( :get<name> );
+
 # variable: %instancer_of
 #    functions called by is_instance
 my %instancer_of :ATTR;
@@ -97,6 +102,7 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     
     $builder_of{$id} = $opts_ref->{builder} or die "Need builder!";
+    $name_of{$id}    = $opts_ref->{name}    or die "Need name";
     
     $positions_of_of{$id}          = $opts_ref->{positions} || {};
     $position_finders_of_of{$id}   = $opts_ref->{position_finders} || {};

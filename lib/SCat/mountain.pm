@@ -1,41 +1,52 @@
+#####################################################
+#
+#    Package: SCat::mountain
+#
+#####################################################
+#   Sets up the category "mountain"
+#####################################################
+
 package SCat::mountain;
 use strict;
 use Carp;
+use Class::Std;
+use base qw{};
 
-our $mountain = new SCat(
-    {   name       => "mountain",
-        attributes => [qw{foot peak}],
-        builder    => sub {
-            ( @_ == 2 ) or confess "mountain builder takes only two args";
-            my ( $self, $options_ref ) = @_;
-            my $foot = $options_ref->{foot} or croak "Need foot";
-            my $peak = $options_ref->{peak} or croak "Need peak";
-            my $ret  = new SBuiltObj;
-            $ret->set_items(
-                [ $foot .. $peak, reverse( $foot .. $peak - 1 ) ] );
-            $ret->add_cat( $self, { foot => $foot, peak => $peak } );
-            $ret;
-        },
-        empty_ok       => 1,
-        guesser_pos_of => { foot => 0 },
-    }
-);
+my $builder = sub {
+    my ( $self, $args_ref ) = @_;
+    croak "need foot" unless $args_ref->{foot};
+    croak "need peak" unless $args_ref->{peak};
 
-my $cat = $mountain;
+    my $ret = SObject->create( $args_ref->{foot} .. $args_ref->{peak},
+                               reverse($args_ref->{foot}.. $args_ref->{peak}-1)
+                                   );
+    $ret->add_cat( $self,
+                   SBindings->create( [], $args_ref, $ret)
+                       );
+    return $ret;
+}
 
-$cat->install_position_finder(
-    'peak',
-    sub {
-        my $bo    = shift;
-        my $items = $bo->items;
-        my $count = scalar(@$items);
-        my $ret   = ( $count - 1 ) / 2;
-        return [$ret];
-    },
-    0
-);
+my $peak_finder = sub {
+    my ( $object ) = @_;
+    my $item_count = $object->get_parts_count;
+    return unless $item_count % 2;
+    my $idx = ($item_count - 1) / 2;
+    return $object->[$idx];
+}
 
-#print "mountain is $mountain\n";
-$cat->compose();
+
+our $mountain =
+    SCat::OfObj->new(
+        {
+            name    => "mountain",
+            builder => $builder,
+
+            to_guess  => [qw/foot peak/],
+            positions => { foot => SPos->new(1),
+                       },
+            position_finders => { peak => $peak_finder },
+        }
+            );
 
 1;
+
