@@ -31,7 +31,8 @@ my %non_cats_of_of :ATTR();
 #    Keys are strings, values are whatever
 my %property_of_of :ATTR();
 
-
+#
+# subsection: Creation
 
 # method: BUILD
 # Builder.
@@ -49,7 +50,8 @@ sub BUILD {
     $property_of_of{$id}   = {};
 }
 
-
+#
+# subsection: Managing Categories
 
 # method: add_category
 # Adds a category to a given object.
@@ -165,8 +167,36 @@ sub is_of_category_p{
     }
 }
 
+
+
+# method: inherit_categories_from
+# copies category, non-category and property information from another object
 #
-# section: leftover from earlier implementation
+
+sub inherit_categories_from{
+    my ($self, $other) = @_;
+    my $self_id = ident $self;
+    my $other_id = ident $other;
+
+    my $cats_ref = $cats_of_of{$self_id};
+    while (my ($k, $v) = each %{$cats_of_of{$other_id}}) {
+        $cats_ref->{$k} = seq_clone( $v ); 
+    }
+
+    my $non_cats_ref = $non_cats_of_of{$self_id};
+    while (my ($k, $v) = each %{$non_cats_of_of{$other_id}}) {
+        $non_cats_ref->{$k} = seq_clone( $v ); 
+    }
+
+    my $prop_ref = $property_of_of{$self_id};
+    while (my ($k, $v) = each %{$property_of_of{$other_id}}) {
+        $prop_ref->{$k} = seq_clone( $v ); 
+    }
+
+}
+
+#
+# subsection: leftover from earlier implementation
 # Will update later
 
 sub get_cat_bindings {

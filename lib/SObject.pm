@@ -21,14 +21,14 @@ use base qw{SInstance};
 #    These can be integers, or other SObjects.
 #     
 #    It is guarenteed that if there is a single object, it will be an SInt: So, no vacuosly deep groups like [[[3]]]
-my %items_of : ATTR;
+my %items_of : ATTR( :get<parts_ref> );
 
 
 # variable: %group_p_of
 #    Is this object a group? 
 #     
 #    It certainly is if there are several items, but can also be a group with a single item.
-my %group_p_of : ATTR;
+my %group_p_of : ATTR( :get<group_p>);
 
 #
 # subsection: Construction
@@ -132,6 +132,29 @@ sub create_from_string{
     # XXX: ...
 }
 
+
+
+# method: clone_with_cats
+# Makes a clone, maintaining category information
+#
+#    I don't quite know why this would be needed. Cloning without categories is easy: C< SObject->create( $self->get_structure() ) > 
+
+sub clone_with_cats{
+    my $self = shift;
+    my $id = ident $self;
+
+    my $items_ref = $items_of{$id};
+    my @items = map { ref($_) ? $_->clone_with_cats() : $_ } @{$items_ref};
+    my $group_p = $group_p_of{$id};
+
+    my $object = SObject->new( {items => \@items,
+                                group_p => $group_p,
+                            });
+    $object->inherit_categories_from( $self );
+    
+    return $object;
+}
+
 #
 # SubSection: Structure related methods
 #
@@ -163,10 +186,32 @@ sub get_flattened{
     my $id = ident $self;
     
     my $items_ref = $items_of{$id};
-    my @items = map { ref($_) ? $_->get_flattened() : ($_) } @$items_ref;
+    my @items = map { ref($_) ? @{ $_->get_flattened() } : ($_) } @$items_ref;
 
     return \@items;
 }
+
+
+
+# method: get_parts_count
+# how many parts does the object have?
+#
+
+sub get_parts_count{
+    my $id = ident shift;
+    return scalar( @{ $items_of{$id} });
+}
+
+
+
+# method: get_parts_ref
+# returns a ref of the parts. 
+#
+#    Don't mess with the parts, though!
+#   
+#    Defined with items above
+
+
 
 #
 # subsection: Positions and ranges
