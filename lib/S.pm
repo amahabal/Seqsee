@@ -10,32 +10,37 @@ use SCodelet;
 use SCoderack;
 use SCodeConfig;
 
-use SInt;
-use SBuiltObj;
+use SObject;
+# Next 2 lines need removal
+#use SInt;
+#use SBuiltObj;
+
+use SMetonym;
+use SMetonymType;
+use SMulti;
 
 use SCat;
+use SCat::OfObj;
 use SCat::ascending;
 use SCat::descending;
 use SCat::mountain;
+use SCat::sameness;
 use SCat::number;
 use SCat::literal;
 
 use SElement;
 use SWorkspace;
 
-use SBlemishType;
-use SBlemishType::double;
-use SBlemishType::triple;
-use SBlemishType::ntimes;
-
+# Need to convert the next four
 use SCat::Derive::assuming;
 use SCat::Derive::blemished;
 use SCat::Derive::blemish_count;
 use SCat::Derive::blemish_position;
 
-use SReln;
+use SRel;
 use SThought;
 use SStream;
+use SWorkspace;
 
 use SLog;
 
@@ -47,11 +52,7 @@ our $mountain   = $SCat::mountain::mountain;
 our $literal    = $SCat::literal::literal;
 our $number     = $SCat::number::number;
 
-our $double = $SBlemishType::double::double;
-our $triple = $SBlemishType::triple::triple;
-our $ntimes = $SBlemishType::ntimes::ntimes;
-
 our $cats_and_blemish_ref =
-    [$ascending, $descending, $mountain, $double, $triple, $ntimes];
+    [$ascending, $descending, $mountain];
 
 1;

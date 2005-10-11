@@ -31,7 +31,7 @@ my %instancer_of :ATTR;
 
 # variable: %builder_of
 #    buider
-
+my %builder_of :ATTR;
 
 # variable: %positions_of_of
 #    positions (e.g, foot => SPos(1))
@@ -105,8 +105,8 @@ sub build{
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     
-    $builder_of{$id} = $opts_ref->{builder} or die "Need builder!";
-    $name_of{$id}    = $opts_ref->{name}    or die "Need name";
+    $builder_of{$id} = $opts_ref->{builder} or croak "Need builder!";
+    $name_of{$id}    = $opts_ref->{name}    or croak "Need name";
     
     $positions_of_of{$id}          = $opts_ref->{positions} || {};
     $position_finders_of_of{$id}   = $opts_ref->{position_finders} || {};
@@ -143,7 +143,7 @@ sub BUILD{
     if ($opts_ref->{instancer}) {
         $instancer_of{$id} = $opts_ref->{instancer};
     } else {
-        $self->_install_instancer();
+        _install_instancer($id);
     }
 
 }
@@ -204,8 +204,7 @@ sub get_meto_finder{
 #
 
 sub _install_instancer{
-    my $self  = shift;
-    my $id    = ident $self;
+    my $id  = shift;
 
     croak "generate instancer called when instancer already present"
         if $instancer_of{$id};
@@ -213,7 +212,7 @@ sub _install_instancer{
     my @to_guess = @{ $atts_to_be_guessed_of{$id} };
     my $guesser_ref = $guesser_of_of{$id};
     for (@to_guess) {
-        croak "Cannot generate instancer. Do not know how to guess '$_'"
+        confess "Cannot generate instancer. Do not know how to guess '$_'"
             unless exists $guesser_ref->{$_};
     }
 

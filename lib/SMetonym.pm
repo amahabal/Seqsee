@@ -32,7 +32,7 @@ my %meto_name_of :ATTR( :get<name> );
 #    What is the more "idealized" version of the "real object the exists in the world"? 
 #     
 #    In the slippage [2 2] ===> 2, 2 is the starred version
-my %starred_of :ATTR (:get<starred> );
+my %starred_of :ATTR( :get<starred> );
 
 
 # variable: %unstarred_of
