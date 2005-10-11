@@ -123,6 +123,23 @@ sub BUILD{
     $self->_weave_story( $object );
 }
 
+#
+# subsection: Public Interface
+
+
+
+# method: get_binding
+# Extracts the particular value from the binding.
+#
+#    Example:
+#    $bdg->get_binding("start")
+
+sub get_binding{
+    my ( $self, $what ) = @_;
+    my $id = ident $self;
+
+    return $bindings_of_of{$id}{$what};
+}
 
 
 #

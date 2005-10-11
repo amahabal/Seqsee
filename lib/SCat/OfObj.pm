@@ -54,6 +54,10 @@ my %atts_to_be_guessed_of :ATTR;
 #    for subroutines to guess
 my %guesser_of_of :ATTR;
 
+# variable: %meto_finder_of_of
+#    conatins metonymy finders
+my %meto_finder_of_of :ATTR;
+
 #
 # subsection: The public interface
 
@@ -110,6 +114,8 @@ sub BUILD{
 
     $atts_to_be_guessed_of{$id} = $opts_ref->{to_guess} || [];
 
+    $meto_finder_of_of{$id} = $opts_ref->{metonymy_finders} || {};
+
     my $guesser_ref = $guesser_of_of{$id};
 
     # install positions into guesser.
@@ -141,6 +147,50 @@ sub BUILD{
     }
 
 }
+
+#
+# subsection: Public Interface
+
+
+
+# method: find_metonym
+# finds a metonymy
+#
+#    Arguments:
+#    $cat - The category the metonymy will be based on
+#    $object - the object whose metonymy is being sought
+#    $name - the name of the metonymy, as the cat may support several
+#     
+#    Please note that the object must already have been seen as belonging to the category.
+#     
+#    Example:
+#    >$cat->find_metonym( $object, $name )
+
+sub find_metonym{
+    my ( $cat, $object, $name ) = @_;
+
+    my $finder = $cat->get_meto_finder( $name )
+        or croak "No '$name' meto_finder installed for category $cat";
+    my $bindings = $object->get_bindings( $cat ) 
+        or croak "Object must belong to category";
+
+    return $finder->( $object, $cat, $name, $bindings );
+}
+
+
+
+
+# method: get_meto_finder
+# Gets meto finder given name
+#
+
+sub get_meto_finder{
+    my ( $self, $name ) = @_;
+    my $id = ident $self;
+
+    return $meto_finder_of_of{$id}{$name};
+}
+
 
 #
 # subsection: Private methods
