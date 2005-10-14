@@ -5,6 +5,7 @@ use SErr;
 use SBindings;
 use SInstance;
 use SPos;
+use SSet;
 
 use SCodelet;
 use SCoderack;
@@ -19,14 +20,14 @@ use SMetonym;
 use SMetonymType;
 use SMulti;
 
-use SCat;
+#use SCat;
 use SCat::OfObj;
 use SCat::ascending;
 use SCat::descending;
 use SCat::mountain;
 use SCat::sameness;
-use SCat::number;
-use SCat::literal;
+#use SCat::number;
+#use SCat::literal;
 
 use SElement;
 use SWorkspace;
@@ -49,8 +50,8 @@ use SLog;
 our $ascending  = $SCat::ascending::ascending;
 our $descending = $SCat::descending::descending;
 our $mountain   = $SCat::mountain::mountain;
-our $literal    = $SCat::literal::literal;
-our $number     = $SCat::number::number;
+#our $literal    = $SCat::literal::literal;
+#our $number     = $SCat::number::number;
 
 our $cats_and_blemish_ref =
     [$ascending, $descending, $mountain];

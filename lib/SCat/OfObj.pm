@@ -16,8 +16,8 @@ package SCat::OfObj;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{ SCat};
-#use Smart::Comments;
+use base qw{}; # Scat removed currently
+use Smart::Comments;
 
 
 # variable: %name_of
@@ -106,7 +106,7 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
 
 
-    ### Builder called: $opts_ref->{name}, $id 
+    ## Builder called: $opts_ref->{name}, $id 
     
     $builder_of{$id} = $opts_ref->{builder} or croak "Need builder!";
     $name_of{$id}    = $opts_ref->{name}    or croak "Need name";
@@ -123,7 +123,7 @@ sub BUILD{
     
     # install positions into guesser.
     while (my ($k, $v) = each %{$positions_of_of{$id}}) {
-        ### Guesser installed for: $k
+        ## Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
             return $object->get_at_position( $v );
@@ -132,7 +132,7 @@ sub BUILD{
 
     # install position_finders into guesser
     while (my ($k, $v) = each %{$position_finders_of_of{$id}}) {
-        ### Guesser installed for: $k
+        ## Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
             return $object->get_subobj_given_range( $v->($object) );
@@ -141,7 +141,7 @@ sub BUILD{
 
     # install description_finders into guesser
     while (my ($k, $v) = each %{$description_finders_of_of{$id}}) {
-        ### Guesser installed for: $k
+        ## Guesser installed for: $k
         $guesser_ref->{$k} = $v;
     }
 
@@ -211,16 +211,16 @@ sub get_meto_finder{
 
 sub _install_instancer{
     my $id  = shift;
-    ### install_instancer called for: $id
+    ## install_instancer called for: $id
 
     croak "generate instancer called when instancer already present"
         if $instancer_of{$id};
 
     my @to_guess = @{ $atts_to_be_guessed_of{$id} };
     my $guesser_ref = $guesser_of_of{$id};
-    ### guesser_ref: $guesser_ref
+    ## guesser_ref: $guesser_ref
     for (@to_guess) {
-        ### Will check guesser for: $_
+        ## Will check guesser for: $_
         confess "Cannot generate instancer. Do not know how to guess '$_'"
             unless exists $guesser_ref->{$_};
     }
@@ -228,6 +228,8 @@ sub _install_instancer{
     $instancer_of{$id} = sub {
         my ( $me, $object ) = @_;
         # XXX: Have not taken care of empty objects yet.
+
+        ## Inside Instancer
         
         my %guess;
         for (@to_guess) {
@@ -235,13 +237,15 @@ sub _install_instancer{
             return unless defined $guess;
 
             $guess{$_} = $guess;
+           ## Guessed: $_, $guess
         }
 
         my $guess_built = $me->build( \%guess );
+        ## Structure of built: $guess_built->get_structure()
         my $slippages   = $object->can_be_seen_as( $guess_built );
         
         if (defined $slippages) {
-            return SBindings->create( $slippages, \%guess );
+            return SBindings->create( $slippages, \%guess, $object );
         } else {
             return;
         }

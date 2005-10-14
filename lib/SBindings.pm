@@ -41,7 +41,7 @@ use Carp;
 use English qw( -no_match_vars );
 use Class::Std;
 use Class::Multimethods;
-
+use Smart::Comments;
 
 # variable: %bindings_of_of
 #    The actual bindings like start => 1
@@ -101,6 +101,7 @@ my %metonymy_name_of :ATTR;
 
 sub create{
     my ($package, $slippage_ref, $bindings_ref, $object) = @_;
+    ## SBindings constructor: $slippage_ref, $bindings_ref, $object
     return $package->new({ raw_slippages => $slippage_ref,
                            bindings      => $bindings_ref,
                            object        => $object,
@@ -119,7 +120,7 @@ sub BUILD{
     $bindings_of_of{$id} = $opts_ref->{bindings}       || die "Need bindings";
     $squinting_raw_of{$id} = $opts_ref->{raw_slippages}|| die "Need slippages";
     my $object = $opts_ref->{object} 
-        || die "Need object (in order to weave a story)";
+        || confess "Need object (in order to weave a story)";
     $self->_weave_story( $object );
 }
 

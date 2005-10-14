@@ -19,14 +19,14 @@ sub BUILD {
         $sub = sub {
             my $built_obj = shift;
             return [ $index - 1 ]
-                unless $index > scalar( @{ $built_obj->items } );
+                unless $index > $built_obj->get_parts_count;
             SErr::Pos::OutOfRange->throw("out of range: $built_obj, $index");
         };
     }
     else {
         $sub = sub {
             my $built_obj = shift;
-            my $eff_index = scalar( @{ $built_obj->items } ) + $index;
+            my $eff_index = $built_obj->get_parts_count() + $index;
             return [$eff_index] unless $eff_index < 0;
             SErr::Pos::OutOfRange->throw("out of range: $built_obj, $index");
         };

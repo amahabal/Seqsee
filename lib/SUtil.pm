@@ -1,8 +1,9 @@
 package SUtil;
 use strict;
 use SPos;
-use SCat;
-use SBlemishType;
+use Smart::Comments;
+#use SCat;
+# use SBlemishType;
 
 #use SBlemish::double;
 #use SBlemish::triple;
@@ -24,10 +25,12 @@ sub compare_deep {
     my ( $deep_list1, $deep_list2 ) = @_;
     my $is_ref1 = ref $deep_list1;
     my $is_ref2 = ref $deep_list2;
+    ## compare_deep: @_
     if ( !$is_ref1 and !$is_ref2 ) {
         return ( $deep_list1 == $deep_list2 );
     }
     if ( $is_ref1 and $is_ref2 ) {
+        confess unless ($is_ref1 eq 'ARRAY' and $is_ref2 eq 'ARRAY');
         return unless @$deep_list1 == @$deep_list2;
         for ( my $i = 0; $i < @$deep_list1; $i++ ) {
             return

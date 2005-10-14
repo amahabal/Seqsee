@@ -12,6 +12,8 @@ package SObject;
 use strict;
 use Carp;
 use Class::Std;
+use Smart::Comments;
+use Class::Multimethods;
 use base qw{SInstance};
 
 
@@ -29,6 +31,11 @@ my %items_of : ATTR( :get<parts_ref> );
 #     
 #    It certainly is if there are several items, but can also be a group with a single item.
 my %group_p_of : ATTR( :get<group_p>);
+
+
+# variable: %metonym_of
+#    The metonym associated with this object
+my %metonym_of :ATTR( :get<metonym> );
 
 #
 # subsection: Construction
@@ -213,6 +220,97 @@ sub get_parts_count{
 
 
 
+# method: can_be_seen_as
+# Returns if object can be seen as the given structure
+#
+# WARNING: DOCUMENTATION OUT OF SYNC WITH CODE
+#
+#    Blow by blow account:
+#    * First checks if there is a direct metonymy connecting the two.
+#    * If not, checks if the two have the same structure.
+#    * Else, checks that they have the same length, and the corresponding parts can be seen as each other.
+#
+#    usage:
+#     $object->can_be_seen_as([3,4,5])
+#
+#    parameter list:
+#        $self - the object
+#        $seen_as - seen as
+#
+#    return value:
+#      A hash ref of slippages that happened.
+#
+#    possible exceptions:
+
+sub can_be_seen_as{
+    my ( $self, $seen_as ) = @_;
+    ## can_be_seen_as: $self, $seen_as
+    my $id = ident $self;
+    $seen_as = $seen_as->get_structure();
+    ## seen as now: $seen_as
+
+    if (SUtil::compare_deep($seen_as, $self->get_structure())) {
+        return {};
+    }
+    
+    if ($metonym_of{$id}) {
+        if (SUtil::compare_deep($seen_as, $metonym_of{$id}->get_starred())) {
+            return {};
+        }
+    }
+
+    my $seen_as_parts_count = scalar(@$seen_as);
+    return unless $seen_as_parts_count == $self->get_parts_count;
+
+    my %return = ();
+    my $parts_ref = $self->get_parts_ref;
+    for my $i (0 .. $seen_as_parts_count - 1) {
+        my $obj_part = $parts_ref->[$i];
+        my $seen_as_part = $seen_as->[$i];
+        my $meto = _can_be_seen_as_no_rec( $obj_part, $seen_as_part );
+        
+        unless (defined $meto) { # cannot be so seen!
+            return;
+        }
+
+        unless ($meto) { # can be seen without slippage
+            next;
+        }
+
+        $return{$i} = $meto;
+
+    }
+    return \%return;
+}
+
+
+
+# multi: _can_be_seen_as_no_rec ( SObject, # )
+# Can the object be seen as the int?
+#
+multimethod _can_be_seen_as_no_rec => ('SObject', '#') => sub {
+    my ( $object, $int ) = @_;
+    my $id = ident $object;
+
+    if (SUtil::compare_deep($object->get_structure(), [$int])) {
+        return 0;
+    } elsif ($metonym_of{$id} and $metonym_of{$id}->get_starred() == $int) {
+        return $metonym_of{$id};
+    } else {
+        return;
+    }
+};
+
+multimethod _can_be_seen_as_no_rec => ('#', '#') => sub {
+    my ( $a, $b ) = @_;
+    if ($a == $b) { return 0;
+                } else {
+                    return;
+                }
+};
+
+
+
 #
 # subsection: Positions and ranges
 #
@@ -227,6 +325,8 @@ sub get_parts_count{
 #
 #    Range is a flat array of indices in the array. This method returns an array ref of items in that range.
 #
+# Change (Oct 14 2005):If range has a single number, no [] is wrapped around it.
+#
 #  Exceptions:
 #      SErr::Pos::OutOfRange
 
@@ -235,11 +335,17 @@ sub get_subobj_given_range {
     my $items_ref = $items_of{ ident $self };
 
     my @ret;
+
     for (@$range) {
         my $what = $items_ref->[$_];
         defined $what or SErr::Pos::OutOfRange->throw();
         push @ret, $what;
     }
+
+    if (@$range == 1) {
+        return $ret[0];
+    }
+
     return \@ret;
 }
 
@@ -256,6 +362,27 @@ sub get_at_position { #( $self: $position )
     my $range = $position->find_range($self);
     return $self->get_subobj_given_range($range);
 }
+
+#
+# subsection: Testing utilities(methods)
+
+
+
+# method: structure_ok
+# checks if structure matches the argument, and cals ok or nok
+#
+
+sub structure_ok{
+    my ( $self, $structure ) = @_;
+    my $struct = $self->get_structure;
+    ## $struct, $structure
+    if (SUtil::compare_deep($struct, $structure)) {
+        Test::More::ok(1,"structure ok");
+    } else {
+        Test::More::ok(0, "structure ok");
+    }
+}
+
 
 1;
 
