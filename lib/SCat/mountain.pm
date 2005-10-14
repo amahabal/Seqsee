@@ -24,7 +24,7 @@ my $builder = sub {
                    SBindings->create( [], $args_ref, $ret)
                        );
     return $ret;
-}
+};
 
 my $peak_finder = sub {
     my ( $object ) = @_;
@@ -32,7 +32,7 @@ my $peak_finder = sub {
     return unless $item_count % 2;
     my $idx = ($item_count - 1) / 2;
     return $object->[$idx];
-}
+};
 
 
 our $mountain =

@@ -25,12 +25,12 @@ my $builder = sub {
                        );
     return $ret;
 
-}
+};
 
 my $length_finder = sub {
     my ( $object, $name ) = @_;
     return $object->get_parts_count;
-}
+};
 
 my $meto_finder_each = sub {
     my ( $object, $cat, $name, $bindings ) = @_;
@@ -45,7 +45,7 @@ my $meto_finder_each = sub {
         info_loss => $info_lost,
             });
 
-}
+};
 
 
 our $sameness =
@@ -54,7 +54,7 @@ our $sameness =
             name => "sameness",
             builder => $builder,
             
-            to_guess => [qw/each end/],
+            to_guess => [qw/each length/],
             positions => { each => SPos->new(1) },
             description_finders => { length => $length_finder },
 

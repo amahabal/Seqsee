@@ -17,7 +17,7 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{ SCat};
-
+#use Smart::Comments;
 
 
 # variable: %name_of
@@ -104,6 +104,9 @@ sub build{
 
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
+
+
+    ### Builder called: $opts_ref->{name}, $id 
     
     $builder_of{$id} = $opts_ref->{builder} or croak "Need builder!";
     $name_of{$id}    = $opts_ref->{name}    or croak "Need name";
@@ -116,10 +119,11 @@ sub BUILD{
 
     $meto_finder_of_of{$id} = $opts_ref->{metonymy_finders} || {};
 
-    my $guesser_ref = $guesser_of_of{$id};
-
+    my $guesser_ref = $guesser_of_of{$id} = {};
+    
     # install positions into guesser.
     while (my ($k, $v) = each %{$positions_of_of{$id}}) {
+        ### Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
             return $object->get_at_position( $v );
@@ -128,6 +132,7 @@ sub BUILD{
 
     # install position_finders into guesser
     while (my ($k, $v) = each %{$position_finders_of_of{$id}}) {
+        ### Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
             return $object->get_subobj_given_range( $v->($object) );
@@ -136,6 +141,7 @@ sub BUILD{
 
     # install description_finders into guesser
     while (my ($k, $v) = each %{$description_finders_of_of{$id}}) {
+        ### Guesser installed for: $k
         $guesser_ref->{$k} = $v;
     }
 
@@ -205,13 +211,16 @@ sub get_meto_finder{
 
 sub _install_instancer{
     my $id  = shift;
+    ### install_instancer called for: $id
 
     croak "generate instancer called when instancer already present"
         if $instancer_of{$id};
 
     my @to_guess = @{ $atts_to_be_guessed_of{$id} };
     my $guesser_ref = $guesser_of_of{$id};
+    ### guesser_ref: $guesser_ref
     for (@to_guess) {
+        ### Will check guesser for: $_
         confess "Cannot generate instancer. Do not know how to guess '$_'"
             unless exists $guesser_ref->{$_};
     }

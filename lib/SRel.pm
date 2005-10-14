@@ -52,7 +52,7 @@ my %first_of : ATTR( :get<first> );
 
 # variable: %second_of
 #    Ref to the second
-my %second_of : ATTR ( :get<second> );
+my %second_of : ATTR( :get<second> );
 
 
 
