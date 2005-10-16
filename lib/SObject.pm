@@ -35,7 +35,7 @@ my %group_p_of : ATTR( :get<group_p>);
 
 # variable: %metonym_of
 #    The metonym associated with this object
-my %metonym_of :ATTR( :get<metonym> );
+my %metonym_of :ATTR( :get<metonym> :set<metonym>);
 
 #
 # subsection: Construction
@@ -141,6 +141,38 @@ sub create_from_string{
 
 
 
+# method: quik_create
+# Creates the object, adding metonyms as needed
+#
+#    For any subobject, if all of its elements are the same, adds the category-annotation for sameness group, and adds a metonymy
+
+sub quik_create{
+    my ( $package, $array_ref ) = @_;
+    my $object = $package->create(@$array_ref);
+    my $id = ident $object;
+    
+    LOOP: for my $subobject (@{ $items_of{$id} }) {
+        next unless ref($subobject);
+        
+        my $subid = ident $subobject;
+        # now check if all elements in it are the same.
+        my $parts_ref = $items_of{$subid};
+        my $count = scalar(@$parts_ref);
+        my $first_part = $parts_ref->[0];
+
+        for my $i (1..$count-1) {
+            unless ($first_part eq $parts_ref->[$i]) {
+                next LOOP;
+            }
+        }
+        
+        # So a sameness group has been seen.
+        $subobject->annotate_with_cat($SAMENESS);
+        $subobject->annotate_with_metonym($SAMENESS, "each");
+    }
+}
+
+
 # method: clone_with_cats
 # Makes a clone, maintaining category information
 #
@@ -161,6 +193,103 @@ sub clone_with_cats{
     
     return $object;
 }
+
+#
+# SubSection: Annotation
+
+
+# method: annotate_with_cat
+# Annotattes object as belonging to category
+#
+#    The object must belong to the category: must pass is_instance, otherwise an exception is raised.
+#
+#    usage:
+#     $object->annotate_with_cat($cat)
+#
+#    parameter list:
+#        $self - the object
+#        $cat -  the category
+#
+#    return value:
+#      none
+#
+#    possible exceptions:
+#        SErr::NotOfCat
+
+sub annotate_with_cat{
+    my ( $self, $cat ) = @_;
+    my $bindings = $cat->is_instance( $self );
+
+    SErr::NotOfCat->throw() unless $bindings;
+
+    $self->add_category($cat, $bindings);
+}
+
+
+
+# method: maybe_annotate_with_cat
+# Similar to annotate_with_cat, except does not throw exception if the object cannot belong to the cat.
+#
+#    In fact, it does a add_non_cat in that situation.
+
+sub maybe_annotate_with_cat{
+    my ( $self, $cat ) = @_;
+    eval { $self->annotate_with_cat($cat) };
+
+    if ($EVAL_ERROR) {
+        $self->add_non_category($cat);
+    }
+}
+
+
+
+# method: annotate_with_metonym
+# Adds a metonym from the given category to the object
+#
+#    Dies if metonym application not possible.
+#
+#    usage:
+#     $object->annotate_with_metonym( $cat, $name )
+#
+#    parameter list:
+#        $self - The object
+#        $cat - category
+#        $name - name of metonymy
+#
+#    return value:
+#      none
+#
+#    possible exceptions:
+#        SErr::MetonymNotAppicable
+
+sub annotate_with_metonym{
+    my ( $self, $cat, $name ) = @_;
+    my $is_of_cat_ref = $self->is_of_category_p($cat);
+
+    unless ($is_of_cat_ref->[0]) {
+        $self->annotate_with_cat($cat);
+    }
+
+    my $meto = $cat->find_metonym( $self, $name );
+    SErr::MetonymNotAppicable->throw() unless $meto;
+
+    $self->set_metonym( $meto );
+}
+
+
+
+# method: maybe_annotate_with_metonym
+#  same as annotate_with_metonym, except does not die
+#
+# XXX: too bad this will trap *all* errors. Should change that.
+
+sub maybe_annotate_with_metonym{
+    my ( $self, $cat, $name ) = @_;
+    eval { $self->annotate_with_metonym($cat, $name) };
+    
+}
+
+
 
 #
 # SubSection: Structure related methods
@@ -300,6 +429,13 @@ multimethod _can_be_seen_as_no_rec => ('SObject', '#') => sub {
         return;
     }
 };
+
+
+
+# multi: _can_be_seen_as_no_rec ( #, # )
+# The two should be equal
+#
+
 
 multimethod _can_be_seen_as_no_rec => ('#', '#') => sub {
     my ( $a, $b ) = @_;

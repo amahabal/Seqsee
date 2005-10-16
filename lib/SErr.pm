@@ -13,7 +13,9 @@ use Exception::Class (
     'SErr::Code::MalFormed'     => { isa => 'SErr::Code' },
 
     'SErr::ProgOver'             => {},
-
+    
+    'SErr::NotOfCat'            => {},
+    'SErr::MetonymNotAppicable' => {},
 );
 1;
 
