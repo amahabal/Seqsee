@@ -47,9 +47,9 @@ use SLog;
 
 # use SUtil;
 
-our $ascending  = $SCat::ascending::ascending;
-our $descending = $SCat::descending::descending;
-our $mountain   = $SCat::mountain::mountain;
+our $ASCENDING  = $SCat::ascending::ascending;
+our $DESCENDING = $SCat::descending::descending;
+our $MOUNTAIN   = $SCat::mountain::mountain;
 #our $literal    = $SCat::literal::literal;
 #our $number     = $SCat::number::number;
 our $SAMENESS    = $SCat::sameness::sameness;

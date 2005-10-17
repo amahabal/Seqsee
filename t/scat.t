@@ -1,6 +1,12 @@
 use blib;
 use lib 't/lib';
-use SCat::OfObj::Test;
+use STest::SCat;
+use STest::SCat::specific;
 
+my @test_class_instances =
+    (
+        STest::SCat->new(),
+        STest::SCat::specific->new(),
+            );
+Test::Class->runtests(@test_class_instances);
 
-SCat::OfObj::Test->new->runtests;

@@ -192,4 +192,10 @@ sub next_available_file_number{
     return 1 + List::Util::max( @numbers );
 }
 
+sub toss{
+    my ( $prob ) = @_;
+    rand() <= $prob ? 1 : 0;
+}
+
+
 1;

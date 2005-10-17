@@ -82,7 +82,9 @@ sub create{
     my @arguments = @_;
 
     if (! @arguments) {
-        die "Don't know how to create objects with no elements!";
+        $package->new( { group_p => 1,
+                         items   => [],
+                });
     }
 
     # Convert Sobjects to array refs...
@@ -423,6 +425,31 @@ sub can_be_seen_as{
     }
     return \%return;
 }
+
+
+
+# method: can_be_seen_as_int
+# What integer can this object be seen as?
+#
+#    returns undef if none.
+#     
+#    Just uses the metonym: if it's starred is an int, return that, else retrun undef.
+#
+sub can_be_seen_as_int{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my $meto = $metonym_of{$id};
+    return unless $meto;
+
+    my $starred = $meto->get_starred;
+    if (ref $starred) {
+        return;
+    }
+
+    return $starred;
+}
+
 
 
 

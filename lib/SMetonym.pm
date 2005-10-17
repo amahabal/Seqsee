@@ -137,4 +137,15 @@ sub intersection{
 }
 
 
+
+# method: get_type
+# Returns a MetonymType object corresponding to this Metonym
+#
+sub get_type{
+    my ( $self ) = @_;
+    SMetonym->intersection( $self );
+}
+
+
+
 1;

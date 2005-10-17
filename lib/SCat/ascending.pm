@@ -30,6 +30,9 @@ our $ascending =
             builder => $builder,
 
             to_guess  => [qw/start end/],
+            att_type  => { start => "int",
+                           end => "int",
+                       },
             positions => { start => SPos->new(1),
                            end   => SPos->new(-1),
                        },

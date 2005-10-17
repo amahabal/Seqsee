@@ -58,6 +58,11 @@ my %guesser_of_of :ATTR;
 #    conatins metonymy finders
 my %meto_finder_of_of :ATTR;
 
+
+# variable: %att_type_of_of
+#    The type of attribute (e.g., "int")
+my %att_type_of_of :ATTR;
+
 #
 # subsection: The public interface
 
@@ -116,17 +121,29 @@ sub BUILD{
     $description_finders_of_of{$id}= $opts_ref->{description_finders} || {};
 
     $atts_to_be_guessed_of{$id} = $opts_ref->{to_guess} || [];
+    $att_type_of_of{$id} = $opts_ref->{att_type} || {};
 
     $meto_finder_of_of{$id} = $opts_ref->{metonymy_finders} || {};
 
     my $guesser_ref = $guesser_of_of{$id} = {};
+    my $type_ref = $att_type_of_of{$id};
     
     # install positions into guesser.
     while (my ($k, $v) = each %{$positions_of_of{$id}}) {
         ## Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
-            return $object->get_at_position( $v );
+            my $subobject = $object->get_at_position( $v );
+            if ($type_ref->{$k} eq 'int') {
+                if (ref $subobject) {
+                    my $int = $subobject->can_be_seen_as_int();
+                    return $int;
+                } else {
+                    return $subobject;
+                }
+            } else {
+                return $subobject;
+            }
         };
     }
 
@@ -135,7 +152,17 @@ sub BUILD{
         ## Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
-            return $object->get_subobj_given_range( $v->($object) );
+            my $subobject = $object->get_subobj_given_range( $v->($object) );
+            if ($type_ref->{$k} eq 'int') {
+                if (ref $subobject) {
+                    my $int = $subobject->can_be_seen_as_int();
+                    return $int;
+                } else {
+                    return $subobject;
+                }
+            } else {
+                return $subobject;
+            }
         };
     }
 

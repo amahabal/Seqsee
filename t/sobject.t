@@ -1,6 +1,6 @@
 use blib;
 use lib 't/lib';
-use SObject::Test;
+use STest::SObject;
 
 
-SObject::Test->new->runtests;
+STest::SObject->new->runtests;

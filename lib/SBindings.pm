@@ -171,11 +171,11 @@ sub _weave_story{
         # XXX:If both are 1, I should have the choice of putting mode = 1!
         $metonymy_mode = 3;
         my $metonym_type = SMetonym->intersection(values %$slippages);
-        $metonymy_cat  = $metonym_type->get_cat;
+        $metonymy_cat  = $metonym_type->get_category;
         $metonymy_name = $metonym_type->get_name;
     } elsif ($slippages_count == 1) {
         $metonymy_mode = 1;
-        my $metonym_type = $slippages->[0]->get_type;
+        my $metonym_type = (values %$slippages)[0]->get_type;
         ($metonymy_cat, $metonymy_name) = ($metonym_type->get_category,
                                            $metonym_type->get_name,
                                                );
@@ -203,7 +203,7 @@ sub _describe_position{
     my ( $self, $object, $index ) = @_;
 
     # XXX: Will only be fwd or backward, currently
-    my $position_mode = toss(0.5) ? 1 : 2; #1 is FWD, 2 is BWD
+    my $position_mode = SUtil::toss(0.5) ? 1 : 2; #1 is FWD, 2 is BWD
     
     if ($position_mode == 1) {
         return SPos->new( $index + 1); # It is 1-based, input is 0-based

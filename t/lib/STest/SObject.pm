@@ -1,4 +1,4 @@
-package SObject::Test;
+package STest::SObject;
 use base qw{Test::Class};
 use Test::More;
 use Test::Deep;

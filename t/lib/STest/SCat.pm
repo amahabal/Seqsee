@@ -1,4 +1,4 @@
-package SCat::OfObj::Test;
+package STest::SCat;
 use base qw{Test::Class};
 use Test::More;
 use Test::Deep;

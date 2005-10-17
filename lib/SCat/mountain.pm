@@ -31,7 +31,7 @@ my $peak_finder = sub {
     my $item_count = $object->get_parts_count;
     return unless $item_count % 2;
     my $idx = ($item_count - 1) / 2;
-    return $object->[$idx];
+    return [$idx];
 };
 
 
@@ -42,6 +42,8 @@ our $mountain =
             builder => $builder,
 
             to_guess  => [qw/foot peak/],
+            att_type  => { foot => 'int', peak => 'int'},
+
             positions => { foot => SPos->new(1),
                        },
             position_finders => { peak => $peak_finder },
