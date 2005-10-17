@@ -18,8 +18,8 @@ my $builder = sub {
 
     my $ret = SObject->create
         ( reverse($args_ref->{end} .. $args_ref->{start} ));
-    $ret->add_cat( $self, 
-                   SBindings->create( [], $args_ref, $ret)
+    $ret->add_category( $self, 
+                   SBindings->create( {}, $args_ref, $ret)
                        );
     return $ret;
 };

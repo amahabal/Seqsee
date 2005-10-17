@@ -17,8 +17,8 @@ my $builder = sub {
     croak "need end"   unless $args_ref->{end};
 
     my $ret = SObject->create( $args_ref->{start} .. $args_ref->{end} );
-    $ret->add_cat( $self, 
-                   SBindings->create( [], $args_ref, $ret)
+    $ret->add_category( $self, 
+                   SBindings->create( {}, $args_ref, $ret)
                        );
     return $ret;
 };

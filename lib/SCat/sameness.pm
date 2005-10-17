@@ -20,8 +20,8 @@ my $builder = sub {
     my @items = map { $args_ref->{each} } (1..$args_ref->{length});
     my $ret = SObject->create(@items);
     
-    $ret->add_cat( $self,
-                   SBindings->create( [], $args_ref, $ret),
+    $ret->add_category( $self,
+                   SBindings->create( {}, $args_ref, $ret),
                        );
     return $ret;
 

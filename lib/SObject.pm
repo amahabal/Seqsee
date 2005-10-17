@@ -14,6 +14,7 @@ use Carp;
 use Class::Std;
 use Smart::Comments;
 use Class::Multimethods;
+use English qw(-no_match_vars);
 use base qw{SInstance};
 
 
@@ -167,9 +168,10 @@ sub quik_create{
         }
         
         # So a sameness group has been seen.
-        $subobject->annotate_with_cat($SAMENESS);
-        $subobject->annotate_with_metonym($SAMENESS, "each");
+        $subobject->annotate_with_cat($S::SAMENESS);
+        $subobject->annotate_with_metonym($S::SAMENESS, "each");
     }
+    return $object;
 }
 
 
@@ -348,6 +350,16 @@ sub get_parts_count{
 #    Defined with items above
 
 
+
+# method: arrayify
+# Get the numbered part, 0  indexed
+#
+#    automatically used when object is treated as an array ref
+
+sub arrayify :ARRAYIFY{
+    my $self = shift;
+    return $items_of{ident $self};
+}
 
 # method: can_be_seen_as
 # Returns if object can be seen as the given structure

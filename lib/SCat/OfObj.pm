@@ -177,7 +177,7 @@ sub find_metonym{
 
     my $finder = $cat->get_meto_finder( $name )
         or croak "No '$name' meto_finder installed for category $cat";
-    my $bindings = $object->get_bindings( $cat ) 
+    my $bindings = $object->get_cat_bindings( $cat ) 
         or croak "Object must belong to category";
 
     return $finder->( $object, $cat, $name, $bindings );

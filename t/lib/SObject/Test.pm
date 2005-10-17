@@ -3,7 +3,7 @@ use base qw{Test::Class};
 use Test::More;
 use Test::Deep;
 
-use SObject;
+use S;
 
 sub create :Test(6) {
     my @test_set = 
@@ -45,6 +45,20 @@ sub get_flattened :Test(3) {
     }
 }
 
+sub quik_create :Test(7) {
+    my $object = SObject->quik_create([2,3,[4,4]]);
+    $object->structure_ok([2,3,[4,4]]);
 
+    my $subobject = $object->[2];
+    $subobject->is_of_category_ok( $S::SAMENESS );
+
+    my $metonym = $subobject->get_metonym;
+    ok ($metonym);
+    cmp_ok( $metonym->get_category(), 'eq', $S::SAMENESS);
+    cmp_ok( $metonym->get_name(), 'eq', "each");
+    cmp_ok( $metonym->get_starred(), 'eq', 4);
+    $metonym->get_unstarred()->structure_ok( [4, 4]);
+
+}
 
 1;

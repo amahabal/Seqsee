@@ -69,8 +69,8 @@ sub add_category{
     
     my $id = ident $self;
     
-    $bindings->isa("SBinding") or die "Need SBinding";
-    $cat->isa("SCat")          or die "Need SCat";
+    $bindings->isa("SBindings") or die "Need SBinding";
+    $cat->isa("SCat::OfObj")          or die "Need SCat";
 
     my $cat_ref        = $cats_of_of{$id};
     my $non_cat_ref    = $non_cats_of_of{$id};
@@ -194,6 +194,21 @@ sub inherit_categories_from{
     }
 
 }
+
+#
+# SubSection: Testing Methods
+
+
+
+# method: is_of_category_ok
+# Is the thing of the said category?
+#
+sub is_of_category_ok{
+    my ( $self, $cat ) = @_;
+    my $ret_ref = $self->is_of_category_p($cat);
+    Test::More::ok($ret_ref->[0]);
+}
+
 
 #
 # subsection: leftover from earlier implementation
