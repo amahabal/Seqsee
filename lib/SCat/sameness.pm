@@ -14,8 +14,8 @@ use base qw{};
 
 my $builder = sub {
     my ( $self, $args_ref ) = @_;
-    croak "need each" unless $args_ref->{each};
-    croak "need length" unless $args_ref->{length};
+    croak "need each" unless exists $args_ref->{each};
+    croak "need length" unless exists $args_ref->{length};
 
     my @items = map { $args_ref->{each} } (1..$args_ref->{length});
     my $ret = SObject->create(@items);

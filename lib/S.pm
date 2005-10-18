@@ -39,6 +39,7 @@ use SCat::Derive::blemish_count;
 use SCat::Derive::blemish_position;
 
 use SRel;
+use SReln::Simple;
 use SThought;
 use SStream;
 use SWorkspace;

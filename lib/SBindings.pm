@@ -45,11 +45,11 @@ use Smart::Comments;
 
 # variable: %bindings_of_of
 #    The actual bindings like start => 1
-my %bindings_of_of :ATTR;
+my %bindings_of_of :ATTR(:get<bindings_ref>);
 
 # variable: %squinting_raw_of
 #    Hash ref: indexed by absolute positions in the object, and having values that are SMetonyms
-my %squinting_raw_of :ATTR;
+my %squinting_raw_of :ATTR(:get<squinting_raw>);
 
 # variable: %metonymy_mode_of
 #    How many metonymys are there?
@@ -60,7 +60,7 @@ my %squinting_raw_of :ATTR;
 #     * ALL
 #
 #    Stored in reality, currently, as 0, 1, 2 and 3.
-my %metonymy_mode_of :ATTR;
+my %metonymy_mode_of :ATTR(:get<metonymy_mode>);
 
 
 # variable: %position_mode_of
@@ -69,22 +69,22 @@ my %metonymy_mode_of :ATTR;
 #    * BACKWARD
 #    * NAMED
 #     
-my %position_mode_of :ATTR;
+my %position_mode_of :ATTR(:get<position_mode>);
 
 
 # variable: %position_of
 #    If positions are an issue, then this stores the current story of what the position is.
-my %position_of :ATTR;
+my %position_of :ATTR(:get<position>);
 
 
 # variable: %metonymy_cat_of
 #    The category that allows this metonymy. Same as the cat of each metonymy in %squinting_raw_of
-my %metonymy_cat_of :ATTR;
+my %metonymy_cat_of :ATTR(:get<metonymy_cat>);
 
 
 # variable: %metonymy_name_of
 #    The name of the metonymy. Same as the name of each metonymy in %squinting_raw_of.
-my %metonymy_name_of :ATTR;
+my %metonymy_name_of :ATTR(:get<metonymy_name>);
 
 #
 # subsection: Creation
