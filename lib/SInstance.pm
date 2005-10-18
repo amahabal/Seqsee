@@ -79,7 +79,11 @@ sub add_category{
         delete $non_cat_ref->{$cat};
     }
 
+    # make string to object mapping
+    $S::Str2Cat{$cat} = $cat;
+
     $cat_ref->{$cat} = $bindings;
+
 
 }
 
@@ -138,6 +142,18 @@ sub add_property{
 
 }
 
+
+
+# method: get_categories
+# Returns an array ref of categories this belongs to
+#
+
+sub get_categories{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my @cat_strings = keys %{ $cats_of_of{$id} };
+    return map { $S::Str2Cat{$_} } @cat_strings;
+}
 
 
 # method: is_of_category_p

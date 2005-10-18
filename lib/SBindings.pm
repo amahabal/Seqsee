@@ -102,6 +102,9 @@ my %metonymy_name_of :ATTR(:get<metonymy_name>);
 sub create{
     my ($package, $slippage_ref, $bindings_ref, $object) = @_;
     ## SBindings constructor: $slippage_ref, $bindings_ref, $object
+    (defined($slippage_ref) 
+         and defined($bindings_ref)
+             and defined($object)) or confess "Need three args!";
     return $package->new({ raw_slippages => $slippage_ref,
                            bindings      => $bindings_ref,
                            object        => $object,
