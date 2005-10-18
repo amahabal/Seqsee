@@ -226,6 +226,23 @@ sub is_of_category_ok{
 }
 
 
+
+# method: get_common_categories
+# Returns a list of categories shared by both
+#
+
+sub get_common_categories{
+    my ( $o1, $o2 ) = @_;
+    ### $o1, $o2
+    my $hash_ref1 = $cats_of_of{ident $o1};
+    my $hash_ref2 = $cats_of_of{ident $o2};
+    ### $hash_ref1, $hash_ref2
+    my @common_strings
+        = grep { defined $_ } map { exists($hash_ref2->{$_}) ? $_ : undef  } keys %$hash_ref1;
+    ### @common_strings
+    return map { $S::Str2Cat{$_} } @common_strings;
+}
+
 #
 # subsection: leftover from earlier implementation
 # Will update later
@@ -256,18 +273,6 @@ sub instance_of_cat {
     my ( $self, $cat ) = @_;
     UNIVERSAL::isa( $cat, "SCat" ) or croak "Need SCat";
     return exists $cats_of_of{ ident $self}{$cat};
-}
-
-sub get_common_categories{
-    my ( $o1, $o2 ) = @_;
-    ### $o1, $o2
-    my $hash_ref1 = $cats_of_of{ident $o1};
-    my $hash_ref2 = $cats_of_of{ident $o2};
-    ### $hash_ref1, $hash_ref2
-    my @common_strings
-        = grep { defined $_ } map { exists($hash_ref2->{$_}) ? $_ : undef  } keys %$hash_ref1;
-    ### @common_strings
-    return map { $SCat::Str2Cat{$_} } @common_strings;
 }
 
 1;

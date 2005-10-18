@@ -150,7 +150,7 @@ sub create_from_string{
 #    For any subobject, if all of its elements are the same, adds the category-annotation for sameness group, and adds a metonymy
 
 sub quik_create{
-    my ( $package, $array_ref ) = @_;
+    my ( $package, $array_ref, @potential_cats ) = @_;
     my $object = $package->create(@$array_ref);
     my $id = ident $object;
     
@@ -173,6 +173,11 @@ sub quik_create{
         $subobject->annotate_with_cat($S::SAMENESS);
         $subobject->annotate_with_metonym($S::SAMENESS, "each");
     }
+
+    for (@potential_cats) {
+        $object->maybe_annotate_with_cat($_);
+    }
+
     return $object;
 }
 

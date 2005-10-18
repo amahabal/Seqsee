@@ -40,6 +40,7 @@ use SCat::Derive::blemish_position;
 
 use SRel;
 use SReln::Simple;
+use SReln::Compound;
 use SThought;
 use SStream;
 use SWorkspace;
