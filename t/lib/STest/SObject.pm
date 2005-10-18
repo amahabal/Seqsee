@@ -20,6 +20,19 @@ sub create :Test(6) {
     }
 }
 
+sub create_clone :Test(5){
+    my $object = SObject->create(1,2,3);
+    my $object2 = SObject->create( $object );
+    isa_ok ($object2, "SObject");
+    cmp_ok($object, 'ne', $object2);
+
+    my $object3 = SObject->create($object, $object);
+    isa_ok ($object3, "SObject");
+    cmp_ok($object, 'ne', $object3->[0]);
+    $object3->structure_ok([[1,2,3], [1,2,3]]);
+}
+
+
 sub group_p : Test(4) {
     my @test_set = 
         (

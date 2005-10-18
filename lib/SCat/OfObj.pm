@@ -280,3 +280,59 @@ sub _install_instancer{
     };
 
 }
+
+#
+# subsection: Derivations
+# SHould probably be elsewhere...
+
+
+
+# method: derive_assuming
+# derivative, keeping something fixed
+#
+
+sub derive_assuming{
+    my ( $category, $assuming_ref ) = @_;
+
+    my $builder = sub {
+        my ( $self, $opts_ref ) = @_;
+        my %assuming_hash = %$assuming_ref;
+        while (my($k, $v) = each %assuming_hash) {
+            if (exists $opts_ref->{$k}) {
+                confess "This category needs $k=>$v, but got $k=> $opts_ref->{$k} instead" unless $opts_ref->{$k} eq $v;
+            } else {
+                $opts_ref->{$k} = $v;
+            }
+        }
+        my $ret = $category->build( $opts_ref );
+
+        $ret->add_category($self, SBindings->create( {}, $opts_ref, $ret));
+        return $ret;
+
+    };
+
+    my $instancer = sub {
+        my ( $me, $object ) = @_;
+
+        my $bindings = $category->is_instance( $object );
+        return unless $bindings;
+
+        my $bindings_ref = $bindings->get_bindings_ref;
+        ## $bindings_ref
+        my %assuming_hash = %$assuming_ref;
+        while (my($k, $v) = each %assuming_hash) {
+            ## Keys: $k, $v
+            return unless ($bindings_ref->{$k} eq $v);
+        }
+        ## $bindings
+        return $bindings;
+    };
+    my $name = $category->get_name(). " with ". join(", ", %$assuming_ref);
+
+    return SCat::OfObj->new({ builder   => $builder,
+                              name      => $name,
+                              instancer => $instancer,
+                          });
+
+}
+
