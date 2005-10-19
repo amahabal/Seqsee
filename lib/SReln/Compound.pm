@@ -38,7 +38,7 @@ use Carp;
 use Class::Std;
 use Class::Multimethods;
 use base qw{SInstance };
-
+use Smart::Comments;
 
 # variable: %base_category_of
 #    Category on which this relation is based
@@ -69,14 +69,18 @@ my %changed_bindings_of_of :ATTR(:get<changed_bindings_ref>);
 my %position_reln_of :ATTR(:get<position_reln>);
 
 
-# variable: %unstarred_reln_of
+# variable: #%unstarred_reln_of
 #    Relation between the unstarred parts of the metonyms if metonyms involved
-my %unstarred_reln_of :ATTR(:get<unstarred_reln>);
+#my %unstarred_reln_of :ATTR(:get<unstarred_reln>);
 
-# variable: %starred_reln_of
+# variable: #%starred_reln_of
 #    Same as above, starred
-my %starred_reln_of :ATTR( :get<starred_reln>);
+#my %starred_reln_of :ATTR( :get<starred_reln>);
 
+
+# variable: %metonymy_reln_of
+#    What is the relationship between the metonymys?
+my %metonymy_reln_of :ATTR( :get<metonymy_reln>);
 
 # variable: #%lost_categories_of
 #    What categories are lost? I may want to add this later.
@@ -107,27 +111,36 @@ my %second_of : ATTR( :get<second> );
 #    * unchanged_bindings
 #    * changed_bindings
 #    * position_reln
-#    * unstarred_reln
-#    * starred_reln
+#    * # unstarred_reln #may not need this
+#    * # starred_reln  #may not need this
+#    * metonymy_reln
 
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
+
+    $first_of{$id} = $opts_ref->{first};
+    $second_of{$id}= $opts_ref->{second};
+
     $base_category_of{$id} = $opts_ref->{base_category}
         or confess "Need base category";
-    my $meto_mode = $base_meto_mode_of{$id} = $opts_ref->{base_meto_mode}
-        or confess "Need base meto mode";
+
+    my $meto_mode = $base_meto_mode_of{$id} = $opts_ref->{base_meto_mode};
+    confess "Need base meto mode" unless defined $meto_mode;
+
     $changed_bindings_of_of{$id} = $opts_ref->{changed_bindings}
         or confess "Need changed bindings";
     $unchanged_bindings_of_of{$id} = $opts_ref->{unchanged_bindings}
         or confess "Need unchanged_bindings";
     
     if ($meto_mode) { # that is, metonymy's present!
-        $base_pos_mode_of{$id} = $opts_ref->{base_pos_mode}
-            or confess "Need base pos mode";
-        $unstarred_reln_of{$id} = $opts_ref->{unstarred_reln}
-            or confess "Need unstarred relation";
-        $starred_reln_of{$id} = $opts_ref->{starred_reln}
-            or confess "Need starred relation";
+        my $pos_mode = $base_pos_mode_of{$id} = $opts_ref->{base_pos_mode};
+        confess "Need base pos mode" unless defined($pos_mode);
+
+        #$unstarred_reln_of{$id} = $opts_ref->{unstarred_reln}
+        #    or confess "Need unstarred relation";
+        #$starred_reln_of{$id} = $opts_ref->{starred_reln}
+        #    or confess "Need starred relation";
+        $metonymy_reln_of{$id} = $opts_ref->{metonymy_reln};
 
         if ($meto_mode != 3) { # So: some, but not all, starred
             $position_reln_of{$id} = $opts_ref->{position_reln}
@@ -189,7 +202,11 @@ multimethod find_reln => qw(SObject SObject) => sub {
 
 multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my ( $o1, $o2, $cat ) = @_;
+    ## In_find_reln: $o1, $o2, $cat
     my $opts_ref = {};
+
+    $opts_ref->{first}  = $o1;
+    $opts_ref->{second} = $o2;
     
     # Base category
     my $b1 = $o1->is_of_category_p($cat);
@@ -202,10 +219,15 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
 
     $opts_ref->{base_category} = $cat;
 
+    ## Base Category found: $cat
+
     # Meto mode
-    my $meto_mode = $b1->get_meto_mode;
-    return unless $meto_mode == $b2->get_meto_mode;
+    my $meto_mode = $b1->get_metonymy_mode;
+    return unless $meto_mode == $b2->get_metonymy_mode;
     $opts_ref->{base_meto_mode} = $meto_mode;
+
+    ## Base meto mode found: $meto_mode
+
 
     #bindings
     my $changed_ref = {};
@@ -226,21 +248,33 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
     $opts_ref->{changed_bindings} = $changed_ref;
     $opts_ref->{unchanged_bindings} = $unchanged_ref;
 
+    ## changed_bindings found: $changed_ref
+    ## unchanged_bindings found: $unchanged_ref
+
     if ($meto_mode) {
         # So other stuff is relevant, too!
         if ($meto_mode != 3) { # Position relevant!
             my $pos_mode = $b1->get_position_mode;
             return unless $pos_mode == $b2->get_position_mode;
             $opts_ref->{base_pos_mode} = $pos_mode;
+            ## position_mode_found: $pos_mode
 
             my $rel = find_reln($b1->get_position(),
                                 $b2->get_position()
                                     );
             return unless $rel;
             $opts_ref->{position_reln} = $rel;
-            
-            ### Starred relation, unstarred reln, metonymy_reln?
-            ### Need to work that out
+
+            my $meto_type_1 = $b1->get_metonymy_type;
+            my $meto_type_2 = $b2->get_metonymy_type;
+            $rel = find_reln($meto_type_1,
+                             $meto_type_2
+                                 );
+            return unless $rel;
+            $opts_ref->{metonymy_reln} = $rel;
+
+            ## Starred relation, unstarred reln, metonymy_reln?
+            ## Need to work that out
         }
     }
 

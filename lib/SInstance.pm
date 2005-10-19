@@ -185,6 +185,19 @@ sub is_of_category_p{
 
 
 
+# method: get_binding
+# Returns binding for a particular category
+#
+
+sub get_binding{
+    my ( $self, $cat ) = @_;
+    my $id = ident $self;
+
+    return unless exists $cats_of_of{$id}{$cat};
+    return $cats_of_of{$id}{$cat};
+}
+
+
 # method: inherit_categories_from
 # copies category, non-category and property information from another object
 #

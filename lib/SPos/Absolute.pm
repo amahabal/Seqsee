@@ -9,6 +9,10 @@ my %finder_of :ATTR;
 my %name_of :ATTR(:set<name> :get<name> );
 
 
+# variable: %index_of
+#    The index of the position (2, -3, etc)
+my %index_of :ATTR( :get<index>);
+
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     my $index = $opts_ref->{index};
@@ -33,6 +37,7 @@ sub BUILD {
     }
     my $finder = new SPosFinder( { sub => $sub, multi => 0 } );
     $finder_of{$id} = $finder;
+    $index_of{$id} = $index;
 }
 
 sub find_range {

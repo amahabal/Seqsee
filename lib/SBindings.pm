@@ -77,14 +77,11 @@ my %position_mode_of :ATTR(:get<position_mode>);
 my %position_of :ATTR(:get<position>);
 
 
-# variable: %metonymy_cat_of
-#    The category that allows this metonymy. Same as the cat of each metonymy in %squinting_raw_of
-my %metonymy_cat_of :ATTR(:get<metonymy_cat>);
-
-
-# variable: %metonymy_name_of
-#    The name of the metonymy. Same as the name of each metonymy in %squinting_raw_of.
-my %metonymy_name_of :ATTR(:get<metonymy_name>);
+# variable: %metonymy_type_of
+#    What is the metonymy type?
+#     
+#    This includes the cat, name and info lost
+my %metonymy_type_of :ATTR(:get<metonymy_type>);
 
 #
 # subsection: Creation
@@ -146,9 +143,80 @@ sub get_binding{
 }
 
 
+
+# method: get_metonymy_cat
+# Get the category slippage is based on.
+#
+
+sub get_metonymy_cat{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    
+    return $metonymy_type_of{$id}->get_category();
+}
+
+
+
+# method: get_metonymy_name
+# get the name of the slippage
+#
+
+sub get_metonymy_name{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    return $metonymy_type_of{$id}->get_name();
+}
+
+
+
+# method: tell_forward_story
+# Reinterprets bindings so that now positions go in a forward direction.
+#
+# Assumption is that a story has already been woven once
+
+sub tell_forward_story{
+    my ( $self, $object ) = @_;
+    my $id = ident $self;
+
+    my $metonymy_mode = $self->get_metonymy_mode;
+    if ($metonymy_mode == 0 or $metonymy_mode == 3) {
+        # no positions involved!
+        return;
+    }
+    if ($metonymy_mode == 2) {
+        confess "story retelling not implemented for this metonymy_mode";
+    }
+    my ($index) = keys %{ $squinting_raw_of{$id} };
+    $self->_describe_position( $object, $index, 1); # 1 is FWD
+
+}
+
+# method: tell_backward_story
+# Reinterprets bindings so that now positions go in a backward direction.
+#
+# Assumption is that a story has already been woven once
+
+sub tell_backward_story{
+    my ( $self, $object ) = @_;
+    my $id = ident $self;
+
+    my $metonymy_mode = $self->get_metonymy_mode;
+    if ($metonymy_mode == 0 or $metonymy_mode == 3) {
+        # no positions involved!
+        return;
+    }
+    if ($metonymy_mode == 2) {
+        confess "story retelling not implemented for this metonymy_mode";
+    }
+    my ($index) = keys %{ $squinting_raw_of{$id} };
+    $self->_describe_position( $object, $index, 2); # 2 is BWD 
+
+}
+
+
 #
 # subsection: Private methods
-
 
 
 # method: _weave_story
@@ -166,33 +234,31 @@ sub _weave_story{
 
     my ($metonymy_mode, $position_mode, $position); 
     my ($metonymy_cat, $metonymy_name); 
+    my ($metonymy_type);
 
     # Metonymy_Mode
     if ($slippages_count == 0) {
         $metonymy_mode = 0;
-    } elsif ($slippages_count == $object_size) {
-        # XXX:If both are 1, I should have the choice of putting mode = 1!
-        $metonymy_mode = 3;
-        my $metonym_type = SMetonym->intersection(values %$slippages);
-        $metonymy_cat  = $metonym_type->get_category;
-        $metonymy_name = $metonym_type->get_name;
-    } elsif ($slippages_count == 1) {
-        $metonymy_mode = 1;
-        my $metonym_type = (values %$slippages)[0]->get_type;
-        ($metonymy_cat, $metonymy_name) = ($metonym_type->get_category,
-                                           $metonym_type->get_name,
-                                               );
+    } else {
+        # So: slippages are involved!
+        $metonymy_type = SMetonym->intersection(values %$slippages);
 
-        # Describe position. Slippage key is the index
-        ($position_mode, $position) 
-            = $self->_describe_position( $object, keys %$slippages );
+        if ($slippages_count == $object_size) {
+            # XXX:If both are 1, I should have the choice of putting mode = 1!
+            $metonymy_mode = 3;            
+        } elsif ($slippages_count == 1) {
+            $metonymy_mode = 1;
+            ($position_mode, $position) 
+                = $self->_describe_position( $object, keys %$slippages );
+        }
     }
+
+
 
     $metonymy_mode_of{$id} = $metonymy_mode;
     $position_mode_of{$id} = $position_mode;
     $position_of{$id}      = $position;
-    $metonymy_cat_of{$id}  = $metonymy_cat;
-    $metonymy_name_of{$id} = $metonymy_name;
+    $metonymy_type_of{$id} = $metonymy_type;
 }
 
 
@@ -203,17 +269,25 @@ sub _weave_story{
 #
 
 sub _describe_position{
-    my ( $self, $object, $index ) = @_;
+    my ( $self, $object, $index, $position_mode ) = @_;
+    my $id = ident $self;
 
     # XXX: Will only be fwd or backward, currently
-    my $position_mode = SUtil::toss(0.5) ? 1 : 2; #1 is FWD, 2 is BWD
+    unless (defined $position_mode) {
+        $position_mode = SUtil::toss(0.5) ? 1 : 2; #1 is FWD, 2 is BWD
+    }
+    
+    $position_mode_of{$id} = $position_mode;
     
     if ($position_mode == 1) {
-        return SPos->new( $index + 1); # It is 1-based, input is 0-based
+        return $position_of{$id} =
+            SPos->new( $index + 1); # It is 1-based, input is 0-based
     } else {
         my $object_size = $object->get_parts_count;
-        return SPos->new( $index - $object_size );
+        return $position_of{$id} =
+            SPos->new( $index - $object_size );
     }
+    
 }
 
 1;

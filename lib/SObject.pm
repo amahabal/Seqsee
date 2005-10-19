@@ -491,6 +491,32 @@ multimethod _can_be_seen_as_no_rec => ('#', '#') => sub {
 
 
 
+# method: tell_forward_story
+# Given a category, reinterprets bindings for that category so that positions are expressed in a forward direction.
+#
+
+sub tell_forward_story{
+    my ( $self, $cat ) = @_;
+    my $bindings = $self->get_binding($cat);
+    confess "Object $self does not belong to category $cat!"
+        unless $bindings;
+    $bindings->tell_forward_story($self);
+}
+
+# method: tell_backward_story
+# Given a category, reinterprets bindings for that category so that positions are expressed in a backward direction.
+#
+
+sub tell_backward_story{
+    my ( $self, $cat ) = @_;
+    my $bindings = $self->get_binding($cat);
+    confess "Object $self does not belong to category $cat!"
+        unless $bindings;
+    $bindings->tell_backward_story($self);
+}
+
+
+
 #
 # subsection: Positions and ranges
 #
