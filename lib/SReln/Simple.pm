@@ -64,4 +64,37 @@ multimethod find_reln => ('#', '#') => sub {
 
 
 
+# multi: apply_reln ( SReln::Simple, # )
+# Apply a simple relation to an integer
+#
+#
+#    usage:
+#     
+#
+#    parameter list:
+#
+#    return value:
+#      
+#
+#    possible exceptions:
+
+multimethod apply_reln => ('SReln::Simple', '#')=> sub {
+    my ( $reln, $num ) = @_;
+    my $text = $str_of{ident $reln};
+
+    if ($text eq "same") {
+        return $num;
+    } elsif ($text eq "succ") {
+        return $num + 1;
+    } elsif ($text eq "pred") {
+        return $num - 1;
+    } else {
+        confess "Reln not applicable to num";
+    }
+
+};
+
+
+1;
+
 

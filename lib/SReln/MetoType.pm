@@ -78,6 +78,44 @@ sub BUILD{
 
 
 
+# multi: apply_reln ( SReln::MetoType, SMetonymType )
+# apply metoreln to meto
+#
+#
+#    usage:
+#     
+#
+#    parameter list:
+#
+#    return value:
+#      
+#
+#    possible exceptions:
+
+multimethod apply_reln => qw(SReln::MetoType SMetonymType) => sub {
+    my ( $rel, $meto ) = @_;
+    my $meto_info_loss = $meto->get_info_loss;
+
+    my $rel_change_ref = $rel->get_change_ref;
+
+    my $new_loss = {};
+    while (my($k, $v) = each %$meto_info_loss) {
+        if (not(exists $rel_change_ref->{$k})){
+            $new_loss->{$k} = $v;
+            next;
+        }
+        my $v2 = apply_reln( $rel_change_ref->{$k}, $v);
+        $new_loss->{$k} = $v2;
+    }
+    return SMetonymType->new( {
+        info_loss => $new_loss,
+        name => $meto->get_name,
+        category => $meto->get_category,
+    });
+    
+};
+
+
 1;
 
 

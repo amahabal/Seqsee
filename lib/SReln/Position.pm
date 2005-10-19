@@ -77,4 +77,51 @@ sub BUILD{
 }
 
 
+
+# multi: apply_reln ( SReln::Position, SPos::Absolute )
+# apply position relation to position
+#
+#
+#    usage:
+#     
+#
+#    parameter list:
+#
+#    return value:
+#      
+#
+#    possible exceptions:
+
+multimethod apply_reln => qw(SReln::Position SPos::Absolute) => sub {
+    my ( $rel, $pos ) = @_;
+    my $text = $rel->get_text;
+    my $idx = $pos->get_index;
+
+    if ($idx > 0) { # Fwd based!
+        if ($text eq "same") { 
+            return $pos;
+        } elsif ($text eq "succ") {
+            return SPos->new( $idx + 1);
+        } elsif ($text eq "pred") {
+            return unless $idx > 1;
+            return SPos->new( $idx - 1);
+        } else {
+            return;
+        }
+    } else {
+        if ($text eq "same") { 
+            return $pos;
+        } elsif ($text eq "succ") {
+            return SPos->new( $idx - 1);
+        } elsif ($text eq "pred") {
+            return unless $idx < -1;
+            return SPos->new( $idx + 1);
+        } else {
+            return;
+        }
+    }
+
+};
+
+
 1;
