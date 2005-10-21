@@ -298,4 +298,87 @@ sub get_both{
 }
 
 
+
+# multi: apply_reln ( SReln::Compound, SObject )
+# Apply relan to object
+#
+#    Perhaps the most complex of the apply_reln family, 
+#
+#    usage:
+#     
+#
+#    parameter list:
+#
+#    return value:
+#      
+#
+#    possible exceptions:
+
+multimethod apply_reln => qw(SReln::Compound SObject) => sub {
+    my ( $reln, $object ) = @_;
+    
+    # Find category for new object
+    my $cat = $reln->get_base_category;
+
+    # Make sure the object belongs to that category
+    my $bindings = $object->get_binding( $cat );
+    return unless $bindings;
+
+    # Find the bindings for it.
+    my $bindings_ref = $bindings->get_bindings_ref;
+    my $changed_bindings_ref = $reln->get_changed_bindings_ref;
+    my $new_bindings_ref = {};
+
+    while (my($k, $v) = each %$bindings_ref) {
+        if (exists $changed_bindings_ref->{$k}) {
+            $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k},
+                                                  $v
+                                                      );
+            next;
+        }
+        # no change...
+        $new_bindings_ref->{$k} = $v;
+    }
+    my $new_object = $cat->build( $new_bindings_ref );
+    
+    # We have not "applied the blemishes" yet, of course
+
+    my $reln_meto_mode = $reln->get_base_meto_mode;
+    my $object_meto_mode = $bindings->get_metonymy_mode;
+    unless ($reln_meto_mode == $object_meto_mode) {
+        return;
+    }
+    
+    return $new_object if $reln_meto_mode == 0;
+
+    # Calculate the metonymy type of the new object
+    my $new_metonymy_type = apply_reln( $reln->get_metonymy_reln,
+                                        $bindings->get_metonymy_type
+                                            );
+    return unless $new_metonymy_type;
+
+    if ($reln_meto_mode == 3) {
+        return $new_object->apply_blemish_everywhere( $new_metonymy_type )
+    } 
+
+    # If we get here, position is relevant!
+    my $new_position = apply_reln( $reln->get_position_reln,
+                                   $bindings->get_position
+                                       );
+    return unless $new_position;
+    ## $reln->get_position_reln()->get_text()
+    ## $bindings->get_position()->get_index
+    ## $new_position->get_index()
+    ## $reln_meto_mode
+ 
+    ## $bindings->get_metonymy_type()->get_info_loss()
+    ## $reln->get_metonymy_reln()->get_change_ref()
+    ## $new_metonymy_type->get_info_loss() 
+    
+    ## $new_object->get_structure
+    return $new_object->apply_blemish_at( $new_metonymy_type, $new_position );
+
+};
+
+
 1;

@@ -58,6 +58,9 @@ my %guesser_of_of :ATTR;
 #    conatins metonymy finders
 my %meto_finder_of_of :ATTR;
 
+# variable: %meto_unfinder_of_of
+#    contains blemish appliers
+my %meto_unfinder_of_of :ATTR;
 
 # variable: %att_type_of_of
 #    The type of attribute (e.g., "int")
@@ -124,6 +127,7 @@ sub BUILD{
     $att_type_of_of{$id} = $opts_ref->{att_type} || {};
 
     $meto_finder_of_of{$id} = $opts_ref->{metonymy_finders} || {};
+    $meto_unfinder_of_of{$id} = $opts_ref->{metonymy_unfinders} || {};
 
     my $guesser_ref = $guesser_of_of{$id} = {};
     my $type_ref = $att_type_of_of{$id};
@@ -222,6 +226,19 @@ sub get_meto_finder{
     my $id = ident $self;
 
     return $meto_finder_of_of{$id}{$name};
+}
+
+
+
+# method: get_meto_unfinder
+# Finds the subroutine that undoes metonymy
+#
+
+sub get_meto_unfinder{
+    my ( $cat, $name ) = @_;
+    my $id = ident $cat;
+
+    return $meto_unfinder_of_of{$id}{$name};
 }
 
 

@@ -569,6 +569,35 @@ sub get_at_position { #( $self: $position )
     return $self->get_subobj_given_range($range);
 }
 
+
+
+# method: apply_blemish_at
+# Applies a blemish at a given position
+#
+#    Arguments:
+#    * $object
+#    * $meto_type
+#    * $position
+
+sub apply_blemish_at{
+    my ( $object, $meto_type, $position ) = @_;
+    my ($index) = @{ $position->find_range( $object ) }; 
+    #XXX assumption in prev line that a single item returned
+
+    my @subobjects = @{ $items_of{ ident $object }};
+    my $obj_at_pos = $subobjects[$index];
+    my $blemished_object_at_pos = $meto_type->blemish( $obj_at_pos );
+
+    ## $blemished_object_at_pos->get_structure()
+    
+    $subobjects[$index] = $blemished_object_at_pos;
+    my $ret =  SObject->create( @subobjects );
+    ## $ret->get_structure()
+    return $ret;
+    # maybe make it belong to the category...
+}
+
+
 #
 # subsection: Testing utilities(methods)
 

@@ -47,6 +47,11 @@ my $meto_finder_each = sub {
 
 };
 
+my $meto_unfinder_each = sub {
+    my ( $cat, $name, $info_loss, $object ) = @_;
+    return $cat->build( { each => $object, %$info_loss });
+};
+
 
 our $sameness =
     SCat::OfObj->new(
@@ -59,7 +64,7 @@ our $sameness =
             description_finders => { length => $length_finder },
 
             metonymy_finders => { each => $meto_finder_each },
-
+            metonymy_unfinders => { each => $meto_unfinder_each },
         }
 
             );

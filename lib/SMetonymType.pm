@@ -42,4 +42,23 @@ sub BUILD{
 }
 
 
+
+# method: blemish
+# Applies the blemish to the object
+#
+#    Finds current bindings, adds the info lost
+
+sub blemish{
+    my ( $type, $object ) = @_;
+    my $id = ident $type;
+
+    my ($cat, $name, $info_loss) = ( $category_of{$id},
+                                     $meto_name_of{$id},
+                                     $info_loss_of{$id}
+                                         );
+    my $finder = $cat->get_meto_unfinder( $name );
+    return $finder->( $cat, $name, $info_loss, $object );
+}
+
+
 1;
