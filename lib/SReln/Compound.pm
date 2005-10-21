@@ -255,6 +255,7 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
         # So other stuff is relevant, too!
         if ($meto_mode != 3) { # Position relevant!
             my $pos_mode = $b1->get_position_mode;
+            ## $b2->get_position_mode
             return unless $pos_mode == $b2->get_position_mode;
             $opts_ref->{base_pos_mode} = $pos_mode;
             ## position_mode_found: $pos_mode

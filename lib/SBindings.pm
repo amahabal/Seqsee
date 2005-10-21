@@ -248,8 +248,7 @@ sub _weave_story{
             $metonymy_mode = 3;            
         } elsif ($slippages_count == 1) {
             $metonymy_mode = 1;
-            ($position_mode, $position) 
-                = $self->_describe_position( $object, keys %$slippages );
+            $self->_describe_position( $object, keys %$slippages );
         }
     }
 

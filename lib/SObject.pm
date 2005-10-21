@@ -498,7 +498,7 @@ multimethod _can_be_seen_as_no_rec => ('#', '#') => sub {
 sub tell_forward_story{
     my ( $self, $cat ) = @_;
     my $bindings = $self->get_binding($cat);
-    confess "Object $self does not belong to category $cat!"
+    confess "Object $self does not belong to category ". $cat->get_name()
         unless $bindings;
     $bindings->tell_forward_story($self);
 }
