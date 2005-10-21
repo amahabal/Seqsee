@@ -3,13 +3,18 @@
 #    Package: SWorkspace
 #
 #####################################################
+#   manages the workspace
 #####################################################
 
 package SWorkspace;
 use strict;
+use Carp;
+use Class::Std;
 use Class::Multimethods;
+use base qw{};
 
 
+# Next 2 lines: should be my!
 our $elements_count;
 our @elements = ();
 

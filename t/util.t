@@ -6,10 +6,10 @@ BEGIN { plan tests => 20; }
 
 #use MyFilter;
 
-use SBuiltObj;
+use SObject;
 
-my $bo = new SBuiltObj( { items => [ 1, 2, 3 ] } );
-my $bo2 = new_deep SBuiltObj( [ 1, 2 ], [ 3, 4 ] );
+my $bo  = SObject->create(1,2,3);
+my $bo2 = SObject->create([1,2], [3,4]);
 
 ok $bo->has_structure_one_of( [ 1, 2, 3 ] );
 ok $bo->has_structure_one_of( [ 4, 5, 6 ], [ 1, 2, 3 ] );

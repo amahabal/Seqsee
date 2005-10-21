@@ -12,9 +12,8 @@ sub BUILD{
     
     $core_of{ $id} =  $core;
     my $core_type =
-        $core->isa("SBuiltObj")   ? "SBuiltObj" :
-        $core->isa("SBlemishType")? "SBlemishType" : 
-        $core->isa("SCat")        ? "SCat":
+        $core->isa("SObject")     ? "SObject" :
+        $core->isa("SCat::OfObj") ? "SCat_OfObj":
         $core->isa("SPos")        ? "SPos":
         die "Unknown type: $core";
    $core_type_of{ $id} = $core_type;
@@ -78,46 +77,39 @@ sub get_actions{
 
 
 
-sub _get_fringe_SBuiltObj{
+sub _get_fringe_SObject{
     my ( $thought, $core ) = @_;
 }
-sub _get_fringe_SCat{
+sub _get_fringe_SCat_OfObj{
     my ( $thought, $core ) = @_;
 }
 sub _get_fringe_SPos{
     my ( $thought, $core ) = @_;
 }
-sub _get_fringe_SBlemishType{
+
+sub _get_extended_fringe_SObject{
     my ( $thought, $core ) = @_;
 }
 
-sub _get_extended_fringe_SBuiltObj{
+sub _get_extended_fringe_SCat_OfObj{
     my ( $thought, $core ) = @_;
 }
-sub _get_extended_fringe_SCat{
-    my ( $thought, $core ) = @_;
-}
+
 sub _get_extended_fringe_SPos{
     my ( $thought, $core ) = @_;
 }
-sub _get_extended_fringe_SBlemishType{
+
+sub _get_actions_SObject{
     my ( $thought, $core ) = @_;
 }
 
-sub _get_actions_SBuiltObj{
+sub _get_actions_SCat_OfObj{
     my ( $thought, $core ) = @_;
 }
-sub _get_actions_SCat{
-    my ( $thought, $core ) = @_;
-}
+
 sub _get_actions_SPos{
     my ( $thought, $core ) = @_;
 }
-sub _get_actions_SBlemishType{
-    my ( $thought, $core ) = @_;
-}
-
-
 
 1;
 

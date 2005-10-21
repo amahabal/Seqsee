@@ -619,5 +619,24 @@ sub structure_ok{
 }
 
 
+
+# method: has_structure_one_of
+# returns true if one of several options valid
+#
+
+sub has_structure_one_of{
+    my ( $self, @potential ) = @_;
+    my $struct = $self->get_structure;
+    ## $struct, $structure
+    for (@potential) {
+        if (SUtil::compare_deep($struct, $_)) {
+            return 1;
+        } 
+    }
+    return;
+
+}
+
+
 1;
 
