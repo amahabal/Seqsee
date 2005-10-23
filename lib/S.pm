@@ -58,6 +58,13 @@ our $MOUNTAIN   = $SCat::mountain::mountain;
 #our $number     = $SCat::number::number;
 our $SAMENESS    = $SCat::sameness::sameness;
 
+our $DOUBLE = SMetonymType->new(
+    { category => $S::SAMENESS,
+      name     => "each",
+      info_loss=> {length => 2},
+  }
+        );
+
 our $cats_and_blemish_ref =
     [$ascending, $descending, $mountain];
 

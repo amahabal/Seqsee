@@ -143,7 +143,8 @@ sub BUILD{
         $guesser_ref->{$k} = sub {
             my $object = shift;
             my $subobject = $object->get_at_position( $v );
-            if ($type_ref->{$k} eq 'int') {
+            if (exists $type_ref->{$k} and 
+                    $type_ref->{$k} eq 'int') {
                 if (ref $subobject) {
                     my $int = $subobject->can_be_seen_as_int();
                     return $int;
@@ -162,7 +163,8 @@ sub BUILD{
         $guesser_ref->{$k} = sub {
             my $object = shift;
             my $subobject = $object->get_subobj_given_range( $v->($object) );
-            if ($type_ref->{$k} eq 'int') {
+            if (exists $type_ref->{$k} and
+                    $type_ref->{$k} eq 'int') {
                 if (ref $subobject) {
                     my $int = $subobject->can_be_seen_as_int();
                     return $int;
@@ -286,13 +288,13 @@ sub _install_instancer{
             return unless defined $guess;
 
             $guess{$_} = $guess;
-           ## Guessed: $_, $guess
+            ## Guessed: $_, $guess
         }
 
         my $guess_built = $me->build( \%guess );
         ## Structure of built: $guess_built->get_structure()
         my $slippages   = $object->can_be_seen_as( $guess_built );
-        
+        ## $slippages
         if (defined $slippages) {
             return SBindings->create( $slippages, \%guess, $object );
         } else {
