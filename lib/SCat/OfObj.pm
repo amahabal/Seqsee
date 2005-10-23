@@ -81,7 +81,12 @@ my %att_type_of_of :ATTR;
 use Class::Multimethods;
 multimethod is_instance => qw(SCat::OfObj SObject) => sub {
     my ( $cat, $object ) = @_;
-    return $instancer_of{ ident $cat}->( $cat, $object );
+    my $bindings =  $instancer_of{ ident $cat}->( $cat, $object );
+    if ($bindings) {
+        $object->add_category( $cat, $bindings );
+        # XXX if not $bindings, should call add_non_cat
+    }
+    return $bindings;
 };
 
 

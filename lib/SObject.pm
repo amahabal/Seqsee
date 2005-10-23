@@ -638,5 +638,32 @@ sub has_structure_one_of{
 }
 
 
+
+# method: describe_as
+# Try to describe the object sa belonging to that category
+#
+
+sub describe_as{
+    my ( $self, $cat ) = @_;
+    my $is_of_cat = $self->is_of_category_p( $cat );
+
+    if ($is_of_cat->[0]) {
+        # okay, already a member
+        return $is_of_cat->[1];
+    }
+
+    if (defined $is_of_cat->[0]) {
+        # So: was not a member last we saw...
+        #XXX should check using how old that decision was..
+        ## and maybe return undef
+    }
+
+    my $bindings = $cat->is_instance( $self );
+
+    return $bindings;
+
+}
+
+
 1;
 
