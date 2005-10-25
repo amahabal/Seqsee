@@ -30,6 +30,7 @@ my $builder = sub {
 
 our $literal = SCat::OfCat->new(
     {  
+        name       => "literal",
         builder    => $builder,
         empty_ok   => 0,
     }

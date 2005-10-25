@@ -12,8 +12,10 @@ filters {
     mtl => [qw{lines trim}],
 };
 
-construct_and_commands();
-
+SKIP: {
+    skip "command language not yet implemented", 11;
+    construct_and_commands();
+}
 __END__
 
 ===

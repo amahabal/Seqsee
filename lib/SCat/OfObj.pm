@@ -16,7 +16,7 @@ package SCat::OfObj;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{}; # Scat removed currently
+use base qw{SInstance}; # Scat removed currently
 use Smart::Comments;
 
 

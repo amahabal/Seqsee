@@ -22,6 +22,7 @@ use SMulti;
 
 #use SCat;
 use SCat::OfObj;
+use SCat::OfCat;
 use SCat::ascending;
 use SCat::descending;
 use SCat::mountain;

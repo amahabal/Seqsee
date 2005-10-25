@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 9; }
+BEGIN { plan tests => 8; }
 
 my $cat_literal = $S::LITERAL;
 my $double = $S::DOUBLE;
