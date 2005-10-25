@@ -18,6 +18,18 @@ use base qw{};
 our $elements_count;
 our @elements = ();
 
+
+# variable: @OBJECTS
+#    All groups and elements that are present
+my @OBJECTS;
+
+# variable: $ReadHead
+#    Points just beyond the last object read.
+#     
+#    If never called before any reads, points to 0.
+my $ReadHead = 0;
+
+
 # method: clear
 #  starts workspace off as new
 
@@ -66,7 +78,7 @@ multimethod _insert_element => ( '$' ) => sub {
     use Scalar::Util qw(looks_like_number);
     my $what = shift;
     if (looks_like_number($what)) {
-        _insert_element( SElement->new( { mag => shift } ) );
+        _insert_element( SElement->new( { mag => $what } ) );
     } else {
         die "Huh? Trying to insert '$what' into the workspace";
     }
@@ -77,7 +89,47 @@ multimethod _insert_element => ( 'SElement') => sub {
     $elt->set_left_edge($elements_count);
     $elt->set_right_edge($elements_count);
     push( @elements, $elt );
+    push( @OBJECTS, $elt );
     $elements_count++;
 };
+
+
+
+# method: read_object
+# Don't yet know how this will work... right now just returns some object at the readhead and advances it.
+#
+sub read_object{
+    my ( $package ) = @_;
+    my $object = _get_some_object_at( $ReadHead );
+    my $right_edge = $object->get_right_edge;
+    
+    if ($right_edge == $elements_count - 1 ) {
+        _saccade();
+    } else {
+        $ReadHead = $right_edge + 1;
+    }
+
+    return $object;
+
+}
+
+
+
+# method: _get_some_object_at
+# returns some object spanning that index.
+#
+
+sub _get_some_object_at{
+    my ( $idx ) = @_;
+    my @matching_objects = 
+        grep { $_->get_left_edge() <= $idx and 
+                   $_->get_right_edge() >= $idx
+           } @OBJECTS;
+    
+    my $how_many = scalar( @matching_objects );
+    return unless $how_many;
+    return $matching_objects[ int( rand() * $how_many ) ];
+}
+
 
 1;

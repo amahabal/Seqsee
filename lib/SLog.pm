@@ -6,7 +6,7 @@ use SUtil;
 use List::Util;
 
 
-#### method init
+## method init
 # description    :initializes logging: creates a new file in the subdirectory log/, makes log/latest a symlink to this. 
 # argument list  :$package: +$logging, +$sequence, +$seed, +$steps
 # return type    :

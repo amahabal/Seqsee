@@ -24,4 +24,16 @@ sub BUILD {
     confess "Need mag" unless defined $mag_of{$id};
 }
 
+
+
+# method: get_structure
+# just returns the magnitude
+#
+sub get_structure{
+    my ( $self ) = @_;
+    return $mag_of{ident $self};
+}
+
+
+
 1;

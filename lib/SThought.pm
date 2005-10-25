@@ -12,6 +12,7 @@ sub BUILD{
     
     $core_of{ $id} =  $core;
     my $core_type =
+        $core->isa("SElement")    ? "SElement":
         $core->isa("SObject")     ? "SObject" :
         $core->isa("SCat::OfObj") ? "SCat_OfObj":
         $core->isa("SPos")        ? "SPos":

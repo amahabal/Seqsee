@@ -27,8 +27,9 @@ my %DEFAULTS
 
 # variable: $Steps_Finished
 #    number of steps taken so far
-
-my $Steps_Finished = 0;
+#
+# Should be my!!
+our $Steps_Finished = 0;
 
 
 # variable: $OPTIONS_ref
@@ -333,6 +334,7 @@ sub TextMainLoop{
 #    true if prog finished
 
 sub Seqsee_Step{
+    $Steps_Finished++;
     do_background_activity();
 
     my $runnable = SCoderack->get_next_runnable();
@@ -375,4 +377,15 @@ sub Seqsee_Step{
         die "Runnable object is $runnable: expected an SThought or a SCodelet!";
     }
     return; # false: so, the show must go on.
+}
+
+
+
+# method: do_background_activity
+# Don't know what this'll do
+#
+
+sub do_background_activity{
+
+
 }

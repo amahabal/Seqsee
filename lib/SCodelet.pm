@@ -40,7 +40,7 @@ sub generate_log_msg{
     my $codelet = shift;
     return 
         join("", "="x10, "\n", 
-             "--- (Time: \$::CurrentEpoch; Family: $codelet->[0])\n",);
+             "--- (Time: $::Steps_Finished; Family: $codelet->[0])\n",);
 }
 
 1;

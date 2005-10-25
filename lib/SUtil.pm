@@ -183,11 +183,11 @@ sub naive_brittle_chunking {
 sub next_available_file_number{
     # use Smart::Comments;
     my $dir = shift;
-    ### $dir
+    ## $dir
     my @filelist = glob("$dir/*");
-    ### @filelist
+    ## @filelist
     my @numbers = grep { $_ } map { s/\D//g; $_ } @filelist;
-    ### @numbers
+    ## @numbers
     return 1 unless @numbers;
     return 1 + List::Util::max( @numbers );
 }

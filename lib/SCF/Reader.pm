@@ -24,6 +24,15 @@ sub run{
     ## Insert Code Below
 
     my $object = SWorkspace->read_object();
+    if (LOGGING_INFO() and $object) {
+        my ($l, $r, $s) = ($object->get_left_edge,
+                           $object->get_right_edge,
+                           $object->get_structure,
+                               );
+        my $msg = "Read Object:\n\t[$l,$r] $s\n";
+        $logger->info( $msg );
+    }
+
     if ( $object ) {
         SStream->add_thought( SThought->new( { core => $object }));
     }
