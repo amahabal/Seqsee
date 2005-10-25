@@ -10,6 +10,16 @@
 package SStream;
 use strict;
 
+my $logger;
+{
+    my ($is_debug, $is_info);
+    BEGIN{ $logger   = Log::Log4perl->get_logger("SStream"); 
+           $is_debug = $logger->is_debug();
+           $is_info  = $logger->is_info();
+         }
+    sub LOGGING_DEBUG() { $is_debug; }
+    sub LOGGING_INFO()  { $is_info;  }
+}
 
 # variable: $DiscountFactor
 #    controls how fast efect fades with age
@@ -83,6 +93,10 @@ sub clear{
 sub add_thought{
     @_ == 2 or die "new thought takes two arguments";
     my ( $package, $thought ) = @_;
+
+    if (LOGGING_DEBUG()) {
+        $logger->debug( "SSTREAM: new thought $thought" );
+    }
     
     return if $thought eq $CurrentThought;
 

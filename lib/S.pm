@@ -1,5 +1,7 @@
 package S;
 
+use SLog;
+
 use SSet;
 use SErr;
 use SBindings;
@@ -48,7 +50,6 @@ use SThought;
 use SStream;
 use SWorkspace;
 
-use SLog;
 
 # use SUtil;
 

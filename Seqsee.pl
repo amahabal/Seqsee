@@ -193,6 +193,7 @@ sub _read_config_and_commandline{
 
 sub Interaction_step_n{
     my $opts_ref = shift;
+    ## In Interaction_step_n: $opts_ref
 
     my $n = $opts_ref->{n} or die "Need n";
     $n = min( $n, 
@@ -205,7 +206,9 @@ sub Interaction_step_n{
     my $program_finished = 0;
 
     for my $steps_executed (1..$n) {
+        ## Interaction_step_n executing step number: $steps_executed
         $program_finished = Seqsee_Step();
+        ## Interaction_step_n finished step: $steps_executed 
         $change_after_last_display = 1;
         
         if (not ($steps_executed % $update_after)) {
@@ -337,7 +340,9 @@ sub Seqsee_Step{
     $Steps_Finished++;
     do_background_activity();
 
+    ## $Steps_Finished
     my $runnable = SCoderack->get_next_runnable();
+    ## $runnable
     return unless $runnable; # prog not yet finished!
     
     if ($runnable->isa("SCodelet")) {

@@ -111,13 +111,18 @@ sub _choose_codelet{
     confess "In Coderack: urgencies sum 0, but codelet count non-zero"
         unless $urgencies_sum;    
 
+    ## _choose_codelet: $codelet_count, $urgencies_sum
+
     my $random_number = 1 + int( rand($urgencies_sum) );
+    ## _choose_codelet random_number: $random_number
+    ## @codelets
     my $index         = 0;
     while ( $random_number > $codelets[$index]->[1] ) {
         $random_number -= $codelets[$index]->[1];
         $index++;
     }
-    return $index
+    ## _choose_codelet returning: $index
+    return $index;
 
 
 }
@@ -139,23 +144,25 @@ sub get_codelet_count { return $codelet_count }
 #    The scheduled thought, if not chosen, is NOT overwritten
 sub get_next_runnable{
     my ( $package ) = @_;
+    ## get_next_runnable, scheduled: $scheduled_thought
 
     if ($scheduled_thought) {
         my $use_scheduled = SUtil::toss(0.7);
         if ($use_scheduled) {
+            ### get_next_runnable, using scheduled
             my $to_return = $scheduled_thought;
             $scheduled_thought = undef;
             return $to_return;
         }
     }
-    
+    ## get_next_runnable, NOT using scheduled
     # If I reach here, return some codelet
     unless ($codelet_count) {
         confess "No scheduled though or any codelets. Don't know what to do";
     }
     
     my $idx = _choose_codelet();
-    my $to_return = splice(@codelets, $idx);
+    my $to_return = splice(@codelets, $idx,1);
     $urgencies_sum -= $to_return->[1];
     $codelet_count--;
     return $to_return;
