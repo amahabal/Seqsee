@@ -27,7 +27,7 @@ use SCat::descending;
 use SCat::mountain;
 use SCat::sameness;
 #use SCat::number;
-#use SCat::literal;
+use SCat::literal;
 
 use SElement;
 use SWorkspace;
@@ -54,7 +54,7 @@ use SLog;
 our $ASCENDING  = $SCat::ascending::ascending;
 our $DESCENDING = $SCat::descending::descending;
 our $MOUNTAIN   = $SCat::mountain::mountain;
-#our $literal    = $SCat::literal::literal;
+our $LITERAL    = $SCat::literal::literal;
 #our $number     = $SCat::number::number;
 our $SAMENESS    = $SCat::sameness::sameness;
 

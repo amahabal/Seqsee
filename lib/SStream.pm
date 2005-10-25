@@ -97,7 +97,6 @@ sub add_thought{
     else {
         SStream->antiquate_current_thought() if $CurrentThought;
         $CurrentThought = $thought;
-        $OlderThoughtCount++;
         $ThoughtsSet{$CurrentThought} = 1;
         _maybe_expell_thoughts();
     }
@@ -142,6 +141,20 @@ sub _recalculate_Compstrength{
 
 sub init{
     my $Optsref = shift;
+}
+
+
+
+# method: antiquate_current_thought
+# Makes the current thought the first old thought
+#
+
+sub antiquate_current_thought{
+   my $package = shift;
+   unshift(@OlderThoughts, $CurrentThought);
+   $CurrentThought = undef;
+   $OlderThoughtCount++;
+   _recalculate_Compstrength();
 }
 
 1;
