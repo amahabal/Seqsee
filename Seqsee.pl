@@ -308,9 +308,12 @@ sub TextMainLoop{
             if (prompt "Really quit? ", "-yn") {
                 return;
             }
+        } elsif ($line =~ m/^ \s* d \s* (\S+) \s* $/ix) {
+            _display($1);
         } else {
             chomp($line);
             print "Unknown command '$line': should be s, s n, c or e\n";
+            print "It can also be d followed by one of w, s or c\n";
         }
     }
 }
@@ -393,4 +396,26 @@ sub Seqsee_Step{
 sub do_background_activity{
 
 
+}
+
+
+
+# method: _display
+# displays the object
+#
+#    Argument says what to display:
+#    * w is workspace
+#    * s is stream
+#    * c is coderack
+sub _display{
+    my ( $what ) = @_;
+    if ($what eq "w") {
+        SWorkspace->display_as_text;
+    } elsif ($what eq "s") {
+        SStream->display_as_text;
+    } elsif ($what eq "c") {
+        SCoderack->display_as_text;
+    } else {
+        print "#"x10, "\n", "Error: the second argument to display must be one of 'w', 's' or 'c'";
+    }
 }

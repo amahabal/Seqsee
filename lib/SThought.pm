@@ -6,6 +6,10 @@ use Class::Std;
 my %core_of :ATTR( :get<core> );
 my %core_type_of :ATTR( :get<core_type> );
 
+# variable: %fringe_of
+#    Keeps the fringe of the the thought
+my %fringe_of :ATTR( :get<fringe>, :set<fringe> );
+
 sub BUILD{
     my ( $self, $id, $attr_ref ) = @_;
     my $core = $attr_ref->{core} || die "Need core!";
@@ -20,6 +24,18 @@ sub BUILD{
    $core_type_of{ $id} = $core_type;
 
 }
+
+
+
+# method: as_text
+# Returns a stringified form of the thought
+#
+sub as_text{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return "Thought; CoreType=$core_type_of{$id}";
+}
+
 
 
 #### method get_fringe

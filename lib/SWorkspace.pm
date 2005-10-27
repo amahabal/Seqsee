@@ -13,6 +13,7 @@ use Class::Std;
 use Class::Multimethods;
 use base qw{};
 
+use Perl6::Form;
 
 # Next 2 lines: should be my!
 our $elements_count;
@@ -130,6 +131,23 @@ sub _get_some_object_at{
     return unless $how_many;
     return $matching_objects[ int( rand() * $how_many ) ];
 }
+
+
+
+# method: display_as_text
+# prints a string desciption of what's in the workspace
+#
+sub display_as_text{
+    my ( $package ) = @_;
+    print form 
+        "======================================================",
+        " Elements:  {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+        join(", ", map {$_->get_mag()} @elements),
+        "======================================================";
+    
+
+}
+
 
 
 1;

@@ -16,27 +16,31 @@ use strict;
 use Carp;
 use Config::Std;
 use Smart::Comments;
-
+use Perl6::Form;
 
 # variable: $MAX_CODELETS
 #    Maximum number of codelets allowed
 my $MAX_CODELETS = 25;
 
-# variable: $codelet_count
+# variable: $CODELET_COUNT
 #    How many codelets are in there currently?
-my $codelet_count = 0;
+my $CODELET_COUNT = 0;
 
-# variable: @codelets
+# variable: @CODELETS
 #    The actual codelets
-my @codelets;
+my @CODELETS;
 
-# variable: $urgencies_sum
+# variable: $URGENCIES_SUM
 #    Sum of all urgencies
-my $urgencies_sum = 0;
+my $URGENCIES_SUM = 0;
 
-# variable: $scheduled_thought
+# variable: $SCHEDULED_THOUGHT
 #    The though if any scheduled, undef o/w
-my $scheduled_thought;
+my $SCHEDULED_THOUGHT;
+
+# variable: $FORCED_THOUGHT
+#    If set, get next runnable returns this, no matter what
+my $FORCED_THOUGHT;
 
 clear();
 
@@ -46,10 +50,10 @@ clear();
 # makes it all empty
 #
 sub clear{
-    $codelet_count = 0;
-    $urgencies_sum = 0;
-    @codelets = ();
-    $scheduled_thought = undef;
+    $CODELET_COUNT = 0;
+    $URGENCIES_SUM = 0;
+    @CODELETS = ();
+    $SCHEDULED_THOUGHT = undef;
 }
 
 
@@ -92,12 +96,12 @@ sub init{
 sub add_codelet{
     my ( $package, $codelet ) = @_;
     confess "A non codelet is being added" unless $codelet->isa("SCodelet");
-    $codelet_count++;
-    if ($codelet_count > $MAX_CODELETS) {
+    $CODELET_COUNT++;
+    if ($CODELET_COUNT > $MAX_CODELETS) {
         confess "Haven't implemented expunging codelets yet";
     }
-    push(@codelets, $codelet);
-    $urgencies_sum += $codelet->[1];
+    push(@CODELETS, $codelet);
+    $URGENCIES_SUM += $codelet->[1];
 }
 
 
@@ -107,15 +111,15 @@ sub add_codelet{
 #
 
 sub _choose_codelet{
-    return undef unless $codelet_count;
+    return undef unless $CODELET_COUNT;
     confess "In Coderack: urgencies sum 0, but codelet count non-zero"
-        unless $urgencies_sum;    
+        unless $URGENCIES_SUM;    
 
-    ## _choose_codelet: $codelet_count, $urgencies_sum
+    ## _choose_codelet: $CODELET_COUNT, $URGENCIES_SUM
 
-    my $random_number = 1 + int( rand($urgencies_sum) );
+    my $random_number = 1 + int( rand($URGENCIES_SUM) );
     ## _choose_codelet random_number: $random_number
-    ## @codelets
+    ## @CODELETS
     my $index         = 0;
     while ( $random_number > $codelets[$index]->[1] ) {
         $random_number -= $codelets[$index]->[1];
@@ -129,8 +133,8 @@ sub _choose_codelet{
 
 ############## ACCESSORS, mostly for testing
 
-sub get_urgencies_sum { return $urgencies_sum }
-sub get_codelet_count { return $codelet_count }
+sub get_urgencies_sum { return $URGENCIES_SUM }
+sub get_codelet_count { return $CODELET_COUNT }
 
 
 
@@ -144,28 +148,77 @@ sub get_codelet_count { return $codelet_count }
 #    The scheduled thought, if not chosen, is NOT overwritten
 sub get_next_runnable{
     my ( $package ) = @_;
-    ## get_next_runnable, scheduled: $scheduled_thought
+    ## get_next_runnable, scheduled: $SCHEDULED_THOUGHT
+    
+    if ($FORCED_THOUGHT) {
+        my $to_return = $FORCED_THOUGHT;
+        $FORCED_THOUGHT = undef;
+        return $to_return;
+    }
 
-    if ($scheduled_thought) {
+    if ($SCHEDULED_THOUGHT) {
         my $use_scheduled = SUtil::toss(0.7);
         if ($use_scheduled) {
             ### get_next_runnable, using scheduled
-            my $to_return = $scheduled_thought;
-            $scheduled_thought = undef;
+            my $to_return = $SCHEDULED_THOUGHT;
+            $SCHEDULED_THOUGHT = undef;
             return $to_return;
+        }elsif (SUtil::toss(0.5)) {
+            $SCHEDULED_THOUGHT = undef;
         }
     }
     ## get_next_runnable, NOT using scheduled
     # If I reach here, return some codelet
-    unless ($codelet_count) {
+    unless ($CODELET_COUNT) {
         confess "No scheduled though or any codelets. Don't know what to do";
     }
     
     my $idx = _choose_codelet();
-    my $to_return = splice(@codelets, $idx,1);
-    $urgencies_sum -= $to_return->[1];
-    $codelet_count--;
+    my $to_return = splice(@CODELETS, $idx,1);
+    $URGENCIES_SUM -= $to_return->[1];
+    $CODELET_COUNT--;
     return $to_return;
+}
+
+
+
+# method: display_as_text
+# prints a string of the coderack, for debugging etc
+#
+sub display_as_text{
+    my ( $package ) = @_;
+    print form
+        "=========================================================",
+        "Scheduled Thought: {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+            (defined $SCHEDULED_THOUGHT) ? $SCHEDULED_THOUGHT->as_text() : "none",
+        "=========================================================",
+        "Codelets: ",
+        "      {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+        [ map {
+            form "{<<<<<<<<<<} {>>>>>>>} ", 
+                  $_->[0],     $_->[1]
+        } @CODELETS ],
+        "=========================================================";
+}
+
+
+
+# method: set_forced_thought
+# Set the forced thought to this
+#
+sub set_forced_thought{
+    my ( $package, $thought ) = @_;
+    $FORCED_THOUGHT = $thought;
+}
+
+
+
+# method: set_scheduled_thought
+# Set the scheduled thought to this
+#
+sub set_scheduled_thought{
+    my ( $package, $thought ) = @_;
+    $SCHEDULED_THOUGHT = $thought;
 }
 
 

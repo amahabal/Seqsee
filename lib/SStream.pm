@@ -9,6 +9,7 @@
 
 package SStream;
 use strict;
+use Perl6::Form;
 
 my $logger;
 {
@@ -46,6 +47,11 @@ my %ThoughtsSet               = (); # another view, includes CurrentThought
 #    keeps track of the strength of fringes
 my %ComponentStrength         = ();
 
+# variable: %ComponentOwnership_of
+#    Who owns a particular component
+#
+# Key are components. values are hash refs, whose keys are thoughts, values intensities
+my %ComponentOwnership_of = ();
 
 # variable: $CurrentThought
 #    The current thought
@@ -97,6 +103,17 @@ sub add_thought{
     if (LOGGING_DEBUG()) {
         $logger->debug( "SSTREAM: new thought $thought" );
     }
+
+    my $fringe = $thought->get_fringe();
+    my $extended_fringe = $thought->get_extended_fringe();
+
+    my $hit_with = _is_there_a_hit( $fringe, $extended_fringe );
+
+    my @action_set = $thought->get_actions();
+
+    if ($hit_with) {
+        my $new_action = SAction::FindReln->new( $hit_with, $thought );
+    }
     
     return if $thought eq $CurrentThought;
 
@@ -111,7 +128,7 @@ sub add_thought{
     else {
         SStream->antiquate_current_thought() if $CurrentThought;
         $CurrentThought = $thought;
-        $ThoughtsSet{$CurrentThought} = 1;
+        $ThoughtsSet{$CurrentThought} = $CurrentThought;
         _maybe_expell_thoughts();
     }
 
@@ -170,5 +187,74 @@ sub antiquate_current_thought{
    $OlderThoughtCount++;
    _recalculate_Compstrength();
 }
+
+
+
+# method: display_as_text
+# prints a string of the stream
+#
+sub display_as_text{
+    my ( $package ) = @_;
+    my $thoughts = form
+        "*******************************************",
+        "Current Thought:                           ",
+        "{[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+        (defined $CurrentThought) ? $CurrentThought->as_text() : "none",
+        "*******************************************",
+        "{>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<}",
+        ["OLDER THOUGHTS"],
+        "{[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+         [map { $_->as_text } @OlderThoughts];
+    print $thoughts;
+}
+
+
+# method: _is_there_a_hit
+# Is there another thought with a common fringe?
+#
+# Given the fringe and the extended fringe (each being an array ref, each of whose elements are 2 element array refs, the first being a component and the second the strength, it checks if there is a hit; If there is, the thought with which the hit occured is returned. Perhaps only thoughts of the same core type as the current are returned.
+sub _is_there_a_hit{
+    my ( $fringe_ref, $extended_ref ) = @_;
+    my %components_hit; # keys values same
+    my %hit_intensity;  # keys are components, values numbers
+
+    for my $in_fringe (@$fringe_ref, @$extended_ref) {
+        my ($comp, $intensity ) = @$in_fringe;
+        next unless exists $ComponentOwnership_of{$comp};
+        $components_hit{$comp} = $comp;
+        $hit_intensity{$comp} = $intensity;
+    }
+
+    # Now get a list of which thoughts are hit.
+    my %thought_hit_intensity;  # keys are thoughts, values intensity
+
+    for my $comp (values %components_hit) {
+        next unless exists $ComponentOwnership_of{$comp};
+        my $owner_ref = $ComponentOwnership_of{$comp};
+        my $intensity = $hit_intensity{$comp};
+        for my $tht (keys %$owner_ref) {
+            $thought_hit_intensity{$tht} += 
+                $owner_ref->{$tht} * $intensity;
+        }
+    }
+    
+    # Dampen their effect...
+    my $dampen_by = 1;
+    for my $i (0..$OlderThoughtCount-1) {
+        $dampen_by *= $DiscountFactor;
+        my $thought = $OlderThoughts[$i];
+        next unless exists $thought_hit_intensity{$thought};
+        $thought_hit_intensity{$thought} *= $dampen_by;
+    }
+
+    # Okay, so now I have done the hard work, but I do not have a good choosing mechanism yet!
+    # Will just choose maximum intensity
+    my @sorted_thoughts = 
+        sort { $thought_hit_intensity{$b} <=> $thought_hit_intensity{$a} }
+            keys %thought_hit_intensity;
+    return unless @sorted_thoughts;
+    return $ThoughtsSet{ $sorted_thoughts[0] };
+}
+
 
 1;
