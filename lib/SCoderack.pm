@@ -97,11 +97,11 @@ sub add_codelet{
     my ( $package, $codelet ) = @_;
     confess "A non codelet is being added" unless $codelet->isa("SCodelet");
     $CODELET_COUNT++;
-    if ($CODELET_COUNT > $MAX_CODELETS) {
-        confess "Haven't implemented expunging codelets yet";
-    }
     push(@CODELETS, $codelet);
     $URGENCIES_SUM += $codelet->[1];
+    if ($CODELET_COUNT > $MAX_CODELETS) {
+        expunge_codelet();
+    }
 }
 
 
@@ -157,12 +157,17 @@ sub get_next_runnable{
     }
 
     if ($SCHEDULED_THOUGHT) {
+        ## SCheduled Thought Present
+        ## $CODELET_COUNT
         my $use_scheduled = SUtil::toss(0.7);
-        if ($use_scheduled) {
-            ### get_next_runnable, using scheduled
+        ## $use_scheduled
+        if ($use_scheduled or ($CODELET_COUNT == 0)) {
+            ## get_next_runnable, using scheduled:
             my $to_return = $SCHEDULED_THOUGHT;
             $SCHEDULED_THOUGHT = undef;
+            ## $SCHEDULED_THOUGHT
             return $to_return;
+            
         }elsif (SUtil::toss(0.5)) {
             $SCHEDULED_THOUGHT = undef;
         }
@@ -219,6 +224,18 @@ sub force_thought{
 sub schedule_thought{
     my ( $package, $thought ) = @_;
     $SCHEDULED_THOUGHT = $thought;
+}
+
+
+
+# method: expunge_codelet
+# Gets rid of the minimum urgency codelet.
+#
+sub expunge_codelet{
+    @CODELETS = sort { $b->[1] <=> $a->[1] } @CODELETS;
+    my $cl = pop(@CODELETS);
+    $CODELET_COUNT--;
+    $URGENCIES_SUM -= $cl->[1];
 }
 
 

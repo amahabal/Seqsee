@@ -150,4 +150,14 @@ sub display_as_text{
 
 
 
+# method: _saccade
+# unthought through method to saccade
+#
+#    Jumps to a random valid position
+sub _saccade{
+    my $random_pos = int( rand() * $elements_count );
+    $ReadHead = $random_pos;
+}
+
+
 1;

@@ -294,12 +294,12 @@ sub init_display{
 # 'e' - exit
 
 sub TextMainLoop{
-    while (my $line = prompt -require => { "Seqsee> " =>  qr{\S}},
-           "Seqsee> ") {
-        if ($line =~ m/^ \s* s \s*$/xi) {
+    while (my $line = prompt -require => { "Seqsee[$Steps_Finished] > " =>  qr{\S}},
+           "Seqsee[$Steps_Finished] > ") {
+        if ($line =~ m/^ \s* s \s* $/xi) {
             Interaction_step( { n => 1, update_after => 1 } );
         } elsif ( $line =~ m/^ \s* s \s* (\d+) \s* $/xi) {
-            Interaction_step( { n => $1, 
+            Interaction_step_n( { n => $1, 
                                 update_after=> $OPTIONS_ref->{update_interval},
                             } );
         } elsif ( $line =~ m/^ \s* c \s* $/ix) {
@@ -394,7 +394,9 @@ sub Seqsee_Step{
 #
 
 sub do_background_activity{
-
+    SCoderack->add_codelet( SCodelet->new( "Reader",
+                                           50, {}
+                                               ));
 
 }
 
