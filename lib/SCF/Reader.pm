@@ -12,10 +12,10 @@ package SCF::Reader;
 
 my $logger = Log::Log4perl->get_logger("SCF::Reader"); 
 sub run{
-    my $codelet  = shift;
-    my $opts_ref = $codelet->[3];
+    my $action_object  = shift;
+    my $opts_ref = shift;
     if (LOGGING_INFO()) {
-        my $msg = $codelet->generate_log_msg();
+        my $msg = $action_object->generate_log_msg();
 
         $logger->info( $msg );
     }

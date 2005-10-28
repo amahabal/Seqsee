@@ -67,6 +67,7 @@ sub clear{
     @OlderThoughts       = ();
     $CurrentThought      = undef;
     %ComponentStrength   = ();
+    %ComponentOwnership_of = ();
 }
 
 
@@ -104,18 +105,8 @@ sub add_thought{
         $logger->debug( "SSTREAM: new thought $thought" );
     }
 
-    my $fringe = $thought->get_fringe();
-    my $extended_fringe = $thought->get_extended_fringe();
-
-    my $hit_with = _is_there_a_hit( $fringe, $extended_fringe );
-
-    my @action_set = $thought->get_actions();
-
-    if ($hit_with) {
-        my $new_action = SAction::FindReln->new( $hit_with, $thought );
-    }
-    
     return if $thought eq $CurrentThought;
+
 
     if (exists $ThoughtsSet{$thought}) { #okay, so this is an older thought
         unshift( @OlderThoughts, $CurrentThought ) if $CurrentThought;
@@ -130,6 +121,61 @@ sub add_thought{
         $CurrentThought = $thought;
         $ThoughtsSet{$CurrentThought} = $CurrentThought;
         _maybe_expell_thoughts();
+    }
+    _think_the_current_thought();
+    
+}
+
+
+
+# method: _think_the_current_thought
+# 
+#
+sub _think_the_current_thought{
+    my $thought = $CurrentThought;
+    return unless $thought;
+
+    my $fringe = $thought->get_fringe();
+    $thought->set_stored_fringe( $fringe );
+    my $extended_fringe = $thought->get_extended_fringe();
+
+    my $hit_with = _is_there_a_hit( $fringe, $extended_fringe );
+
+    my @action_set = $thought->get_actions();
+
+    if ($hit_with) {
+        my $new_thought = SThought::AreRelated->new( {a => $hit_with,
+                                                      b => $thought});
+        push @action_set, $new_thought;
+    }
+
+    my (@_thoughts, @_codelets, @_actions);
+    for my $x (@action_set) {
+        my $x_type = ref $x;
+        if ($x_type eq "SCodelet") {
+            push @_codelets, $x;
+        } elsif ($x_type eq "SAction") {
+            push @_actions, $x;
+        } else {
+            confess "Huh? " unless $x->isa("SThought");
+            push @_thoughts, $x;
+        }
+    }
+
+    # Execute the actions
+    for (@_actions) {
+        $_->conditionally_run();
+    }
+    
+    # Add codelets to coderack
+    for (@_codelets) {
+        SCoderack->add_codelet( $_ );
+    }
+
+    # Choose a thought and schedule it.
+    if (@_thoughts) {
+        my $idx = int(rand() * scalar(@_thoughts));
+        SCoderack->schedule_thought( $_thoughts[$idx] );
     }
 
 }
@@ -153,12 +199,12 @@ sub _maybe_expell_thoughts{
 #method: _recalculate_Compstrength
 # Recalculates the strength of components from scratch
 sub _recalculate_Compstrength{
-    %ComponentStrength = ();
-    my $multiplicand = 1;
+    %ComponentOwnership_of = ();
     for my $t (@OlderThoughts) {
-        $multiplicand *= $DiscountFactor;
-        foreach my $component ( $t->get_fringe() ) {
-            $ComponentStrength{ $component } += $multiplicand;
+        my $fringe = $t->get_stored_fringe();
+        for my $comp_act (@$fringe) {
+            my ($comp, $act) = @$comp_act;
+            $ComponentOwnership_of{$comp}{$t} = $act;
         }
     }
 }

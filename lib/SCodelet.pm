@@ -14,7 +14,7 @@ sub run {
     no strict;
     my $code = *{"SCF::$self->[0]::run"}{CODE}
         or fishy_codefamily( $self->[0] );
-    $code->( $self );
+    $code->( $self, $self->[3] );
 }
 
 sub fishy_codefamily {

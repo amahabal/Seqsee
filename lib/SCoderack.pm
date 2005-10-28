@@ -121,8 +121,8 @@ sub _choose_codelet{
     ## _choose_codelet random_number: $random_number
     ## @CODELETS
     my $index         = 0;
-    while ( $random_number > $codelets[$index]->[1] ) {
-        $random_number -= $codelets[$index]->[1];
+    while ( $random_number > $CODELETS[$index]->[1] ) {
+        $random_number -= $CODELETS[$index]->[1];
         $index++;
     }
     ## _choose_codelet returning: $index
