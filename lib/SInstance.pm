@@ -152,7 +152,8 @@ sub get_categories{
     my ( $self ) = @_;
     my $id = ident $self;
     my @cat_strings = keys %{ $cats_of_of{$id} };
-    return map { $S::Str2Cat{$_} } @cat_strings;
+    return [] unless @cat_strings;
+    return [ map { $S::Str2Cat{$_} } @cat_strings ];
 }
 
 
@@ -268,7 +269,10 @@ sub get_cat_bindings {
 
 sub get_cats {
     my $self = shift;
-    return map { $SCat::Str2Cat{$_} } keys %{ $cats_of_of{ ident $self} };
+    my $id = ident $self;
+    my @cat_strings = keys %{$cats_of_of{$id}};
+    return [] unless @cat_strings;
+    return [ map { $SCat::Str2Cat{$_}} @cat_strings ];
 }
 
 sub get_blemish_cats {

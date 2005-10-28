@@ -155,6 +155,13 @@ sub tf_new{
 #####################################################
 #   $one_line_desc
 #####################################################
+package $package_name;
+use strict;
+use Carp;
+use Class::Std;
+use Class::Multimethods;
+use base qw{SThought};
+
 
 $core_v
 
@@ -174,7 +181,7 @@ sub get_fringe{
     my \$id = ident \$self;
     my \@ret;
 
-    return \@ret;
+    return \\\@ret;
 }
 
 # method: get_extended_fringe
@@ -185,7 +192,7 @@ sub get_extended_fringe{
     my \$id = ident \$self;
     my \@ret;
 
-    return \@ret;
+    return \\\@ret;
 }
 
 # method: get_actions
@@ -197,6 +204,15 @@ sub get_actions{
     my \@ret;
 
     return \@ret;
+}
+
+# method: as_text
+# textual representation of thought
+sub as_text{
+    my ( \$self ) = \@_;
+    my \$id = ident \$self;
+
+    return "$package_name ";
 }
 
 1;

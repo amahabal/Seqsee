@@ -203,20 +203,20 @@ sub display_as_text{
 
 
 
-# method: set_forced_thought
+# method: force_thought
 # Set the forced thought to this
 #
-sub set_forced_thought{
+sub force_thought{
     my ( $package, $thought ) = @_;
     $FORCED_THOUGHT = $thought;
 }
 
 
 
-# method: set_scheduled_thought
+# method: schedule_thought
 # Set the scheduled thought to this
 #
-sub set_scheduled_thought{
+sub schedule_thought{
     my ( $package, $thought ) = @_;
     $SCHEDULED_THOUGHT = $thought;
 }

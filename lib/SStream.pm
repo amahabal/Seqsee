@@ -10,6 +10,8 @@
 package SStream;
 use strict;
 use Perl6::Form;
+use Carp;
+use Smart::Comments;
 
 my $logger;
 {
@@ -261,6 +263,8 @@ sub display_as_text{
 # Given the fringe and the extended fringe (each being an array ref, each of whose elements are 2 element array refs, the first being a component and the second the strength, it checks if there is a hit; If there is, the thought with which the hit occured is returned. Perhaps only thoughts of the same core type as the current are returned.
 sub _is_there_a_hit{
     my ( $fringe_ref, $extended_ref ) = @_;
+    ### $fringe_ref
+    ### $extended_ref
     my %components_hit; # keys values same
     my %hit_intensity;  # keys are components, values numbers
 

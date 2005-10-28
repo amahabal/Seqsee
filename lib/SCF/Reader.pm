@@ -34,7 +34,7 @@ sub run{
     }
 
     if ( $object ) {
-        SStream->add_thought( SThought->new( { core => $object }));
+        SStream->add_thought( SThought->create($object) );
     }
 }
 

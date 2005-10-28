@@ -4,6 +4,9 @@ use strict;
 use Class::Std;
 use Carp;
 
+use SThought::SElement;
+use SThought::AreRelated;
+ 
 # variable: %fringe_of
 #    Keeps the fringe of the the thought
 my %stored_fringe_of :ATTR( :get<stored_fringe>, :set<stored_fringe> );

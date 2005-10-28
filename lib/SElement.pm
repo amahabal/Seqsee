@@ -12,7 +12,7 @@ package SElement;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{};
+use base qw{SInstance};
 
 my %mag_of :ATTR(:get<mag>);
 my %left_edge_of : ATTR( :set<left_edge> :get<left_edge> );
