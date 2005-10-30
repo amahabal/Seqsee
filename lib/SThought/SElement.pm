@@ -16,7 +16,7 @@ use base qw{SThought};
 
 # variable: %core_of
 #    The core
-my %core_of :ATTR();
+my %core_of :ATTR( :get<core>);
 
 
 # variable: %magnitude_of

@@ -144,8 +144,8 @@ sub tf_new{
     my $one_line_desc = prompt "One line description: ";
     my $has_core = prompt -yn => "Does this thought type have a core?";
 
-    my $core_v = $has_core ? "# variable: \%core_of\n#  The Core\nmy \%core_of :ATTR()" : "";
-    my $core_build_line = $has_core ? "  my \$core = \$core_of{\$id} = \$opts_ref->{core} or confess \"Need core\";" : "";
+    my $core_v = $has_core ? "# variable: \%core_of\n#  The Core\nmy \%core_of :ATTR( :get<core>);" : "";
+    my $core_build_line = $has_core ? "    my \$core = \$core_of{\$id} = \$opts_ref->{core} or confess \"Need core\";" : "";
 
     print {$out} << "PM_FILE";
 #####################################################
@@ -217,5 +217,7 @@ sub as_text{
 
 1;
 PM_FILE
+
+print "Please remember to add 'use $package_name;' to SThought.pm or somewhere appropriate. Also remember to do 'perl Makefile.PL'\n";
 
 }

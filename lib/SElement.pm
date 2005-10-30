@@ -22,6 +22,7 @@ sub BUILD {
     my ( $self, $id, $opts ) = @_;
     $mag_of{$id} = $opts->{mag};
     confess "Need mag" unless defined $mag_of{$id};
+    $mag_of{$id} = int($mag_of{$id});
 }
 
 

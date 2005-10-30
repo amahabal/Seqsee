@@ -12,7 +12,7 @@ use Carp;
 use Class::Std;
 use Class::Multimethods;
 use base qw{SThought};
-
+use Smart::Comments;
 
 # variable: %a_of
 #    First arg
@@ -29,6 +29,9 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     $a_of{$id} = $opts_ref->{a} or confess "Need a";
     $b_of{$id} = $opts_ref->{b} or confess "Need b";
+
+    ## $a_of{$id}
+
 }
 
 # method: get_fringe
@@ -60,6 +63,26 @@ sub get_actions{
     my ( $self ) = @_;
     my $id = ident $self;
     my @ret;
+
+    my $a = $a_of{$id};
+    my $b = $b_of{$id};
+    my $a_core = $a->can('get_core') ? $a->get_core() : undef;
+    my $b_core = $b->can('get_core') ? $b->get_core() : undef;
+
+    ## $a_core, $b_core
+
+    if ($a_core and $b_core) {
+
+        my $act = SAction->new( {
+            family  => "FindReln",
+            urgency => 100,
+            args    => { a => $a_core,
+                         b => $b_core,
+                     }
+                });
+        push @ret, $act;
+    }
+
 
     return @ret;
 }

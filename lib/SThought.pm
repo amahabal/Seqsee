@@ -6,6 +6,7 @@ use Carp;
 
 use SThought::SElement;
 use SThought::AreRelated;
+use SThought::SReln_Simple;
  
 # variable: %fringe_of
 #    Keeps the fringe of the the thought
@@ -16,7 +17,7 @@ my %stored_fringe_of :ATTR( :get<stored_fringe>, :set<stored_fringe> );
 #    Converts type to a class name
 my %_Type2Class = 
     qw(   SElement        SThought::SElement
-                         
+          SReln::Simple   SThought::SReln_Simple
            );
 
 # method: create

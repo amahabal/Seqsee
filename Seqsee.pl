@@ -137,6 +137,7 @@ sub _read_config_and_commandline{
                 "seq=s",
                 "update_interval=i",
                 "interactive!",
+                "max_steps=i",
                     );
     for (qw{seed log tk seq max_steps 
             interactive update_interval}) {
@@ -378,6 +379,7 @@ sub Seqsee_Step{
             if ($err->isa('SErr::ProgOver')) {
                 return 1;
             } else {
+                die $EVAL_ERROR unless ref($err);
                 $err->rethrow();
             }
         }

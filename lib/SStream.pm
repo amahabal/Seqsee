@@ -166,6 +166,7 @@ sub _think_the_current_thought{
 
     # Execute the actions
     for (@_actions) {
+        ## running action: $_
         $_->conditionally_run();
     }
     

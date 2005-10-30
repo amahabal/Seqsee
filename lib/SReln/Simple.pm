@@ -12,7 +12,7 @@ use Carp;
 use Class::Std;
 use Class::Multimethods;
 use base qw{};
-
+use Smart::Comments;
 
 # variable: %str_of
 #    The string representation of the relation
@@ -93,6 +93,34 @@ multimethod apply_reln => ('SReln::Simple', '#')=> sub {
     }
 
 };
+
+#
+# subsection: SElements
+
+
+
+# multi: find_reln ( $, $ )
+# Both must be integers, else dies
+#
+multimethod find_reln => ('$', '$') => sub {
+    my ( $n1, $n2 ) = @_;
+    print "Should Never reach here; If it does, it means that find_reln was called with funny arguments. These, in this case, are:\n\t'$n1'\n\t'$n2'\n";
+    confess "find_reln error";
+};
+
+
+
+
+# multi: find_reln ( SElement, SElement )
+# merely the relation between their magnitudes
+#
+multimethod find_reln => qw( SElement SElement ) => sub {
+    my ( $e1, $e2 ) = @_;
+    ## $e1->get_mag()
+    ## $e2->get_mag()
+    return find_reln($e1->get_mag(), $e2->get_mag);
+};
+
 
 
 1;
