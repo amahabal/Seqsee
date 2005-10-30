@@ -14,11 +14,6 @@ use SAction;
 use SCoderack;
 use SCodeConfig;
 
-use SObject;
-# Next 2 lines need removal
-#use SInt;
-#use SBuiltObj;
-
 use SMetonym;
 use SMetonymType;
 use SMulti;
@@ -33,6 +28,8 @@ use SCat::sameness;
 #use SCat::number;
 use SCat::literal;
 
+use SObject;
+use SAnchored;
 use SElement;
 use SWorkspace;
 

@@ -16,7 +16,7 @@ lives_ok { $bo->add_category( $cat1, SBindings->create({}, {}, $bo) ) }
 lives_ok { $bo->add_category( $cat2, SBindings->create({}, {}, $bo) ) } 
     "add_cat lives okay with cat arg";
 
-my @cats = sort $bo->get_categories();
+my @cats = sort @{ $bo->get_categories() };
 cmp_deeply( \@cats, [ sort( $cat1, $cat2 ) ] );
 
 my $in_cat1 = $bo->is_of_category_p($cat1)->[0];

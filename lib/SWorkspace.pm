@@ -72,14 +72,14 @@ sub insert_elements{
 # method: _insert_element(SElement)
 
 multimethod _insert_element => ( '#' ) => sub {
-    _insert_element( SElement->new( { mag => shift } ) );
+    _insert_element( SElement->create( shift ) );
 };
 
 multimethod _insert_element => ( '$' ) => sub {
     use Scalar::Util qw(looks_like_number);
     my $what = shift;
     if (looks_like_number($what)) {
-        _insert_element( SElement->new( { mag => $what } ) );
+        _insert_element( SElement->create( int( $what ) ) );
     } else {
         die "Huh? Trying to insert '$what' into the workspace";
     }
