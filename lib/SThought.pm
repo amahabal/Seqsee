@@ -4,9 +4,6 @@ use strict;
 use Class::Std;
 use Carp;
 
-use SThought::SElement;
-use SThought::AreRelated;
-use SThought::SReln_Simple;
  
 # variable: %fringe_of
 #    Keeps the fringe of the the thought

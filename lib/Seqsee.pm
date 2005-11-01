@@ -40,6 +40,31 @@ sub initialize_codefamilies{
 }
 
 
+
+# method: initialize_thoughttypes
+# 
+sub initialize_thoughttypes{
+    use UNIVERSAL::require;
+    open(IN, "ThoughtType.list") 
+        or SErr::Code->throw("Could not open SCF.list");
+    while (my $in = <IN>) {
+        $in =~ s{#.*}{};
+        $in =~ s#\s##g;
+        next unless $in;
+        $in->require or SErr::Code->throw("Required Thoughtfamily '$in' missing");
+
+        unless ( UNIVERSAL::can($in, "get_fringe") and 
+                 UNIVERSAL::can($in, "get_extended_fringe") and
+                 UNIVERSAL::can($in, "get_actions")
+              ) {
+            SErr::Code->throw("Error in processing thoughtfamily '$in': It does not define one of the following methods: get_fringe, get_extended_fringe, get_actions");
+        }
+    }
+}
+
+
+
+
 #### method _SeqseeMainLoop
 # description    :runs the program, basically calling _SeqseeMainStep() until it returns false
 # argument list  :

@@ -60,6 +60,7 @@ GET_GOING(); # Potentially "infinite" loop
 sub INITIALIZE{
 
     Seqsee->initialize_codefamilies();
+    Seqsee->initialize_thoughttypes();
 
     # Initialize logging
     SLog->init( $OPTIONS_ref );
