@@ -35,6 +35,17 @@ sub create{
 }
 
 
+
+# method: schedule
+# schedules self as a scheduled thought
+#
+#    Parallels a method in SCodelet that adds itself to the coderack.
+sub schedule{
+    my ( $self ) = @_;
+    SCoderack->schedule_thought( $self );
+}
+
+
 1;
 
 

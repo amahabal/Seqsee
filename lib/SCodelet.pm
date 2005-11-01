@@ -4,6 +4,7 @@ use Carp;
 
 sub new {
     my ( $package, $family, $urgency, $args_ref ) = @_;
+    $args_ref ||= {};
     bless [ $family, $urgency, $::CurrentEpoch, $args_ref ], $package;
 }
 
@@ -42,5 +43,17 @@ sub generate_log_msg{
         join("", "="x10, "\n", 
              "--- (Time: $::Steps_Finished; Family: $codelet->[0])\n",);
 }
+
+
+
+# method: schedule
+# adds self to Coderack
+#
+#    Parallels a method in SThought that schedules itself.
+sub schedule{
+    my ( $self ) = @_;
+    SCoderack->add_codelet( $self );
+}
+
 
 1;

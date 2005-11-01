@@ -16,6 +16,9 @@ use Exception::Class (
     
     'SErr::NotOfCat'            => {},
     'SErr::MetonymNotAppicable' => {},
+
+
+    'SErr::NeedMoreData'   => { fields => ['payload']},
 );
 1;
 
