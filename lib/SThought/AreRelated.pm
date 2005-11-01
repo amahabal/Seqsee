@@ -2,6 +2,18 @@
 #
 #    Package: SThought::AreRelated
 #
+#
+# Thought Type: AreRelated
+#
+# Core:
+#
+# 
+# Fringe:
+#
+# Extended Fringe:
+#
+# Actions:
+#
 #####################################################
 #   Are the two thoughts related?
 #####################################################
@@ -74,7 +86,7 @@ sub get_actions{
     if ($a_core and $b_core) {
 
         my $act = SAction->new( {
-            family  => "FindReln",
+            family  => "FindIfRelated",
             urgency => 100,
             args    => { a => $a_core,
                          b => $b_core,

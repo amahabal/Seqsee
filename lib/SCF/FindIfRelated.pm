@@ -21,6 +21,7 @@ use Smart::Comments;
 use English qw(-no_match_vars);
 
 use Class::Multimethods;
+multimethod 'find_reln';
 
 use base qw{};
 

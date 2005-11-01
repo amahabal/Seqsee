@@ -57,7 +57,7 @@ GET_GOING(); # Potentially "infinite" loop
 #context of call: 
 #   should get called only once, at the beginning
 
-sub INITIALIZE{
+sub INITIALIZE{ 
 
     Seqsee->initialize_codefamilies();
     Seqsee->initialize_thoughttypes();

@@ -1,23 +1,33 @@
 #####################################################
-# 
+#
 #    Package: SThought::SElement
 #
+# Thought Type: SElement
+#
+# Core:
+#
+# 
+# Fringe:
+#
+# Extended Fringe:
+#
+# Actions:
+#
 #####################################################
-#   Thoughts of type "SElement"
+#   
 #####################################################
-
 package SThought::SElement;
 use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
+use English qw(-no_match_vars);
 use base qw{SThought};
 
 
 # variable: %core_of
-#    The core
+#  The Core
 my %core_of :ATTR( :get<core>);
-
 
 # variable: %magnitude_of
 #    The magnitude
@@ -25,18 +35,17 @@ my %magnitude_of :ATTR( :get<magnitude>);
 
 
 # method: BUILD
-# Builds, given the core
+# Builds
 #
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
+    
     my $core = $core_of{$id} = $opts_ref->{core} or confess "Need core";
     $magnitude_of{$id} = $core->get_mag;
 }
 
-
-
 # method: get_fringe
-# Just the literal category, and categories the core belongs to
+# 
 #
 sub get_fringe{
     my ( $self ) = @_;
@@ -55,7 +64,7 @@ sub get_fringe{
 }
 
 # method: get_extended_fringe
-# Just literal categories of mag +- 1
+# 
 #
 sub get_extended_fringe{
     my ( $self ) = @_;
@@ -69,25 +78,19 @@ sub get_extended_fringe{
     return \@ret;
 }
 
-
-
 # method: get_actions
-# Launch some codelets
-#
-#    * very low priority codelet that looks for more instances
+# 
 #
 sub get_actions{
     my ( $self ) = @_;
     my $id = ident $self;
+    my @ret;
 
-    # Currently returns nothing.
-    return;
+    return @ret;
 }
 
-
-
 # method: as_text
-# 
+# textual representation of thought
 sub as_text{
     my ( $self ) = @_;
     my $id = ident $self;
@@ -96,8 +99,8 @@ sub as_text{
                                  $core->get_right_edge,
                                  $magnitude_of{$id}
                                      );
+
     return "SThought::SElement [$left, $right] $mag";
 }
-
 
 1;

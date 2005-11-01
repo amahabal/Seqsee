@@ -2,6 +2,17 @@
 #
 #    Package: SThought::SReln_Simple
 #
+# Thought Type: SReln_Simple
+#
+# Core:
+#
+# 
+# Fringe:
+#
+# Extended Fringe:
+#
+# Actions:
+#
 #####################################################
 #   
 #####################################################
@@ -10,6 +21,7 @@ use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
+use English qw(-no_match_vars);
 use base qw{SThought};
 
 
@@ -17,12 +29,15 @@ use base qw{SThought};
 #  The Core
 my %core_of :ATTR( :get<core>);
 
+
 # method: BUILD
 # Builds
 #
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
+    
     my $core = $core_of{$id} = $opts_ref->{core} or confess "Need core";
+    
 }
 
 # method: get_fringe
@@ -64,7 +79,7 @@ sub as_text{
     my ( $self ) = @_;
     my $id = ident $self;
 
-    return "SThought::SReln_Simple ";
+    return "SThought::SReln_Simple";
 }
 
 1;

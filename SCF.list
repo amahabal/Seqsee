@@ -1,6 +1,4 @@
 SCF::Reader
-
-SCF::FindReln
 SCF::FindIfGroupable
 SCF::FindIfMetonyable
 SCF::FindIfRelated
