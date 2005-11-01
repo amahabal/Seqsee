@@ -43,10 +43,25 @@ sub run{
     my $category  = $opts_ref->{category} or confess "Need category";
     my $items_ref = $opts_ref->{items} or confess "Need items";
 
-    my $object = SObject->new({ items   => $items_ref,
-                                group_p => 1,
-                            });
-    
+
+    my $object;
+    # We'll check if all items are anchored
+    # Look at the items: all or none should be SAnchored
+    my @anchored_p = map { UNIVERSAL::isa($_, "SAnchored") ?1:0} @$items_ref;
+    my $anchored_count = sum(@anchored_p);
+
+    if ($anchored_count == scalar( @anchored_p ) ) {
+        $object = SAnchored->create( @$items_ref );
+    } elsif (!$anchored_count) { # none anchored
+        $object = SObject->new({ items   => $items_ref,
+                                    group_p => 1,
+                                });
+    } else {
+        # some anchored, some unanchored
+        SErr->throw( "There are some unanchored and some anchored objects that were passed to me. There is a serious flaw somewhere" );
+    }
+
+
     my $bindings;
     eval { $bindings = $category->is_instance( $object ); };
     if ($EVAL_ERROR) {
@@ -62,21 +77,6 @@ sub run{
     }
 
     return unless $bindings;
-
-    # Look at the items: all or none should be SAnchored
-    my @anchored_p = map { UNIVERSAL::isa($_, "SAnchored") ?1:0} @$items_ref;
-    my $anchored_count = sum(@anchored_p);
-
-    if ($anchored_count == scalar( @anchored_p ) ) {
-        my @left_edges  = map { $_->get_left_edge() } @$items_ref;
-        my @right_edges = map { $_->get_right_edge() } @$items_ref;
-        my $left = min(@left_edges);
-        my $right = max(@right_edges);
-        #XXX Need to make sure there are no gaps
-        $object->set_left_edge( $left );
-        $object->set_right_edge( $right );
-        # XXX Need to add this to the workspace
-    }
 
     SCodelet->new("FindIfMetonyable", 50)->schedule();
     SThought->create( $object )->schedule();

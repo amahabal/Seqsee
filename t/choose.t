@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-plan tests => 14; 
+plan tests => 17; 
 
 use SChoose;
 
@@ -106,3 +106,19 @@ for (1..1000) {
 
 ok($Counter{two} >= 180 and $Counter{two} <= 220);
 ok($Counter{four} >= 360 and $Counter{four} <= 440);
+
+
+## Cases where we should get undef:
+
+my $choice = SChoose->choose([]);
+undef_ok( $choice );
+
+$chooser = SChoose->create({ grep => sub {
+                                 return ($_[0] % 2) == 0 
+                             },
+                         }); # from even 
+$choice = $chooser->([]);
+undef_ok( $choice );
+
+$choice = $chooser->([1,3,5]);
+undef_ok( $choice );

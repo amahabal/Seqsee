@@ -2,6 +2,7 @@ package STest::SObject;
 use base qw{Test::Class};
 use Test::More;
 use Test::Deep;
+use Test::Exception;
 
 use S;
 
@@ -76,5 +77,42 @@ sub quik_create :Test(8) {
     $object2->is_of_category_ok($S::ASCENDING);
 
 }
+
+
+
+# method: is_sane
+# Checks that all or none of the items are SAnchored. 
+#
+#    If all are SAnchored, checks that their left and right edges are defined, and when composed, this object shall not have holes in it.
+#     
+#    This call should work on the items, not the composed object. The composed object will come into existence once the sanity passes.
+sub is_sane :Test(8){
+    my $o_unanch1 = SObject->create(2,3);
+    my $o_unanch2 = SObject->create(2,3);
+    my $e1 = SElement->create(3)->set_edges(4,4);
+    my $e2 = SElement->create(3)->set_edges(5,5);
+    my $e3 = SElement->create(3)->set_edges(6,6);
+    my $e4 = SElement->create(3)->set_edges(7,7);
+    my $e5 = SElement->create(3)->set_edges(8,8);
+    my $o_anch1 = SAnchored->create( $e1, $e2, $e3 );
+
+    cmp_ok($o_anch1->get_left_edge(), 'eq', 4);
+    cmp_ok($o_anch1->get_right_edge(), 'eq', 6);
+
+    my $o_anch2 = SAnchored->create($o_anch1, $e4);
+    cmp_ok($o_anch2->get_left_edge(), 'eq', 4);
+    cmp_ok($o_anch2->get_right_edge(), 'eq', 7);
+
+    my $o_anch3 = SAnchored->create($e4, $o_anch1);
+    cmp_ok($o_anch3->get_left_edge(), 'eq', 4);
+    cmp_ok($o_anch3->get_right_edge(), 'eq', 7);
+
+    throws_ok { SAnchored->create( $o_anch1, $e5 )} SErr, "There are holes here!";
+
+    throws_ok { SAnchored->create( $o_unanch1, $e5 )} SErr, "There is an unachored object here";
+
+}
+
+
 
 1;

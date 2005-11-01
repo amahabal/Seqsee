@@ -27,8 +27,12 @@ sub create{
         my $grep_fn = $opts_ref->{grep};
         my $grep_needed = $grep_fn ? 1 : 0;
         
+        my $grep_count = $grep_needed ? 0 : 1;
+
         return sub {
             my ( $objects_ref ) = @_;
+            return unless @$objects_ref;
+
             my (@likelihood_sums, $likelihood_partial_sum);
 
             if ($map_needed) {
@@ -38,6 +42,7 @@ sub create{
                         $likelihood = 0;
                     } else {
                         $likelihood = $map_fn->($obj);
+                        $grep_count++;
                     }
                     $likelihood_partial_sum += $likelihood;
                     push @likelihood_sums, 
@@ -47,8 +52,13 @@ sub create{
                 # no map needed, could still need grep.
                 if ($grep_needed) {
                     for my $obj (@$objects_ref) {
-                        my $likelihood = 
-                            $grep_fn->($obj) ? $obj : 0;
+                        my $likelihood;
+                        if ($grep_fn->($obj)) {
+                            $likelihood = $obj;
+                            $grep_count++;
+                        } else {
+                            $likelihood = 0;
+                        }
                         $likelihood_partial_sum += $likelihood;
                         push @likelihood_sums, 
                             $likelihood_partial_sum;
@@ -62,6 +72,10 @@ sub create{
                             $likelihood_partial_sum;
                     }
                 }
+            }
+
+            unless ($grep_count) { # nothing passed the grep!
+                return;
             }
             
             my $idx;
@@ -87,6 +101,7 @@ sub create{
 #
 sub choose{
     my ( $package, $number_ref, $name_ref ) = @_;
+    return unless @$number_ref;
     $name_ref ||= $number_ref;
 
     my $random = rand() * sum(@$number_ref); 
