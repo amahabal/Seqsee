@@ -2,6 +2,13 @@
 #
 #    Package: SCF::FindIfMetonyable
 #
+# CF: FindIfMetonyable
+#
+# Options:
+# 
+# How It Works:
+#
+# Thought/Codelets Scheduled: 
 #####################################################
 #   
 #####################################################

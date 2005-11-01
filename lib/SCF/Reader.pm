@@ -1,5 +1,25 @@
+#####################################################
+#
+#    Package: SCF::Reader
+#
+# CF: Reader
+#
+# Options:
+#
+# How It Works:
+#
+# Thought/Codelets Scheduled:
+#
+#####################################################
+#   
+#####################################################
 
 package SCF::Reader;
+use strict;
+use Carp;
+use Class::Std;
+use base qw{};
+
 {
     my ($logger, $is_debug, $is_info);
     BEGIN{ $logger   = Log::Log4perl->get_logger("SCF::Reader"); 
@@ -11,10 +31,14 @@ package SCF::Reader;
 }
 
 my $logger = Log::Log4perl->get_logger("SCF::Reader"); 
+
+
+# method: run
+# 
+#
 sub run{
-    my $action_object  = shift;
-    my $opts_ref = shift;
-    if (LOGGING_INFO()) {
+    my ( $action_object, $opts_ref ) = @_;
+        if (LOGGING_INFO()) {
         my $msg = $action_object->generate_log_msg();
 
         $logger->info( $msg );
@@ -33,9 +57,9 @@ sub run{
         $logger->info( $msg );
     }
 
-    if ( $object ) {
-        SStream->add_thought( SThought->create($object) );
+    if ($object) {
+        SThought->create($object)->force_to_be_next_runnable();
     }
-}
 
+}
 1;

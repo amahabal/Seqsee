@@ -46,6 +46,17 @@ sub schedule{
 }
 
 
+
+# method: force_to_be_next_runnable
+# 
+#
+sub force_to_be_next_runnable{
+    my ( $self ) = @_;
+    SCoderack->force_thought( $self );
+}
+
+
+
 1;
 
 

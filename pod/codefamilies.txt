@@ -22,7 +22,7 @@ Codelets Launched:
 
 ###################
 
-CF: Bond Scout
+CF: Bond Scout rfhg
 
 Looks for bonds, possibly of a specific type
 

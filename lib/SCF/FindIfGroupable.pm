@@ -1,8 +1,13 @@
 #####################################################
+# Package: SCF::FindIfGroupable
 #
-#    Package: SCF::FindIfGroupable
+# CF: FindIfGroupable
 #
-#####################################################
+# Options:
+# 
+# How It Works:
+#
+# Thought/Codelets Scheduled: 
 #   
 #####################################################
 
