@@ -2,6 +2,7 @@ package Seqsee;
 use S;
 use version; our $VERSION = version->new( "0.0.3" );
 
+use English qw(-no_match_vars);
 
 sub run{
     my (@sequence) = @_;
@@ -27,7 +28,7 @@ sub initialize_codefamilies{
         $in =~ s{#.*}{};
         $in =~ s#\s##g;
         next unless $in;
-        $in->require or SErr::Code->throw("Required Codefamily '$in' missing");
+        $in->require or SErr::Code->throw($@ . "Required Codefamily '$in' missing");
 
         #unless (defined ${"$in"."::logger"}) {
         #    die"Error in processing codefamily '$in': It defines no variable \$logger\n";
@@ -51,7 +52,7 @@ sub initialize_thoughttypes{
         $in =~ s{#.*}{};
         $in =~ s#\s##g;
         next unless $in;
-        $in->require or SErr::Code->throw("Required Thoughtfamily '$in' missing");
+        $in->require() or SErr::Code->throw("$@ Required Thoughtfamily '$in' missing");
 
         unless ( UNIVERSAL::can($in, "get_fringe") and 
                  UNIVERSAL::can($in, "get_extended_fringe") and

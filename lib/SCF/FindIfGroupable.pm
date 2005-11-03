@@ -16,6 +16,8 @@ use strict;
 use Carp;
 use Class::Std;
 use English qw(-no_match_vars);
+use List::Util qw(sum);
+use Smart::Comments;
 
 use base qw{};
 
@@ -55,6 +57,8 @@ sub run{
     my @anchored_p = map { UNIVERSAL::isa($_, "SAnchored") ?1:0} @$items_ref;
     my $anchored_count = sum(@anchored_p);
 
+    ### Got here in FindIfGroupable
+
     if ($anchored_count == scalar( @anchored_p ) ) {
         $object = SAnchored->create( @$items_ref );
     } elsif (!$anchored_count) { # none anchored
@@ -66,6 +70,7 @@ sub run{
         SErr->throw( "There are some unanchored and some anchored objects that were passed to me. There is a serious flaw somewhere" );
     }
 
+    ### Object created: $object
 
     my $bindings;
     eval { $bindings = $category->is_instance( $object ); };
@@ -80,6 +85,8 @@ sub run{
             die $e;
         }
     }
+
+    ### Bindings: $bindings
 
     return unless $bindings;
 

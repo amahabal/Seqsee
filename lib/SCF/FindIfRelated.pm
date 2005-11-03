@@ -55,9 +55,13 @@ sub run{
     my $a = $opts_ref->{a} or confess "Need a";
     my $b = $opts_ref->{b} or confess "Need b";
 
+    ## Running FindIfRelated: $a, $b
+
     my $reln;
     eval {$reln = find_reln($a, $b)};
     
+    ## $reln
+
     if ($EVAL_ERROR) {
         my $e = $EVAL_ERROR;
         if (UNIVERSAL::isa($e, 'SErr::NeedMoreData')) {

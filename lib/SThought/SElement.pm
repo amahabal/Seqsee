@@ -60,6 +60,7 @@ sub get_fringe{
             push @ret, [ $_, 80];
     }
 
+
     return \@ret;
 }
 

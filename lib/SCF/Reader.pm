@@ -57,6 +57,7 @@ sub run{
         $logger->info( $msg );
     }
 
+
     if ($object) {
         SThought->create($object)->force_to_be_next_runnable();
     }

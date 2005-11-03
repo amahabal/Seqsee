@@ -138,10 +138,12 @@ sub _think_the_current_thought{
     return unless $thought;
 
     my $fringe = $thought->get_fringe();
+    ## $fringe
     $thought->set_stored_fringe( $fringe );
     my $extended_fringe = $thought->get_extended_fringe();
 
     my $hit_with = _is_there_a_hit( $fringe, $extended_fringe );
+    ## $hit_with
 
     my @action_set = $thought->get_actions();
 

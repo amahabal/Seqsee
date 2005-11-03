@@ -18,6 +18,13 @@ use Smart::Comments;
 #    The string representation of the relation
 my %str_of :ATTR(:get<text>);
 
+# variable: %first_of
+#    The first of the two things the relation is between
+my %first_of :ATTR( :get<first>);
+
+# variable: %second_of
+#    The second
+my %second_of :ATTR( :get<second>);
 
 
 # method: BUILD
@@ -28,6 +35,10 @@ my %str_of :ATTR(:get<text>);
 sub BUILD{
     my ( $self, $id, $arg_ref ) = @_;
     $str_of{$id} = $arg_ref->{text} or confess "Need text!";
+    
+    $first_of{$id}  = $arg_ref->{first} if $arg_ref->{first};
+    $second_of{$id} = $arg_ref->{second} if $arg_ref->{second};
+
 }
 
 
@@ -52,11 +63,20 @@ sub BUILD{
 multimethod find_reln => ('#', '#') => sub {
     my ( $a, $b ) = @_;
     if ($a == $b) {
-        return SReln::Simple->new( { text => "same" });
+        return SReln::Simple->new( { text => "same", 
+                                     first => $a,
+                                     second => $b,
+                                 });
     } elsif ($a + 1 == $b ) {
-        return SReln::Simple->new( { text => "succ" });
+        return SReln::Simple->new( { text => "succ",
+                                     first => $a,
+                                     second => $b,
+                                 });
     } elsif ($a - 1 == $b) {
-        return SReln::Simple->new( { text => "pred" });
+        return SReln::Simple->new( { text => "pred",
+                                     first => $a,
+                                     second => $b,
+                                 });
     }
 
     return;
@@ -116,9 +136,24 @@ multimethod find_reln => ('$', '$') => sub {
 #
 multimethod find_reln => qw( SElement SElement ) => sub {
     my ( $e1, $e2 ) = @_;
-    ## $e1->get_mag()
-    ## $e2->get_mag()
-    return find_reln($e1->get_mag(), $e2->get_mag);
+    my $rel = find_reln($e1->get_mag(), $e2->get_mag);
+    if ($rel) {
+        my $id = ident $rel;
+        $first_of{$id} = $e1;
+        $second_of{$id} = $e2;
+    }
+    return $rel;
+};
+
+
+
+# multi: apply_reln ( SReln::Simple, SElement )
+# 
+multimethod apply_reln => qw(SReln::Simple SElement) => sub {
+    my ( $rel, $el ) = @_;
+    my $new_mag = apply_reln($rel, $el->get_mag());
+    # Need to return an selement, but unanchored. Sigh.
+    return SElement->create( $new_mag );
 };
 
 
