@@ -1,4 +1,4 @@
-class: SInstance
+class: SInstance 
 
 method: add_category
 
