@@ -4,7 +4,7 @@ use Carp;
 use Class::Std;
 
 use base qw{SInstance};
-
+ 
 my %items : ATTR;
 
 sub BUILD {
