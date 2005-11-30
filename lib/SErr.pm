@@ -19,6 +19,7 @@ use Exception::Class (
 
 
     'SErr::NeedMoreData'   => { fields => ['payload']},
+    'SErr::HolesHere' => {}, #thrown by SAnchored constructor
 );
 1;
 

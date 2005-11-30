@@ -31,11 +31,13 @@ sub BUILD {
 # Use this: passes the right argumets along to the constructor
 #
 sub create{
-    my ( $package, $mag ) = @_;
+    my ( $package, $mag, $pos ) = @_;
     return $package->new( {
         items => [$mag],
         group_p => 0,
         mag     => $mag,
+        left_edge => $pos,
+        right_edge => $pos,
             });
 }
 

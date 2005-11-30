@@ -72,10 +72,13 @@ sub insert_elements{
 # method: _insert_element(SElement)
 
 multimethod _insert_element => ( '#' ) => sub {
-    _insert_element( SElement->create( shift ) );
+    # using bogues edges, since they'd be corrected soon anyway
+    my $mag = shift;
+    _insert_element( SElement->create( $mag, 0) );
 };
 
 multimethod _insert_element => ( '$' ) => sub {
+    # I believe I'd never need this. This is  buggy, if it fails I shall fix it
     use Scalar::Util qw(looks_like_number);
     my $what = shift;
     if (looks_like_number($what)) {
@@ -87,8 +90,7 @@ multimethod _insert_element => ( '$' ) => sub {
 
 multimethod _insert_element => ( 'SElement') => sub {
     my $elt = shift;
-    $elt->set_left_edge($elements_count);
-    $elt->set_right_edge($elements_count);
+    $elt->set_edges($elements_count, $elements_count);
     push( @elements, $elt );
     push( @OBJECTS, $elt );
     $elements_count++;

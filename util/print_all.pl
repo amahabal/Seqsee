@@ -29,12 +29,32 @@ print "prefix to remove: '$prefix_to_remove'\n";
 #exit;
 
 
+my $reviewing_tex = << 'END';
+\normalsize
+\newpage
+\section*{Reviewing Code}
+\begin{tabular}{ccl|p{3in}}
+\textbf{Rev} &\textbf{Pass}  & \textbf{filename}&\textbf{comments and bugs}\\\hline
+END
 
+my $reviewing_tex_end = <<'END';
+\end{tabular}
+\newpage
+\section*{Comments and Bugs Index}
+\begin{enumerate}
+END
+
+for (1..50){
+    $reviewing_tex_end .= "\\item\n";
+}
+$reviewing_tex_end .= "\\end{enumerate}\n";
 
 open OUT, ">$filename.tex";
 print_preamble();
 print_title();
 print_all_files();
+print OUT $reviewing_tex;
+print OUT $reviewing_tex_end;
 print_postamble();
 close OUT;
 system "lmake $filename";
@@ -43,6 +63,7 @@ sub print_preamble(){
   print OUT << 'END';
 \documentclass{article}
 \usepackage{pslatex}
+\usepackage{pifont}
 \begin{document}
 \scriptsize
 END
@@ -107,4 +128,5 @@ sub print_file($file){
   while ($_ = <IN>) { print OUT;}
   print OUT "\\end{verbatim}\n";
   close IN;
+  $reviewing_tex .= "\\ding{111} & \\ding{111} & $file_ & \\\\\\hline\n";
 }

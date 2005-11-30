@@ -14,6 +14,7 @@ my %stored_fringe_of :ATTR( :get<stored_fringe>, :set<stored_fringe> );
 #    Converts type to a class name
 my %_Type2Class = 
     qw(   SElement        SThought::SElement
+          SAnchored       SThought::SAnchored
           SReln::Simple   SThought::SReln_Simple
            );
 

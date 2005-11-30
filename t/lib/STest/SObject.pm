@@ -89,11 +89,11 @@ sub quik_create :Test(8) {
 sub is_sane :Test(8){
     my $o_unanch1 = SObject->create(2,3);
     my $o_unanch2 = SObject->create(2,3);
-    my $e1 = SElement->create(3)->set_edges(4,4);
-    my $e2 = SElement->create(3)->set_edges(5,5);
-    my $e3 = SElement->create(3)->set_edges(6,6);
-    my $e4 = SElement->create(3)->set_edges(7,7);
-    my $e5 = SElement->create(3)->set_edges(8,8);
+    my $e1 = SElement->create(3,0)->set_edges(4,4);
+    my $e2 = SElement->create(3,0)->set_edges(5,5);
+    my $e3 = SElement->create(3,0)->set_edges(6,6);
+    my $e4 = SElement->create(3,0)->set_edges(7,7);
+    my $e5 = SElement->create(3,0)->set_edges(8,8);
     my $o_anch1 = SAnchored->create( $e1, $e2, $e3 );
 
     cmp_ok($o_anch1->get_left_edge(), 'eq', 4);
