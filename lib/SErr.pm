@@ -9,8 +9,6 @@ use Exception::Class (
     'SErr::Att::Extra'         => { fields => ['what'] },
 
     'SErr::Code'                => {},
-    'SErr::Code::UnknownFamily' => { isa => 'SErr::Code' },
-    'SErr::Code::MalFormed'     => { isa => 'SErr::Code' },
 
     'SErr::ProgOver'             => {},
     

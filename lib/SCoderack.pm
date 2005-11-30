@@ -42,6 +42,15 @@ my $SCHEDULED_THOUGHT;
 #    If set, get next runnable returns this, no matter what
 my $FORCED_THOUGHT;
 
+
+# variable: $UseScheduledThoughtProb
+#    Likelihood that the current scheduled thought is used
+my $UseScheduledThoughtProb;
+
+# variable: $ScheduledThoughtVanishProb
+#    Probability that scheduled thought is annhilated if not used
+my $ScheduledThoughtVanishProb;
+
 clear();
 
 
@@ -54,6 +63,7 @@ sub clear{
     $URGENCIES_SUM = 0;
     @CODELETS = ();
     $SCHEDULED_THOUGHT = undef;
+    $FORCED_THOUGHT    = undef;
 }
 
 
@@ -66,7 +76,10 @@ sub clear{
 sub init{
     my $package = shift; # $package
     my $OPTIONS_ref = shift;
-    # I am not going to use any of the options here, at least for now.
+
+    $UseScheduledThoughtProb = $OPTIONS_ref->{UseScheduledThoughtProb};
+    $ScheduledThoughtVanishProb = $OPTIONS_ref->{ScheduledThoughtVanishProb};
+
     # Codelet configuarion for startup should be read in from another configuration file config/start_codelets.conf
     # die "This is where I left yesterday";
 
@@ -159,7 +172,7 @@ sub get_next_runnable{
     if ($SCHEDULED_THOUGHT) {
         ## SCheduled Thought Present
         ## $CODELET_COUNT
-        my $use_scheduled = SUtil::toss(0.7);
+        my $use_scheduled = SUtil::toss($UseScheduledThoughtProb);
         ## $use_scheduled
         if ($use_scheduled or ($CODELET_COUNT == 0)) {
             ## get_next_runnable, using scheduled:
@@ -168,7 +181,7 @@ sub get_next_runnable{
             ## $SCHEDULED_THOUGHT
             return $to_return;
             
-        }elsif (SUtil::toss(0.5)) {
+        }elsif (SUtil::toss($ScheduledThoughtVanishProb)) {
             $SCHEDULED_THOUGHT = undef;
         }
     }

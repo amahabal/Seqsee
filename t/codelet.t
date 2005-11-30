@@ -32,8 +32,8 @@ is $::CurrentCodelet,       $cl;
 is $::CurrentCodeletFamily, "family_foo";
 
 my $cl2 = SCodelet->new( "family_nonexistant", 20 );
-throws_ok { $cl2->run() } "SErr::Code::UnknownFamily";
+throws_ok { $cl2->run() } "SErr::Code";
 
 my $cl3 = SCodelet->new( "family_malformed", 20 );
-throws_ok { $cl3->run() } "SErr::Code::MalFormed";
+throws_ok { $cl3->run() } "SErr::Code";
 

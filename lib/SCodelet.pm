@@ -21,11 +21,11 @@ sub run {
 sub fishy_codefamily {
     my $family = shift;
     unless ( exists $INC{"SCF/$family.pm"} ) {
-        SErr::Code::UnknownFamily->throw(
+        SErr::Code->throw(
             "The codefamily $family IS NOT EVEN USED! Do you need to add it to SCF.list? Have you run 'perl Makefile.PL' recently enough?"
         );
     }
-    SErr::Code::MalFormed->throw(
+    SErr::Code->throw(
         "COuld not find codeobject for family $family. Problem?");
 }
 

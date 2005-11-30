@@ -86,7 +86,7 @@ sub quik_create :Test(8) {
 #    If all are SAnchored, checks that their left and right edges are defined, and when composed, this object shall not have holes in it.
 #     
 #    This call should work on the items, not the composed object. The composed object will come into existence once the sanity passes.
-sub is_sane :Test(8){
+sub is_sane :Test(9){
     my $o_unanch1 = SObject->create(2,3);
     my $o_unanch2 = SObject->create(2,3);
     my $e1 = SElement->create(3,0)->set_edges(4,4);
@@ -110,6 +110,8 @@ sub is_sane :Test(8){
     throws_ok { SAnchored->create( $o_anch1, $e5 )} SErr, "There are holes here!";
 
     throws_ok { SAnchored->create( $o_unanch1, $e5 )} SErr, "There is an unachored object here";
+
+    throws_ok { SAnchored->create( $e5 );} SErr, "A grop creation should not be attempted based on a single object";
 
 }
 

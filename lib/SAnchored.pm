@@ -69,6 +69,11 @@ sub get_edges{
 #    All of the items should also be anchored. A sanity check ensures that there are no "holes". The edges get set automagically.
 sub create{
     my ( $package, @items ) = @_;
+
+    if (@items == 1) {
+        SErr->throw("A group creation is being attempted based on a single object");
+    }
+
     my %slots_taken;
     for my $item (@items) {
         SErr->throw("SAnchored->create called with a non anchored object") unless UNIVERSAL::isa( $item, "SAnchored");

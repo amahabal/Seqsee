@@ -141,7 +141,11 @@ sub _read_config_and_commandline{
                 "max_steps=i",
                     );
     for (qw{seed log tk seq max_steps 
-            interactive update_interval}) {
+            interactive update_interval
+
+            UseScheduledThoughtProb ScheduledThoughtVanishProb
+
+        }) {
         my $val 
             = exists($options{$_})        ? $options{$_} :
               exists($config{seqsee}{$_}) ? $config{seqsee}{$_} :

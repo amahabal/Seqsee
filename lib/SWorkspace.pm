@@ -78,11 +78,11 @@ multimethod _insert_element => ( '#' ) => sub {
 };
 
 multimethod _insert_element => ( '$' ) => sub {
-    # I believe I'd never need this. This is  buggy, if it fails I shall fix it
     use Scalar::Util qw(looks_like_number);
     my $what = shift;
     if (looks_like_number($what)) {
-        _insert_element( SElement->create( int( $what ) ) );
+        # using bogus edges; these will get fixed immediately...
+        _insert_element( SElement->create( int( $what ), 0 ) );
     } else {
         die "Huh? Trying to insert '$what' into the workspace";
     }
