@@ -13,7 +13,7 @@ use Perl6::Form;
 use Carp;
 use Smart::Comments;
 
-my $logger;
+my ($logger, $fringe_logger);
 {
     my ($is_debug, $is_info);
     BEGIN{ $logger   = Log::Log4perl->get_logger("SStream"); 
@@ -22,6 +22,14 @@ my $logger;
          }
     sub LOGGING_DEBUG() { $is_debug; }
     sub LOGGING_INFO()  { $is_info;  }
+
+    my ($is_fringe_debug, $is_fringe_info);
+    BEGIN{ $fringe_logger   = Log::Log4perl->get_logger("Fringe"); 
+           $is_fringe_debug = $fringe_logger->is_debug();
+           $is_fringe_info  = $fringe_logger->is_info();
+         }
+    sub LOGGING_FRINGE_DEBUG() { $is_fringe_debug; }
+    sub LOGGING_FRINGE_INFO()  { $is_fringe_info;  }
 }
 
 # variable: $DiscountFactor
@@ -103,6 +111,7 @@ sub add_thought{
 
     if (LOGGING_DEBUG()) {
         $logger->debug( "\n=== $::Steps_Finished ==========  NEW THOUGHT $thought" );
+        $logger->debug( "== ", $thought->as_text() );
     }
 
     return if $thought eq $CurrentThought;
@@ -139,6 +148,20 @@ sub _think_the_current_thought{
     ## $fringe
     $thought->set_stored_fringe( $fringe );
     my $extended_fringe = $thought->get_extended_fringe();
+
+    if (LOGGING_FRINGE_DEBUG()) {
+        my $msg = "- fringe:\n";
+        for (@$fringe) {
+            my ($k, $v) = @$_;
+            $msg .= "\t- $k\t--> $v\n";
+        }
+        $msg .= "- extended_fringe:\n";
+        for (@$extended_fringe) {
+            my ($k, $v) = @$_;
+            $msg .= "\t- $k\t--> $v\n";
+        }
+        $fringe_logger->debug($msg);
+    }
 
     my $hit_with = _is_there_a_hit( $fringe, $extended_fringe );
     ## $hit_with

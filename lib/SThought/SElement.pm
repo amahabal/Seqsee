@@ -24,7 +24,6 @@ use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SThought};
 
-
 # variable: %core_of
 #  The Core
 my %core_of :ATTR( :get<core>);

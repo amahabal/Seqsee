@@ -103,7 +103,7 @@ sub as_text{
     my ( $self ) = @_;
     my $id = ident $self;
 
-    return "SThought::SReln_Simple";
+    return "SThought::SReln_Simple: $str_of{$id}";
 }
 
 1;

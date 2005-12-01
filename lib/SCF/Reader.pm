@@ -53,7 +53,7 @@ sub run{
                            $object->get_right_edge,
                            $object->get_structure,
                                );
-        my $msg = "Read Object:\n\t[$l,$r] $s\n";
+        my $msg = "* Read Object: \t[$l,$r] $s\n";
         $logger->info( $msg );
     }
 

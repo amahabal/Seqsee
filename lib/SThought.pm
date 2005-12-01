@@ -3,7 +3,8 @@ use strict;
 
 use Class::Std;
 use Carp;
-
+use Memoize;
+memoize('create');
  
 # variable: %fringe_of
 #    Keeps the fringe of the the thought

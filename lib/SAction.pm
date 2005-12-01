@@ -16,6 +16,7 @@ package SAction;
 use strict;
 use Carp;
 use Class::Std;
+use Scalar::Util qw(blessed);
 use base qw{};
 
 
@@ -71,9 +72,13 @@ sub generate_log_msg{
     my $id = ident $self;
     my $family = $family_of{$id};
 
-    return
-        join("", "\n=== $::Steps_Finished ", 
-             "=" x 10, "  ACTION $family\n");
+    my $ret = join("", "\n=== $::Steps_Finished ", 
+                   "=" x 10, "  ACTION $family\n");
+    while (my($k, $v) = each %{$args_of_of{$id}}) {
+        my $val = (blessed $v)? $v->as_text() : $v;
+        $ret .= "== $k \t--> $val\n";
+    }
+    return $ret;
 }
 
 

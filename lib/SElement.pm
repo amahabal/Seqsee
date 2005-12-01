@@ -51,6 +51,12 @@ sub get_structure{
     return $mag_of{ident $self};
 }
 
+sub as_text{
+    my ( $self ) = @_;
+    my ($l, $r) = $self->get_edges;
+    my $mag = $self->get_mag;
+    return join("", (ref $self), ":[$l,$r] $mag");
+}
 
 
 1;

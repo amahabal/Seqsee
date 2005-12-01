@@ -39,9 +39,12 @@ sub fishy_codefamily {
 
 sub generate_log_msg{
     my $codelet = shift;
-    return 
-        join("", "\n=== $::Steps_Finished ", 
-             "="x10, "  CODELET $codelet->[0] \n"); 
+    my $ret =         join("", "\n=== $::Steps_Finished ", 
+             "="x10, "  CODELET $codelet->[0] \n");
+    while (my($k, $v) = each %{$codelet->[3]}) {
+        $ret.= "== $k \t--> $v\n";
+    }
+    return $ret;
 }
 
 

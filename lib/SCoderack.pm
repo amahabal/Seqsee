@@ -18,6 +18,18 @@ use Config::Std;
 use Smart::Comments;
 use Perl6::Form;
 
+my $logger;
+{
+    my ($is_debug, $is_info);
+    BEGIN{ $logger   = Log::Log4perl->get_logger("SCoderack"); 
+           $is_debug = $logger->is_debug();
+           $is_info  = $logger->is_info();
+         }
+    sub LOGGING_DEBUG() { $is_debug; }
+    sub LOGGING_INFO()  { $is_info;  }
+}
+
+
 # variable: $MAX_CODELETS
 #    Maximum number of codelets allowed
 my $MAX_CODELETS = 25;
@@ -109,6 +121,9 @@ sub init{
 sub add_codelet{
     my ( $package, $codelet ) = @_;
     confess "A non codelet is being added" unless $codelet->isa("SCodelet");
+    if (LOGGING_DEBUG()) {
+        $logger->debug( ": codelet added: $codelet->[0]");
+    }
     $CODELET_COUNT++;
     push(@CODELETS, $codelet);
     $URGENCIES_SUM += $codelet->[1];
@@ -227,6 +242,9 @@ sub display_as_text{
 sub force_thought{
     my ( $package, $thought ) = @_;
     $FORCED_THOUGHT = $thought;
+    if (LOGGING_DEBUG()) {
+        $logger->debug( ": forced thought: ", $thought->as_text());
+    }
 }
 
 
@@ -237,7 +255,9 @@ sub force_thought{
 sub schedule_thought{
     my ( $package, $thought ) = @_;
     $SCHEDULED_THOUGHT = $thought;
-}
+    if (LOGGING_DEBUG()) {
+        $logger->debug( ": scheduled thought: ", $thought->as_text());
+    }}
 
 
 
