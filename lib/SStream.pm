@@ -59,8 +59,6 @@ my %ComponentOwnership_of = ();
 #    The current thought
 my $CurrentThought;
 
-
-
 # method: clear
 # Clears stream entirely
 #
@@ -104,7 +102,7 @@ sub add_thought{
     my ( $package, $thought ) = @_;
 
     if (LOGGING_DEBUG()) {
-        $logger->debug( "SSTREAM: new thought $thought" );
+        $logger->debug( "\n=== $::Steps_Finished ==========  NEW THOUGHT $thought" );
     }
 
     return if $thought eq $CurrentThought;
@@ -300,13 +298,9 @@ sub _is_there_a_hit{
         $thought_hit_intensity{$thought} *= $dampen_by;
     }
 
-    # Okay, so now I have done the hard work, but I do not have a good choosing mechanism yet!
-    # Will just choose maximum intensity
-    my @sorted_thoughts = 
-        sort { $thought_hit_intensity{$b} <=> $thought_hit_intensity{$a} }
-            keys %thought_hit_intensity;
-    return unless @sorted_thoughts;
-    return $ThoughtsSet{ $sorted_thoughts[0] };
+    my $chosen_thought = SChoose->choose( [values %thought_hit_intensity] ,
+                                          [keys   %thought_hit_intensity]);
+    return $ThoughtsSet{$chosen_thought};
 }
 
 

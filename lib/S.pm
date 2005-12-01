@@ -4,6 +4,7 @@ use SLog;
 
 use SSet;
 use SErr;
+use SChoose;
 use SBindings;
 use SInstance;
 use SPos;

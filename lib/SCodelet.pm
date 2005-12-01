@@ -40,8 +40,8 @@ sub fishy_codefamily {
 sub generate_log_msg{
     my $codelet = shift;
     return 
-        join("", "="x10, "\n", 
-             "--- (Time: $::Steps_Finished; Family: $codelet->[0])\n",);
+        join("", "\n=== $::Steps_Finished ", 
+             "="x10, "  CODELET $codelet->[0] \n"); 
 }
 
 

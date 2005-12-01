@@ -72,8 +72,8 @@ sub generate_log_msg{
     my $family = $family_of{$id};
 
     return
-        join("", "*" x 10, "\n",
-                 "--- Action of family $family");
+        join("", "\n=== $::Steps_Finished ", 
+             "=" x 10, "  ACTION $family\n");
 }
 
 
