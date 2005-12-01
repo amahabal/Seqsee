@@ -12,6 +12,7 @@ use strict;
 use Perl6::Form;
 use Carp;
 use Smart::Comments;
+use Scalar::Util qw(blessed);
 
 my ($logger, $fringe_logger);
 {
@@ -153,11 +154,17 @@ sub _think_the_current_thought{
         my $msg = "- fringe:\n";
         for (@$fringe) {
             my ($k, $v) = @$_;
+            # unfortunately, the next line is useless because $k is a string
+            # my $k = (blessed $k) ? $k->as_text() : $k;
+            # But if the fringe only contain categories or props, the following
+            # will work:
+            $k = $S::Str2Cat{$k}->as_text();
             $msg .= "\t- $k\t--> $v\n";
         }
         $msg .= "- extended_fringe:\n";
         for (@$extended_fringe) {
             my ($k, $v) = @$_;
+            $k = $S::Str2Cat{$k}->as_text();
             $msg .= "\t- $k\t--> $v\n";
         }
         $fringe_logger->debug($msg);

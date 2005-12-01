@@ -70,7 +70,9 @@ sub is_instance{
 #    Just calls the builder_of
 sub build{
     my ( $self, $opts_ref ) = @_;
-    return $builder_of{ident $self}->( $self, $opts_ref );
+    my $ret = $builder_of{ident $self}->( $self, $opts_ref );
+    $S::Str2Cat{$ret} = $ret;
+    return $ret;
 }
 
 1;

@@ -190,6 +190,7 @@ sub BUILD{
         _install_instancer($id);
     }
 
+    $S::Str2Cat{$self} = $self;
 }
 
 #
@@ -359,4 +360,15 @@ sub derive_assuming{
                           });
 
 }
+
+
+
+# method: as_text
+# returns a short textual description of the category. Name, perhaps?
+#
+sub as_text{
+    my ( $self ) = @_;
+    return $name_of{ident $self};
+}
+
 
