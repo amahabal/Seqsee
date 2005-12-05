@@ -40,7 +40,6 @@ use SCat::Derive::blemished;
 use SCat::Derive::blemish_count;
 use SCat::Derive::blemish_position;
 
-use SRel;
 use SReln::Simple;
 use SReln::Compound;
 use SReln::Position;

@@ -7,7 +7,7 @@ smoke:
 \t\tperl util/run-smoke.pl . smoke.html
 \t\tcp smoke.html /u/amahabal/.hyplan/smoke.html
 
-TEST:
+test_cover:
 \t\tmake
 \t\tcover -delete
 \t\tHARNESS_PERL_SWITCHES=-MDevel::Cover make test
