@@ -270,12 +270,11 @@ sub init_display{
 
     if ($tk) {
         "Tk"->require();
+        "SGUI"->require();
         import Tk;
-        $::MW = new MainWindow();
+        SGUI::setup();
 
-        my $update_display_sub = sub {
-            print "Updated Tk display! (change me)\n";
-        };
+        my $update_display_sub = sub { SGUI::Update(); };
         "main"->install_sub( {update_display =>
                                   $update_display_sub
                                   });

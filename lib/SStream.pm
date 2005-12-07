@@ -48,7 +48,7 @@ my $OlderThoughtCount         = 0;
 
 # variable: @OlderThoughts
 #    Older thoughts, the most recent coming first. Excludes current thought.
-my @OlderThoughts             = (); # for order
+our @OlderThoughts             = (); # for order
 
 # variable: %ThoughtsSet
 #    Another view of thoughts, but including Current Thought
@@ -66,7 +66,7 @@ my %ComponentOwnership_of = ();
 
 # variable: $CurrentThought
 #    The current thought
-my $CurrentThought;
+our $CurrentThought;
 
 # method: clear
 # Clears stream entirely

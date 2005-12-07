@@ -40,19 +40,19 @@ my $CODELET_COUNT = 0;
 
 # variable: @CODELETS
 #    The actual codelets
-my @CODELETS;
+our @CODELETS;
 
 # variable: $URGENCIES_SUM
 #    Sum of all urgencies
-my $URGENCIES_SUM = 0;
+our $URGENCIES_SUM = 0;
 
 # variable: $SCHEDULED_THOUGHT
 #    The though if any scheduled, undef o/w
-my $SCHEDULED_THOUGHT;
+our $SCHEDULED_THOUGHT;
 
 # variable: $FORCED_THOUGHT
 #    If set, get next runnable returns this, no matter what
-my $FORCED_THOUGHT;
+our $FORCED_THOUGHT;
 
 
 # variable: $UseScheduledThoughtProb

@@ -55,7 +55,7 @@ NOLOG
 
     if ($logging) {
         unlink "log/latest";
-        system "ln -s $SLog::filename log/latest";
+        link $SLog::filename, "log/latest";
     }
 }
 
