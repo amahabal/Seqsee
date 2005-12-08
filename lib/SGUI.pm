@@ -1,10 +1,14 @@
 package SGUI;
 use strict;
 use Config::Std;
+use Tk::SCoderack;
+use Tk::SStream;
+use Tk::SComponents;
 
 our $MW;
 our $Coderack;
 our $Stream;
+our $Components;
 
 sub setup{
     read_config 'config/GUI.conf' => my %config;
@@ -22,11 +26,17 @@ sub setup{
     $Stream = $main_frame->SStream(%{ $config{stream} })
         ->pack(-side => "left");
 
+    $config{components}{-tags_provided} = 
+        tags_to_aref( $config{components_tags});
+    $Components = $main_frame->SComponents(%{ $config{components} })
+        ->pack(-side => "left");
+
 }
 
 sub Update{
     $Coderack->Update();
     $Stream->Update();
+    $Components->Update();
 }
 
 sub tags_to_aref{

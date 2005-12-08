@@ -3,8 +3,13 @@ use Getopt::Long;
 use Smart::Comments;
 
 my $diff_only;
+my $SHOW_CODE_FILES = 1;
+my $SHOW_TEST_FILES = 0;
 
-GetOptions("diff=i" => \$diff_only);
+GetOptions("diff=i" => \$diff_only,
+           "code!"  => \$SHOW_CODE_FILES,
+           "test!"  => \$SHOW_TEST_FILES,
+               );
 
 my $filename = "__print";
 my $repos_path = "/u/amahabal/SVN2";
@@ -31,15 +36,15 @@ print "prefix to remove: '$prefix_to_remove'\n";
 
 my $reviewing_tex = << 'END';
 \normalsize
-\newpage
+\cleardoublepage
 \section*{Reviewing Code}
-\begin{tabular}{ccl|p{3in}}
+\begin{longtable}{ccl|p{3in}}
 \textbf{Rev} &\textbf{Pass}  & \textbf{filename}&\textbf{comments and bugs}\\\hline
 END
 
 my $reviewing_tex_end = <<'END';
-\end{tabular}
-\newpage
+\end{longtable}
+\cleardoublepage
 \section*{Comments and Bugs Index}
 \begin{enumerate}
 END
@@ -61,9 +66,10 @@ system "lmake $filename";
 
 sub print_preamble(){
   print OUT << 'END';
-\documentclass{article}
+\documentclass[twoside]{article}
 \usepackage{pslatex}
 \usepackage{pifont}
+\usepackage{longtable}
 \begin{document}
 \scriptsize
 END
@@ -89,7 +95,12 @@ END
 }
 
 sub print_all_files{
-  my @files = sort(<TODO lib/*.pm lib/*/*.pm lib/*/*/*.pm  t/*.t t/*/*.t t/*/*/*.t t/lib/STest/*.pm t/lib/STest/*/*.pm>);
+    my @code_files = sort(<Seqsee.pl lib/*.pm lib/*/*.pm lib/*/*/*.pm>);
+    my @test_files = sort(<t/*.t t/*/*.t t/*/*/*.t t/lib/STest/*.pm t/lib/STest/*/*.pm>);
+    my @files;
+    push(@files, @code_files) if $SHOW_CODE_FILES;
+    push(@files, @test_files) if $SHOW_TEST_FILES;
+    
   my %PrintOK;
   for (@files) {
     $PrintOK{$_} = 1;

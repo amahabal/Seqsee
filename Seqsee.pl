@@ -352,48 +352,30 @@ sub Seqsee_Step{
     my $runnable = SCoderack->get_next_runnable();
     ## $runnable
     return unless $runnable; # prog not yet finished!
-    
-    if ($runnable->isa("SCodelet")) {
-        eval { $runnable->run() };
-        if ($EVAL_ERROR) {
-            my $err = $EVAL_ERROR;
-            if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
-                return 1; # i.e., program finished
-            } elsif (UNIVERSAL::isa($err, 'SErr::Think')) {
-                my $thought = $err->{thought};
-                eval { SStream->add_thought($thought); };
-                if ($EVAL_ERROR) {
-                    my $err = $EVAL_ERROR;
-                    if ($err->isa('SErr::ProgOver')) {
-                        return 1;
-                    } else {
-                        $err->rethrow();
-                    }
-                }
-                
-            } else {
-                ref $err ? $err->rethrow() : die $err;
-            }
-        }
 
-    } elsif ($runnable->isa("SThought")) {
-        eval { SStream->add_thought( $runnable ) };
-        if ($EVAL_ERROR) {
-            my $err = $EVAL_ERROR;
-            if ($err->isa('SErr::ProgOver')) {
-                return 1;
-            } else {
-                die $EVAL_ERROR unless ref($err);
-                $err->rethrow();
-            }
+    eval {
+        if ($runnable->isa("SCodelet")) {
+            $runnable->run();
+        } elsif ($runnable->isa("SThought")) {
+            SStream->add_thought( $runnable );
+        } else {
+            SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");
         }
-    } else {
-        die "Runnable object is $runnable: expected an SThought or a SCodelet!";
+    };
+
+    if ($EVAL_ERROR) {
+        my $err = $EVAL_ERROR;
+        if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
+            return 1;
+        }
+        if (UNIVERSAL::isa($err, 'SErr::NeedMoreData')) {
+            $err->payload()->schedule();
+            return;
+        }
+        die $err;        
     }
-    return; # false: so, the show must go on.
+    return;
 }
-
-
 
 # method: do_background_activity
 # Don't know what this'll do

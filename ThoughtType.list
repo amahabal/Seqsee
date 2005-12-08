@@ -2,3 +2,4 @@ SThought::SElement
 SThought::AreRelated
 SThought::SReln_Simple
 
+SThought::SAnchored
