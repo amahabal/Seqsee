@@ -62,7 +62,7 @@ my %ComponentStrength         = ();
 #    Who owns a particular component
 #
 # Key are components. values are hash refs, whose keys are thoughts, values intensities
-my %ComponentOwnership_of = ();
+our %ComponentOwnership_of = ();
 
 # variable: $CurrentThought
 #    The current thought

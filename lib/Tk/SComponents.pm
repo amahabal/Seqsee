@@ -24,6 +24,23 @@ sub clear{
 sub Update{
   $list->delete('0.0', 'end');
 
+  while (my($k, $v) = each %SStream::ComponentOwnership_of) {
+      $list->insert('end',
+                    $k, "component",
+                    "\n",
+                        );
+      while (my($k2, $v2) = each %$v) {
+          $k2 = $Tk::SStream::Tht2ID{$k2};
+          $list->insert('end',
+                        "\t", "",
+                        $v2, "strength",
+                        "\t", "",
+                        "Tht #$k2", "thought",
+                        "\n",
+                            );
+      }
+  }
+
 }
 
 
