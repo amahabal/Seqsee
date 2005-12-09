@@ -4,6 +4,7 @@ use base qw/Tk::Derived Tk::ROText/;
 
 our $list;
 our %Tht2ID;
+our %vivify;
 
 Construct Tk::Widget 'SStream';
 
@@ -15,6 +16,18 @@ sub Populate{
   for (@$tags_ref) {
       $self->tagConfigure(@$_);
   }
+
+  $self->tagBind('clickable', 
+                 '<1>' => sub {
+                     my $self = shift;
+                     my @names = $self->tagNames('current');
+                     # print join(", ", @names), "\n";
+                     my ($name) = grep { m/^S/ } @names;
+                     # print "You clicked", $name, "\n";
+                     print $vivify{$name}->as_text(), "\n";
+                 });
+
+
 }
 
 
@@ -25,12 +38,16 @@ sub clear{
 sub Update{
   $list->delete('0.0', 'end');
   %Tht2ID = ();
+  %vivify = ();
 
   # Current Thought
   if ($SStream::CurrentThought) {
       $list->insert('end', 'Current Thought: ', [qw{heading}], 
-                           "\n\t",       [],
-                           $SStream::CurrentThought->as_text(), [],
+                    "\n\t",       [],
+                    $SStream::CurrentThought->as_text(), 
+                    ['clickable', $vivify{$SStream::CurrentThought} =
+                         $SStream::CurrentThought
+                         ],
                            "\n\n",
                         );
   } else {
@@ -43,7 +60,8 @@ sub Update{
       $Tht2ID{$tht} = $counter;
       $list->insert('end',
                     "\t",     [],
-                    $tht->as_text(), "details",
+                    $tht->as_text(), 
+                    ["details", "clickable",$vivify{$tht} = $tht],
                     "\n",
                         );
   }

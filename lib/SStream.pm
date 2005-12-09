@@ -68,6 +68,8 @@ our %ComponentOwnership_of = ();
 #    The current thought
 our $CurrentThought;
 
+our %vivify;
+
 # method: clear
 # Clears stream entirely
 #
@@ -233,10 +235,12 @@ sub _maybe_expell_thoughts{
 # Recalculates the strength of components from scratch
 sub _recalculate_Compstrength{
     %ComponentOwnership_of = ();
+    %vivify = ();
     for my $t (@OlderThoughts) {
         my $fringe = $t->get_stored_fringe();
         for my $comp_act (@$fringe) {
             my ($comp, $act) = @$comp_act;
+            $vivify{$comp} = $comp;
             $ComponentOwnership_of{$comp}{$t} = $act;
         }
     }

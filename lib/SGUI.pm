@@ -9,11 +9,15 @@ our $MW;
 our $Coderack;
 our $Stream;
 our $Components;
+our $Workspace;
+
 
 sub setup{
     read_config 'config/GUI.conf' => my %config;
 
     $MW = new MainWindow;
+    setup_bindings($MW);
+
     my $button_frame = $MW->Frame()->pack(-side => 'top');
     my $main_frame   = $MW->Frame()->pack(-side => 'top');
     setup_buttons($button_frame);
@@ -31,12 +35,16 @@ sub setup{
     $Components = $main_frame->SComponents(%{ $config{components} })
         ->pack(-side => "left");
 
+    $Workspace = $MW->SWorkspace( %{ $config{workspace} })
+        ->pack(-side => "top", - fill => "x");
+
 }
 
 sub Update{
     $Coderack->Update();
     $Stream->Update();
     $Components->Update();
+    $Workspace->Update();
 }
 
 sub tags_to_aref{
@@ -70,3 +78,21 @@ sub setup_buttons{
     }
 
 }
+
+sub setup_bindings{
+    my ( $mw ) = @_;
+    $mw->bind('<KeyPress-s>' => sub {
+                  main::Interaction_step();
+              });
+    $mw->bind('<KeyPress-c>' => sub {
+                  main::Interaction_continue();
+              });
+    $mw->bind('<KeyPress-q>' => sub {
+                  exit;
+              });
+
+    
+}
+
+
+1;

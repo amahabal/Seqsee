@@ -14,6 +14,16 @@ sub Populate{
   for (@$tags_ref) {
       $self->tagConfigure(@$_);
   }
+
+  $self->tagBind('clickable', 
+                 '<1>' => sub {
+                     my $self = shift;
+                     my @names = $self->tagNames('current');
+                     # print join(", ", @names), "\n";
+                     my ($name) = grep { m/^S/ } @names;
+                     # print "You clicked", $name, "\n";
+                     print $SStream::vivify{$name}->as_text(), "\n";
+                 });
 }
 
 
@@ -26,7 +36,7 @@ sub Update{
 
   while (my($k, $v) = each %SStream::ComponentOwnership_of) {
       $list->insert('end',
-                    $k, "component",
+                    $k, ["component", "clickable",$k],
                     "\n",
                         );
       while (my($k2, $v2) = each %$v) {
