@@ -2,7 +2,7 @@ package Tk::SComponents;
 use Tk::widgets qw{ROText};
 use base qw/Tk::Derived Tk::ROText/;
 
-our $list;
+my $list;
 
 Construct Tk::Widget 'SComponents';
 
@@ -22,7 +22,7 @@ sub Populate{
                      # print join(", ", @names), "\n";
                      my ($name) = grep { m/^S/ } @names;
                      # print "You clicked", $name, "\n";
-                     print $SStream::vivify{$name}->as_text(), "\n";
+                     $SStream::vivify{$name}->display_self($SGUI::Info);
                  });
 }
 
@@ -36,7 +36,8 @@ sub Update{
 
   while (my($k, $v) = each %SStream::ComponentOwnership_of) {
       $list->insert('end',
-                    $k, ["component", "clickable",$k],
+                    $SStream::vivify{$k}->as_text, 
+                    ["component", "clickable",$k],
                     "\n",
                         );
       while (my($k2, $v2) = each %$v) {

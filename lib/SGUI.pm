@@ -4,13 +4,15 @@ use Config::Std;
 use Tk::SCoderack;
 use Tk::SStream;
 use Tk::SComponents;
+use Tk::SInfo;
+use Tk::SWorkspace;
 
 our $MW;
 our $Coderack;
 our $Stream;
 our $Components;
 our $Workspace;
-
+our $Info;
 
 sub setup{
     read_config 'config/GUI.conf' => my %config;
@@ -20,6 +22,7 @@ sub setup{
 
     my $button_frame = $MW->Frame()->pack(-side => 'top');
     my $main_frame   = $MW->Frame()->pack(-side => 'top');
+    my $bottom_frame = $MW->Frame()->pack(-side => 'top');
     setup_buttons($button_frame);
 
     $config{coderack}{-tags_provided} = tags_to_aref( $config{coderack_tags});
@@ -35,8 +38,15 @@ sub setup{
     $Components = $main_frame->SComponents(%{ $config{components} })
         ->pack(-side => "left");
 
-    $Workspace = $MW->SWorkspace( %{ $config{workspace} })
-        ->pack(-side => "top", - fill => "x");
+
+
+    $config{info}{-tags_provided} = 
+        tags_to_aref( $config{info_tags});
+    $Info = $bottom_frame->SInfo(%{ $config{info} })
+        ->pack(-side => "left");
+    $Workspace = $bottom_frame->SWorkspace( %{ $config{workspace} })
+        ->pack(-side => "left", -fill => "x");
+
 
 }
 
@@ -45,6 +55,12 @@ sub Update{
     $Stream->Update();
     $Components->Update();
     $Workspace->Update();
+    if ($SCoderack::LastSelectedRunnable) {
+        $SCoderack::LastSelectedRunnable->display_self($Info);
+        $Info->insert('0.0', "Last Run Runnable:", "heading", "\n\n");
+    }
+
+    # $Info->Update();
 }
 
 sub tags_to_aref{

@@ -54,6 +54,10 @@ sub force_to_be_next_runnable{
     SCoderack->force_thought( $self );
 }
 
+sub display_self{
+    my ( $self, $widget ) = @_;
+    $widget->Display("Thought", ["heading"], "\n", $self->as_text);
+}
 
 
 1;

@@ -24,7 +24,7 @@ sub Populate{
                      # print join(", ", @names), "\n";
                      my ($name) = grep { m/^S/ } @names;
                      # print "You clicked", $name, "\n";
-                     print $vivify{$name}->as_text(), "\n";
+                     $vivify{$name}->display_self($SGUI::Info);
                  });
 
 }

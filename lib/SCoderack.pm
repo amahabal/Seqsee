@@ -63,6 +63,8 @@ my $UseScheduledThoughtProb;
 #    Probability that scheduled thought is annhilated if not used
 my $ScheduledThoughtVanishProb;
 
+our $LastSelectedRunnable;
+
 clear();
 
 
@@ -181,7 +183,7 @@ sub get_next_runnable{
     if ($FORCED_THOUGHT) {
         my $to_return = $FORCED_THOUGHT;
         $FORCED_THOUGHT = undef;
-        return $to_return;
+        return $LastSelectedRunnable = $to_return;
     }
 
     if ($SCHEDULED_THOUGHT) {
@@ -194,7 +196,7 @@ sub get_next_runnable{
             my $to_return = $SCHEDULED_THOUGHT;
             $SCHEDULED_THOUGHT = undef;
             ## $SCHEDULED_THOUGHT
-            return $to_return;
+            return $LastSelectedRunnable = $to_return;
             
         }elsif (SUtil::toss($ScheduledThoughtVanishProb)) {
             $SCHEDULED_THOUGHT = undef;
@@ -210,7 +212,7 @@ sub get_next_runnable{
     my $to_return = splice(@CODELETS, $idx,1);
     $URGENCIES_SUM -= $to_return->[1];
     $CODELET_COUNT--;
-    return $to_return;
+    return $LastSelectedRunnable = $to_return;
 }
 
 
@@ -270,7 +272,6 @@ sub expunge_codelet{
     $CODELET_COUNT--;
     $URGENCIES_SUM -= $cl->[1];
 }
-
 
 
 1;

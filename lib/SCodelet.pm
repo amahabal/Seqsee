@@ -58,5 +58,17 @@ sub schedule{
     SCoderack->add_codelet( $self );
 }
 
+sub display_self{
+    my ( $self, $widget ) = @_;
+    $widget->Display("Codelet", ["heading"], "\n", 
+                     "\tFamily:\t", $self->[0], "\n",
+                     "\tUrgency:\t", $self->[1], "\n",
+                     "\tArguments:\t\n",
+                     map { ("\t\t", $_, "\t=>", $self->[3]{$_}) } 
+                         (keys %{$self->[3]}),
+                         );
+}
+
+
 
 1;

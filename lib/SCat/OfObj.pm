@@ -371,4 +371,9 @@ sub as_text{
     return $name_of{ident $self};
 }
 
+sub display_self{
+    my ( $self, $widget ) = @_;
+    $widget->Display("You clicked:", ['heading'], "\n", $self->as_text);
+}
+
 
