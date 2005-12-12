@@ -65,9 +65,6 @@ sub INITIALIZE{
     # Initialize logging
     SLog->init( $OPTIONS_ref );
 
-    # Initialize display
-    init_display( $OPTIONS_ref );
-
     # Initialize Coderack
     SCoderack->clear(); SCoderack->init( $OPTIONS_ref );
 
@@ -77,7 +74,8 @@ sub INITIALIZE{
     # Initialize Workspace
     SWorkspace->clear(); SWorkspace->init( $OPTIONS_ref );
 
-
+    # Initialize display
+    init_display( $OPTIONS_ref );
 }
 
 
@@ -273,7 +271,7 @@ sub init_display{
         "SGUI"->require();
         import Tk;
         SGUI::setup();
-
+        SGUI::Update();
         my $update_display_sub = sub { SGUI::Update(); };
         "main"->install_sub( {update_display =>
                                   $update_display_sub

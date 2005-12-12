@@ -23,20 +23,27 @@ sub setup{
     my $button_frame = $MW->Frame()->pack(-side => 'top');
     my $main_frame   = $MW->Frame()->pack(-side => 'top');
     my $bottom_frame = $MW->Frame()->pack(-side => 'top');
+    my $tmp_frame;
     setup_buttons($button_frame);
 
+    $tmp_frame = $main_frame->Frame()->pack(-side => 'left');
     $config{coderack}{-tags_provided} = tags_to_aref( $config{coderack_tags});
-    $Coderack = $main_frame->SCoderack(%{ $config{coderack} })
-        ->pack(-side => "left");
+    $tmp_frame->Label(%{$config{labels}}, -text => "Coderack")->pack(-side => 'top');
+    $Coderack = $tmp_frame->SCoderack(%{ $config{coderack} })
+        ->pack(-side => "top");
 
+    $tmp_frame = $main_frame->Frame()->pack(-side => 'left');
     $config{stream}{-tags_provided} = tags_to_aref( $config{stream_tags});
-    $Stream = $main_frame->SStream(%{ $config{stream} })
-        ->pack(-side => "left");
+    $tmp_frame->Label(%{$config{labels}}, -text => "Stream")->pack(-side => 'top');
+    $Stream = $tmp_frame->SStream(%{ $config{stream} })
+        ->pack(-side => "top");
 
+    $tmp_frame = $main_frame->Frame()->pack(-side => 'left');
     $config{components}{-tags_provided} = 
         tags_to_aref( $config{components_tags});
-    $Components = $main_frame->SComponents(%{ $config{components} })
-        ->pack(-side => "left");
+    $tmp_frame->Label(%{$config{labels}}, -text => "Components")->pack(-side => 'top');
+    $Components = $tmp_frame->SComponents(%{ $config{components} })
+        ->pack(-side => "top");
 
 
 
@@ -59,8 +66,7 @@ sub Update{
         $Info->insert('0.0', "Last Run Runnable:", "heading", "\n\n");
     }
     $Info->insert('end', $::LogString);
-
-    # $Info->Update();
+    $MW->update();
 }
 
 sub tags_to_aref{

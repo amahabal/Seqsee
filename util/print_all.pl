@@ -95,7 +95,7 @@ END
 }
 
 sub print_all_files{
-    my @code_files = sort(<Seqsee.pl lib/*.pm lib/*/*.pm lib/*/*/*.pm>);
+    my @code_files = sort(<Seqsee.pl lib/*.pm lib/*/*.pm lib/*/*/*.pm config/*>);
     my @test_files = sort(<t/*.t t/*/*.t t/*/*/*.t t/lib/STest/*.pm t/lib/STest/*/*.pm>);
     my @files;
     push(@files, @code_files) if $SHOW_CODE_FILES;

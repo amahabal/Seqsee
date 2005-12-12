@@ -4,7 +4,7 @@ use Log::Log4perl;
 use S;
 use SUtil;
 use List::Util;
-
+use Smart::Comments;
 
 ## method init
 # description    :initializes logging: creates a new file in the subdirectory log/, makes log/latest a symlink to this. 
@@ -55,8 +55,10 @@ NOLOG
 
     if ($logging) {
         unlink "log/latest";
-        link $SLog::filename, "log/latest";
+        system "ln -s $SLog::filename log/latest";
     }
+
+
 }
 
 1;
