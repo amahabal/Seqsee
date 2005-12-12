@@ -109,6 +109,9 @@ sub setup_bindings{
     $mw->bind('<KeyPress-c>' => sub {
                   main::Interaction_continue();
               });
+    $mw->bind('<KeyPress-5>' => sub {
+                  main::Interaction_step_n({n=>5, update_after=>5});
+              });
     $mw->bind('<KeyPress-q>' => sub {
                   exit;
               });

@@ -55,14 +55,21 @@ sub run{
     my $a = $opts_ref->{a} or confess "Need a";
     my $b = $opts_ref->{b} or confess "Need b";
 
-    ## Running FindIfRelated: $a, $b
+    my $reln;
+    if ($reln = $a->get_relation($b)) {
+        # No need to create another.
+        # But you may care to think about it some more
+        SThought->create( $reln )->schedule();
+        return;
+    }
 
-    my $reln = find_reln( $a, $b );
+    ## Running FindIfRelated: $a, $b
+    $reln = find_reln( $a, $b );
     return unless $reln;
 
     # So a relation has been found
-    $a->add_reln( $reln );
-    $b->add_reln( $reln );
+    $a->add_reln_from( $reln );
+    $b->add_reln_to( $reln );
     SWorkspace->add_reln( $reln );
     SThought->create( $reln )->schedule();
 

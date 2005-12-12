@@ -51,8 +51,7 @@ sub get_fringe{
     my ( $self ) = @_;
     my $id = ident $self;
     my @ret;
-
-
+    push @ret, [ $str_of{$id}, 100];
 
     return \@ret;
 }

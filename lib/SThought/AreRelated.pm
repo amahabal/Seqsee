@@ -94,6 +94,7 @@ sub get_actions{
                     });
             push @ret, $act;
         } elsif ($a_core->isa("SReln") and $b_core->isa("SReln")) {
+            ## I am comparing two relations!
             my $act = SAction->new({
                 family => "FindIfRelatedRelns",
                 urgency => 100,
@@ -101,6 +102,7 @@ sub get_actions{
                           b => $b_core,
                       },
                     });
+            push @ret, $act;
         }
     }
 

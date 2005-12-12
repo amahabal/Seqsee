@@ -22,7 +22,7 @@ use base qw{};
 
 # variable: %family_of
 #    family the codelet belongs to
-my %family_of :ATTR();
+my %family_of :ATTR( :get<family>);
 
 # variable: %urgency_of
 #    urgency; likelihood of being executed

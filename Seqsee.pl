@@ -363,6 +363,7 @@ sub Seqsee_Step{
 
     if ($EVAL_ERROR) {
         my $err = $EVAL_ERROR;
+        ### Caught an error
         if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
             return 1;
         }
@@ -370,7 +371,7 @@ sub Seqsee_Step{
             $err->payload()->schedule();
             return;
         }
-        die $err;        
+        $err->rethrow;        
     }
     return;
 }

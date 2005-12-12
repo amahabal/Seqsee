@@ -160,7 +160,8 @@ sub _think_the_current_thought{
             # my $k = (blessed $k) ? $k->as_text() : $k;
             # But if the fringe only contain categories or props, the following
             # will work:
-            $k = $S::Str2Cat{$k}->as_text();
+            $k = $S::Str2Cat{$k};
+            $k = $k->as_text() if blessed($k);
             $msg .= "\t- $k\t--> $v\n";
         }
         $msg .= "- extended_fringe:\n";
@@ -183,29 +184,20 @@ sub _think_the_current_thought{
         push @action_set, $new_thought;
     }
 
-    my (@_thoughts, @_codelets, @_actions);
+    my (@_thoughts);
     for my $x (@action_set) {
         my $x_type = ref $x;
         if ($x_type eq "SCodelet") {
-            push @_codelets, $x;
+            SCoderack->add_codelet($x);
         } elsif ($x_type eq "SAction") {
-            push @_actions, $x;
+            # print "Action of family ", $x->get_family(), " to be run\n";
+            $x->conditionally_run();
         } else {
             confess "Huh? " unless $x->isa("SThought");
             push @_thoughts, $x;
         }
     }
 
-    # Execute the actions
-    for (@_actions) {
-        ## running action: $_
-        $_->conditionally_run();
-    }
-    
-    # Add codelets to coderack
-    for (@_codelets) {
-        SCoderack->add_codelet( $_ );
-    }
 
     # Choose a thought and schedule it.
     if (@_thoughts) {

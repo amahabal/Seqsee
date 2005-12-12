@@ -61,6 +61,8 @@ sub BUILD{
 
     $items_of{$id}   = $opts_ref->{items} or die "Need items";
     $group_p_of{$id} = $opts_ref->{group_p};
+    $relns_from_of{$id} = {};
+    $relns_to_of{$id} = {};
 }
 
 
@@ -710,6 +712,7 @@ sub add_reln_to{
     my ( $self, $reln, $force ) = @_;
     my $id = ident $self;
     my $from = $reln->get_first;
+    ## $id, $from
     my $rel_hash_ref = $relns_to_of{$id};
     if (exists($rel_hash_ref->{$from}) and not $force) {
         SErr->throw("adding duplicate relation");
@@ -784,7 +787,15 @@ sub remove_reln{
     }
 }
 
-1;
+sub get_relation{
+    my ( $self, $other ) = @_;
+    my $id = ident $self;
+    ## $self, $other, $id
+    ## $relns_from_of{$id}{$other}
+    return $relns_from_of{$id}{$other} 
+        || $relns_to_of{$id}{$other};
+        
+}
 
 
 

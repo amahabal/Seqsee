@@ -7,7 +7,7 @@ use Class::Multimethods;
 multimethod 'find_reln';
 multimethod 'apply_reln';
 
-plan tests => 5; 
+plan tests => 10; 
 
 
 #### method mini_copycat_test
@@ -90,3 +90,17 @@ mini_copycat_test([1, 2], [1, 2, 3], [1, 2, 3, 2, 1]);
 mini_copycat_test([1, [ 2, 2] , 3], [1, 2, [3, 3]],
                   [2, 3, [4, 4], 5, 6, 7], [2, 3, 4, [5, 5], 6, 7]
                       );
+
+
+my $e1 = SElement->create(2,0);
+my $e2 = SElement->create(3,0);
+my $rel = find_reln($e1, $e2);
+ok($rel);
+ok($rel->get_first() eq $e1);
+ok($rel->get_second() eq $e2);
+## $rel
+$e1->add_reln_from($rel);
+$e2->add_reln_to($rel);
+## $e1
+ok( $e1->get_relation($e2));
+ok( $e2->get_relation($e1));

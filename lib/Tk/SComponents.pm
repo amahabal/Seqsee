@@ -1,6 +1,7 @@
 package Tk::SComponents;
 use Tk::widgets qw{ROText};
 use base qw/Tk::Derived Tk::ROText/;
+use Scalar::Util qw(blessed);
 
 my $list;
 
@@ -35,8 +36,9 @@ sub Update{
   $list->delete('0.0', 'end');
 
   while (my($k, $v) = each %SStream::ComponentOwnership_of) {
+      my $vivified = $SStream::vivify{$k};
       $list->insert('end',
-                    $SStream::vivify{$k}->as_text, 
+                    ((blessed $vivified) ? $vivified->as_text : $vivified),
                     ["component", "clickable",$k],
                     "\n",
                         );
