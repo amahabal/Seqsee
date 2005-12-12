@@ -84,15 +84,24 @@ sub get_actions{
     ## $a_core, $b_core
 
     if ($a_core and $b_core) {
-
-        my $act = SAction->new( {
-            family  => "FindIfRelated",
-            urgency => 100,
-            args    => { a => $a_core,
-                         b => $b_core,
-                     }
-                });
-        push @ret, $act;
+        if ($a_core->isa("SObject") and $b_core->isa("SObject")) {
+            my $act = SAction->new( {
+                family  => "FindIfRelated",
+                urgency => 100,
+                args    => { a => $a_core,
+                             b => $b_core,
+                         }
+                    });
+            push @ret, $act;
+        } elsif ($a_core->isa("SReln") and $b_core->isa("SReln")) {
+            my $act = SAction->new({
+                family => "FindIfRelatedRelns",
+                urgency => 100,
+                args => { a => $a_core,
+                          b => $b_core,
+                      },
+                    });
+        }
     }
 
     ## @ret

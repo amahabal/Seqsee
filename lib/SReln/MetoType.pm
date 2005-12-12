@@ -11,7 +11,7 @@ use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
-use base qw{};
+use base qw{SReln};
 
  
 # variable: %name_of

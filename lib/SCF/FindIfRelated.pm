@@ -57,24 +57,13 @@ sub run{
 
     ## Running FindIfRelated: $a, $b
 
-    my $reln;
-    eval {$reln = find_reln($a, $b)};
-    
-    ## $reln
-
-    if ($EVAL_ERROR) {
-        my $e = $EVAL_ERROR;
-        if (UNIVERSAL::isa($e, 'SErr::NeedMoreData')) {
-            my $payload = $e->payload(); #can be codelet or thought
-            $payload->schedule();
-            return;
-        } else {
-            die $e;
-        }
-    }
+    my $reln = find_reln( $a, $b );
+    return unless $reln;
 
     # So a relation has been found
-    # XXX need to add reln to the objects
+    $a->add_reln( $reln );
+    $b->add_reln( $reln );
+    SWorkspace->add_reln( $reln );
     SThought->create( $reln )->schedule();
 
 }

@@ -37,7 +37,7 @@ use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
-use base qw{SInstance };
+use base qw{SReln SInstance };
 use Smart::Comments;
 
 # variable: %base_category_of

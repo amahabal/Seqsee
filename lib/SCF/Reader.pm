@@ -59,7 +59,7 @@ sub run{
 
 
     if ($object) {
-        SThought->create($object)->force_to_be_next_runnable();
+        SThought->create($object)->schedule();
     }
 
 }

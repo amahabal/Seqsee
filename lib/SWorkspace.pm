@@ -31,6 +31,9 @@ my @OBJECTS;
 my $ReadHead = 0;
 
 
+# variable: %relations
+our %relations;
+
 # method: clear
 #  starts workspace off as new
 
@@ -160,6 +163,17 @@ sub _saccade{
     my $random_pos = int( rand() * $elements_count );
     $ReadHead = $random_pos;
 }
+
+
+
+# method: add_reln
+# 
+#
+sub add_reln{
+    my ( $package, $reln ) = @_;
+    $relations{$reln} = $reln;
+}
+
 
 
 1;
