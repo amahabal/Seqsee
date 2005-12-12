@@ -47,7 +47,6 @@ sub setup{
     $Workspace = $bottom_frame->SWorkspace( %{ $config{workspace} })
         ->pack(-side => "left", -fill => "x");
 
-
 }
 
 sub Update{
@@ -59,6 +58,7 @@ sub Update{
         $SCoderack::LastSelectedRunnable->display_self($Info);
         $Info->insert('0.0', "Last Run Runnable:", "heading", "\n\n");
     }
+    $Info->insert('end', $::LogString);
 
     # $Info->Update();
 }

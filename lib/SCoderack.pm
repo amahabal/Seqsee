@@ -178,6 +178,7 @@ sub get_codelet_count { return $CODELET_COUNT }
 #    The scheduled thought, if not chosen, is NOT overwritten
 sub get_next_runnable{
     my ( $package ) = @_;
+    $::LogString = "\n\n=======\nLogged Message:\n===\n"; 
     ## get_next_runnable, scheduled: $SCHEDULED_THOUGHT
     
     if ($FORCED_THOUGHT) {

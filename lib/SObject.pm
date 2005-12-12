@@ -38,6 +38,15 @@ my %group_p_of : ATTR( :get<group_p>);
 #    The metonym associated with this object
 my %metonym_of :ATTR( :get<metonym> :set<metonym>);
 
+
+# variable: %relns_from_of
+#    outgoing relations. A hashref indexed by the other object.
+my %relns_from_of :ATTR( :get<relns_from> :set<relns_from>);
+
+# variable: %relns_to_of
+#    incoming
+my %relns_to_of :ATTR( :get<relns_to> :set<relns_to>);
+
 #
 # subsection: Construction
 
@@ -674,6 +683,109 @@ sub describe_as{
     return $bindings;
 
 }
+
+#
+# subsection: relation management
+
+
+
+# method: add_reln_from
+# Add a relation from self
+#
+sub add_reln_from{
+    my ( $self, $reln, $force ) = @_;
+    my $id = ident $self;
+    my $to = $reln->get_second;
+    my $rel_hash_ref = $relns_from_of{$id};
+    if (exists($rel_hash_ref->{$to}) and not $force) {
+        SErr->throw("adding duplicate relation");
+    }
+    $rel_hash_ref->{$to} = $reln;
+}
+
+# method: add_reln_to
+# Add a relation to self
+#
+sub add_reln_to{
+    my ( $self, $reln, $force ) = @_;
+    my $id = ident $self;
+    my $from = $reln->get_first;
+    my $rel_hash_ref = $relns_to_of{$id};
+    if (exists($rel_hash_ref->{$from}) and not $force) {
+        SErr->throw("adding duplicate relation");
+    }
+    $rel_hash_ref->{$from} = $reln;
+}
+
+
+
+# method: add_reln
+# add relation to object in appropriate hash.
+#
+sub add_reln{
+    my ( $self, $reln ) = @_;
+    if ($reln->get_first() eq $self) {
+        $self->add_reln_from( $reln );
+    } elsif ($reln->get_second() eq $self) {
+        $self->add_reln_to( $reln );
+    } else {
+        SErr->throw( "adding an unrelated reln to an object" );
+    }
+}
+
+
+
+# method: remove_reln_from
+# removes a relation from this object
+#
+sub remove_reln_from{
+    my ( $self, $obj_or_rel ) = @_;
+    my $id = ident $self;
+    my $rel_hash_ref = $relns_from_of{$id};
+
+    if ($obj_or_rel->isa("SObject")) {
+        delete $rel_hash_ref->{$obj_or_rel};
+    } else {
+        delete $rel_hash_ref->{$obj_or_rel->get_second};
+    }
+}
+
+
+
+# method: remove_reln_to
+# removes a relation to this object
+#
+sub remove_reln_to{
+    my ( $self, $obj_or_rel ) = @_;
+    my $id = ident $self;
+    my $rel_hash_ref = $relns_to_of{$id};
+
+    if ($obj_or_rel->isa("SObject")) {
+        delete $rel_hash_ref->{$obj_or_rel};
+    } else {
+        delete $rel_hash_ref->{$obj_or_rel->get_first};
+    }
+}
+
+
+
+# method: remove_reln
+# 
+#
+sub remove_reln{
+    my ( $self, $reln ) = @_;
+    my $id = ident $self;
+    if ($reln->get_first() eq $self) {
+        delete $relns_from_of{$id}{ $reln->get_second() };
+    } elsif ($reln->get_second() eq $self) {
+        delete $relns_to_of{$id}{ $reln->get_first() };
+    } else {
+        SErr->throw('removing unrelated reln from object');
+    }
+}
+
+1;
+
 
 
 1;
