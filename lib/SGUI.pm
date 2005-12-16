@@ -65,7 +65,7 @@ sub Update{
         $SCoderack::LastSelectedRunnable->display_self($Info);
         $Info->insert('0.0', "Last Run Runnable:", "heading", "\n\n");
     }
-    $Info->insert('end', $::LogString);
+    $Info->insert_autoTagged('end', $::LogString);
     $MW->update();
 }
 

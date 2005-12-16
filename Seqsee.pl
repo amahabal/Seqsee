@@ -8,6 +8,7 @@ use S;
 use SUtil;
 use Seqsee;
 
+use Tk::Carp qw{tkdie};
 use Smart::Comments;
 use List::Util qw(min);
 use UNIVERSAL::require;
@@ -273,16 +274,33 @@ sub init_display{
         SGUI::setup();
         SGUI::Update();
         my $update_display_sub = sub { SGUI::Update(); };
+        my $default_error_handler = sub {
+            my  ($err) = @_;
+            $Tk::Carp::MainWindow = $::MW;
+            tkdie($err);
+        };
+
         "main"->install_sub( {update_display =>
                                   $update_display_sub
                                   });
+
+        "main"->install_sub( {default_error_handler =>
+                                  $default_error_handler
+                                  });
+
+
     } else {
         my $update_display_sub = sub {
             print "Updated Tk display! (change me)\n";
         };
+        my $default_error_handler = sub {
+            die $_[0];
+        }; 
         "main"->install_sub( {update_display =>
                                   $update_display_sub
                                       });
+        "main"->install_sub( { default_error_handler =>
+                                $default_error_handler });
     }
 }
 
@@ -371,7 +389,7 @@ sub Seqsee_Step{
             $err->payload()->schedule();
             return;
         }
-        $err->rethrow;        
+        default_error_handler($err);        
     }
     return;
 }
