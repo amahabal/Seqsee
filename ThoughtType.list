@@ -4,3 +4,4 @@ SThought::SReln_Simple
 
 SThought::SAnchored
 SThought::AreTheseGroupable
+SThought::ShouldIFlip

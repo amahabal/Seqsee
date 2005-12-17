@@ -21,5 +21,13 @@ sub get_ends{
     return ($self->get_first(), $self->get_second());
 }
 
+sub get_extent{
+    my ( $self ) = @_;
+    my ( $f, $s ) = $self->get_ends();
+    my $l = List::Util::min( $f->get_left_edge(),  $s->get_left_edge() );
+    my $r = List::Util::max( $f->get_right_edge(), $s->get_right_edge() );
+    return ($l, $r);
+}
+
 
 1;

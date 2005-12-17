@@ -700,7 +700,7 @@ sub add_reln_from{
     my $to = $reln->get_second;
     my $rel_hash_ref = $relns_from_of{$id};
     if (exists($rel_hash_ref->{$to}) and not $force) {
-        SErr->throw("adding duplicate relation");
+        SErr->throw("adding duplicate relation $reln to $self");
     }
     $rel_hash_ref->{$to} = $reln;
 }
@@ -715,7 +715,7 @@ sub add_reln_to{
     ## $id, $from
     my $rel_hash_ref = $relns_to_of{$id};
     if (exists($rel_hash_ref->{$from}) and not $force) {
-        SErr->throw("adding duplicate relation");
+        SErr->throw("adding duplicate relation $reln to $self");
     }
     $rel_hash_ref->{$from} = $reln;
 }
@@ -778,10 +778,12 @@ sub remove_reln_to{
 sub remove_reln{
     my ( $self, $reln ) = @_;
     my $id = ident $self;
-    if ($reln->get_first() eq $self) {
-        delete $relns_from_of{$id}{ $reln->get_second() };
-    } elsif ($reln->get_second() eq $self) {
-        delete $relns_to_of{$id}{ $reln->get_first() };
+    my ($f, $s) = $reln->get_ends;
+    ### removing reln: "$reln from $self"
+    if ($f eq $self) {
+        delete $relns_from_of{$id}{$s};
+    } elsif ($s eq $self) {
+        delete $relns_to_of{$id}{$f};
     } else {
         SErr->throw('removing unrelated reln from object');
     }

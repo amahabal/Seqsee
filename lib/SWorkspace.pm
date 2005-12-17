@@ -175,6 +175,11 @@ sub add_reln{
     $relations{$reln} = $reln;
 }
 
+sub remove_reln{
+    my ( $package, $reln ) = @_;
+    delete $relations{$reln};
+}
+
 
 
 

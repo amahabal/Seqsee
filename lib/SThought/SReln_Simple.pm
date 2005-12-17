@@ -52,6 +52,8 @@ sub get_fringe{
     my $id = ident $self;
     my @ret;
     push @ret, [ $str_of{$id}, 100];
+    push @ret, [ $core_of{$id}->get_first(), 50],
+        [ $core_of{$id}->get_second(), 50];
 
     return \@ret;
 }
