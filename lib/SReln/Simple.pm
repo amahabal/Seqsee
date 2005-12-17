@@ -156,6 +156,21 @@ multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     return SElement->create( $new_mag );
 };
 
+sub as_text{
+    my ( $self ) = @_;
+    return $self->get_text;
+}
+
+
+
+# multi: are_relns_compatible ( SReln::Simple, SReln::Simple )
+# yes/no reply. Compatible if they are the same
+#
+multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {
+    my ( $r1, $r2 ) = @_;
+    return $r1->get_text() eq $r2->get_text();
+};
+
 
 
 1;

@@ -58,6 +58,7 @@ sub Update{
     draw_elements();
     @used_spots = ();
     draw_relations();
+    draw_groups();
 }
 
 sub draw_elements{
@@ -88,6 +89,12 @@ sub draw_relations{
     }
 }
 
+sub draw_groups{
+    for my $gp (@SWorkspace::OBJECTS) {
+        $gp->draw() unless $gp->isa("SElement");
+    }
+}
+
 
 sub new_object{
     my ( $obj ) = shift;
@@ -108,6 +115,24 @@ sub SReln::draw{
     draw_logical_rectangle( $row, $left, $right, \@reln_bgd_options);
     draw_logical_rectangle( $row, $l1, $r1, \@reln_fgd_options, 0, 0.5);
     draw_logical_rectangle( $row, $l2, $r2, \@reln_fgd_options, 0.5, 1);
+}
+
+sub SAnchored::draw{
+    my ( $self ) = @_;
+    my $from = $self->get_left_edge;
+    my $to   = $self->get_right_edge;
+    my $row = get_next_available_row($from, $to);
+
+    draw_logical_rectangle( $row, $from, $to, \@group_bgd_options);
+    my @items = @{$self->get_parts_ref()};
+    my $thickness = 1 / scalar(@items);
+    my $start_upper_edge = 0;
+    for my $item (@items) {
+        draw_logical_rectangle($row, $item->get_edges(), \@group_fgd_options,
+                               $start_upper_edge, $start_upper_edge + $thickness
+                                   );
+        $start_upper_edge += $thickness;
+    }
 }
 
 

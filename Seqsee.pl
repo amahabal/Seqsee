@@ -381,7 +381,7 @@ sub Seqsee_Step{
 
     if ($EVAL_ERROR) {
         my $err = $EVAL_ERROR;
-        ### Caught an error
+        ## Caught an error: ref($err)
         if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
             return 1;
         }

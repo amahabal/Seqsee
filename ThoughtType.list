@@ -3,3 +3,4 @@ SThought::AreRelated
 SThought::SReln_Simple
 
 SThought::SAnchored
+SThought::AreTheseGroupable

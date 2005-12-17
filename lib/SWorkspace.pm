@@ -14,6 +14,7 @@ use Class::Multimethods;
 use base qw{};
 
 use Perl6::Form;
+#use List::MoreUtils; # qw{uniq};
 
 # Next 2 lines: should be my!
 our $elements_count;
@@ -22,7 +23,7 @@ our @elements = ();
 
 # variable: @OBJECTS
 #    All groups and elements that are present
-my @OBJECTS;
+our @OBJECTS;
 
 # variable: $ReadHead
 #    Points just beyond the last object read.
@@ -174,6 +175,26 @@ sub add_reln{
     $relations{$reln} = $reln;
 }
 
+
+
+
+# method: is_there_a_covering_group
+# given the range, says yes or no
+#
+sub is_there_a_covering_group{
+    my ( $self, $left, $right ) = @_;
+    foreach (@OBJECTS) {
+        my ($l, $r) = $_->get_edges;
+        return 1 if ($l <= $left and $r >= $right);
+    }
+    return 0;
+}
+
+sub add_group{
+    my ( $self, $gp ) = @_;
+    push @OBJECTS, $gp;
+    # @OBJECTS = List::MoreUtils::uniq(@OBJECTS);
+}
 
 
 1;
