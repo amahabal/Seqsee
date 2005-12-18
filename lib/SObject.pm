@@ -732,11 +732,11 @@ sub add_reln_to{
 # add relation to object in appropriate hash.
 #
 sub add_reln{
-    my ( $self, $reln ) = @_;
+    my ( $self, $reln, $force ) = @_;
     if ($reln->get_first() eq $self) {
-        $self->add_reln_from( $reln );
+        $self->add_reln_from( $reln, $force );
     } elsif ($reln->get_second() eq $self) {
-        $self->add_reln_to( $reln );
+        $self->add_reln_to( $reln, $force );
     } else {
         SErr->throw( "adding an unrelated reln to an object" );
     }

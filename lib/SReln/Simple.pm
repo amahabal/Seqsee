@@ -153,7 +153,7 @@ multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     my ( $rel, $el ) = @_;
     my $new_mag = apply_reln($rel, $el->get_mag());
     # Need to return an selement, but unanchored. Sigh.
-    return SElement->create( $new_mag );
+    return SElement->create( $new_mag, 0 );
 };
 
 sub as_text{

@@ -14,6 +14,7 @@ use Class::Multimethods;
 use base qw{};
 
 use Perl6::Form;
+use Smart::Comments;
 #use List::MoreUtils; # qw{uniq};
 
 # Next 2 lines: should be my!
@@ -200,6 +201,57 @@ sub add_group{
     push @OBJECTS, $gp;
     # @OBJECTS = List::MoreUtils::uniq(@OBJECTS);
 }
+
+
+
+# method: check_at_location
+# checks if this is the object present at a location
+#
+#    Arguments are start, direction(+1 or -1) and what the object to look for is.
+sub check_at_location{
+    my ( $self, $opts_ref ) = @_;
+    my $direction = $opts_ref->{direction} || die "need direction";
+    my $start = $opts_ref->{start};
+    my $what  = $opts_ref->{what};
+    my @flattened = @{ $what->get_flattened };
+    my $span = scalar(@flattened) - 1;
+
+    ## $direction, $start, $what
+    ## @flattened
+    if ($direction == 1) { # rightward
+        my $current_pos = $start-1;
+        my @already_validated;
+        while (@flattened) {
+            $current_pos++;
+            if ($current_pos >= $elements_count) {
+                # already out of range!
+                my $err = SErr::AskUser->new(
+                    already_matched => [@already_validated],
+                    next_elements   => [@flattened],
+                        );
+            } else {
+                ## expecting: $flattened[0]
+                ## got: $elements[$current_pos]->get_mag()
+                if ($elements[$current_pos]->get_mag() == $flattened[0]) {
+                    push @already_validated, shift(@flattened);
+                } else {
+                    return;
+                }
+            }
+        }
+        return 1;
+    } else {
+        die "Leftward extension checking not implemented";
+    }
+
+}
+
+multimethod plonk_into_place => qw(# # SElement) => sub {
+    my ( $start, $direction, $el ) = @_;
+    my $el_in_ws = $SWorkspace::elements[$start];
+    die "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
+    return $el_in_ws;
+};
 
 
 1;

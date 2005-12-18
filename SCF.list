@@ -4,3 +4,4 @@ SCF::FindIfMetonyable
 SCF::FindIfRelated
 SCF::FindIfRelatedRelns
 SCF::flipReln
+SCF::AttemptExtension

@@ -28,6 +28,17 @@ my %right_edge_of :ATTR(:get<right_edge> :set<right_edge>);
 #    Based on the left edge
 my %direction_of :ATTR( :get<direction> );
 
+
+# variable: %right_extendibility_of
+#    Could this gp be extended rightward?
+#    -1 means No!, 0 means unknown.
+my %right_extendibility_of :ATTR(:set<right_extendibility>);
+
+
+# variable: %left_extendibility_of
+#    same as above, leftward?
+my %left_extendibility_of :ATTR(:set<left_extendibility>);
+
 # method: BUILD
 # 
 #
@@ -35,7 +46,30 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     $direction_of{$id} = $opts_ref->{direction}||0;
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
-    ### BuiltObj direction: $direction_of{$id}
+    ## BuiltObj direction: $direction_of{$id}
+}
+
+
+
+# method: recalculate_edges
+# 
+#
+sub recalculate_edges{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my %slots_taken;
+    for my $item (@{$self->get_parts_ref}) {
+        SErr->throw("SAnchored->create called with a non anchored object") unless UNIVERSAL::isa( $item, "SAnchored");
+        my ($left, $right) = $item->get_edges();
+        @slots_taken{ $left..$right } = ( $left .. $right );
+    }
+
+    my @keys = values %slots_taken;
+    ## @keys
+    my ($left, $right) = minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element    
+    $left_edge_of{$id} = $left;
+    $right_edge_of{$id} = $right;
 }
 
 
@@ -147,6 +181,33 @@ sub get_bounds_string{
     return " [$left_edge_of{$id}, $right_edge_of{$id}] ";
 }
 
+
+
+# method: could_be_right_extendible
+# return true if it is possible that this is right extendible
+#
+sub could_be_right_extendible{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return 0 if $right_extendibility_of{$id} == -1;
+    return 1;
+}
+
+# method: could_be_left_extendible
+# return true if it is possible that this is right extendible
+#
+sub could_be_left_extendible{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return 0 if $left_extendibility_of{$id} == -1;
+    return 1;
+}
+
+
+sub as_text{
+    my ( $self ) = @_;
+    return "SAnchored ". $self->get_bounds_string();
+}
 
 
 1;

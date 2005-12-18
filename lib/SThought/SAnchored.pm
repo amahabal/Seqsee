@@ -47,7 +47,8 @@ sub get_fringe{
     my ( $self ) = @_;
     my $id = ident $self;
     my @ret;
-
+    my $structure = $core_of{$id}->get_structure();
+    push @ret, [$S::LITERAL->build({ structure => $structure }), 100];
     return \@ret;
 }
 
@@ -68,7 +69,19 @@ sub get_extended_fringe{
 sub get_actions{
     my ( $self ) = @_;
     my $id = ident $self;
+    my $core = $core_of{$id};
+
     my @ret;
+
+    # extendibility checking...
+    if ($core->could_be_right_extendible()) {
+        my $cl = new SCodelet("AttemptExtension", 100,
+                              { core => $core,
+                                direction => 1,
+                            }
+                                  );
+        push @ret, $cl;
+    }
 
     return @ret;
 }
