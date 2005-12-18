@@ -276,9 +276,14 @@ sub init_display{
         my $update_display_sub = sub { SGUI::Update(); };
         my $default_error_handler = sub {
             my  ($err) = @_;
-            $Tk::Carp::MainWindow = $::MW;
+            $Tk::Carp::MainWindow = $SGUI::MW;
             tkdie($err);
         };
+        my $msg_displayer = sub {
+            my ( $msg ) = @_;
+            $SGUI::MW->messageBox(-message => $msg);
+        };
+
 
         "main"->install_sub( {update_display =>
                                   $update_display_sub
@@ -286,6 +291,9 @@ sub init_display{
 
         "main"->install_sub( {default_error_handler =>
                                   $default_error_handler
+                                  });
+        "main"->install_sub( { message =>
+                                  $msg_displayer
                                   });
 
 
@@ -296,11 +304,19 @@ sub init_display{
         my $default_error_handler = sub {
             die $_[0];
         }; 
+        my $msg_displayer = sub {
+            my ( $msg ) = @_;
+            print "Message: ", $msg, "\n";
+        };
+
         "main"->install_sub( {update_display =>
                                   $update_display_sub
                                       });
         "main"->install_sub( { default_error_handler =>
                                 $default_error_handler });
+        "main"->install_sub( { message =>
+                                  $msg_displayer
+                                  });
     }
 }
 

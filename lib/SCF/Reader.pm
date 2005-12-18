@@ -57,8 +57,10 @@ sub run{
         $logger->info( $msg );
     }
 
+    
 
     if ($object) {
+        # main::message("read an SAnchored!") if (ref $object) eq "SAnchored";
         SThought->create($object)->schedule();
     }
 

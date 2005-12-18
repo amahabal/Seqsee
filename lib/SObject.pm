@@ -47,6 +47,11 @@ my %relns_from_of :ATTR( :get<relns_from> :set<relns_from>);
 #    incoming
 my %relns_to_of :ATTR( :get<relns_to> :set<relns_to>);
 
+
+# variable: %underlying_reln_of
+#    is the group based on some relation? undef if not, the relation otherwise
+my %underlying_reln_of :ATTR( :get<underlying_reln> :set<underlying_reln>);
+
 #
 # subsection: Construction
 
@@ -63,6 +68,7 @@ sub BUILD{
     $group_p_of{$id} = $opts_ref->{group_p};
     $relns_from_of{$id} = {};
     $relns_to_of{$id} = {};
+    $underlying_reln_of{$id} = undef;
 }
 
 
@@ -700,7 +706,7 @@ sub add_reln_from{
     my $to = $reln->get_second;
     my $rel_hash_ref = $relns_from_of{$id};
     if (exists($rel_hash_ref->{$to}) and not $force) {
-        SErr->throw("adding duplicate relation $reln to $self");
+        confess("adding duplicate relation $reln to $self");
     }
     $rel_hash_ref->{$to} = $reln;
 }
@@ -715,7 +721,7 @@ sub add_reln_to{
     ## $id, $from
     my $rel_hash_ref = $relns_to_of{$id};
     if (exists($rel_hash_ref->{$from}) and not $force) {
-        SErr->throw("adding duplicate relation $reln to $self");
+        confess("adding duplicate relation $reln to $self");
     }
     $rel_hash_ref->{$from} = $reln;
 }

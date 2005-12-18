@@ -23,13 +23,19 @@ my %left_edge_of :ATTR(:get<left_edge> :set<left_edge>);
 my %right_edge_of :ATTR(:get<right_edge> :set<right_edge>);
 
 
+# variable: %direction_of
+#    direction: 1 for right, -1 for left; 0 if neither
+#    Based on the left edge
+my %direction_of :ATTR( :get<direction> );
 
 # method: BUILD
 # 
 #
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
+    $direction_of{$id} = $opts_ref->{direction}||0;
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
+    ### BuiltObj direction: $direction_of{$id}
 }
 
 
@@ -70,6 +76,7 @@ sub get_edges{
 sub create{
     my ( $package, @items ) = @_;
 
+    my @left_edges; # for finding direction
     if (@items == 1) {
         SErr->throw("A group creation is being attempted based on a single object");
     }
@@ -79,6 +86,7 @@ sub create{
         SErr->throw("SAnchored->create called with a non anchored object") unless UNIVERSAL::isa( $item, "SAnchored");
         my ($left, $right) = $item->get_edges();
         @slots_taken{ $left..$right } = ( $left .. $right );
+        push @left_edges, $left;
     }
     
     my @keys = values %slots_taken;
@@ -93,10 +101,38 @@ sub create{
         }
         SErr->throw("There are holes here!");
     }
+    # lets find the direction now
+    my $direction;
+    {
+        my ($leftward,$rightward, $same);
+        my $how_many = scalar(@left_edges) - 1;
+        for (0..$how_many-1) {
+            my $diff = $left_edges[$_+1] - $left_edges[$_];
+            if ($diff > 0) {
+                $rightward++;
+            } elsif ($diff < 0) {
+                $leftward++;
+            } else {
+                $same++;
+                last;
+            }
+        }
+        if ($same) {
+            $direction = 0;
+        } elsif ($leftward and not $rightward) {
+            $direction = -1;
+        } elsif ($rightward and not $leftward) {
+            $direction = 1;
+        } else {
+            $direction = 0;
+        }
+    }
+    
     return $package->new( { items => [@items],
                             group_p => 1,
                             left_edge => $left,
                             right_edge => $right,
+                            direction  => $direction,
                         });
 }
 

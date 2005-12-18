@@ -37,7 +37,7 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     
     my $core = $core_of{$id} = $opts_ref->{core} or confess "Need core";
-    
+    # main::message( "An SAnchored object was thought about!");
 }
 
 # method: get_fringe

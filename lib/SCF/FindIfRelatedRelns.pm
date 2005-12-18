@@ -83,7 +83,9 @@ sub run{
     # Must be teh case that as is bf. Now we need to see if they are compatible
     my $compatibility = are_relns_compatible($a, $b);
     if ($compatibility) {
-        my $tht = SThought::AreTheseGroupable->new({items => [$af, $as, $bs]});
+        my $tht = SThought::AreTheseGroupable->new({items => [$af, $as, $bs],
+                                                    reln  => $a,
+                                                });
         SErr::NeedMoreData->new(payload=> $tht)->throw();
     }
 }

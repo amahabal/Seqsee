@@ -24,6 +24,7 @@ use base qw{SThought};
 use List::Util qw{min max};
 
 my %items_of :ATTR();
+my %reln_of :ATTR();
 
 # method: BUILD
 # Builds
@@ -31,6 +32,7 @@ my %items_of :ATTR();
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     $items_of{$id} = $opts_ref->{items} || die;
+    $reln_of{$id}  = $opts_ref->{reln};
 }
 
 # method: get_fringe
@@ -78,6 +80,7 @@ sub get_actions{
     return if $is_covering;
 
     my $new_group = SAnchored->create(@{$items_of{$id}});
+    $new_group->set_underlying_reln($reln_of{$id});
     SWorkspace->add_group($new_group);
     # die "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
 
