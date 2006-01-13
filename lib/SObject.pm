@@ -38,14 +38,8 @@ my %group_p_of : ATTR( :get<group_p>);
 #    The metonym associated with this object
 my %metonym_of :ATTR( :get<metonym> :set<metonym>);
 
-
-# variable: %relns_from_of
-#    outgoing relations. A hashref indexed by the other object.
-my %relns_from_of :ATTR( :get<relns_from> :set<relns_from>);
-
-# variable: %relns_to_of
-#    incoming
-my %relns_to_of :ATTR( :get<relns_to> :set<relns_to>);
+# variable: %reln_other_of
+my %reln_other_of :ATTR();
 
 
 # variable: %underlying_reln_of
@@ -66,8 +60,7 @@ sub BUILD{
 
     $items_of{$id}   = $opts_ref->{items} or die "Need items";
     $group_p_of{$id} = $opts_ref->{group_p};
-    $relns_from_of{$id} = {};
-    $relns_to_of{$id} = {};
+    $reln_other_of{$id} = {};
     $underlying_reln_of{$id} = undef;
 }
 
@@ -697,83 +690,32 @@ sub describe_as{
 
 
 
-# method: add_reln_from
-# Add a relation from self
+# method: _get_other_end_of_reln
+# 
 #
-sub add_reln_from{
-    my ( $self, $reln, $force ) = @_;
-    my $id = ident $self;
-    my $to = $reln->get_second;
-    my $rel_hash_ref = $relns_from_of{$id};
-    if (exists($rel_hash_ref->{$to}) and not $force) {
-        confess("adding duplicate relation $reln to $self");
-    }
-    $rel_hash_ref->{$to} = $reln;
-}
-
-# method: add_reln_to
-# Add a relation to self
-#
-sub add_reln_to{
-    my ( $self, $reln, $force ) = @_;
-    my $id = ident $self;
-    my $from = $reln->get_first;
-    ## $id, $from
-    my $rel_hash_ref = $relns_to_of{$id};
-    if (exists($rel_hash_ref->{$from}) and not $force) {
-        confess("adding duplicate relation $reln to $self");
-    }
-    $rel_hash_ref->{$from} = $reln;
+sub _get_other_end_of_reln{
+    my ( $self, $reln ) = @_;
+    my($f, $s)= $reln->get_ends();
+    return $s if $f eq $self;
+    return $f if $s eq $self;
+    SErr->throw("relation error: not an end");
 }
 
 
 
 # method: add_reln
-# add relation to object in appropriate hash.
+# 
 #
 sub add_reln{
     my ( $self, $reln, $force ) = @_;
-    if ($reln->get_first() eq $self) {
-        $self->add_reln_from( $reln, $force );
-    } elsif ($reln->get_second() eq $self) {
-        $self->add_reln_to( $reln, $force );
-    } else {
-        SErr->throw( "adding an unrelated reln to an object" );
-    }
-}
-
-
-
-# method: remove_reln_from
-# removes a relation from this object
-#
-sub remove_reln_from{
-    my ( $self, $obj_or_rel ) = @_;
     my $id = ident $self;
-    my $rel_hash_ref = $relns_from_of{$id};
-
-    if ($obj_or_rel->isa("SObject")) {
-        delete $rel_hash_ref->{$obj_or_rel};
-    } else {
-        delete $rel_hash_ref->{$obj_or_rel->get_second};
+    my $other = $self->_get_other_end_of_reln($reln);
+    
+    if (exists( $reln_other_of{$id}{$other}) and not($force)) {
+        SErr->throw("duplicate reln being added");
     }
-}
 
-
-
-# method: remove_reln_to
-# removes a relation to this object
-#
-sub remove_reln_to{
-    my ( $self, $obj_or_rel ) = @_;
-    my $id = ident $self;
-    my $rel_hash_ref = $relns_to_of{$id};
-
-    if ($obj_or_rel->isa("SObject")) {
-        delete $rel_hash_ref->{$obj_or_rel};
-    } else {
-        delete $rel_hash_ref->{$obj_or_rel->get_first};
-    }
+    $reln_other_of{$id}{$other} = $reln;
 }
 
 
@@ -784,25 +726,19 @@ sub remove_reln_to{
 sub remove_reln{
     my ( $self, $reln ) = @_;
     my $id = ident $self;
-    my ($f, $s) = $reln->get_ends;
-    ### removing reln: "$reln from $self"
-    if ($f eq $self) {
-        delete $relns_from_of{$id}{$s};
-    } elsif ($s eq $self) {
-        delete $relns_to_of{$id}{$f};
-    } else {
-        SErr->throw('removing unrelated reln from object');
-    }
+
+    my $other = $self->_get_other_end_of_reln($reln);
+    delete $reln_other_of{$id}{$other};
 }
+
 
 sub get_relation{
     my ( $self, $other ) = @_;
     my $id = ident $self;
-    ## $self, $other, $id
-    ## $relns_from_of{$id}{$other}
-    return $relns_from_of{$id}{$other} 
-        || $relns_to_of{$id}{$other};
-        
+
+    return $reln_other_of{$id}{$other}
+        if exists $reln_other_of{$id}{$other};
+    return;
 }
 
 

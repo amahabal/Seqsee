@@ -37,7 +37,7 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     
     my $core = $core_of{$id} = $opts_ref->{core} or confess "Need core";
-    # main::message( "An SAnchored object was thought about!");
+    main::message( "An SAnchored object was thought about!");
 }
 
 # method: get_fringe
@@ -46,9 +46,13 @@ sub BUILD{
 sub get_fringe{
     my ( $self ) = @_;
     my $id = ident $self;
+    my $core = $core_of{$id};
+
     my @ret;
     my $structure = $core_of{$id}->get_structure();
     push @ret, [$S::LITERAL->build({ structure => $structure }), 100];
+    my $rel = $core->get_underlying_reln();
+    push @ret, $rel if $rel;
     return \@ret;
 }
 

@@ -99,8 +99,8 @@ ok($rel);
 ok($rel->get_first() eq $e1);
 ok($rel->get_second() eq $e2);
 ## $rel
-$e1->add_reln_from($rel);
-$e2->add_reln_to($rel);
-## $e1
+$e1->add_reln($rel);
+$e2->add_reln($rel);
+# diag "$e1";
 ok( $e1->get_relation($e2));
 ok( $e2->get_relation($e1));

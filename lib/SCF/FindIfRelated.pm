@@ -68,8 +68,8 @@ sub run{
     return unless $reln;
 
     # So a relation has been found
-    $a->add_reln_from( $reln );
-    $b->add_reln_to( $reln );
+    $a->add_reln( $reln );
+    $b->add_reln( $reln );
     SWorkspace->add_reln( $reln );
     SThought->create( $reln )->schedule();
 

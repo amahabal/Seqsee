@@ -22,9 +22,9 @@ our $elements_count;
 our @elements = ();
 
 
-# variable: @OBJECTS
-#    All groups and elements that are present
-our @OBJECTS;
+# variable: %groups
+#    All groups
+our %groups;
 
 # variable: $ReadHead
 #    Points just beyond the last object read.
@@ -35,6 +35,27 @@ my $ReadHead = 0;
 
 # variable: %relations
 our %relations;
+
+#XXX needs to be filled
+our %POLICY = (
+    gp_add => sub {
+        my ( $gp ) = @_;
+        1;
+    },
+    gp_rem => sub {
+        my ( $gp ) = @_;
+        1;
+    },
+    rel_add => sub {
+        my ( $rel ) = @_;
+        1;
+    },
+    rel_rem => => sub {
+        my ( $rel ) = @_;
+        1;
+    },
+
+        );
 
 # method: clear
 #  starts workspace off as new
@@ -97,7 +118,6 @@ multimethod _insert_element => ( 'SElement') => sub {
     my $elt = shift;
     $elt->set_edges($elements_count, $elements_count);
     push( @elements, $elt );
-    push( @OBJECTS, $elt );
     $elements_count++;
 };
 
@@ -132,7 +152,7 @@ sub _get_some_object_at{
     my @matching_objects = 
         grep { $_->get_left_edge() <= $idx and 
                    $_->get_right_edge() >= $idx
-           } @OBJECTS;
+           } (@elements, values %groups);
     
     my $how_many = scalar( @matching_objects );
     return unless $how_many;
@@ -173,11 +193,15 @@ sub _saccade{
 #
 sub add_reln{
     my ( $package, $reln ) = @_;
+    SErr->throw("policy violation in reln add")
+        unless _check_policy('rel_add', $reln);
     $relations{$reln} = $reln;
 }
 
 sub remove_reln{
     my ( $package, $reln ) = @_;
+    SErr->throw("policy violation in rel_rem")
+        unless _check_policy('rel_rem', $reln);
     delete $relations{$reln};
 }
 
@@ -189,7 +213,7 @@ sub remove_reln{
 #
 sub is_there_a_covering_group{
     my ( $self, $left, $right ) = @_;
-    foreach (@OBJECTS) {
+    foreach (values %groups) {
         my ($l, $r) = $_->get_edges;
         return 1 if ($l <= $left and $r >= $right);
     }
@@ -198,9 +222,18 @@ sub is_there_a_covering_group{
 
 sub add_group{
     my ( $self, $gp ) = @_;
-    push @OBJECTS, $gp;
-    # @OBJECTS = List::MoreUtils::uniq(@OBJECTS);
+    SErr->throw("policy violation in gp add")
+        unless _check_policy('gp_add', $gp);
+    $groups{$gp} = $gp;
 }
+
+sub remove_gp{
+    my ( $self, $gp ) = @_;
+    SErr->throw("policy violation in gp add")
+        unless _check_policy('gp_rem', $gp);
+    delete $groups{$gp};
+}
+
 
 
 
@@ -229,6 +262,7 @@ sub check_at_location{
                     already_matched => [@already_validated],
                     next_elements   => [@flattened],
                         );
+                $err->throw();
             } else {
                 ## expecting: $flattened[0]
                 ## got: $elements[$current_pos]->get_mag()
@@ -252,6 +286,18 @@ multimethod plonk_into_place => qw(# # SElement) => sub {
     die "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
     return $el_in_ws;
 };
+
+
+
+# method: _check_policy
+# 
+#
+sub _check_policy{
+    my ( $name, @args ) = @_;
+    my $code = $POLICY{$name} || SErr->throw("unknown policy");
+    return $code->(@args);
+}
+
 
 
 1;

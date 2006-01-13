@@ -70,7 +70,7 @@ sub run{
     
     # Check that this is what is present...
     my $is_this_what_is_present;
-    # main::message("AttemptExtension of ". $core->as_text);
+    #main::message("AttemptExtension of ". $core->as_text);
     eval {$is_this_what_is_present= 
               SWorkspace->check_at_location({ start => $current_right_edge + 1,
                                               direction => $direction,
@@ -80,6 +80,7 @@ sub run{
       };
     if ($EVAL_ERROR) {
         my $err = $EVAL_ERROR;
+        #main::message("Good! Error caught");
         if (UNIVERSAL::isa($err, "SErr::AskUser")) {
             my $already_matched = $err->already_matched();
             my $ask_if_what = $err->next_elements();
@@ -100,6 +101,7 @@ sub run{
         SWorkspace->add_reln($reln);
         push @$core_object_ref, $wso;
         $core->recalculate_edges();
+        # main::message("Okay, extended");
     } else {
         main::message("Hmmm.. could not extend. Strange.");
     }

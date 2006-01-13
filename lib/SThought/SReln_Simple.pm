@@ -81,18 +81,16 @@ sub get_actions{
     my $str = $str_of{$id};
     #XXX what follows should happen probabilistically etc...
     if ($str eq "same") {
-        my $action =
-            SAction->new({ family  => 'FindIfGroupable',
-                           urgency => 100,
-                           args   => {
-                               category => $S::SAMENESS,
-                               items => [ $core->get_first(),
-                                          $core->get_second(),
-                                              ],
-                                   },
-                       });
+        my $tht =
+            SThought::AreTheseGroupable->new( 
+                {
+                    items => [ $core->get_first(),
+                               $core->get_second(),
+                                   ],
+                    reln  => $core,
+                    });
         # print "New FindIfGroupable action suggested\n";
-        push @ret, $action;
+        push @ret, $tht;
     }
 
     return @ret;

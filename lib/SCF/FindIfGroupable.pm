@@ -57,7 +57,7 @@ sub run{
     my @anchored_p = map { UNIVERSAL::isa($_, "SAnchored") ?1:0} @$items_ref;
     my $anchored_count = sum(@anchored_p);
 
-    ### Got here in FindIfGroupable
+    ## Got here in FindIfGroupable
 
     if ($anchored_count == scalar( @anchored_p ) ) {
         $object = SAnchored->create( @$items_ref );
@@ -89,6 +89,9 @@ sub run{
     ### Bindings: $bindings
 
     return unless $bindings;
+    if ($object->isa("SAnchored")) {
+        SWorkspace->add_group($object);
+    }
 
     SCodelet->new("FindIfMetonyable", 50)->schedule();
     SThought->create( $object )->schedule();

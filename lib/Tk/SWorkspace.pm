@@ -90,8 +90,8 @@ sub draw_relations{
 }
 
 sub draw_groups{
-    for my $gp (@SWorkspace::OBJECTS) {
-        $gp->draw() unless $gp->isa("SElement");
+    for my $gp (values %SWorkspace::groups) {
+        $gp->draw();
     }
 }
 
