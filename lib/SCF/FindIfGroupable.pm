@@ -72,19 +72,7 @@ sub run{
 
     ### Object created: $object
 
-    my $bindings;
-    eval { $bindings = $category->is_instance( $object ); };
-    if ($EVAL_ERROR) {
-        # is_instance blew up; If it blew up with 
-        my $e = $EVAL_ERROR;
-        if (UNIVERSAL::isa($e, 'SErr::NeedMoreData')) {
-            my $payload = $e->payload(); #can be codelet or thought
-            $payload->schedule();
-            return;
-        } else {
-            die $e;
-        }
-    }
+    my $bindings = $category->is_instance( $object ); 
 
     ### Bindings: $bindings
 

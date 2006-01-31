@@ -210,7 +210,9 @@ sub Interaction_step_n{
     my $change_after_last_display = 0;#to prevent repeats at end
     my $program_finished = 0;
 
-    for my $steps_executed (1..$n) {
+    STEP_LOOP: for my $steps_executed (1..$n) {
+	$::_BREAK_LOOP = 0;
+
         ## Interaction_step_n executing step number: $steps_executed
         $program_finished = Seqsee_Step();
         ## Interaction_step_n finished step: $steps_executed 
@@ -221,6 +223,7 @@ sub Interaction_step_n{
             $change_after_last_display = 0;
         }
         last if $program_finished;
+	last if $::_BREAK_LOOP;
     }
     
     update_display() if $change_after_last_display;
@@ -281,7 +284,11 @@ sub init_display{
         };
         my $msg_displayer = sub {
             my ( $msg ) = @_;
-            $SGUI::MW->messageBox(-message => $msg);
+            my $btn = $SGUI::MW->messageBox(-message => $msg, -type => "OkCancel");
+	    ## $btn
+	    if ($btn eq "Cancel") {
+	      $::_BREAK_LOOP = 1;
+	    }
         };
 
 
