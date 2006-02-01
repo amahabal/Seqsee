@@ -51,8 +51,18 @@ sub get_fringe{
     my @ret;
     my $structure = $core_of{$id}->get_structure();
     push @ret, [$S::LITERAL->build({ structure => $structure }), 100];
+
     my $rel = $core->get_underlying_reln();
     push(@ret, [$rel, 50]) if $rel;
+
+    my @cats = @{$core->get_cats()};
+    push @ret, map { [$_, 100] } @cats;
+    if (@cats) {
+        print "Cats: '", $cats[0], "' ", ref($cats[0]), "\n";
+        main::message("$core belongs to: " .scalar(@cats). "@cats");
+    }
+
+
     return \@ret;
 }
 
@@ -85,6 +95,20 @@ sub get_actions{
                             }
                                   );
         push @ret, $cl;
+    }
+
+    my $poss_cat = $core->get_underlying_reln()->suggest_cat();
+    if ($poss_cat) {
+        my $is_inst = $core->is_of_category_p($poss_cat)->[0];
+        # main::message("$core is of $poss_cat? '$is_inst'");
+        unless ($is_inst) { #XXX if it already known, skip!
+            my $cl = new SCodelet("CheckIfInstance", 100, 
+                                  {
+                                      obj => $core,
+                                      cat => $poss_cat
+                                          });
+            push @ret, $cl;
+        }
     }
 
     return @ret;

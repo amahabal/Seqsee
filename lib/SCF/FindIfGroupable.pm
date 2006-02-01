@@ -60,7 +60,14 @@ sub run{
     ## Got here in FindIfGroupable
 
     if ($anchored_count == scalar( @anchored_p ) ) {
-        $object = SAnchored->create( @$items_ref );
+        eval { $object = SAnchored->create( @$items_ref ) };
+        if (my $e = $EVAL_ERROR) {
+            if (UNIVERSAL::isa($e, "SErr::HolesHere")) {
+                return;
+            } else {
+                die $e; 
+            }
+        }
     } elsif (!$anchored_count) { # none anchored
         $object = SObject->new({ items   => $items_ref,
                                     group_p => 1,

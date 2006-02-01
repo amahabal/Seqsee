@@ -133,7 +133,7 @@ sub create{
         for (@items) {
             print $_->get_bounds_string(), "\n";
         }
-        SErr->throw("There are holes here!");
+        SErr::HolesHere->throw("There are holes here!");
     }
     # lets find the direction now
     my $direction;
@@ -181,6 +181,11 @@ sub get_bounds_string{
     return " [$left_edge_of{$id}, $right_edge_of{$id}] ";
 }
 
+sub get_span{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return $right_edge_of{$id} - $left_edge_of{$id} + 1;
+}
 
 
 # method: could_be_right_extendible

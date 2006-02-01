@@ -54,7 +54,9 @@ sub build {
 
 sub is_instance {
     my ( $self, $built_obj ) = @_;
-    return $instancer_of{ ident $self}->( $self, $built_obj );
+    my $bindings = $instancer_of{ ident $self}->( $self, $built_obj );
+    $built_obj->add_category( $self, $bindings ) if $bindings;
+    return $bindings;
 }
 
 sub is_instance_flat {

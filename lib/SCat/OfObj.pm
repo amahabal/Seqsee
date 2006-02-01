@@ -366,7 +366,7 @@ sub derive_assuming{
 # method: as_text
 # returns a short textual description of the category. Name, perhaps?
 #
-sub as_text{
+sub as_text :STRINGIFY{
     my ( $self ) = @_;
     return $name_of{ident $self};
 }

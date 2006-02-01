@@ -173,6 +173,26 @@ multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {
 
 
 
+# method: suggest_cat
+# suggests a cat type based on reln
+#
+sub suggest_cat{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $str = $str_of{$id};
+
+    if ($str eq "same") {
+        return $S::SAMENESS;
+    } elsif ($str eq "succ") {
+        return $S::ASCENDING;
+    } elsif ($str eq "pred") {
+        return $s::DESCENDING;
+    }
+
+}
+
+
+
 1;
 
 

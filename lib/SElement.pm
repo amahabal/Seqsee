@@ -13,6 +13,7 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{SAnchored};
+use overload fallback => 1;
 
 my %mag_of :ATTR(:get<mag>);
 #my %left_edge_of : ATTR( :set<left_edge> :get<left_edge> );

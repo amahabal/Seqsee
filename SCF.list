@@ -5,3 +5,4 @@ SCF::FindIfRelated
 SCF::FindIfRelatedRelns
 SCF::flipReln
 SCF::AttemptExtension
+SCF::CheckIfInstance

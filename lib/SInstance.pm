@@ -96,7 +96,7 @@ sub add_category{
 #     foreach ( keys %$bindings ) {
 #         $cat->has_attribute($_) or croak "$cat doesn't have attribute $_";
 #     }
-#     $SCat::Str2Cat{$cat} = $cat;
+#     $S::Str2Cat{$cat} = $cat;
 #     $cats_of_of{ ident $self}{$cat} = $bindings;
 #     return $self;
 # }
@@ -272,14 +272,14 @@ sub get_cats {
     my $id = ident $self;
     my @cat_strings = keys %{$cats_of_of{$id}};
     return [] unless @cat_strings;
-    return [ map { $SCat::Str2Cat{$_}} @cat_strings ];
+    return [ map { $S::Str2Cat{$_}} @cat_strings ];
 }
 
 sub get_blemish_cats {
     my $self = shift;
     my %ret;
     while ( my ( $k, $binding ) = each %{ $cats_of_of{ ident $self} } ) {
-        if ( $SCat::Str2Cat{$k}->is_blemished_cat ) {
+        if ( $S::Str2Cat{$k}->is_blemished_cat ) {
             $ret{$k} = $binding->{what};
         }
     }

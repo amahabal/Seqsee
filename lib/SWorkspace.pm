@@ -15,7 +15,6 @@ use base qw{};
 
 use Perl6::Form;
 use Smart::Comments;
-#use List::MoreUtils; # qw{uniq};
 
 # Next 2 lines: should be my!
 our $elements_count;
@@ -63,6 +62,8 @@ our %POLICY = (
 sub clear{
     $elements_count = 0;
     @elements       = ();
+    %groups = ();
+    %relations = ();
 }
 
 # method: init
@@ -224,6 +225,7 @@ sub add_group{
     my ( $self, $gp ) = @_;
     SErr->throw("policy violation in gp add")
         unless _check_policy('gp_add', $gp);
+    ## $gp
     $groups{$gp} = $gp;
 }
 
@@ -275,7 +277,14 @@ sub check_at_location{
         }
         return 1;
     } else {
-        die "Leftward extension checking not implemented";
+        if ($span > $start + 1) {
+            return;
+        }
+        for my $p (0..$span-1) {
+            return unless $elements[$start - $span + $p + 1]->get_mag()
+                == $flattened[$p];
+        }
+        return 1;
     }
 
 }

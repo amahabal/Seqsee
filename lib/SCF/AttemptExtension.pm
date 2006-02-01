@@ -63,6 +63,7 @@ sub run{
     
     my $underlying_reln = $core->get_underlying_reln;
     my $core_object_ref = $core->get_parts_ref;
+    my $core_span = $core->get_span;
     my $last_object = $core_object_ref->[-1];
     my $what_comes_next = apply_reln( $underlying_reln, $last_object );
     #XXX assuming rightward extension.
@@ -84,7 +85,13 @@ sub run{
         if (UNIVERSAL::isa($err, "SErr::AskUser")) {
             my $already_matched = $err->already_matched();
             my $ask_if_what = $err->next_elements();
-            main::message("We may ask the user if the next elements are: @$ask_if_what");
+            #main::message("already_matched @$already_matched; span = $core_span");
+            if (worth_asking($already_matched, $ask_if_what, $core_span)) {
+                main::message("We may ask the user if the next elements are: @$ask_if_what");
+
+            } else {
+                #main::message("decided not to ask if next are @$ask_if_what");
+            }
             return;
         } else {
             $err->rethrow;
@@ -103,8 +110,22 @@ sub run{
         $core->recalculate_edges();
         # main::message("Okay, extended");
     } else {
-        main::message("Hmmm.. could not extend. Strange.");
+        # main::message("Hmmm.. could not extend. Strange.");
     }
 
 }
+
+sub worth_asking{
+    my ( $matched, $unmatched, $extension_from_span ) = @_;
+    ## $matched
+    ## $unmatched
+    my $penetration = (scalar(@$matched) + $extension_from_span) / $SWorkspace::elements_count;
+    ## $penetration
+    return unless $penetration;
+
+    my $on_a_limb = scalar(@$unmatched)/(scalar(@$matched) + $extension_from_span);
+    return 1 if ($penetration > 0.3 and $on_a_limb < 0.8);
+    return;
+}
+
 1;

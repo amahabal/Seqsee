@@ -26,6 +26,7 @@ use base qw{SInstance};
 #    It is guarenteed that if there is a single object, it will be an SInt: So, no vacuosly deep groups like [[[3]]]
 my %items_of : ATTR( :get<parts_ref> );
 
+use overload fallback => 1;
 
 # variable: %group_p_of
 #    Is this object a group? 
@@ -255,8 +256,12 @@ sub maybe_annotate_with_cat{
     my ( $self, $cat ) = @_;
     eval { $self->annotate_with_cat($cat) };
 
-    if ($EVAL_ERROR) {
-        $self->add_non_category($cat);
+    if (my $o = $EVAL_ERROR) {
+        if (UNIVERSAL::isa($o, 'SErr::NotOfCat')){
+            $self->add_non_category($cat);
+        } else {
+            die $o;
+        }
     }
 }
 
@@ -305,7 +310,14 @@ sub annotate_with_metonym{
 sub maybe_annotate_with_metonym{
     my ( $self, $cat, $name ) = @_;
     eval { $self->annotate_with_metonym($cat, $name) };
-    
+
+    if (my $o = $EVAL_ERROR) {
+        if (UNIVERSAL::isa($o, 'SErr::MetonymNotAppicable')){
+            
+        } else {
+            die $o;
+        }
+    }    
 }
 
 
@@ -377,6 +389,12 @@ sub arrayify :ARRAYIFY{
     my $self = shift;
     return $items_of{ident $self};
 }
+
+sub boolify :BOOLIFY{
+    my ( $self ) = @_;
+    return $self;
+}
+
 
 # method: can_be_seen_as
 # Returns if object can be seen as the given structure
@@ -593,27 +611,33 @@ sub get_at_position { #( $self: $position )
 
 sub apply_blemish_at{
     my ( $object, $meto_type, $position ) = @_;
-    my ($index) = @{ $position->find_range( $object ) }; 
+    my (@indices) = @{ $position->find_range( $object ) }; 
     #XXX assumption in prev line that a single item returned
+    my @metonyms;
 
     my @subobjects = @{ $items_of{ ident $object }};
-    my $obj_at_pos = $subobjects[$index];
-    my $blemished_object_at_pos = $meto_type->blemish( $obj_at_pos );
-    my $metonym = SMetonym->new(
-        { category => $meto_type->get_category,
-          name     => $meto_type->get_name,
-          info_loss => $meto_type->get_info_loss,
-          starred   => $obj_at_pos,
-          unstarred => $blemished_object_at_pos,
-      },
-            );
-    ## $metonym
-    ## $blemished_object_at_pos->get_structure()
-    ## $blemished_object_at_pos->get_metonym
-    $subobjects[$index] = $blemished_object_at_pos;
+    for my $index (@indices) {
+        my $obj_at_pos = $subobjects[$index];
+        my $blemished_object_at_pos = $meto_type->blemish( $obj_at_pos );
+        my $metonym = SMetonym->new(
+            { category => $meto_type->get_category,
+              name     => $meto_type->get_name,
+              info_loss => $meto_type->get_info_loss,
+              starred   => $obj_at_pos,
+              unstarred => $blemished_object_at_pos,
+          },
+                );
+        push @metonyms, $metonym;
+        ## $metonym
+        ## $blemished_object_at_pos->get_structure()
+        ## $blemished_object_at_pos->get_metonym
+        $subobjects[$index] = $blemished_object_at_pos;
+    }
     my $ret =  SObject->create( @subobjects );
     ## $ret->get_structure()
-    $ret->[$index]->set_metonym( $metonym );
+    for my $index (@indices) {
+        $ret->[$index]->set_metonym( shift(@metonyms) );
+    }
     return $ret;
     # maybe make it belong to the category...
 }
