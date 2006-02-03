@@ -87,8 +87,13 @@ sub run{
             my $ask_if_what = $err->next_elements();
             #main::message("already_matched @$already_matched; span = $core_span");
             if (worth_asking($already_matched, $ask_if_what, $core_span)) {
-                main::message("We may ask the user if the next elements are: @$ask_if_what");
-
+                # main::message("We may ask the user if the next elements are: @$ask_if_what");
+                my $ans = main::ask_user($ask_if_what);
+                if ($ans) {
+                    SWorkspace->insert_elements( @$ask_if_what );
+                } else {
+                    $core->set_right_extendibility(-1);
+                }
             } else {
                 #main::message("decided not to ask if next are @$ask_if_what");
             }

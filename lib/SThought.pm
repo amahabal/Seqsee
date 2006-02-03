@@ -17,6 +17,7 @@ my %_Type2Class =
     qw(   SElement        SThought::SElement
           SAnchored       SThought::SAnchored
           SReln::Simple   SThought::SReln_Simple
+          SReln::Compound SThought::SReln_Compound
            );
 
 # method: create

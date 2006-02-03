@@ -114,6 +114,11 @@ sub choose{
     return $name_ref->[$idx];
 }
 
+sub using_fascination{
+    my ( $package, $array_ref, $fasc ) = @_;
+    my @imp = map{ $_->get_fascination($fasc) } @$array_ref;
+    $package->choose($array_ref, \@imp);
+}
 
 
 1;

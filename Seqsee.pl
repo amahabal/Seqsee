@@ -290,6 +290,12 @@ sub init_display{
 	      $::_BREAK_LOOP = 1;
 	    }
         };
+        my $ask_user_displayer = sub {
+            my ( $arr_ref ) = @_;
+            my $msg = "Are the next terms: @$arr_ref?";
+            my $btn = $SGUI::MW->messageBox(-message => $msg, -type => "YesNo");
+            return $btn eq "Yes"? 1 : 0;
+        };
 
 
         "main"->install_sub( {update_display =>
@@ -301,6 +307,9 @@ sub init_display{
                                   });
         "main"->install_sub( { message =>
                                   $msg_displayer
+                                  });
+        "main"->install_sub( { ask_user =>
+                                  $ask_user_displayer
                                   });
 
 

@@ -57,10 +57,10 @@ sub get_fringe{
 
     my @cats = @{$core->get_cats()};
     push @ret, map { [$_, 100] } @cats;
-    if (@cats) {
-        print "Cats: '", $cats[0], "' ", ref($cats[0]), "\n";
-        main::message("$core belongs to: " .scalar(@cats). "@cats");
-    }
+    #if (@cats) {
+        #print "Cats: '", $cats[0], "' ", ref($cats[0]), "\n";
+        #main::message("$core belongs to: " .scalar(@cats). "@cats");
+    #}
 
 
     return \@ret;

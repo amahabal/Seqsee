@@ -13,6 +13,7 @@ use SBindings;
 use SInstance;
 use SPos;
 use SSet;
+use SFasc;
 
 use SCodelet;
 use SAction;
