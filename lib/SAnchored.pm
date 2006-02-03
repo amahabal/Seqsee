@@ -214,5 +214,17 @@ sub as_text{
     return "SAnchored ". $self->get_bounds_string();
 }
 
+sub as_insertlist{
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    if ($verbosity == 0) {
+        return new SInsertList( $self->as_text());
+    }
+
+    die "Verbosity $verbosity not implemented for ". ref $self;
+
+}
+
 
 1;

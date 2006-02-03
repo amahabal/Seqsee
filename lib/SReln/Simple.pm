@@ -191,6 +191,45 @@ sub suggest_cat{
 
 }
 
+sub as_insertlist{
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    if ($verbosity == 0) {
+        return new SInsertList( $self->as_text() );
+    }
+
+    if ($verbosity == 1) {
+        my $list = new SInsertList;
+        $list->append($self->as_text(), "", "\n");
+        $list->append("first: ", "first_second", "\n");
+        ## $list
+        ## $first_of{$id}->as_insertlist(0)
+        ## $first_of{$id}->as_insertlist(0)->indent(1)
+
+        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
+        
+        $list->append("Second: ", "first_second", "\n");
+        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
+        $list->append("\n");
+        return $list;
+    }
+
+    if ($verbosity == 2) {
+        my $list = new SInsertList;
+        $list->append($self->as_text(), "", "\n");
+        $list->append("first: ", "first_second", "\n");
+        $list->concat( $first_of{$id}->as_insertlist(1)->indent(1) );
+
+        $list->append("Second: ", "first_second", "\n");
+        $list->concat( $second_of{$id}->as_insertlist(1)->indent(1) );
+        $list->append("\n");
+        return $list;
+    }
+
+    die "Verbosity $verbosity not implemented for ". ref $self;
+}
+
 
 
 1;

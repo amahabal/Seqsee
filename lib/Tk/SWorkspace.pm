@@ -47,6 +47,18 @@ sub Populate{
     $group_space_height = $eff_height * 0.8;
     $group_row_size = $group_space_height / ( $group_row_count * ( 1 + $group_spacing_factor));
     $eff_group_row_size = $group_row_size * ( 1 + $group_spacing_factor );
+
+    $self->bind('clickable',
+                   '<1>' => sub {
+                       my ( $self ) = @_;
+                       my @tags = $self->gettags('current');
+                       my ($tag) = grep(m/\d+;\d+/o, @tags);
+                       my ($row, $col) = split(/;/, $tag);
+                       my $object = $used_spots[$row]->{$col};
+                       # main::message("will display $object($tag=>$row, $col)");
+                       $self->display_details($object);
+                   },
+                       );
 }
 
 sub clear{
@@ -111,7 +123,7 @@ sub SReln::draw{
                                $from->get_right_edge(), $to->get_right_edge());
     my ($left, $right) = (min($l1, $l2), max($r1, $r2));
 
-    my $row = get_next_available_row($left, $right);
+    my $row = get_next_available_row($left, $right, $reln);
     draw_logical_rectangle( $row, $left, $right, \@reln_bgd_options);
     draw_logical_rectangle( $row, $l1, $r1, \@reln_fgd_options, 0, 0.5);
     draw_logical_rectangle( $row, $l2, $r2, \@reln_fgd_options, 0.5, 1);
@@ -121,7 +133,7 @@ sub SAnchored::draw{
     my ( $self ) = @_;
     my $from = $self->get_left_edge;
     my $to   = $self->get_right_edge;
-    my $row = get_next_available_row($from, $to);
+    my $row = get_next_available_row($from, $to, $self);
 
     draw_logical_rectangle( $row, $from, $to, \@group_bgd_options);
     my @items = @{$self->get_parts_ref()};
@@ -159,11 +171,12 @@ sub draw_logical_rectangle{
     my $y  = $group_space_offset + $eff_group_row_size * $row;
     my $y1 = $y + $start_fraction * $group_row_size;
     my $y2 = $y + $end_fraction * $group_row_size;
-    $canvas->createRectangle($x1, $y1, $x2, $y2, @$options);
+    $canvas->createRectangle($x1, $y1, $x2, $y2, @$options, 
+                             -tags => ['clickable', "$row;$start_col"]);
 }
 
 sub get_next_available_row{
-    my ( $left, $right ) = @_;
+    my ( $left, $right, $store ) = @_;
     ROW_LOOP: for my $row_no (0..$group_row_count-1) {
         my $row_hash = ($used_spots[$row_no] ||= {});
         for my $idx ($left..$right) {
@@ -171,12 +184,17 @@ sub get_next_available_row{
         }
         # looks good!
         for my $idx ($left..$right) {
-            $row_hash->{$idx} = 1;
+            $row_hash->{$idx} = $store;
         }
         return $row_no;
     }
     SErr->throw("looks like $group_row_count are too few rows! ran out of space");
 }
 
+sub display_details{
+    my ( $self, $object ) = @_;
+    $SGUI::Info->clear();
+    $SGUI::Info->insert_insertlist( $object->as_insertlist(1) );
+}
 
 1;

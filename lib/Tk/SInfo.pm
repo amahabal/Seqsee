@@ -2,6 +2,8 @@ package Tk::SInfo;
 use Tk::widgets qw{ROText};
 use base qw/Tk::Derived Tk::ROText/;
 
+use Smart::Comments;
+
 my %tags_for_type = (
     ''                 => [],
     'codelet_added'    => ['codelet_added'],
@@ -104,6 +106,15 @@ sub classify{
     }
     return '';
 }
+
+
+sub insert_insertlist{
+    my ( $self, $list ) = @_;
+    for (@$list) {
+        $self->insert('end', @$_);
+    }
+}
+
 
 
 1;
