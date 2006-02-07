@@ -188,7 +188,7 @@ sub tell_forward_story{
         confess "story retelling not implemented for this metonymy_mode";
     }
     my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, 1); # 1 is FWD
+    $self->_describe_position( $object, $index, POS_MODE::FORWARD());
 
 }
 
@@ -210,7 +210,7 @@ sub tell_backward_story{
         confess "story retelling not implemented for this metonymy_mode";
     }
     my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, 2); # 2 is BWD 
+    $self->_describe_position( $object, $index, POS_MODE::BACKWARD());
 
 }
 
@@ -255,8 +255,8 @@ sub _weave_story{
 
 
     $metonymy_mode_of{$id} = $metonymy_mode;
-    $position_mode_of{$id} = $position_mode;
-    $position_of{$id}      = $position;
+    #$position_mode_of{$id} = $position_mode;
+    #$position_of{$id}      = $position;
     $metonymy_type_of{$id} = $metonymy_type;
 }
 
@@ -273,12 +273,13 @@ sub _describe_position{
 
     # XXX: Will only be fwd or backward, currently
     unless (defined $position_mode) {
-        $position_mode = SUtil::toss(0.5) ? 1 : 2; #1 is FWD, 2 is BWD
+        $position_mode = SUtil::toss(0.5) ? POS_MODE::FORWARD() 
+            : POS_MODE::BACKWARD(); 
     }
     
     $position_mode_of{$id} = $position_mode;
     
-    if ($position_mode == 1) {
+    if ($position_mode == POS_MODE::FORWARD()) {
         return $position_of{$id} =
             SPos->new( $index + 1); # It is 1-based, input is 0-based
     } else {

@@ -76,4 +76,14 @@ our $DOUBLE = SMetonymType->new(
 our $cats_and_blemish_ref =
     [$ascending, $descending, $mountain];
 
+package DIR;
+use enum qw{BITMASK: LEFT RIGHT
+            ENUM: BOTH=3 NEITHER=0 UNKNOWN=4
+        };
+
+package POS_MODE;
+use enum qw{BITMASK: FORWARD BACKWARD
+            
+        };
+
 1;

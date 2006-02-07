@@ -253,7 +253,7 @@ sub check_at_location{
 
     ## $direction, $start, $what
     ## @flattened
-    if ($direction == 1) { # rightward
+    if ($direction == DIR::RIGHT()) { # rightward
         my $current_pos = $start-1;
         my @already_validated;
         while (@flattened) {
@@ -289,7 +289,7 @@ sub check_at_location{
 
 }
 
-multimethod plonk_into_place => qw(# # SElement) => sub {
+multimethod plonk_into_place => ('#', '#', 'SElement') => sub {
     my ( $start, $direction, $el ) = @_;
     my $el_in_ws = $SWorkspace::elements[$start];
     die "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();

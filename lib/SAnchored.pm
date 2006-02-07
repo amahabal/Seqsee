@@ -24,6 +24,7 @@ my %right_edge_of :ATTR(:get<right_edge> :set<right_edge>);
 
 
 # variable: %direction_of
+# xxx now using DIR::LEFT and DIR::RIGHT
 #    direction: 1 for right, -1 for left; 0 if neither
 #    Based on the left edge
 my %direction_of :ATTR( :get<direction> );
@@ -44,7 +45,7 @@ my %left_extendibility_of :ATTR(:set<left_extendibility>);
 #
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
-    $direction_of{$id} = $opts_ref->{direction}||0;
+    $direction_of{$id} = $opts_ref->{direction}|| DIR::UNKNOWN();
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
     ## BuiltObj direction: $direction_of{$id}
 }
@@ -152,13 +153,13 @@ sub create{
             }
         }
         if ($same) {
-            $direction = 0;
+            $direction = DIR::UNKNOWN();
         } elsif ($leftward and not $rightward) {
-            $direction = -1;
+            $direction = DIR::LEFT();
         } elsif ($rightward and not $leftward) {
-            $direction = 1;
+            $direction = DIR::RIGHT();
         } else {
-            $direction = 0;
+            $direction = DIR::NEITHER();
         }
     }
     
