@@ -12,6 +12,8 @@ use Carp;
 use Class::Std;
 use base qw{};
 
+my $first_pos = new SPos(1);
+
 my $builder = sub {
     my ( $self, $args_ref ) = @_;
     croak "need each" unless exists $args_ref->{each};
@@ -30,6 +32,13 @@ my $builder = sub {
 my $length_finder = sub {
     my ( $object, $name ) = @_;
     return $object->get_parts_count;
+};
+
+my $each_finder = sub {
+    my ( $object, $name ) = @_;
+    my $each = $object->get_at_position($first_pos);
+    return $each;
+    # return $S::LITERAL->build({ structure => $each->get_structure });
 };
 
 my $meto_finder_each = sub {
@@ -60,8 +69,10 @@ our $sameness =
             builder => $builder,
             
             to_guess => [qw/each length/],
-            positions => { each => SPos->new(1) },
-            description_finders => { length => $length_finder },
+            positions => {},
+            description_finders => { length => $length_finder,
+                                     each   => $each_finder,
+                                 },
 
             metonymy_finders => { each => $meto_finder_each },
             metonymy_unfinders => { each => $meto_unfinder_each },

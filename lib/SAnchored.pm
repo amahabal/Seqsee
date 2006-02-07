@@ -217,9 +217,16 @@ sub as_text{
 sub as_insertlist{
     my ( $self, $verbosity ) = @_;
     my $id = ident $self;
+    my ($l, $r) = $self->get_edges;
 
     if ($verbosity == 0) {
-        return new SInsertList( $self->as_text());
+        return new SInsertList( "SAnchored", "heading", "[$l, $r] ", "range", "\n");
+    }
+
+    if ($verbosity == 1 or $verbosity == 2) {
+        my $list = $self->as_insertlist(0);
+        $list->concat( $self->categories_as_insertlist($verbosity - 1)->indent(1));
+        return $list;
     }
 
     die "Verbosity $verbosity not implemented for ". ref $self;

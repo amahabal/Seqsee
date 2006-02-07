@@ -201,7 +201,7 @@ sub as_insertlist{
 
     if ($verbosity == 1) {
         my $list = new SInsertList;
-        $list->append($self->as_text(), "", "\n");
+        $list->append($self->as_text(), "heading", "\n");
         $list->append("first: ", "first_second", "\n");
         ## $list
         ## $first_of{$id}->as_insertlist(0)
@@ -217,7 +217,7 @@ sub as_insertlist{
 
     if ($verbosity == 2) {
         my $list = new SInsertList;
-        $list->append($self->as_text(), "", "\n");
+        $list->append($self->as_text(), "heading", "\n");
         $list->append("first: ", "first_second", "\n");
         $list->concat( $first_of{$id}->as_insertlist(1)->indent(1) );
 

@@ -8,7 +8,6 @@
 package SInsertList;
 use strict;
 use Carp;
-use Class::Std;
 use Smart::Comments;
 use base qw{};
 
@@ -27,8 +26,10 @@ sub indent{
     my ( $self, $dep ) = @_;
     my $replace = "\n" . "  " x $dep;
     for (@$self) {
-        $_->[0] =~ s#\n#$replace#g;
+      $_->[0] =~ s#\n#$replace#g;
     }
+    $self->[-1][0] =~ s#$replace$#\n#;
+    unshift @$self, ["  " x $dep, ""];
     $self;
 }
 
@@ -41,7 +42,7 @@ sub append{
 
 sub concat{
     my ( $self, $otherlist ) = @_;
-    ### $otherlist
+    ## $otherlist
     push @$self, @$otherlist;
     $self;
 }

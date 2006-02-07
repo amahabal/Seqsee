@@ -5,10 +5,12 @@ use Smart::Comments;
 my $diff_only;
 my $SHOW_CODE_FILES = 1;
 my $SHOW_TEST_FILES = 0;
+my $DYNAMIC_ONLY = 0;
 
 GetOptions("diff=i" => \$diff_only,
            "code!"  => \$SHOW_CODE_FILES,
            "test!"  => \$SHOW_TEST_FILES,
+           "dynamic!" =>  \$DYNAMIC_ONLY,
                );
 
 my $filename = "__print";
@@ -100,6 +102,10 @@ sub print_all_files{
     my @files;
     push(@files, @code_files) if $SHOW_CODE_FILES;
     push(@files, @test_files) if $SHOW_TEST_FILES;
+
+    if ($DYNAMIC_ONLY) {
+        @files = sort(<lib/SCF/*.pm lib/SThought/*.pm>);
+    }
     
   my %PrintOK;
   for (@files) {

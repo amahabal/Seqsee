@@ -109,9 +109,12 @@ sub setup_bindings{
     $mw->bind('<KeyPress-c>' => sub {
                   main::Interaction_continue();
               });
-    $mw->bind('<KeyPress-5>' => sub {
-                  main::Interaction_step_n({n=>5, update_after=>5});
-              });
+    for my $N (1..9) {
+        $mw->bind( "<KeyPress-$N>" => sub {
+                       main::Interaction_step_n({n=>5 * $N, 
+                                                 update_after=>5 * $N});
+                   });
+    }
     $mw->bind('<KeyPress-q>' => sub {
                   exit;
               });

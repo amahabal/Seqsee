@@ -292,4 +292,29 @@ sub instance_of_cat {
     return exists $cats_of_of{ ident $self}{$cat};
 }
 
+sub categories_as_insertlist{
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    my $list = new SInsertList;
+
+    $list->append("Categories: ", "heading2", "\n");
+    while (my($c, $bindings) = each %{$cats_of_of{$id}}) {
+        my $cat = $S::Str2Cat{$c};
+        $list->concat($cat->as_insertlist(0)->indent(1));
+        if ($verbosity > 0) {
+            $list->concat($bindings->as_insertlist($verbosity-1)->indent(2));
+        }
+    }
+
+    $list->append("Non Categories: ", "heading2", "\n");
+    while (my($c, $bindings) = each %{$non_cats_of_of{$id}}) {
+        my $cat = $S::Str2Cat{$c};
+        $list->concat($cat->as_insertlist(0)->indent(1));
+    }
+
+    $list->append("Properties: ", "heading2", "\n  Not currently used\n");
+}
+
+
 1;

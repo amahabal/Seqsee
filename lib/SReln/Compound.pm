@@ -381,5 +381,63 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
 
 };
 
+sub as_insertlist{
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    if ($verbosity == 0) {
+        return new SInsertList( "SReln::Compound", "heading", "\n" );
+    }
+
+    if ($verbosity == 1) {
+        my $list = $self->as_insertlist(0);
+        $list->append("first: ", "first_second", "\n");
+        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
+
+        $list->append("Second: ", "first_second", "\n");
+        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
+        $list->append("\n");
+        return $list;
+    }
+
+    if ($verbosity == 2) {
+        my $list = $self->as_insertlist(0);
+        $list->append("first: ", "first_second", "\n");
+        $list->concat( $first_of{$id}->as_insertlist(1)->indent(1) );
+
+        $list->append("Second: ", "first_second", "\n");
+        $list->concat( $second_of{$id}->as_insertlist(1)->indent(1) );
+        $list->append("\n");
+
+        $list->append( "Base Category: ", "heading2", "\n");
+        $list->concat( $base_category_of{$id}->as_insertlist(1)->indent(1));
+
+        $list->append( "Base Meto mode: ", "heading2", "\n");
+        $list->concat( SInsertList->new($base_meto_mode_of{$id})->indent(1));
+        $list->append("\n");
+
+        $list->append( "Base Pos Mode: ", "heading2", "\n");
+        $list->concat( SInsertList->new($base_pos_mode_of{$id})->indent(1));
+        $list->append("\n");
+
+        $list->append( "Changed Bindings: ", "heading2", "\n");
+        while (my($k, $v) = each %{$changed_bindings_of_of{$id}}) {
+            my $sublist = new SInsertList;
+            $sublist->append($k, "", "\t", "");
+            $sublist->concat($v->as_insertlist(0)->indent(1));
+            $list->concat( $sublist->indent(1) );
+        }
+
+        $list->append( "Unchanged Bindings: ", "heading2", "\n");
+        while (my($k, $v) = each %{$unchanged_bindings_of_of{$id}}) {
+            $list->concat( SInsertList->new($k, "", "\t", "", $v, "\n")->indent(1));
+        }
+
+        return $list;
+    }
+
+    die "Verbosity $verbosity not implemented for ". ref $self;
+}
+
 
 1;

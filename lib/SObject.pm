@@ -131,6 +131,8 @@ sub _create_or_int{
 
     if (ref $object) {
         # An array ref..
+        unless (ref($object) eq "ARRAY") { confess("Got $object");
+        }
         my @objects = @$object;
         if (@objects == 1) {
             return _create_or_int( $objects[0] );

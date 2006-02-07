@@ -289,4 +289,38 @@ sub _describe_position{
     
 }
 
+sub as_insertlist{
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    if ($verbosity == 0) {
+        my $list = new SInsertList;
+        my $bind_ref = $bindings_of_of{$id};
+        while (my($k, $v) = each %$bind_ref) {
+            $list->append($k, "binding_att", "\t", "", $v, "binding_val", "\n");
+        }
+        return $list;
+    }
+
+    if ($verbosity == 1 or $verbosity == 2) {
+        my $list = $self->as_insertlist(0);
+        while (my($k, $v) = each %{$squinting_raw_of{$id}}) {
+            $list->append("squint: $k => $v", "", "\n");
+        }
+        $list->append("Meto mode: ", "binding_meta_att", 
+                      $metonymy_mode_of{$id}, "binding_meta_att", "\n");
+        $list->append("Pos mode: ", "binding_meta_att", 
+                      $position_mode_of{$id}, "binding_meta_att", "\n");
+        $list->append("Position: ", "binding_meta_att", 
+                      $position_of{$id}, "binding_meta_att", "\n");
+        $list->append("Meto type: ", "binding_meta_att", 
+                      $metonymy_type_of{$id}, "binding_meta_att", "\n");
+        return $list;
+    }
+
+    die "Verbosity $verbosity not implemented for ". ref $self;
+    
+}
+
+
 1;

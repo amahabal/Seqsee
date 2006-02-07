@@ -194,7 +194,7 @@ sub get_next_available_row{
 sub display_details{
     my ( $self, $object ) = @_;
     $SGUI::Info->clear();
-    $SGUI::Info->insert_insertlist( $object->as_insertlist(1) );
+    $SGUI::Info->insert_insertlist( $object->as_insertlist(2) );
 }
 
 1;

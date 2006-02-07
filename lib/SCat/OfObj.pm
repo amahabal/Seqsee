@@ -376,4 +376,17 @@ sub display_self{
     $widget->Display("You clicked:", ['heading'], "\n", $self->as_text);
 }
 
+sub as_insertlist{
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    my $list = new SInsertList;
+
+    if ($verbosity == 0 or $verbosity == 1) {
+        $list->append( $name_of{$id}, "", "\n" );
+        return $list;
+    }
+    die "Verbosity $verbosity not implemented for ". ref $self;
+}
+
 
