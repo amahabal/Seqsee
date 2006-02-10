@@ -47,6 +47,7 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     $direction_of{$id} = $opts_ref->{direction}|| DIR::UNKNOWN();
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
+    
     ## BuiltObj direction: $direction_of{$id}
 }
 
@@ -189,27 +190,6 @@ sub get_span{
 }
 
 
-# method: could_be_right_extendible
-# return true if it is possible that this is right extendible
-#
-sub could_be_right_extendible{
-    my ( $self ) = @_;
-    my $id = ident $self;
-    return 0 if $right_extendibility_of{$id} == -1;
-    return 1;
-}
-
-# method: could_be_left_extendible
-# return true if it is possible that this is right extendible
-#
-sub could_be_left_extendible{
-    my ( $self ) = @_;
-    my $id = ident $self;
-    return 0 if $left_extendibility_of{$id} == -1;
-    return 1;
-}
-
-
 sub as_text{
     my ( $self ) = @_;
     return "SAnchored ". $self->get_bounds_string();
@@ -232,6 +212,24 @@ sub as_insertlist{
 
     die "Verbosity $verbosity not implemented for ". ref $self;
 
+}
+
+sub get_right_extendibility{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my $rel = $self->get_underlying_reln();
+    
+    return EXTENDIBILE::NO() unless $rel;
+    return $right_extendibility_of{$id};
+}
+
+sub set_underlying_reln :CUMULATIVE{
+    my ( $self, $reln ) = @_;
+    my $id = ident $self;
+    
+    $right_extendibility_of{$id} = EXTENDIBILE::PERHAPS();
+    $left_extendibility_of{$id}  = EXTENDIBILE::PERHAPS();
 }
 
 

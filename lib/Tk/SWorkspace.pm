@@ -11,7 +11,7 @@ our $canvas;
 our %Id2Obj;
 my ($Height, $Width, $Margin);
 my ($eff_width, $eff_height);
-my ($group_space_offset, $group_spacing_factor, $group_row_count, $group_space_height);
+my ($group_space_offset, $group_spacing_factor, $group_row_count, $group_space_height, $max_group_row_count);
 my ($group_row_size, $eff_group_row_size);
 my (@element_options, @line_options, @reln_bgd_options, @reln_fgd_options,
     @group_bgd_options, @group_fgd_options
@@ -30,6 +30,7 @@ BEGIN {
     $Margin            = $config{placing}{-margin};
     $group_spacing_factor = $config{placing}{-group_spacing_factor};
     $group_row_count      = $config{placing}{-group_row_count};
+    $max_group_row_count      = $config{placing}{-max_group_row_count};
 }
 
 Construct Tk::Widget 'SWorkspace';
@@ -59,6 +60,15 @@ sub Populate{
                        $self->display_details($object);
                    },
                        );
+    $self->bind('element',
+                '<1>' => sub {
+                    my ( $self ) = @_;
+                    my @tags = $self->gettags('current');
+                    my ($tag) = grep(m/\d+/o, @tags);
+                    my $object = $SWorkspace::elements[$tag];
+                    $self->display_details($object);
+                }
+                    );
 }
 
 sub clear{
@@ -81,7 +91,7 @@ sub draw_elements{
     
     my $counter = 0;
     for my $elt (@SWorkspace::elements) {
-        new_object( $elt, $Margin + (0.5+$counter) * $space_per_elem,
+        new_object( $elt, $counter, $Margin + (0.5+$counter) * $space_per_elem,
                     $Margin + $eff_height * 0.05
                         );
         $canvas->createLine( $Margin + ( 1 + $counter ) * $space_per_elem,
@@ -150,9 +160,10 @@ sub SAnchored::draw{
 
 sub SElement::draw{
     my ( $self ) = shift;
+    my $idx = shift;
     $canvas->createText( @_, @element_options,
                          -text => $self->get_mag(),
-                         -tags => [$self, "wso"],
+                         -tags => [$self, "element", $idx],
                              );
 }
 
@@ -188,6 +199,14 @@ sub get_next_available_row{
         }
         return $row_no;
     }
+    if ($group_row_count < $max_group_row_count){
+        $group_row_count++;
+        return get_next_available_row(@_);
+        $group_row_size = $group_space_height / ( $group_row_count * ( 1 + $group_spacing_factor));
+        $eff_group_row_size = $group_row_size * ( 1 + $group_spacing_factor );
+
+    }
+
     SErr->throw("looks like $group_row_count are too few rows! ran out of space");
 }
 

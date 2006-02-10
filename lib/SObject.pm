@@ -45,7 +45,7 @@ my %reln_other_of :ATTR();
 
 # variable: %underlying_reln_of
 #    is the group based on some relation? undef if not, the relation otherwise
-my %underlying_reln_of :ATTR( :get<underlying_reln> :set<underlying_reln>);
+my %underlying_reln_of :ATTR( :get<underlying_reln>);
 
 #
 # subsection: Construction
@@ -767,6 +767,12 @@ sub get_relation{
     return;
 }
 
+sub set_underlying_reln :CUMULATIVE{
+    my ( $self, $reln ) = @_;
+    my $id = ident $self;
+    
+    $underlying_reln_of{$id} = $reln;
+}
 
 
 1;

@@ -29,5 +29,13 @@ sub get_extent{
     return ($l, $r);
 }
 
+sub insert{
+    my ( $self ) = @_;
+    SWorkspace->add_reln($self);
+    for ($self->get_ends) {
+        $_->add_reln($self);
+    }
+}
+
 
 1;

@@ -315,7 +315,7 @@ sub init_display{
 
     } else {
         my $update_display_sub = sub {
-            print "Updated Tk display! (change me)\n";
+            # print "Updated Tk display! (change me)\n";
         };
         my $default_error_handler = sub {
             die $_[0];

@@ -55,10 +55,10 @@ my %squinting_raw_of :ATTR(:get<squinting_raw>);
 #    How many metonymys are there?
 #
 #     * NONE
-#     * ONE
+#     * SINGLE
 #     * ALLBUTONE
 #     * ALL
-#
+#    XXX: now stored in package METO_MODE
 #    Stored in reality, currently, as 0, 1, 2 and 3.
 my %metonymy_mode_of :ATTR(:get<metonymy_mode>);
 
@@ -180,11 +180,12 @@ sub tell_forward_story{
     my $id = ident $self;
 
     my $metonymy_mode = $self->get_metonymy_mode;
-    if ($metonymy_mode == 0 or $metonymy_mode == 3) {
+    if ($metonymy_mode == METO_MODE::NONE() 
+            or $metonymy_mode == METO_MODE::ALL()) {
         # no positions involved!
         return;
     }
-    if ($metonymy_mode == 2) {
+    if ($metonymy_mode == METO_MODE::ALLBUTONE()) {
         confess "story retelling not implemented for this metonymy_mode";
     }
     my ($index) = keys %{ $squinting_raw_of{$id} };
@@ -202,11 +203,11 @@ sub tell_backward_story{
     my $id = ident $self;
 
     my $metonymy_mode = $self->get_metonymy_mode;
-    if ($metonymy_mode == 0 or $metonymy_mode == 3) {
+    if ($metonymy_mode == METO_MODE::NONE() or $metonymy_mode == METO_MODE::ALL()) {
         # no positions involved!
         return;
     }
-    if ($metonymy_mode == 2) {
+    if ($metonymy_mode == METO_MODE::ALLBUTONE()) {
         confess "story retelling not implemented for this metonymy_mode";
     }
     my ($index) = keys %{ $squinting_raw_of{$id} };
@@ -238,16 +239,16 @@ sub _weave_story{
 
     # Metonymy_Mode
     if ($slippages_count == 0) {
-        $metonymy_mode = 0;
+        $metonymy_mode = METO_MODE::NONE();
     } else {
         # So: slippages are involved!
         $metonymy_type = SMetonym->intersection(values %$slippages);
 
         if ($slippages_count == $object_size) {
             # XXX:If both are 1, I should have the choice of putting mode = 1!
-            $metonymy_mode = 3;            
+            $metonymy_mode = METO_MODE::ALL();            
         } elsif ($slippages_count == 1) {
-            $metonymy_mode = 1;
+            $metonymy_mode = METO_MODE::SINGLE();
             $self->_describe_position( $object, keys %$slippages );
         }
     }

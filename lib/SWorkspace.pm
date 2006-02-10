@@ -74,8 +74,7 @@ sub clear{
 
 sub init {
     my ( $package, $OPTIONS_ref ) = @_;
-    @elements       = ();
-    $elements_count = 0;
+    $package->clear();
     my @seq = @{ $OPTIONS_ref->{seq} };
     for ( @seq ) {
         # print "Inserting '$_'\n";
@@ -249,7 +248,7 @@ sub check_at_location{
     my $start = $opts_ref->{start};
     my $what  = $opts_ref->{what};
     my @flattened = @{ $what->get_flattened };
-    my $span = scalar(@flattened) - 1;
+    my $span = scalar(@flattened);
 
     ## $direction, $start, $what
     ## @flattened
@@ -281,6 +280,7 @@ sub check_at_location{
             return;
         }
         for my $p (0..$span-1) {
+            ## $span, $start, $p, $start-$span+$p+1
             return unless $elements[$start - $span + $p + 1]->get_mag()
                 == $flattened[$p];
         }
@@ -292,7 +292,7 @@ sub check_at_location{
 multimethod plonk_into_place => ('#', '#', 'SElement') => sub {
     my ( $start, $direction, $el ) = @_;
     my $el_in_ws = $SWorkspace::elements[$start];
-    die "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
+    confess "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
     return $el_in_ws;
 };
 

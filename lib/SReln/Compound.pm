@@ -142,7 +142,7 @@ sub BUILD{
         #    or confess "Need starred relation";
         $metonymy_reln_of{$id} = $opts_ref->{metonymy_reln};
 
-        if ($meto_mode != 3) { # So: some, but not all, starred
+        if ($meto_mode != METO_MODE::ALL()) { # So: some, but not all, starred
             $position_reln_of{$id} = $opts_ref->{position_reln}
                 or confess "Need position reln";
         }
@@ -253,7 +253,7 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
 
     if ($meto_mode) {
         # So other stuff is relevant, too!
-        if ($meto_mode != 3) { # Position relevant!
+        if ($meto_mode != METO_MODE::ALL()) { # Position relevant!
             my $pos_mode = $b1->get_position_mode;
             ## $b2->get_position_mode
             return unless $pos_mode == $b2->get_position_mode;
@@ -350,7 +350,7 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
         return;
     }
     
-    return $new_object if $reln_meto_mode == 0;
+    return $new_object if $reln_meto_mode == METO_MODE::NONE();
 
     # Calculate the metonymy type of the new object
     my $new_metonymy_type = apply_reln( $reln->get_metonymy_reln,

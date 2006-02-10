@@ -92,7 +92,7 @@ sub run{
                 if ($ans) {
                     SWorkspace->insert_elements( @$ask_if_what );
                 } else {
-                    $core->set_right_extendibility(-1);
+                    $core->set_right_extendibility( EXTENDIBILE::NO());
                 }
             } else {
                 #main::message("decided not to ask if next are @$ask_if_what");

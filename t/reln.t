@@ -7,7 +7,7 @@ use Class::Multimethods;
 multimethod 'find_reln';
 multimethod 'apply_reln';
 
-plan tests => 10; 
+plan tests => 12; 
 
 
 #### method mini_copycat_test
@@ -18,12 +18,15 @@ plan tests => 10;
 # exceptions     :
 
 sub mini_copycat_test{
-    my ($o1, $o2, $o3, $o4) = @_;
-    $o1 = SObject->quik_create( $o1, $S::ASCENDING );
-    $o2 = SObject->quik_create( $o2, $S::ASCENDING );
+    my ($opts_ref, $o1, $o2, $o3, $o4) = @_;
 
-    $o1->tell_forward_story($S::ASCENDING);
-    $o2->tell_forward_story($S::ASCENDING);
+    my $common_category = $opts_ref->{common_category} || $S::ASCENDING;
+
+    $o1 = SObject->quik_create( $o1, $common_category );
+    $o2 = SObject->quik_create( $o2, $common_category );
+
+    $o1->tell_forward_story($common_category);
+    $o2->tell_forward_story($common_category);
 
     ## $o1->get_structure, $o2->get_structure
 
@@ -50,8 +53,8 @@ sub mini_copycat_test{
     } 
     ## $reln
     eval {
-        $o3 = SObject->quik_create( $o3, $S::ASCENDING);
-        $o3->tell_forward_story($S::ASCENDING);
+        $o3 = SObject->quik_create( $o3, $common_category);
+        $o3->tell_forward_story($common_category);
         };
 
     # We'll now "apply" the relation. 
@@ -84,13 +87,20 @@ my $seven = apply_reln( $succ, 6 );
 cmp_ok($seven, '==', 7);
 
 # diag "mini_copycat_tests";
-mini_copycat_test([1, 2], [1, 2, 3], [5, 6], [5, 6, 7]);
-mini_copycat_test([1, 2], [5, 6, 7]);
-mini_copycat_test([1, 2], [1, 2, 3], [1, 2, 3, 2, 1]);
-mini_copycat_test([1, [ 2, 2] , 3], [1, 2, [3, 3]],
+mini_copycat_test({},[1, 2], [1, 2, 3], [5, 6], [5, 6, 7]);
+mini_copycat_test({},[1, 2], [5, 6, 7]);
+mini_copycat_test({},[1, 2], [1, 2, 3], [1, 2, 3, 2, 1]);
+mini_copycat_test({}, [1, [ 2, 2] , 3], [1, 2, [3, 3]],
                   [2, 3, [4, 4], 5, 6, 7], [2, 3, 4, [5, 5], 6, 7]
                       );
 
+mini_copycat_test( { common_category => $S::MOUNTAIN},
+                   [1,2,1], [1,2,3,2,1],
+                   [1,2,3,4,3,2,1], [1,2,3,4,5,4,3,2,1]
+                       );
+mini_copycat_test( { common_category => $S::SAMENESS},
+                   [1, 1], [2, 2], [3,3,3], [4,4,4]
+                       );
 
 my $e1 = SElement->create(2,0);
 my $e2 = SElement->create(3,0);
@@ -104,3 +114,4 @@ $e2->add_reln($rel);
 # diag "$e1";
 ok( $e1->get_relation($e2));
 ok( $e2->get_relation($e1));
+

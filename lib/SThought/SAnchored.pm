@@ -88,7 +88,7 @@ sub get_actions{
     my @ret;
 
     # extendibility checking...
-    if ($core->could_be_right_extendible()) {
+    if ($core->get_right_extendibility()) {
         my $cl = new SCodelet("AttemptExtension", 100,
                               { core => $core,
                                 direction => 1,
