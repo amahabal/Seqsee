@@ -29,6 +29,9 @@ ok( $WSO_ma->get_category() eq $S::SAMENESS, );
 ok( $WSO_ma->get_name() eq "each", );
 ok( UNIVERSAL::isa($WSO_ma->get_starred(), "SElement"), );
 ok( $WSO_ma->get_unstarred() eq $WSO_ga, );
+ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[0]), "starred is brand new" );
+ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[1]), "starred is brand new");
+
 
 ok( not($WSO_ga->get_metonym_activeness()), );
 ok( not(find_reln($WSO_ga, $SWorkspace::elements[2])), );

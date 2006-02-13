@@ -37,7 +37,7 @@ my %group_p_of : ATTR( :get<group_p>);
 
 # variable: %metonym_of
 #    The metonym associated with this object
-my %metonym_of :ATTR( :get<metonym> :set<metonym>);
+my %metonym_of :ATTR( :get<metonym>);
 
 
 # variable: %metonym_activeness_of
@@ -779,6 +779,16 @@ sub set_underlying_reln :CUMULATIVE{
     
     $underlying_reln_of{$id} = $reln;
 }
+
+sub set_metonym{
+    my ( $self, $meto ) = @_;
+    my $id = ident $self;
+
+    SErr->throw("Metonym must be an SObject!" )
+        unless UNIVERSAL::isa($meto, "SObject");
+    $metonym_of{$id} = $meto;
+}
+
 
 sub set_metonym_activeness{
     my ( $self, $value ) = @_;
