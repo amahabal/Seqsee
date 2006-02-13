@@ -114,6 +114,10 @@ sub create{
         return $package->create(@{ $arguments[0] });
     }
 
+    if (@arguments == 1 ) { # and is an int
+        return SElement->create($arguments[0], 0);
+    }
+
     # Finally, convert all arrays to objects, too!
     @arguments = map { _create_or_int($_) } @arguments;
 

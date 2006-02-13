@@ -9,9 +9,9 @@ use S;
 sub create :Test(6) {
     my @test_set = 
         (
-            [ [1],               [1]                 ],
+            [ [1],               1                 ],
             [ [1,1],             [1,1]               ],
-            [ [[1]],             [1]                 ],
+            [ [[1]],             1                 ],
             [ [2, [3]],          [2,3]               ],
             [ [2, [[[3]]]],      [2,3]               ],
             [ [[[[[2,3]]]]],     [2,3]               ],
@@ -70,7 +70,7 @@ sub quik_create :Test(8) {
     ok ($metonym);
     cmp_ok( $metonym->get_category(), 'eq', $S::SAMENESS);
     cmp_ok( $metonym->get_name(), 'eq', "each");
-    cmp_ok( $metonym->get_starred(), 'eq', 4);
+    cmp_ok( $metonym->get_starred()->get_structure, 'eq', 4);
     $metonym->get_unstarred()->structure_ok( [4, 4]);
 
     my $object2 = SObject->quik_create([2,3,[4,4]], $S::ASCENDING);
@@ -107,7 +107,7 @@ sub is_sane :Test(9){
     cmp_ok($o_anch3->get_left_edge(), 'eq', 4);
     cmp_ok($o_anch3->get_right_edge(), 'eq', 7);
 
-    throws_ok { SAnchored->create( $o_anch1, $e5 )} SErr, "There are holes here!";
+    throws_ok { SAnchored->create( $o_anch1, $e5 )} SErr::HolesHere, "There are holes here!";
 
     throws_ok { SAnchored->create( $o_unanch1, $e5 )} SErr, "There is an unachored object here";
 
