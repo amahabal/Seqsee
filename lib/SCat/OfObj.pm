@@ -145,12 +145,12 @@ sub BUILD{
             my $subobject = $object->get_at_position( $v );
             if (exists $type_ref->{$k} and 
                     $type_ref->{$k} eq 'int') {
-                if (ref $subobject) {
+                if (ref($subobject) eq "SElement") {
+                    return $subobject->get_mag;
+                } else {
                     my $int = $subobject->can_be_seen_as_int();
                     return $int;
-                } else {
-                    return $subobject;
-                }
+                } 
             } else {
                 return $subobject;
             }
@@ -165,12 +165,12 @@ sub BUILD{
             my $subobject = $object->get_subobj_given_range( $v->($object) );
             if (exists $type_ref->{$k} and
                     $type_ref->{$k} eq 'int') {
-                if (ref $subobject) {
+                if (ref($subobject) eq "SElement") {
+                    return $subobject->get_mag;
+                } else {
                     my $int = $subobject->can_be_seen_as_int();
                     return $int;
-                } else {
-                    return $subobject;
-                }
+                } 
             } else {
                 return $subobject;
             }
@@ -380,7 +380,7 @@ sub as_insertlist{
     my ( $self, $verbosity ) = @_;
     my $id = ident $self;
 
-    my $list = new SInsertList;
+    my $list = new SInsertList();
 
     if ($verbosity == 0 or $verbosity == 1) {
         $list->append( $name_of{$id}, "", "\n" );

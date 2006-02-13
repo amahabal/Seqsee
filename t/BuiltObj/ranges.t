@@ -18,8 +18,16 @@ SUBOBJ_GIVEN_RANGE: {
         {
             $count++;
             my $so = $bo->get_subobj_given_range( $pair->[0] );
-            cmp_deeply( $so,
-                        $pair->[1], "subobj given range @{$pair->[0]}: deep comp" );
+            if (ref($so) eq "ARRAY") {
+                cmp_deeply( [map { $_->get_structure() } @$so],
+                            $pair->[1], 
+                            "subobj given range @{$pair->[0]}: deep comp" );
+            } else {
+                cmp_deeply( $so->get_structure,
+                            $pair->[1], 
+                            "subobj given range @{$pair->[0]}: deep comp" );
+                
+            }
   }
 OUT_OF_RANGE: {
     dies_ok { $bo->get_subobj_given_range( [7] ) };

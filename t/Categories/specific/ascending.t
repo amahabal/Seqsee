@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-BEGIN { plan tests => 12; }
+BEGIN { plan tests => 13; }
 
 BEGIN {
   use_ok "SCat::ascending";
@@ -44,6 +44,8 @@ BLEMISHED_IS_INST: {
   ## $object->get_structure
   $object = $object->apply_blemish_at($meto_type,SPos->new(2));
   ## $object->get_structure
+  ok( $object->can_be_seen_as(SObject->create(3,4,5,6,7,8)), "Can be seen as" );
+
   $bindings =
     $cat->is_instance( $object );
   ## $bindings

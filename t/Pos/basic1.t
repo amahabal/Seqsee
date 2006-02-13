@@ -68,7 +68,7 @@ ASCENDING: {
     ### $pair->[1]
     $count++;
     cmp_deeply(
-      [ map { $_ } @sub_objects ],
+      [ map { $_->get_structure } @sub_objects ],
       [ $pair->[1] ],
       "ascending 5 8, subobj test $count"
     );
@@ -87,7 +87,7 @@ DESCENDING: {
     my @sub_objects = $bo2->get_at_position( $pair->[0] );
     $count++;
     cmp_deeply(
-      [ map { $_ } @sub_objects ],
+      [ map { $_->get_structure } @sub_objects ],
       [ $pair->[1] ],
       "descending 9 1, subobj test $count"
     );
@@ -106,7 +106,7 @@ MOUNTAIN: {
     my @sub_objects = $bo3->get_at_position( $pair->[0] );
     $count++;
     cmp_deeply(
-      [ map { $_ } @sub_objects ],
+      [ map { $_->get_structure } @sub_objects ],
       [ $pair->[1] ],
       "mountain 3 6, subobj test $count"
     );
@@ -124,8 +124,10 @@ PEAK: {
         my $range = $pos_peak->find_range($bo3);
         cmp_deeply $range, [3];
         @sub_objects = $bo3->get_at_position($pos_peak);
-        cmp_deeply( [ map { $_ } @sub_objects ],
-                    [6], "mountain 3 6, subobj peak" );
+        #cmp_deeply( [ map { $_->get_structure } @sub_objects ],
+        #            [6], "mountain 3 6, subobj peak" );
+        ok( 0, );
+
     }
 }
 

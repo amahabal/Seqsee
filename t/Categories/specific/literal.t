@@ -1,6 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
+use Smart::Comments;
 BEGIN { plan tests => 8; }
 
 my $cat_literal = $S::LITERAL;
@@ -20,6 +21,8 @@ IS_INSTANCE: {
   ok $bindings;
 
   $bo = SObject->quik_create([1, [2, 2], 3]);
+  ## $bo
+  ## $bo->get_structure
   $bindings = $cat_123->is_instance($bo);
   ok $bindings;
   cmp_ok($bindings->get_metonymy_mode(), 'eq', 1);

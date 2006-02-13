@@ -146,7 +146,7 @@ sub _create_or_int{
             return SObject->create(@objects);
         }
     } else {
-        return $object;
+        return SElement->create($object, 0);
     }
 }
 
@@ -174,16 +174,16 @@ sub quik_create{
     my $id = ident $object;
     
     LOOP: for my $subobject (@{ $items_of{$id} }) {
-        next unless ref($subobject);
+        next if ref($subobject) eq "SElement";
         
         my $subid = ident $subobject;
         # now check if all elements in it are the same.
         my $parts_ref = $items_of{$subid};
         my $count = scalar(@$parts_ref);
-        my $first_part = $parts_ref->[0];
+        my $first_part = $parts_ref->[0]->get_structure;
 
         for my $i (1..$count-1) {
-            unless ($first_part eq $parts_ref->[$i]) {
+            unless ($first_part eq $parts_ref->[$i]->get_structure) {
                 next LOOP;
             }
         }
@@ -438,7 +438,7 @@ sub can_be_seen_as{
     }
     
     if ($metonym_of{$id}) {
-        if (SUtil::compare_deep($seen_as, $metonym_of{$id}->get_starred())) {
+        if (SUtil::compare_deep($seen_as, $metonym_of{$id}->get_starred()->get_structure)) {
             return {};
         }
     }
@@ -500,12 +500,13 @@ sub can_be_seen_as_int{
 multimethod _can_be_seen_as_no_rec => ('SObject', '#') => sub {
     my ( $object, $int ) = @_;
     my $id = ident $object;
+    $int = $int->get_structure() if ref($int) eq "SElement";
 
     ## _can_be_seen_as_no_rec: $object, $int
     ## $metonym_of{$id}
-    if (SUtil::compare_deep($object->get_structure(), [$int])) {
+    if (SUtil::compare_deep($object->get_structure(), $int)) {
         return 0;
-    } elsif ($metonym_of{$id} and $metonym_of{$id}->get_starred() == $int) {
+    } elsif ($metonym_of{$id} and $metonym_of{$id}->get_starred()->get_structure == $int) {
         return $metonym_of{$id};
     } else {
         return;
