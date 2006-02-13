@@ -784,8 +784,8 @@ sub set_metonym{
     my ( $self, $meto ) = @_;
     my $id = ident $self;
 
-    SErr->throw("Metonym must be an SObject!" )
-        unless UNIVERSAL::isa($meto, "SObject");
+    SErr->throw("Metonym must be an SObject! Got: " . $meto->get_starred )
+        unless UNIVERSAL::isa($meto->get_starred, "SObject");
     $metonym_of{$id} = $meto;
 }
 
