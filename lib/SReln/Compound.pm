@@ -173,7 +173,7 @@ sub BUILD{
 #    possible exceptions:
 #        Don't know for sure how to do this, but I had planned for this to return exceptions seeking more information also.
 
-multimethod find_reln => qw(SObject SObject) => sub {
+multimethod _find_reln => qw(SObject SObject) => sub {
     my ( $o1, $o2 ) = @_;
     my @common_categories = $o1->get_common_categories($o2);
     return unless @common_categories;
@@ -200,8 +200,9 @@ multimethod find_reln => qw(SObject SObject) => sub {
 #
 #    possible exceptions:
 
-multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
+multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my ( $o1, $o2, $cat ) = @_;
+
     ## In_find_reln: $o1, $o2, $cat
     my $opts_ref = {};
 
@@ -282,6 +283,23 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
     return SReln::Compound->new($opts_ref);
 };
 
+
+
+# method: find_reln
+# calls _find_reln
+#
+multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
+    my ($o1, $o2, $cat) = @_;
+    $o1 = $o1->get_effective_object;
+    $o2 = $o2->get_effective_object;
+    _find_reln($o1, $o2, $cat);
+};
+multimethod find_reln => qw(SObject SObject) => sub {
+    my ($o1, $o2) = @_;
+    $o1 = $o1->get_effective_object;
+    $o2 = $o2->get_effective_object;
+    _find_reln($o1, $o2);
+};
 
 # 
 # subsection: Defunct Stuff

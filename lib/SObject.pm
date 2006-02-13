@@ -39,6 +39,11 @@ my %group_p_of : ATTR( :get<group_p>);
 #    The metonym associated with this object
 my %metonym_of :ATTR( :get<metonym> :set<metonym>);
 
+
+# variable: %metonym_activeness_of
+#    is metonym active?
+my %metonym_activeness_of :ATTR( :get<metonym_activeness>);
+
 # variable: %reln_other_of
 my %reln_other_of :ATTR();
 
@@ -63,6 +68,7 @@ sub BUILD{
     $group_p_of{$id} = $opts_ref->{group_p};
     $reln_other_of{$id} = {};
     $underlying_reln_of{$id} = undef;
+    $metonym_activeness_of{$id} = 0;
 }
 
 
@@ -772,6 +778,30 @@ sub set_underlying_reln :CUMULATIVE{
     my $id = ident $self;
     
     $underlying_reln_of{$id} = $reln;
+}
+
+sub set_metonym_activeness{
+    my ( $self, $value ) = @_;
+    my $id = ident $self;
+    
+    if ($value) {
+        return if $metonym_activeness_of{$id};
+        unless ($metonym_of{$id}) {
+            SErr->throw("Cannot set_metonym_activeness without a metonym");
+        }
+        $metonym_activeness_of{$id} = 1;
+    } else {
+        $metonym_activeness_of{$id} = 0;
+    }
+
+}
+
+sub get_effective_object{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    return $self unless $metonym_activeness_of{$id};
+    return $metonym_of{$id}->get_starred;
 }
 
 

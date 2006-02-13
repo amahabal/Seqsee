@@ -131,10 +131,10 @@ multimethod find_reln => ('$', '$') => sub {
 
 
 
-# multi: find_reln ( SElement, SElement )
+# multi: _find_reln ( SElement, SElement )
 # merely the relation between their magnitudes
 #
-multimethod find_reln => qw( SElement SElement ) => sub {
+multimethod _find_reln => qw( SElement SElement ) => sub {
     my ( $e1, $e2 ) = @_;
     my $rel = find_reln($e1->get_mag(), $e2->get_mag);
     if ($rel) {

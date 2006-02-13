@@ -2,7 +2,7 @@ use strict;
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-plan tests => 23; 
+plan tests => 26; 
 
 use Class::Multimethods qw(find_reln);
 use Class::Multimethods qw(are_relns_compatible);
