@@ -148,7 +148,10 @@ sub BUILD{
                 if (ref($subobject) eq "SElement") {
                     return $subobject->get_mag;
                 } else {
+                    ## $subobject
+                    ## $subobject->get_structure
                     my $int = $subobject->can_be_seen_as_int();
+                    ## $int
                     return $int;
                 } 
             } else {

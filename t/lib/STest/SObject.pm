@@ -3,7 +3,7 @@ use base qw{Test::Class};
 use Test::More;
 use Test::Deep;
 use Test::Exception;
-
+use Smart::Comments;
 use S;
 
 sub create :Test(6) {
@@ -59,8 +59,11 @@ sub get_flattened :Test(3) {
     }
 }
 
-sub quik_create :Test(8) {
-    my $object = SObject->quik_create([2,3,[4,4]]);
+sub quik_create :Test(16) {
+    my $object = SObject->quik_create([2,3,4], $S::ASCENDING);
+    $object->is_of_category_ok($S::ASCENDING);
+    
+    $object = SObject->quik_create([2,3,[4,4]]);
     $object->structure_ok([2,3,[4,4]]);
 
     my $subobject = $object->[2];
@@ -73,8 +76,22 @@ sub quik_create :Test(8) {
     cmp_ok( $metonym->get_starred()->get_structure, 'eq', 4);
     $metonym->get_unstarred()->structure_ok( [4, 4]);
 
-    my $object2 = SObject->quik_create([2,3,[4,4]], $S::ASCENDING);
+    my $object2 = SObject->quik_create([2,3,[4,4],5]);
+    ok( $object2->can_be_seen_as(SObject->create(2,3,4,5)), );
+    ok( $object2->can_be_seen_as([2,3,4,5], ));
+    ## $object2->get_structure
+    ok( $S::ASCENDING->is_instance($object2), );
+
     $object2->is_of_category_ok($S::ASCENDING);
+
+    $object2 = SObject->quik_create([2,3,[4,4]]);
+    ok( $object2->can_be_seen_as(SObject->create(2,3,4)), );
+    ok( $object2->can_be_seen_as([2,3,4], ));
+    ## $object2->get_structure
+    ok( $S::ASCENDING->is_instance($object2), );
+
+    $object2->is_of_category_ok($S::ASCENDING);
+
 
 }
 
@@ -111,10 +128,13 @@ sub is_sane :Test(9){
 
     throws_ok { SAnchored->create( $o_unanch1, $e5 )} SErr, "There is an unachored object here";
 
-    throws_ok { SAnchored->create( $e5 );} SErr, "A grop creation should not be attempted based on a single object";
+    # Group formed from a single element is just itself...
+    my $WSO_a = SAnchored->create($e5);
+    ok( $WSO_a eq $e5 , );
+
+
+    #throws_ok { SAnchored->create( $e5 );} SErr, "A grop creation should not be attempted based on a single object";
 
 }
-
-
 
 1;

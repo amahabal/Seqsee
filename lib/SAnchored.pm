@@ -114,7 +114,8 @@ sub create{
 
     my @left_edges; # for finding direction
     if (@items == 1) {
-        SErr->throw("A group creation is being attempted based on a single object");
+        # SErr->throw("A group creation is being attempted based on a single object");
+        return $items[0];
     }
 
     my %slots_taken;

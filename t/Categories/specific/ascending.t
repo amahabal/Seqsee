@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-BEGIN { plan tests => 13; }
+BEGIN { plan tests => 16; }
 
 BEGIN {
   use_ok "SCat::ascending";
@@ -16,7 +16,9 @@ BUILDING: {
   isa_ok( $ret, "SObject" );
   $ret->structure_ok( [ 2, 3, 4, 5 ], "start => 2, end => 5" );
   $ret = $cat->build( { start => 2, end => 2 } );
-  $ret->structure_ok( [2], "start => 2, end => 2" );
+  ## $ret
+  ## $ret->get_structure
+  $ret->structure_ok( 2, "start => 2, end => 2" );
   $ret = $cat->build( { start => 2, end => 1 } );
   $ret->structure_ok( [], "start => 2, end => 1" );
 }
@@ -27,6 +29,7 @@ IS_INSTANCE: {
   cmp_ok( $bindings->get_binding('start'), 'eq', 2 );
   cmp_ok( $bindings->get_binding('end'), 'eq', 4 );
 
+  
   $bindings = $cat->is_instance( SObject->create(2));
   cmp_ok( $bindings->get_binding('start'), 'eq', 2 );
   cmp_ok( $bindings->get_binding('end'), 'eq', 2 );
@@ -52,5 +55,15 @@ BLEMISHED_IS_INST: {
   cmp_ok( $bindings->get_binding('start'), 'eq', 3 );
   cmp_ok( $bindings->get_binding('end'), 'eq', 8 );
   
+  $object = SObject->quik_create([3,4,[5,5],6,7,8]);
+  ok( $object->can_be_seen_as(SObject->create(3,4,5,6,7,8)), "Can be seen as" );
+
+  $bindings =
+    $cat->is_instance( $object );
+  ## $bindings
+  cmp_ok( $bindings->get_binding('start'), 'eq', 3 );
+  cmp_ok( $bindings->get_binding('end'), 'eq', 8 );
+  
+
 }
 

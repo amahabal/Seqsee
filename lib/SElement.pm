@@ -79,5 +79,14 @@ sub as_insertlist{
 
 }
 
+my $POS_FIRST = SPos->new(1);
+my $POS_LAST = SPos->new(-1);
+
+sub get_at_position{
+    my ( $self, $position ) = @_;
+    return $self if ($position eq $POS_FIRST or $position eq $POS_LAST);
+    SErr::Pos::OutOfRange->throw("out of range for SElement");
+}
+
 
 1;

@@ -184,16 +184,20 @@ sub quik_create{
         # now check if all elements in it are the same.
         my $parts_ref = $items_of{$subid};
         my $count = scalar(@$parts_ref);
-        my $first_part = $parts_ref->[0]->get_structure;
+        my $first_part = $parts_ref->[0]->get_structure_string;
 
         for my $i (1..$count-1) {
-            unless ($first_part eq $parts_ref->[$i]->get_structure) {
+            unless ($first_part eq $parts_ref->[$i]->get_structure_string) {
                 next LOOP;
             }
         }
         
-        # So a sameness group has been seen.
+        ## So a sameness group has been seen.
+        ## $subobject->get_structure_string
+        # print "# $S::SAMENESS\n";
+        ## inst:  $S::SAMENESS->is_instance($subobject)
         $subobject->annotate_with_cat($S::SAMENESS);
+        ## inst: $S::SAMENESS->is_instance($subobject)
         $subobject->annotate_with_metonym($S::SAMENESS, "each");
     }
 
@@ -434,7 +438,9 @@ sub can_be_seen_as{
     my ( $self, $seen_as ) = @_;
     ## can_be_seen_as: $self, $seen_as
     my $id = ident $self;
-    $seen_as = $seen_as->get_structure();
+    if (UNIVERSAL::isa($seen_as, "SObject")) {
+        $seen_as = $seen_as->get_structure();
+    }
     ## seen as now: $seen_as
 
     if (SUtil::compare_deep($seen_as, $self->get_structure())) {
@@ -485,14 +491,15 @@ sub can_be_seen_as_int{
     my $id = ident $self;
 
     my $meto = $metonym_of{$id};
+    ## $meto
     return unless $meto;
 
     my $starred = $meto->get_starred;
-    if (ref $starred) {
+    if (ref($starred) ne "SElement") {
         return;
     }
 
-    return $starred;
+    return $starred->get_mag;
 }
 
 
@@ -818,6 +825,27 @@ sub get_effective_object{
     return $self unless $metonym_activeness_of{$id};
     return $metonym_of{$id}->get_starred;
 }
+
+sub get_structure_string{
+    my ( $self ) = @_;
+    my $struct = $self->get_structure;
+    if (ref $struct) {
+        return _get_structure_string($struct);
+    } else {
+        return $struct;
+    }
+}
+
+sub _get_structure_string{
+    my ( $struct ) = @_;
+    if (ref $struct) {
+        return "(" .  join(",", map { _get_structure_string($_) } @$struct).")";
+    } else {
+        return $struct;
+    }
+}
+
+
 
 
 1;
