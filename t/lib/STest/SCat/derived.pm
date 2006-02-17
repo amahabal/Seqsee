@@ -18,7 +18,7 @@ sub derived_assuming_build :Test(6){
     my $cat = $derived_assuming;
     my @build_test = (
         [ { end => 5}, [1,2,3,4,5] ],
-        [ { end => 1}, [1] ],
+        [ { end => 1}, 1 ],
         [ { end => 0}, [] ],
             );
     for (@build_test) {

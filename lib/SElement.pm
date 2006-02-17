@@ -33,13 +33,15 @@ sub BUILD {
 #
 sub create{
     my ( $package, $mag, $pos ) = @_;
-    return $package->new( {
+    my $obj = $package->new( {
         items => [$mag],
         group_p => 0,
         mag     => $mag,
         left_edge => $pos,
         right_edge => $pos,
             });
+    $obj->get_parts_ref()->[0] = $obj; #[sic]
+    return $obj;
 }
 
 
@@ -86,6 +88,11 @@ sub get_at_position{
     my ( $self, $position ) = @_;
     return $self if ($position eq $POS_FIRST or $position eq $POS_LAST);
     SErr::Pos::OutOfRange->throw("out of range for SElement");
+}
+
+sub get_flattened{
+    my ( $self ) = @_;
+    return [$self->get_mag];
 }
 
 

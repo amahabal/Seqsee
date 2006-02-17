@@ -14,7 +14,7 @@ sub ascending_build :Test(6){
 
     my @build_test = (
         [ { start => 2, end => 5}, [2,3,4,5] ],
-        [ { start => 5, end => 5}, [5] ],
+        [ { start => 5, end => 5}, 5 ],
         [ { start => 6, end => 5}, [] ],
             );
     for (@build_test) {
@@ -49,7 +49,7 @@ sub descending_build :Test(6){
 
     my @build_test = (
         [ { start => 5, end => 2}, [5,4,3,2] ],
-        [ { start => 5, end => 5}, [5] ],
+        [ { start => 5, end => 5}, 5 ],
         [ { start => 4, end => 5}, [] ],
             );
     for (@build_test) {
@@ -84,7 +84,7 @@ sub mountain_build :Test(6){
 
     my @build_test = (
         [ { foot => 5, peak => 7}, [5,6,7,6,5] ],
-        [ { foot => 5, peak => 5}, [5] ],
+        [ { foot => 5, peak => 5}, 5 ],
         [ { foot => 6, peak => 5}, [] ],
             );
     for (@build_test) {

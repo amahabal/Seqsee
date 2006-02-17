@@ -29,7 +29,7 @@ IS_INSTANCE: {
 }
 
 my $cat_1 = $cat_literal->build( { structure => [1] });
-$cat_1->build({})->structure_ok( [1] );
+$cat_1->build({})->structure_ok( 1 );
 
 { 
   my $bindings = $cat_1->is_instance( SObject->create(1) );

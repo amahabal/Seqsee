@@ -165,7 +165,10 @@ sub BUILD{
         ## Guesser installed for: $k
         $guesser_ref->{$k} = sub {
             my $object = shift;
+            ## $object->get_structure
+            ## $v->($object)
             my $subobject = $object->get_subobj_given_range( $v->($object) );
+            ## $subobject
             if (exists $type_ref->{$k} and
                     $type_ref->{$k} eq 'int') {
                 if (ref($subobject) eq "SElement") {

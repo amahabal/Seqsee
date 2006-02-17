@@ -38,6 +38,7 @@ sub create : Test(startup => 1){
            to_guess => [qw/foo bar/],
            positions => $positions_ref,
            position_finders => $position_finders_ref,
+           att_type => { foo => "int"}, 
        }
               );
     isa_ok($cat, "SCat::OfObj");
@@ -54,6 +55,8 @@ sub is_instance :Test(2){
     my $cat = shift->{cat};
     my $object = SObject->create(2,7,3);
     my $bindings = $cat->is_instance($object);
+    ## $object->get_structure
+    ## $bindings
     ok($bindings);
 
     $object = SObject->create(2,7,4);

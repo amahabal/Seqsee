@@ -176,29 +176,34 @@ sub quik_create{
     my ( $package, $array_ref, @potential_cats ) = @_;
     my $object = $package->create(@$array_ref);
     my $id = ident $object;
-    
-    LOOP: for my $subobject (@{ $items_of{$id} }) {
-        next if ref($subobject) eq "SElement";
-        
-        my $subid = ident $subobject;
-        # now check if all elements in it are the same.
-        my $parts_ref = $items_of{$subid};
-        my $count = scalar(@$parts_ref);
-        my $first_part = $parts_ref->[0]->get_structure_string;
 
-        for my $i (1..$count-1) {
-            unless ($first_part eq $parts_ref->[$i]->get_structure_string) {
-                next LOOP;
+    ## $object, $id
+
+    unless ($object->isa("SElement")) {
+      LOOP: for my $subobject (@{ $items_of{$id} }) {
+            next if ref($subobject) eq "SElement";
+            
+            my $subid = ident $subobject;
+            # now check if all elements in it are the same.
+            my $parts_ref = $items_of{$subid};
+            ## $subobject, $parts_ref
+            my $count = scalar(@$parts_ref);
+            my $first_part = $parts_ref->[0]->get_structure_string;
+            
+            for my $i (1..$count-1) {
+                unless ($first_part eq $parts_ref->[$i]->get_structure_string) {
+                    next LOOP;
+                }
             }
+            
+            ## So a sameness group has been seen.
+            ## $subobject->get_structure_string
+            # print "# $S::SAMENESS\n";
+            ## inst:  $S::SAMENESS->is_instance($subobject)
+            $subobject->annotate_with_cat($S::SAMENESS);
+            ## inst: $S::SAMENESS->is_instance($subobject)
+            $subobject->annotate_with_metonym($S::SAMENESS, "each");
         }
-        
-        ## So a sameness group has been seen.
-        ## $subobject->get_structure_string
-        # print "# $S::SAMENESS\n";
-        ## inst:  $S::SAMENESS->is_instance($subobject)
-        $subobject->annotate_with_cat($S::SAMENESS);
-        ## inst: $S::SAMENESS->is_instance($subobject)
-        $subobject->annotate_with_metonym($S::SAMENESS, "each");
     }
 
     for (@potential_cats) {
