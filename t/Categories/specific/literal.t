@@ -2,7 +2,7 @@ use strict;
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-BEGIN { plan tests => 8; }
+BEGIN { plan tests => 12; }
 
 my $cat_literal = $S::LITERAL;
 my $double = $S::DOUBLE;
@@ -38,5 +38,18 @@ $cat_1->build({})->structure_ok( 1 );
   ## $bindings
   $bindings = $cat_1->is_instance( SObject->create(2));
   ok !$bindings;
+
+  my $obj = SObject->create(1,1,1);
+  ok( not($cat_1->is_instance($obj)), );
+
+  $obj->annotate_with_metonym($S::SAMENESS, "each");
+  ok( $cat_1->is_instance($obj), );
+
   
 }
+
+my $cat_2 = $cat_literal->build( {structure => [[1]]});
+ok( $cat_1 eq $cat_2, );
+
+ok( $cat_1 eq $cat_literal->build( { structure => 1}), );
+

@@ -8,10 +8,11 @@ my $builder = sub {
     my $structure = $args_ref->{structure};
     defined($structure) or croak "need structure";
 
-    my $string = scat_literal_as_string($structure);
+    my $prototype = SObject->create( $structure );
+    my $string = scat_literal_as_string($prototype->get_structure);
+
     return $Memoize{$string} if exists $Memoize{$string};
 
-    my $prototype = SObject->create( $structure );
     my $builder_of_new = sub {
         # my ( $me, $my_args_ref ) = @_;
         return SObject->create( $prototype );
