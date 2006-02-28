@@ -35,6 +35,7 @@ $cat_1->build({})->structure_ok( 1 );
   my $bindings = $cat_1->is_instance( SObject->create(1) );
   ok $bindings, "SInt can be instance of the category";
 
+  ## $bindings
   $bindings = $cat_1->is_instance( SObject->create(2));
   ok !$bindings;
   

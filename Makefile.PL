@@ -17,8 +17,7 @@ docs:
 \t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -i /u/amahabal/SeqseeTree/summer05/pod -o HTML /u/amahabal/.hyplan/ND/ -p Proj 
 
 pdfdocs:
-\t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -i /u/amahabal/SeqseeTree/summer05/pod -o PDF /tmp/Output -p Proj 
-\t\tcd /tmp/Output; lmake Main
+\t\tcd NaturalDocs; \\rm -rf pdfout/* ; \\rm -rf pdfproj/* ; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -o PDF pdfout -p pdfproj ; cd pdfout ; lmake --indices=Functions --indices=Classes merged ; lmake merged
 
 MAKE_FRAG
 }

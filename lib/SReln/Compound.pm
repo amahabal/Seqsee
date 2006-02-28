@@ -340,8 +340,11 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     my $cat = $reln->get_base_category;
 
     # Make sure the object belongs to that category
-    my $bindings = $object->get_binding( $cat );
+    my $bindings = $object->describe_as( $cat );
+    ## $bindings
+    ## $cat->as_text
     return unless $bindings;
+
 
     # Find the bindings for it.
     my $bindings_ref = $bindings->get_bindings_ref;
@@ -359,7 +362,7 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
         $new_bindings_ref->{$k} = $v;
     }
     my $new_object = $cat->build( $new_bindings_ref );
-    
+    ## $new_object
     # We have not "applied the blemishes" yet, of course
 
     my $reln_meto_mode = $reln->get_base_meto_mode;
@@ -395,7 +398,10 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     ## $new_metonymy_type->get_info_loss() 
     
     ## $new_object->get_structure
-    return $new_object->apply_blemish_at( $new_metonymy_type, $new_position );
+    my $ret_obj =
+        $new_object->apply_blemish_at( $new_metonymy_type, $new_position );
+    $ret_obj->describe_as($cat);
+    return $ret_obj;
 
 };
 

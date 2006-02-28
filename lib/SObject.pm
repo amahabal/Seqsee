@@ -458,11 +458,19 @@ sub can_be_seen_as{
         }
     }
 
-    my $seen_as_parts_count = scalar(@$seen_as);
+    my $seen_as_parts_count = (ref $seen_as) ? scalar(@$seen_as) : 1;
     return unless $seen_as_parts_count == $self->get_parts_count;
     ## parts count okay
     my %return = ();
     my $parts_ref = $self->get_parts_ref;
+
+    unless (ref $seen_as) {
+        my $meto = _can_be_seen_as_no_rec( $parts_ref->[0], $seen_as);
+        return unless defined $meto;
+        $return{0} = $meto if $meto;
+        return \%return;
+    }
+
     for my $i (0 .. $seen_as_parts_count - 1) {
         my $obj_part = $parts_ref->[$i];
         my $seen_as_part = $seen_as->[$i];
@@ -641,12 +649,15 @@ sub apply_blemish_at{
     my @metonyms;
 
     my @subobjects = @{ $items_of{ ident $object }};
+    my $meto_cat = $meto_type->get_category;
+    my $meto_name = $meto_type->get_name;
+
     for my $index (@indices) {
         my $obj_at_pos = $subobjects[$index];
         my $blemished_object_at_pos = $meto_type->blemish( $obj_at_pos );
         my $metonym = SMetonym->new(
-            { category => $meto_type->get_category,
-              name     => $meto_type->get_name,
+            { category => $meto_cat,
+              name     => $meto_name,
               info_loss => $meto_type->get_info_loss,
               starred   => $obj_at_pos,
               unstarred => $blemished_object_at_pos,
@@ -661,7 +672,10 @@ sub apply_blemish_at{
     my $ret =  SObject->create( @subobjects );
     ## $ret->get_structure()
     for my $index (@indices) {
-        $ret->[$index]->set_metonym( shift(@metonyms) );
+        my $metonym = shift(@metonyms);
+        $ret->[$index]->describe_as($meto_cat);
+        $ret->[$index]->set_metonym( $metonym );
+        $ret->[$index]->set_metonym_activeness(1);
     }
     return $ret;
     # maybe make it belong to the category...
@@ -729,6 +743,9 @@ sub describe_as{
     }
 
     my $bindings = $cat->is_instance( $self );
+    if ($bindings) {
+        $self->add_category($cat, $bindings);
+    }
 
     return $bindings;
 

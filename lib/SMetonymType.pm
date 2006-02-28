@@ -57,7 +57,11 @@ sub blemish{
                                      $info_loss_of{$id}
                                          );
     my $finder = $cat->get_meto_unfinder( $name );
-    return $finder->( $cat, $name, $info_loss, $object );
+    my $obj = $finder->( $cat, $name, $info_loss, $object );
+    #$obj->set_metonym($object);
+    #$obj->set_metonym_activeness(1);
+    $obj->describe_as($cat);
+    return $obj;
 }
 
 
