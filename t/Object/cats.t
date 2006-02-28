@@ -9,7 +9,7 @@ dies_ok { $bo->add_category() },  "add_category needs arguments";
 dies_ok { $bo->add_category("foo") } "add_category first argument must be isa SCat::OfObj";
 my $cat1 = $S::ASCENDING;
 my $cat2 = $S::MOUNTAIN;
-my $cat3 = $S::DESCEDNING;
+my $cat3 = $S::DESCENDING;
 
 lives_ok { $bo->add_category( $cat1, SBindings->create({}, {}, $bo) ) } 
     "add_cat lives okay with cat arg";

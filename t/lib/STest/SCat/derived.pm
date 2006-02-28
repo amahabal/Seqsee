@@ -14,7 +14,7 @@ my $derived_assuming = $S::ASCENDING->derive_assuming( { start => 1} );
 
 
 sub derived_assuming_build :Test(6){
-    diag "ASSUMING BUILD";
+    #diag "ASSUMING BUILD";
     my $cat = $derived_assuming;
     my @build_test = (
         [ { end => 5}, [1,2,3,4,5] ],
@@ -29,7 +29,7 @@ sub derived_assuming_build :Test(6){
 }
 
 sub derived_assuming_is_instance :Test(9){
-    diag "ASSUMING IS INSTANCE";
+    #diag "ASSUMING IS INSTANCE";
     my $cat = $derived_assuming;
     my $object;
     my @test_objects = (

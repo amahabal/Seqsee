@@ -123,7 +123,7 @@ PEAK: {
         local $TODO = "named positions again";
         my $range = $pos_peak->find_range($bo3);
         cmp_deeply $range, [3];
-        @sub_objects = $bo3->get_at_position($pos_peak);
+        # @sub_objects = $bo3->get_at_position($pos_peak);
         #cmp_deeply( [ map { $_->get_structure } @sub_objects ],
         #            [6], "mountain 3 6, subobj peak" );
         ok( 0, );

@@ -92,7 +92,7 @@ ok( $WSO_gn, );
 $WSO_gn->structure_ok( [1,2,[3,3]]);
 $bindings = $WSO_gn->get_binding($S::ASCENDING);
 ok( $bindings->get_metonymy_mode() eq METO_MODE::SINGLE(), );
-### here...
+## here...
 ok( $WSO_gn->[2]->get_binding($S::SAMENESS), );
 
  

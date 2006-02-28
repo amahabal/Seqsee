@@ -26,7 +26,7 @@ sub ascending_build :Test(6){
 }
 
 sub ascending_is_instance :Test(5){
-    diag "ASCENDING IS INSTANCE";
+    #diag "ASCENDING IS INSTANCE";
     my $cat = $S::ASCENDING;
     my $object;
     my @test_objects = (
@@ -61,7 +61,7 @@ sub descending_build :Test(6){
 }
 
 sub descending_is_instance :Test(5){
-    diag "DESCENDING IS INSTANCE";
+    #diag "DESCENDING IS INSTANCE";
     my $cat = $S::DESCENDING;
     my $object;
     my @test_objects = (
@@ -96,7 +96,7 @@ sub mountain_build :Test(6){
 }
 
 sub mountain_is_instance :Test(5){
-    diag "Mountain IS INSTANCE";
+    #diag "Mountain IS INSTANCE";
     my $cat = $S::MOUNTAIN;
     my $object;
     my @test_objects = (
@@ -130,7 +130,7 @@ sub sameness_build :Test(6){
 }
 
 sub sameness_is_instance :Test(4){
-    diag "SAMENESS IS INSTANCE";
+    #diag "SAMENESS IS INSTANCE";
     my $cat = $S::SAMENESS;
     my $object;
     my @test_objects = (
