@@ -69,6 +69,7 @@ sub BUILD{
     $reln_other_of{$id} = {};
     $underlying_reln_of{$id} = undef;
     $metonym_activeness_of{$id} = 0;
+    $metonym_of{$id}= undef;
 }
 
 
@@ -99,7 +100,7 @@ sub create{
     my @arguments = @_;
 
     if (! @arguments) {
-        $package->new( { group_p => 1,
+        return $package->new( { group_p => 1,
                          items   => [],
                 });
     }
@@ -155,18 +156,6 @@ sub _create_or_int{
 }
 
 
-# method: create_from_string
-# TODO
-#
-#    Creates an object given a string.
-
-sub create_from_string{
-    my ( $package, $string ) = @_;
-    # XXX: ...
-}
-
-
-
 # method: quik_create
 # Creates the object, adding metonyms as needed
 #
@@ -203,6 +192,7 @@ sub quik_create{
             $subobject->annotate_with_cat($S::SAMENESS);
             ## inst: $S::SAMENESS->is_instance($subobject)
             $subobject->annotate_with_metonym($S::SAMENESS, "each");
+            $subobject->set_metonym_activeness(1);
         }
     }
 
@@ -259,11 +249,10 @@ sub clone_with_cats{
 
 sub annotate_with_cat{
     my ( $self, $cat ) = @_;
-    my $bindings = $cat->is_instance( $self );
+    my $bindings = $self->describe_as( $cat );
 
     SErr::NotOfCat->throw() unless $bindings;
-
-    $self->add_category($cat, $bindings);
+    return $bindings;
 }
 
 
@@ -273,20 +262,7 @@ sub annotate_with_cat{
 #
 #    In fact, it does a add_non_cat in that situation.
 
-sub maybe_annotate_with_cat{
-    my ( $self, $cat ) = @_;
-    eval { $self->annotate_with_cat($cat) };
-
-    if (my $o = $EVAL_ERROR) {
-        if (UNIVERSAL::isa($o, 'SErr::NotOfCat')){
-            $self->add_non_category($cat);
-        } else {
-            die $o;
-        }
-    }
-}
-
-
+*SObject::maybe_annotate_with_cat = *SObject::describe_as;
 
 # method: annotate_with_metonym
 # Adds a metonym from the given category to the object
@@ -357,7 +333,7 @@ sub get_structure{
     my $id = ident $self;
 
     my $items_ref = $items_of{$id};
-    my @new_items = map { ref($_) ? $_->get_structure() : $_ } @$items_ref;
+    my @new_items = map { $_->get_structure()  } @$items_ref;
     return \@new_items;
 
 }
@@ -374,7 +350,7 @@ sub get_flattened{
     my $id = ident $self;
     
     my $items_ref = $items_of{$id};
-    my @items = map { ref($_) ? @{ $_->get_flattened() } : ($_) } @$items_ref;
+    my @items = map { @{ $_->get_flattened() } } @$items_ref;
 
     return \@items;
 }
