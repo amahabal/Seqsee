@@ -197,5 +197,16 @@ sub toss{
     rand() <= $prob ? 1 : 0;
 }
 
+sub clear_all{
+    SWorkspace->clear();
+    clear_all_but_workspace();
+}
+
+sub clear_all_but_workspace{
+    SStream->clear;
+    SCoderack->clear;
+}
+
+
 
 1;

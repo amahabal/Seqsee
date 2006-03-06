@@ -161,4 +161,46 @@ sub blemished_real_okay {
     }
 }
 
+sub throws_thought_ok{
+    my ( $cl, $type ) = @_;
+
+    my @types = (ref($type) eq "ARRAY") ? @$type : ($type);
+    @types = map { /^SThought::/ ? $_ : "SThought::$_" } @types;
+
+    eval { $cl->run; };
+    my $e;
+    unless ($e = $EVAL_ERROR) {
+        ok( 0, "No thought returned" );
+        return;
+    }
+    my $payload = $e->payload;
+    
+    unless ($payload) {
+        ok( 0, "Died without payload" );
+        return;
+    }
+
+    for (@types) {
+        if ($payload->isa($_)) {
+            ok( 1, "$payload returned" );
+            return $payload;
+        }
+    }
+
+    ok( 0, "Wrong type: $payload. Expected one of: " . join(", ", @types) );
+}
+
+sub throws_no_thought_ok{
+    my ( $cl ) = @_;
+
+    eval { $cl->run; };
+    my $e;
+    if ($e = $EVAL_ERROR) {
+        ok( 0, "Should return no thought! $e" );
+        return;
+    }
+    ok( 1, "Lived Ok" );
+}
+
+
 1;

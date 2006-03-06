@@ -17,6 +17,8 @@ use Exception::Class (
 
 
     'SErr::NeedMoreData'   => { fields => ['payload']},
+    'SErr::ContinueWith'   => { fields => ['payload']},
+
     'SErr::HolesHere' => {}, #thrown by SAnchored constructor
 
     'SErr::AskUser' => { fields => [qw{already_matched next_elements}]},

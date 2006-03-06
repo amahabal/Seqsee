@@ -415,58 +415,72 @@ sub boolify :BOOLIFY{
 #
 #    possible exceptions:
 
-sub can_be_seen_as{
-    my ( $self, $seen_as ) = @_;
-    ## can_be_seen_as: $self, $seen_as
-    my $id = ident $self;
-    if (UNIVERSAL::isa($seen_as, "SObject")) {
-        $seen_as = $seen_as->get_structure();
-    }
-    ## seen as now: $seen_as
+multimethod can_be_seen_as => qw(SObject SObject) => sub {
+    my ( $o1, $o2 ) = @_;
+    can_be_seen_as($o1, $o2->get_structure);
+};
 
-    if (SUtil::compare_deep($seen_as, $self->get_structure())) {
-        return {};
-    }
-    
-    if ($metonym_of{$id}) {
-        if (SUtil::compare_deep($seen_as, $metonym_of{$id}->get_starred()->get_structure)) {
-            return {};
-        }
-    }
+multimethod can_be_seen_as => qw(SObject ARRAY) => sub {
+    my ( $o1, $s ) = @_;
+    my $id = ident $o1;
+    my $self_structure = $o1->get_structure;
 
-    my $seen_as_parts_count = (ref $seen_as) ? scalar(@$seen_as) : 1;
-    return unless $seen_as_parts_count == $self->get_parts_count;
-    ## parts count okay
-    my %return = ();
-    my $parts_ref = $self->get_parts_ref;
+    return {} if SUtil::compare_deep($self_structure, $s);
+    return {} if ($metonym_of{$id} and
+                      SUtil::compare_deep(
+                          $metonym_of{$id}->get_starred()->get_structure, 
+                          $s));
 
-    unless (ref $seen_as) {
-        my $meto = _can_be_seen_as_no_rec( $parts_ref->[0], $seen_as);
-        return unless defined $meto;
-        $return{0} = $meto if $meto;
-        return \%return;
-    }
+    my $seen_as_parts_count = scalar(@$s);
+    my $object_parts_ref = $o1->get_parts_ref;
 
-    for my $i (0 .. $seen_as_parts_count - 1) {
-        my $obj_part = $parts_ref->[$i];
-        my $seen_as_part = $seen_as->[$i];
-        my $meto = _can_be_seen_as_no_rec( $obj_part, $seen_as_part );
-        
-        unless (defined $meto) { # cannot be so seen!
+    return unless scalar(@$object_parts_ref) == $seen_as_parts_count;
+
+    my %return;
+    for my $i (0 .. $seen_as_parts_count-1) {
+        my $obj_part = $object_parts_ref->[$i];
+        my $seen_as_part = $s->[$i];
+        my $meto = _can_be_seen_as_no_rec($obj_part, $seen_as_part);
+        unless (defined $meto) {
             return;
         }
 
-        unless ($meto) { # can be seen without slippage
-            next;
-        }
-
+        next unless $meto;
         $return{$i} = $meto;
 
     }
     return \%return;
-}
 
 
+};
+
+
+multimethod can_be_seen_as => ('SObject', '#') => sub {
+    my ( $o1, $int ) = @_;
+    my $id = ident $o1;
+    my $self_structure = $o1->get_structure;
+
+    return {} if SUtil::compare_deep($self_structure, $int);
+    return {} if ($metonym_of{$id} and
+                      SUtil::compare_deep(
+                          $metonym_of{$id}->get_starred()->get_structure, 
+                          $int));
+
+    my $object_parts_ref = $o1->get_parts_ref;
+
+    return unless scalar(@$object_parts_ref) == 1;
+
+    my %return;
+    my $obj_part = $object_parts_ref->[0];
+    my $seen_as_part = $int;
+    my $meto = _can_be_seen_as_no_rec($obj_part, $seen_as_part);
+    unless (defined $meto) {
+        return;
+    }
+
+    $return{0} = $meto if $meto;
+    return \%return;
+};
 
 # method: can_be_seen_as_int
 # What integer can this object be seen as?

@@ -20,7 +20,7 @@ sub run {
 
 sub fishy_codefamily {
     my $family = shift;
-    print "fishy_codefamily called!\n";
+    print "fishy_codefamily called: $family!\n";
     unless ( exists $INC{"SCF/$family.pm"} ) {
         SErr::Code->throw(
             "The codefamily $family IS NOT EVEN USED! Do you need to add it to SCF.list? Have you run 'perl Makefile.PL' recently enough?"

@@ -417,7 +417,9 @@ sub Seqsee_Step{
         if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
             return 1;
         }
-        if (UNIVERSAL::isa($err, 'SErr::NeedMoreData')) {
+        if (UNIVERSAL::isa($err, 'SErr::NeedMoreData') or
+              UNIVERSAL::isa($err, 'SErr::ContinueWith')
+                    ) {
             $err->payload()->schedule();
             return;
         }

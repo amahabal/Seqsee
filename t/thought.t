@@ -9,9 +9,9 @@ my $bo = SObject->create(2, 3, 4);
 my $cat_ascending = $S::ASCENDING;
 my $pos_second = SPos->new(2);
 
-my $t1 = SThought->new( { core => $bo });
-my $t2 = SThought->new( { core => $cat_ascending });
-my $t3 = SThought->new( { core => $pos_second });
+my $t1 = SThought->create($bo);
+my $t2 = SThought->create($cat_ascending);
+my $t3 = SThought->create($pos_second);
 
 isa_ok $t1, "SThought";
 isa_ok $t2, "SThought";

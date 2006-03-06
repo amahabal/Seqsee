@@ -19,6 +19,7 @@ use strict;
 use Carp;
 use Smart::Comments;
 use English qw(-no_match_vars);
+use SCF;
 
 use Class::Multimethods;
 multimethod 'find_reln';
@@ -59,8 +60,7 @@ sub run{
     if ($reln = $a->get_relation($b)) {
         # No need to create another.
         # But you may care to think about it some more
-        SThought->create( $reln )->schedule();
-        return;
+        ContinueWith(SThought->create($reln));
     }
 
     ## Running FindIfRelated: $a, $b
@@ -71,7 +71,6 @@ sub run{
     $a->add_reln( $reln );
     $b->add_reln( $reln );
     SWorkspace->add_reln( $reln );
-    SThought->create( $reln )->schedule();
-
+    ContinueWith(SThought->create($reln));
 }
 1;
