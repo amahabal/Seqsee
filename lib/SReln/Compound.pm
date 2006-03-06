@@ -460,7 +460,7 @@ sub as_insertlist{
         return $list;
     }
 
-    die "Verbosity $verbosity not implemented for ". ref $self;
+    confess "Verbosity $verbosity not implemented for ". ref $self;
 }
 
 

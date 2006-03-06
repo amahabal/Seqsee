@@ -8,6 +8,7 @@ use S;
 use SUtil;
 use Seqsee;
 
+use Carp;
 use Tk::Carp qw{tkdie};
 use Smart::Comments;
 use List::Util qw(min);
@@ -149,14 +150,14 @@ sub _read_config_and_commandline{
             = exists($options{$_})        ? $options{$_} :
               exists($config{seqsee}{$_}) ? $config{seqsee}{$_} :
               exists($DEFAULTS{$_})       ? $DEFAULTS{$_} :
-                  die "Option '$_' not set either on command line, conf file or defauls";
+                  confess "Option '$_' not set either on command line, conf file or defauls";
         $RETURN_ref->{$_} = $val;
     }
 
     # SANITY CHECKING: SEQ
     my $seq = $RETURN_ref->{seq};
     unless ($seq =~ /^[\d\s,]+$/) {
-        die "The option --seq must be a space or comma separated list of integers";
+        confess "The option --seq must be a space or comma separated list of integers";
     }
     for ($seq) { s/^\s*//; s/\s*$//; }
     my @seq = split(/[\s,]+/, $seq);
@@ -171,7 +172,7 @@ sub _read_config_and_commandline{
     # SANITY CHECKING: update_interval
     if ($RETURN_ref->{interactive} 
             and not($RETURN_ref->{update_interval})) {
-        die "Seqsee is being used interactively: absolutely must have the update interval: it cannot use the value $RETURN_ref->{update_interval}";
+        confess "Seqsee is being used interactively: absolutely must have the update interval: it cannot use the value $RETURN_ref->{update_interval}";
     }
 
     return $RETURN_ref;
@@ -200,7 +201,7 @@ sub Interaction_step_n{
     my $opts_ref = shift;
     ## In Interaction_step_n: $opts_ref
 
-    my $n = $opts_ref->{n} or die "Need n";
+    my $n = $opts_ref->{n} or confess "Need n";
     $n = min( $n, 
               $OPTIONS_ref->{max_steps} - $Steps_Finished );
     return 1 unless $n; # i.e, okay to stop now!
@@ -318,7 +319,7 @@ sub init_display{
             # print "Updated Tk display! (change me)\n";
         };
         my $default_error_handler = sub {
-            die $_[0];
+            confess $_[0];
         }; 
         my $msg_displayer = sub {
             my ( $msg ) = @_;

@@ -79,11 +79,11 @@ my %info_loss_of :ATTR( :get<info_loss> );
 
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
-    $category_of{$id } = $opts_ref->{category}  or die "Need category";
-    $meto_name_of{$id} = $opts_ref->{name}      or die "Need name";
-    $starred_of{$id}   = $opts_ref->{starred}   or die "Need starred";
-    $unstarred_of{$id} = $opts_ref->{unstarred} or die "Need unstarred";
-    $info_loss_of{$id} = $opts_ref->{info_loss} or die "Need info_loss";
+    $category_of{$id } = $opts_ref->{category}  or confess "Need category";
+    $meto_name_of{$id} = $opts_ref->{name}      or confess "Need name";
+    $starred_of{$id}   = $opts_ref->{starred}   or confess "Need starred";
+    $unstarred_of{$id} = $opts_ref->{unstarred} or confess "Need unstarred";
+    $info_loss_of{$id} = $opts_ref->{info_loss} or confess "Need info_loss";
 
     weaken $unstarred_of{$id};
 }
@@ -99,7 +99,7 @@ sub BUILD{
 
 sub intersection{
     my ( $package, @meto ) = @_;
-    @meto or die "Cannot take intersection of empty set";
+    @meto or confess "Cannot take intersection of empty set";
 
     my $id_of_first = ident $meto[0];
     

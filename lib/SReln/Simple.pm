@@ -120,7 +120,7 @@ multimethod apply_reln => ('SReln::Simple', '#')=> sub {
 
 
 # multi: find_reln ( $, $ )
-# Both must be integers, else dies
+# Both must be integers, else confesss
 #
 multimethod find_reln => ('$', '$') => sub {
     my ( $n1, $n2 ) = @_;
@@ -227,7 +227,7 @@ sub as_insertlist{
         return $list;
     }
 
-    die "Verbosity $verbosity not implemented for ". ref $self;
+    confess "Verbosity $verbosity not implemented for ". ref $self;
 }
 
 

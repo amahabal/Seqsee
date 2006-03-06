@@ -117,8 +117,8 @@ sub create{
 
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
-    $bindings_of_of{$id} = $opts_ref->{bindings}       || die "Need bindings";
-    $squinting_raw_of{$id} = $opts_ref->{raw_slippages}|| die "Need slippages";
+    $bindings_of_of{$id} = $opts_ref->{bindings}       || confess "Need bindings";
+    $squinting_raw_of{$id} = $opts_ref->{raw_slippages}|| confess "Need slippages";
     my $object = $opts_ref->{object} 
         || confess "Need object (in order to weave a story)";
     $self->_weave_story( $object );
@@ -320,7 +320,7 @@ sub as_insertlist{
         return $list;
     }
 
-    die "Verbosity $verbosity not implemented for ". ref $self;
+    confess "Verbosity $verbosity not implemented for ". ref $self;
     
 }
 

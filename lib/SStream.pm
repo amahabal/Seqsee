@@ -109,7 +109,7 @@ sub clear{
 # THIS IS NOT YET IMPLEMENTED!!
 
 sub add_thought{
-    @_ == 2 or die "new thought takes two arguments";
+    @_ == 2 or confess "new thought takes two arguments";
     my ( $package, $thought ) = @_;
 
     if (LOGGING_DEBUG()) {

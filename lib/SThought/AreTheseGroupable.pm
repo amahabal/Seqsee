@@ -31,7 +31,7 @@ my %reln_of :ATTR();
 #
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
-    $items_of{$id} = $opts_ref->{items} || die;
+    $items_of{$id} = $opts_ref->{items} || confess;
     $reln_of{$id}  = $opts_ref->{reln};
 }
 
@@ -90,7 +90,7 @@ sub get_actions{
 
     $new_group->set_underlying_reln($reln_of{$id});
     SWorkspace->add_group($new_group);
-    # die "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
+    # confess "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
 
     return @ret;
 }

@@ -36,9 +36,9 @@ my %info_loss_of :ATTR( :get<info_loss> );
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
 
-    $category_of{$id}  = $opts_ref->{category}  || die "Need category";
-    $meto_name_of{$id} = $opts_ref->{name}      || die "Need name";
-    $info_loss_of{$id} = $opts_ref->{info_loss} || die "Need info_loss";
+    $category_of{$id}  = $opts_ref->{category}  || confess "Need category";
+    $meto_name_of{$id} = $opts_ref->{name}      || confess "Need name";
+    $info_loss_of{$id} = $opts_ref->{info_loss} || confess "Need info_loss";
 }
 
 

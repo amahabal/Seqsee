@@ -312,7 +312,7 @@ sub maybe_annotate_with_metonym{
         if (UNIVERSAL::isa($o, 'SErr::MetonymNotAppicable')){
             
         } else {
-            die $o;
+            confess $o;
         }
     }    
 }
@@ -616,7 +616,7 @@ sub get_subobj_given_range {
 
 sub get_at_position { #( $self: $position )
     my ( $self, $position ) = @_;
-    UNIVERSAL::isa( $position, "SPos" ) or croak "Need SPos";
+    UNIVERSAL::isa( $position, "SPos" ) or confess "Need SPos";
 
     my $range = $position->find_range($self);
     return $self->get_subobj_given_range($range);
