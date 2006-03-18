@@ -6,3 +6,4 @@ SCF::FindIfRelatedRelns
 SCF::flipReln
 SCF::AttemptExtension
 SCF::CheckIfInstance
+SCF::SetLiteralCat
