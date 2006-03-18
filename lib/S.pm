@@ -35,6 +35,7 @@ use SCat::mountain;
 use SCat::sameness;
 #use SCat::number;
 use SCat::literal;
+use SCat::reln_based;
 
 use SObject;
 use SAnchored;
@@ -65,6 +66,7 @@ our $MOUNTAIN   = $SCat::mountain::mountain;
 our $LITERAL    = $SCat::literal::literal;
 #our $number     = $SCat::number::number;
 our $SAMENESS    = $SCat::sameness::sameness;
+our $RELN_BASED = $SCat::reln_based::reln_based;
 
 our $DOUBLE = SMetonymType->new(
     { category => $S::SAMENESS,

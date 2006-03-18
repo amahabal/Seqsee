@@ -463,5 +463,40 @@ sub as_insertlist{
     confess "Verbosity $verbosity not implemented for ". ref $self;
 }
 
+multimethod are_relns_compatible => qw(SReln::Compound SReln::Compound) => sub{
+    my ($a, $b) = @_;
+    $a->get_base_category eq $b->get_base_category or return;
+    
+    my $a_cbr = $a->get_changed_bindings_ref;
+    my $b_cbr = $b->get_changed_bindings_ref;
+    scalar(keys %$a_cbr) == scalar(keys %$b_cbr) or return;
+
+    while (my($k, $v) = each %$a_cbr) {
+        my $v2 = $b_cbr->{$k};
+        unless (are_relns_compatible($v, $v2)) {
+            return;
+        }
+    }
+
+    if ($a->get_base_meto_mode() == $METO_MODE::NONE and
+            $b->get_base_meto_mode() == $METO_MODE::NONE
+                ) {
+        return 1;
+    }
+
+    are_relns_compatible($a->get_position_reln(), $b->get_position_reln())
+        or return;
+    are_relns_compatible($a->get_metonymy_reln(), $b->get_metonymy_reln())
+        or return;
+
+    return 1;
+
+};
+
+multimethod are_relns_compatible => qw($ $) => sub {
+    my ( $a, $b ) = @_;
+    die "are_relns_compatible called with '$a' and '$b'!";
+};
+
 
 1;

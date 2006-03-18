@@ -307,6 +307,34 @@ sub _check_policy{
     return $code->(@args);
 }
 
+sub rapid_create_gp{
+    my ( $self, $cats, @items ) = @_;
+    @items = map {
+        if (ref($_) eq "ARRAY") {
+            $self->rapid_create_gp(@$_);
+        } else {
+            $_;
+        }
+    } @items;
+
+    my $object = SAnchored->create(@items);
+    SWorkspace->add_group($object);
+
+    while (@$cats) {
+        my $next = shift(@$cats);
+        if ($next eq "metonym") {
+            my $cat = shift(@$cats);
+            my $name = shift(@$cats);
+            $object->describe_as($cat);
+            $object->annotate_with_metonym($cat, $name);
+            $object->set_metonym_activeness(1);
+        } else {
+            $object->describe_as($next);
+        }
+    }
+    return $object;
+}
+
 
 
 1;
