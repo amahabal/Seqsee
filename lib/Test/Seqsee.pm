@@ -2,6 +2,10 @@ use strict;
 use Test::More;
 use Test::Exception;
 use Test::Deep;
+use Test::Stochastic qw(stochastic_all_seen_ok stochastic_all_seen_nok
+                        stochastic_all_and_only_ok
+                        stochastic_all_and_only_nok
+                            );
 use English qw(-no_match_vars);
 
 use S;
@@ -201,6 +205,49 @@ sub throws_no_thought_ok{
     }
     ok( 1, "Lived Ok" );
 }
+
+sub _wrap_to_get_payload_type{
+    my ( $subr ) = @_;
+    return sub {
+        eval { $subr->( ) };
+        if (my $e = $EVAL_ERROR ) {
+            if (UNIVERSAL::can($e, 'payload')) {
+                my $type = ref($e->payload);
+                if ($type =~ /^(SCF|SThought)::(.*)/){
+                    return $2;
+                } 
+            }
+            die $e;
+        }
+        return "";
+    };
+}
+
+
+sub code_throws_stochastic_ok{
+    my ( $subr, $arr_ref ) = @_;
+    my $new_sub = _wrap_to_get_payload_type( $subr );
+    stochastic_all_seen_ok $new_sub, $arr_ref;
+}
+
+sub code_throws_stochastic_nok{
+    my ( $subr, $arr_ref ) = @_;
+    my $new_sub = _wrap_to_get_payload_type( $subr );
+    stochastic_all_seen_nok $new_sub, $arr_ref;
+}
+
+sub code_throws_stochastic_all_and_only_ok{
+    my ( $subr, $arr_ref ) = @_;
+    my $new_sub = _wrap_to_get_payload_type( $subr );
+    stochastic_all_and_only_ok $new_sub, $arr_ref;
+}
+
+sub code_throws_stochastic_all_and_only_nok{
+    my ( $subr, $arr_ref ) = @_;
+    my $new_sub = _wrap_to_get_payload_type( $subr );
+    stochastic_all_and_only_nok $new_sub, $arr_ref;
+}
+
 
 
 1;
