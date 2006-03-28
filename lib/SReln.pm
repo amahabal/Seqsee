@@ -37,5 +37,23 @@ sub insert{
     }
 }
 
+sub get_direction{
+    my ( $self ) = @_;
+    my ($la, $lb) = map { $_->get_left_edge } $self->get_ends;
+    if ($la < $lb) {
+        return DIR::RIGHT();
+    } elsif ($lb < $la ) {
+        return DIR::LEFT();
+    } else {
+        return DIR::UNKNOWN();
+    }
+}
+
+sub get_span{
+    my ( $self ) = @_;
+    my ($la, $ra, $lb, $rb) = map { $_->get_edges() } $self->get_ends;
+    return List::Util::max($ra, $rb) - List::Util::min($la, $lb) + 1;
+}
+
 
 1;

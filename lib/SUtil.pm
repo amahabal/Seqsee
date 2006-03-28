@@ -99,7 +99,7 @@ sub oddman {
             }
             return join( " ", $msg, $objects[$odd_position]->flatten );
         }
-        if ( all(@definedness) ) {
+        if ( myall(@definedness) ) {
             return "All are instances of " . $cat->get_name();
         }
 
@@ -108,7 +108,7 @@ sub oddman {
 
 }
 
-sub all {
+sub myall {
     for (@_) {
         return unless $_;
     }

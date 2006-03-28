@@ -234,4 +234,20 @@ sub set_underlying_reln :CUMULATIVE{
 }
 
 
+sub get_next_pos_in_dir{
+    my ( $self, $direction ) = @_;
+    my $id = ident $self;
+
+    if ($direction == DIR::RIGHT()) {
+        return $right_edge_of{$id} + 1;
+    } elsif ($direction == DIR::LEFT()) {
+        my $le = $left_edge_of{$id};
+        return unless $le > 0;
+        return $le - 1;
+    } else {
+        confess "funny direction to extnd in!!";
+    }
+
+}
+
 1;

@@ -7,6 +7,7 @@ use Test::Stochastic qw(stochastic_all_seen_ok stochastic_all_seen_nok
                         stochastic_all_and_only_nok
                             );
 use English qw(-no_match_vars);
+use Carp;
 
 use S;
 
