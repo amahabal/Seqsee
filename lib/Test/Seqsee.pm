@@ -11,6 +11,9 @@ use Carp;
 
 use S;
 
+## useful to turn a few features off...
+$::TESTING_MODE = 1;
+
 sub undef_ok {
     my ( $what, $msg ) = @_;
     if ( not( defined $what ) ) {
@@ -249,6 +252,22 @@ sub code_throws_stochastic_all_and_only_nok{
     stochastic_all_and_only_nok $new_sub, $arr_ref;
 }
 
+sub INITIALIZE_for_testing{ 
+
+    Seqsee->initialize_codefamilies();
+    Seqsee->initialize_thoughttypes();
+            Log::Log4perl::init(\<<'NOLOG');
+log4perl.logger                  = FATAL, file
+
+log4perl.appender.file           = Log::Log4perl::Appender::File
+log4perl.appender.file.filename  = log/nolog
+log4perl.appender.file.autoflush = 1
+log4perl.appender.file.mode      = write
+log4perl.appender.file.layout    = PatternLayout
+
+NOLOG
+
+}
 
 
 1;

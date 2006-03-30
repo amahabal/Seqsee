@@ -4,8 +4,7 @@ use Test::Seqsee;
 plan tests => 3; 
 
 use Seqsee;
-Seqsee->initialize_codefamilies;
-Seqsee->initialize_thoughttypes;
+INITIALIZE_for_testing();
 
 SWorkspace->init({seq => [qw( 1 1 2 2)]});
 my $cl = new SCodelet("FindIfRelated", 100, { a => $SWorkspace::elements[0],

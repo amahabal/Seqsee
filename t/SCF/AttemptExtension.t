@@ -5,10 +5,9 @@ plan tests => 6;
 
 use Smart::Comments;
 use Seqsee;
-use List::MoreUtils qw(all);
+use List::MoreUtils;
 
-Seqsee->initialize_codefamilies;
-Seqsee->initialize_thoughttypes;
+INITIALIZE_for_testing();
 
 use Class::Multimethods;
 multimethod 'find_reln';
@@ -18,7 +17,7 @@ sub attempt_extension{
     my ( $setup_sub, $expected_throws, $check_sub ) = @_;
 
     if ($check_sub) {
-        confess ' defining a check_sub when there can be exceptions is useless.. ' unless all { $_ eq '' } @$expected_throws;
+        confess ' defining a check_sub when there can be exceptions is useless.. ' unless List::MoreUtils::all { $_ eq '' } @$expected_throws;
     }
 
     code_throws_stochastic_all_and_only_ok

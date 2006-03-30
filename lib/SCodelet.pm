@@ -39,6 +39,7 @@ sub fishy_codefamily {
 # exceptions     :
 
 sub generate_log_msg{
+    return '' if $::TESTING_MODE;
     my $codelet = shift;
     my $ret =         join("", "\n=== $::Steps_Finished ", 
              "="x10, "  CODELET $codelet->[0] \n");

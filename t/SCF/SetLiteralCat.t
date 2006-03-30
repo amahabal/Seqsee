@@ -4,8 +4,7 @@ use Test::Seqsee;
 plan tests => 8; 
 use Smart::Comments;
 use Seqsee;
-Seqsee->initialize_codefamilies;
-Seqsee->initialize_thoughttypes;
+INITIALIZE_for_testing();
 
 use Class::Multimethods;
 multimethod 'find_reln';
