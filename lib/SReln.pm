@@ -11,7 +11,8 @@ use Carp;
 use Class::Std;
 use base qw{};
 
-
+use Class::Multimethods;
+multimethod 'find_reln';
 
 # method: get_ends
 # returns the first and the second end
@@ -54,6 +55,14 @@ sub get_span{
     my ($la, $ra, $lb, $rb) = map { $_->get_edges() } $self->get_ends;
     return List::Util::max($ra, $rb) - List::Util::min($la, $lb) + 1;
 }
+
+sub get_inverse{
+    my ( $self ) = @_;
+    my ($f, $s) = $self->get_ends;
+    return find_reln($s, $f);
+}
+
+
 
 
 1;

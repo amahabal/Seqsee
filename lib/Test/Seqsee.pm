@@ -8,6 +8,7 @@ use Test::Stochastic qw(stochastic_all_seen_ok stochastic_all_seen_nok
                             );
 use English qw(-no_match_vars);
 use Carp;
+use List::MoreUtils;
 
 use S;
 
@@ -266,6 +267,33 @@ log4perl.appender.file.mode      = write
 log4perl.appender.file.layout    = PatternLayout
 
 NOLOG
+
+}
+
+
+sub stochastic_test_codelet{
+    my ( %opts_ref ) = @_;
+    my ($setup_sub, $expected_throws, $check_sub, $codefamily) =
+        @opts_ref{ qw(setup throws post_run codefamily)};
+
+    if ($check_sub) {
+        confess ' defining a check_sub when there can be exceptions is useless..  here, we are expecting' . "@$expected_throws" unless List::MoreUtils::all { $_ eq '' } @$expected_throws;
+    }
+
+    code_throws_stochastic_all_and_only_ok
+        sub {
+            SUtil::clear_all();
+            my $opts_ref = $setup_sub->();
+            my $cl = new SCodelet($codefamily, 100, $opts_ref );
+            ## $cl
+            $cl->run;
+        }, $expected_throws;
+    if ($check_sub) {
+        ok( $check_sub->(), 'checking the after effects');
+    } else {
+        ok( 1, 'nothing to check' );
+
+    }
 
 }
 

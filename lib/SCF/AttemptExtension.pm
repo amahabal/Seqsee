@@ -82,7 +82,7 @@ sub run{
     }
 
     $next_pos = $obj2->get_next_pos_in_dir( $direction );
-    return unless $next_pos;
+    return unless defined($next_pos);
 
     $what_next = apply_reln( $reln, $obj2 ) or return;
 
