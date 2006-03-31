@@ -43,10 +43,10 @@ use SElement;
 use SWorkspace;
 
 # Need to convert the next four
-use SCat::Derive::assuming;
-use SCat::Derive::blemished;
-use SCat::Derive::blemish_count;
-use SCat::Derive::blemish_position;
+#use SCat::Derive::assuming;
+#use SCat::Derive::blemished;
+#use SCat::Derive::blemish_count;
+#use SCat::Derive::blemish_position;
 
 #use SReln;
 use SReln::Simple;
