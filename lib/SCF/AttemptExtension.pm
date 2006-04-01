@@ -126,6 +126,20 @@ sub run{
                                    $direction,
                                    $what_next
                                        );
+
+        return unless $wso;
+
+        if ($reln->isa('SReln::Compound')) {
+            my $type = $reln->get_base_category;
+            ### Describe as: $type
+            $wso->describe_as( $type ) or return;
+        }
+
+        ### $wso, $wso->get_structure
+        ### $direction, $direction_of_core
+        ### $obj2->get_structure
+
+
         my $reln_to_add;
         if ($direction == $direction_of_core) {
             $reln_to_add = find_reln($obj2, $wso);

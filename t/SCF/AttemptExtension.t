@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-plan tests => 14; 
+plan tests => 16; 
 
 use Smart::Comments;
 use Seqsee;
@@ -137,4 +137,31 @@ stochastic_test_codelet (
         return $rel;
     }
 
+        );
+
+stochastic_test_codelet( 
+    codefamily => 'AttemptExtension', 
+    setup      => sub {
+        SWorkspace->init({seq => [qw( 0 0 1 1 2 2 3 3)]});
+        my $WSO_ga = SAnchored->create($SWorkspace::elements[2], $SWorkspace::elements[3], );
+        SWorkspace->add_group($WSO_ga);
+        $WSO_ga->describe_as($S::SAMENESS);
+
+        my $WSO_gb = SAnchored->create($SWorkspace::elements[4], $SWorkspace::elements[5], );
+        SWorkspace->add_group($WSO_gb);
+        $WSO_gb->describe_as($S::SAMENESS);
+        
+        my $WSO_ra = find_reln($WSO_ga, $WSO_gb);
+        $WSO_ra->insert();
+         
+        return { core => $WSO_ra, direction => DIR::RIGHT() };
+
+        },
+    throws     => [ '' ],
+    post_run   => sub {
+        my $WSO_rd = $SWorkspace::elements[6]->get_relation($SWorkspace::elements[7]);
+        my $gp = SWorkspace->is_there_a_covering_group(6,7);
+        ### $WSO_rd, $gp
+        return ($WSO_rd and $gp and $gp->instance_of_cat($S::SAMENESS));
+        }
         );

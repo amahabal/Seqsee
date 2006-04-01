@@ -52,6 +52,15 @@ my %reln_other_of :ATTR();
 #    is the group based on some relation? undef if not, the relation otherwise
 my %underlying_reln_of :ATTR( :get<underlying_reln>);
 
+# variable: %direction_of
+# xxx now using DIR::LEFT and DIR::RIGHT
+#    direction: 1 for right, -1 for left; 0 if neither
+#    Based on the left edge
+my %direction_of :ATTR( :get<direction> :set<direction>  );
+
+
+
+
 #
 # subsection: Construction
 
@@ -70,6 +79,7 @@ sub BUILD{
     $underlying_reln_of{$id} = undef;
     $metonym_activeness_of{$id} = 0;
     $metonym_of{$id}= undef;
+    $direction_of{$id} = $opts_ref->{direction}|| DIR::UNKNOWN();
 }
 
 
@@ -857,6 +867,10 @@ sub _get_structure_string{
     }
 }
 
+sub get_span{
+    my ( $self ) = @_;
+    return List::Util::sum( map { $_->get_span } @$self );
+}
 
 
 

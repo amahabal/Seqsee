@@ -2,7 +2,7 @@ use strict;
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-plan tests => 29; 
+plan tests => 30; 
 
 use Class::Multimethods qw(find_reln);
 use Class::Multimethods qw(are_relns_compatible);
@@ -88,6 +88,8 @@ ok( $WSO_rm->get_base_pos_mode() eq POS_MODE::FORWARD(), );
 
 my $WSO_gn = apply_reln( $WSO_rm, $WSO_ge );
 ok( $WSO_gn, );
+ok( $WSO_gn->get_direction() == DIR::RIGHT(), );
+
 
 $WSO_gn->structure_ok( [1,2,[3,3]]);
 $bindings = $WSO_gn->get_binding($S::ASCENDING);

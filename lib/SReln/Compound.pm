@@ -40,6 +40,8 @@ use Class::Multimethods;
 use base qw{SReln SInstance };
 use Smart::Comments;
 
+multimethod 'apply_reln_direction';
+
 # variable: %base_category_of
 #    Category on which this relation is based
 my %base_category_of :ATTR(:get<base_category>);
@@ -401,6 +403,12 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     my $ret_obj =
         $new_object->apply_blemish_at( $new_metonymy_type, $new_position );
     $ret_obj->describe_as($cat);
+
+    my $rel_dir = $reln->get_direction_reln;
+    my $obj_dir = $object->get_direction;
+    my $new_dir = apply_reln_direction( $rel_dir, $obj_dir);
+
+    $ret_obj->set_direction( $new_dir );
     return $ret_obj;
 
 };

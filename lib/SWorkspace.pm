@@ -215,7 +215,7 @@ sub is_there_a_covering_group{
     my ( $self, $left, $right ) = @_;
     foreach (values %groups) {
         my ($l, $r) = $_->get_edges;
-        return 1 if ($l <= $left and $r >= $right);
+        return $_ if ($l <= $left and $r >= $right);
     }
     return 0;
 }
@@ -297,6 +297,36 @@ multimethod plonk_into_place => ('#', '#', 'SElement') => sub {
 };
 
 
+multimethod plonk_into_place => ('#', '#', 'SObject') => sub {
+    my ( $start, $dir, $obj ) = @_;
+    my $span = $obj->get_span;
+
+    if ($dir == DIR::LEFT()) {
+        return if $start - $span + 1 < 0;
+        return plonk_into_place($start - $span + 1, DIR::RIGHT(), $obj );
+    }
+
+    my @to_insert = ( $obj->get_direction() eq DIR::LEFT() ) ?
+        reverse( @$obj ) : @$obj;
+    my $loc = $start;
+    my @new_parts;
+
+    for my $so ( @to_insert ) {
+        my $sspan = $so->get_span;
+        push @new_parts, plonk_into_place( $loc, DIR::RIGHT(), $so);
+        $loc += $sspan;
+    }
+
+    @new_parts = reverse(@new_parts) if ($obj->get_direction() eq DIR::LEFT());
+
+    my $new_obj = SAnchored->create( @new_parts );
+    SWorkspace->add_group($new_obj);
+     
+    ## XXX ensure relns and categories
+    ## Also, should be the *same* obj that was originally there!!
+    return $new_obj;
+
+};
 
 # method: _check_policy
 # 

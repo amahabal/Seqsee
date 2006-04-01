@@ -11,8 +11,22 @@ use Carp;
 use Class::Std;
 use base qw{};
 
+use Class::Std;
+my %direction_reln_of : ATTR( :get<direction_reln> :set<direction_reln>  );
+
 use Class::Multimethods;
 multimethod 'find_reln';
+use Smart::Comments;
+
+sub BUILD{
+    my ( $self, $id, $opts_ref ) = @_;
+    my ($f, $s) = ($opts_ref->{first}, $opts_ref->{second});
+    if (ref($f) and ref($s)) {
+        ## $opts_ref->{first}
+        $direction_reln_of{$id} = find_dir_reln( $f->get_direction, $s->get_direction());
+    }
+}
+
 
 # method: get_ends
 # returns the first and the second end
@@ -62,6 +76,33 @@ sub get_inverse{
     return find_reln($s, $f);
 }
 
+multimethod find_dir_reln => ('#', '#') => sub {
+    my ( $da, $db ) = @_;
+    if ($da == DIR::RIGHT()) {
+        return ( $db == DIR::RIGHT()) ? "same" :
+            ( $db == DIR::LEFT()) ? "different" : "unknown";
+    } elsif ($da == DIR::LEFT()) {
+        return ( $db == DIR::RIGHT()) ? "different" :
+            ( $db == DIR::LEFT()) ? "same" : "unknown";
+    } else {
+        return "unknown";
+    }
+};
+
+multimethod apply_reln_direction => ('$', '#') => sub {
+    my ( $rel_dir, $dir ) = @_;
+    if ( $rel_dir eq 'unknown') {
+        return DIR::UNKNOWN();
+    }
+    if ($rel_dir eq 'same') {
+        return $dir;
+    }
+    if ($rel_dir eq 'different') {
+        return ($dir == DIR::RIGHT()) ? DIR::LEFT() :
+            ( $dir == DIR::LEFT()) ? DIR::RIGHT():
+                DIR::UNKNOWN();
+    }
+};
 
 
 

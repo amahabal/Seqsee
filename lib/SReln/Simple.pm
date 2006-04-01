@@ -14,6 +14,8 @@ use Class::Multimethods;
 use base qw{SReln};
 use Smart::Comments;
 
+multimethod 'apply_reln_direction';
+
 # variable: %str_of
 #    The string representation of the relation
 my %str_of :ATTR(:get<text>);
@@ -153,7 +155,15 @@ multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     my ( $rel, $el ) = @_;
     my $new_mag = apply_reln($rel, $el->get_mag());
     # Need to return an selement, but unanchored. Sigh.
-    return SElement->create( $new_mag, 0 );
+    my $ret = SElement->create( $new_mag, 0 );
+
+    my $rel_dir = $rel->get_direction_reln;
+    my $obj_dir = $el->get_direction;
+    my $new_dir = apply_reln_direction( $rel_dir, $obj_dir);
+
+    $ret->set_direction( $new_dir );
+
+    return $ret;
 };
 
 sub as_text{
