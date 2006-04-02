@@ -220,6 +220,19 @@ sub is_there_a_covering_group{
     return 0;
 }
 
+sub get_all_covering_groups{
+    my ( $self, $left, $right ) = @_;
+    my @ret;
+
+    foreach (values %groups) {
+        my ($l, $r) = $_->get_edges;
+        push(@ret, $_) if ($l <= $left and $r >= $right);
+    }
+
+    return @ret;
+}
+
+
 sub add_group{
     my ( $self, $gp ) = @_;
     SErr->throw("policy violation in gp add")
@@ -317,10 +330,46 @@ multimethod plonk_into_place => ('#', '#', 'SObject') => sub {
         $loc += $sspan;
     }
 
+    for my $i (0 .. $#to_insert) {
+        my $rel_hash = $to_insert[$i]->get_reln_other_ref;
+        for my $o (keys %$rel_hash) {
+            my $j;
+            for (0..$#to_insert) {
+                if ($o eq $_) {
+                    $j = $_;
+                    last;
+                }
+            }
+            next if $i >= $j;
+            my $rel = find_reln( $new_parts[$i], $new_parts[$j] );
+            $rel->insert;
+        }
+    }
+
     @new_parts = reverse(@new_parts) if ($obj->get_direction() eq DIR::LEFT());
 
     my $new_obj = SAnchored->create( @new_parts );
-    SWorkspace->add_group($new_obj);
+    my $new_obj_structure_string = $new_obj->get_structure_string;
+
+    my $old_obj;
+    ### $new_obj_structure_string
+    for my $spanning_obj ( SWorkspace->get_all_covering_groups($start,
+                                                            $start + $span -1
+                                                                )) {
+        ### $spanning_obj
+        if ($spanning_obj->get_structure_string() eq 
+                $new_obj_structure_string) {
+            $old_obj = $spanning_obj;
+            ### $old_obj
+            last;
+        }
+     }
+
+    if ($old_obj) {
+        $new_obj = $old_obj;
+    } else {
+        SWorkspace->add_group($new_obj);        
+    }
      
     ## XXX ensure relns and categories
     ## Also, should be the *same* obj that was originally there!!

@@ -45,7 +45,7 @@ my %metonym_of :ATTR( :get<metonym>);
 my %metonym_activeness_of :ATTR( :get<metonym_activeness>);
 
 # variable: %reln_other_of
-my %reln_other_of :ATTR();
+my %reln_other_of :ATTR(:get<reln_other_ref>);
 
 
 # variable: %underlying_reln_of

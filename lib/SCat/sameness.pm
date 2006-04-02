@@ -12,6 +12,9 @@ use Carp;
 use Class::Std;
 use base qw{};
 
+use Class::Multimethods 'find_reln';
+use Smart::Comments;
+
 my $first_pos = new SPos(1);
 
 my $builder = sub {
@@ -20,7 +23,19 @@ my $builder = sub {
     croak "need length" unless exists $args_ref->{length};
 
     my @items = map { $args_ref->{each} } (1..$args_ref->{length});
+    
+    my $cnt = scalar(@items);
+    ## $cnt
+
     my $ret = SObject->create(@items);
+
+    for my $i (0 .. $cnt-2) {
+        ## $ret->[$i+1]
+        my $rel = find_reln( $ret->[$i], $ret->[$i+1]);
+        $rel->insert;
+        ### $rel
+    }
+
     
     $ret->add_category( $self,
                    SBindings->create( {}, $args_ref, $ret),
