@@ -32,6 +32,10 @@ my $builder = sub {
     $ret->add_category( $self,
                    SBindings->create( {}, $args_ref, $ret),
                        );
+
+    # the next line affects things only while plonking this group
+    $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
+
     return $ret;
 
 };

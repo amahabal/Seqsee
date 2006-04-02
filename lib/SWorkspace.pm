@@ -313,7 +313,7 @@ multimethod plonk_into_place => ('#', '#', 'SElement') => sub {
 multimethod plonk_into_place => ('#', '#', 'SObject') => sub {
     my ( $start, $dir, $obj ) = @_;
     my $span = $obj->get_span;
-
+    
     if ($dir == DIR::LEFT()) {
         return if $start - $span + 1 < 0;
         return plonk_into_place($start - $span + 1, DIR::RIGHT(), $obj );
@@ -336,15 +336,15 @@ multimethod plonk_into_place => ('#', '#', 'SObject') => sub {
     my $new_obj_structure_string = $new_obj->get_structure_string;
 
     my $old_obj;
-    ### $new_obj_structure_string
+    ## $new_obj_structure_string
     for my $spanning_obj ( SWorkspace->get_all_covering_groups($start,
                                                             $start + $span -1
                                                                 )) {
-        ### $spanning_obj
+        ## $spanning_obj
         if ($spanning_obj->get_structure_string() eq 
                 $new_obj_structure_string) {
             $old_obj = $spanning_obj;
-            ### $old_obj
+            ## $old_obj
             last;
         }
      }
@@ -355,8 +355,11 @@ multimethod plonk_into_place => ('#', '#', 'SObject') => sub {
         SWorkspace->add_group($new_obj);        
     }
      
-    ## XXX ensure relns and categories
-    ## Also, should be the *same* obj that was originally there!!
+    my $rel_scheme = $obj->get_reln_scheme;
+    if ($rel_scheme) {
+        $new_obj->apply_reln_scheme( $rel_scheme );
+    }
+
     return $new_obj;
 
 };

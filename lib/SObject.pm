@@ -59,7 +59,7 @@ my %underlying_reln_of :ATTR( :get<underlying_reln>);
 #    Based on the left edge
 my %direction_of :ATTR( :get<direction> :set<direction>  );
 
-
+my %reln_scheme_of :ATTR( :get<reln_scheme> :set<reln_scheme>  );
 
 
 #
