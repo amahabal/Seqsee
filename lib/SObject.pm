@@ -17,6 +17,7 @@ use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SInstance};
 
+multimethod 'find_reln';
 
 # variable: %items_of
 #    The items of this object. 
@@ -872,6 +873,22 @@ sub get_span{
     return List::Util::sum( map { $_->get_span } @$self );
 }
 
+sub apply_reln_scheme{
+    my ( $self, $scheme ) = @_;
+
+    if ($scheme = RELN_SCHEME::CHAIN()) {
+        my $parts_ref = $self->get_parts_ref;
+        my $cnt = scalar(@$parts_ref);
+        for my $i (0 .. ($cnt - 2)) {
+            my ($a, $b) = ($parts_ref->[$i], $parts_ref->[$i+1]);
+            next if $a->get_relation($b);
+            my $rel = find_reln($a, $b);
+            $rel->insert() if $rel;
+        }
+    } else {
+        confess "Relation scheme $scheme not implemented";
+    }
+}
 
 
 1;

@@ -289,7 +289,7 @@ sub get_blemish_cats {
 
 sub instance_of_cat {
     my ( $self, $cat ) = @_;
-    UNIVERSAL::isa( $cat, "SCat" ) or croak "Need SCat";
+    UNIVERSAL::isa( $cat, "SCat::OfObj" ) or confess "Need SCat";
     return exists $cats_of_of{ ident $self}{$cat};
 }
 

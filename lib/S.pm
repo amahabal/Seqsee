@@ -94,4 +94,7 @@ use enum qw{ENUM: NONE=0 SINGLE ALLBUTONE ALL};
 package EXTENDIBILE;
 use enum qw{ENUM: NO=0 UNKNOWN PERHAPS};
 
+package RELN_SCHEME;
+use enum qw{ENUM: CHAIN=1};
+
 1;

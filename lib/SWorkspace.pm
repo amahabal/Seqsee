@@ -330,22 +330,6 @@ multimethod plonk_into_place => ('#', '#', 'SObject') => sub {
         $loc += $sspan;
     }
 
-    for my $i (0 .. $#to_insert) {
-        my $rel_hash = $to_insert[$i]->get_reln_other_ref;
-        for my $o (keys %$rel_hash) {
-            my $j;
-            for (0..$#to_insert) {
-                if ($o eq $_) {
-                    $j = $_;
-                    last;
-                }
-            }
-            next if $i >= $j;
-            my $rel = find_reln( $new_parts[$i], $new_parts[$j] );
-            $rel->insert;
-        }
-    }
-
     @new_parts = reverse(@new_parts) if ($obj->get_direction() eq DIR::LEFT());
 
     my $new_obj = SAnchored->create( @new_parts );

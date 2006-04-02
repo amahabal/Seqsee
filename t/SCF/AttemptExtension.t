@@ -159,8 +159,10 @@ stochastic_test_codelet(
         },
     throws     => [ '' ],
     post_run   => sub {
-        my $WSO_rd = $SWorkspace::elements[6]->get_relation($SWorkspace::elements[7]);
         my $gp = SWorkspace->is_there_a_covering_group(6,7);
+        $gp->apply_reln_scheme( RELN_SCHEME::CHAIN() );
+
+        my $WSO_rd = $SWorkspace::elements[6]->get_relation($SWorkspace::elements[7]);
         ### $WSO_rd, $gp
         return ($WSO_rd and $gp and $gp->instance_of_cat($S::SAMENESS));
         }

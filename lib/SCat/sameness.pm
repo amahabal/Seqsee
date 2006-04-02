@@ -29,14 +29,6 @@ my $builder = sub {
 
     my $ret = SObject->create(@items);
 
-    for my $i (0 .. $cnt-2) {
-        ## $ret->[$i+1]
-        my $rel = find_reln( $ret->[$i], $ret->[$i+1]);
-        $rel->insert;
-        ### $rel
-    }
-
-    
     $ret->add_category( $self,
                    SBindings->create( {}, $args_ref, $ret),
                        );
