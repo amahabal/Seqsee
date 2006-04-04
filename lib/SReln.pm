@@ -24,6 +24,8 @@ sub BUILD{
     if (ref($f) and ref($s)) {
         ## $opts_ref->{first}
         $direction_reln_of{$id} = find_dir_reln( $f->get_direction, $s->get_direction());
+    } else {
+        $direction_reln_of{$id} = "unknown";
     }
 }
 

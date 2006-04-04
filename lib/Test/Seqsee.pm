@@ -297,5 +297,90 @@ sub stochastic_test_codelet{
 
 }
 
+sub output_contains{
+    my ( $subr, %scope ) = @_;
+    my %seen;
+    my $times;
+    for (1..$times) {
+        my $ret = $subr->();
+        my %seen_here;
+        for (@$ret) {
+            $seen_here{$_}++;
+        }
+        for (keys %seen_here) {
+            $seen{$_}++;
+        }
+    }
+
+    my $problems_found = 0;
+    my $msg = "output_contains";
+  LOOP: while (my ($k, $v) = each %seen) {
+        if ($k eq 'always') {
+            foreach (@$v) {
+                unless ($seen{$_} == $times) {
+                    $problems_found = 1;
+                    $msg = "$_ was not always seen";
+                    last LOOP;
+                }
+            }
+        } elsif ($k eq 'never') {
+            foreach (@$v) {
+                unless ($seen{$_} == 0) {
+                    $problems_found = 1;
+                    $msg = "$_ was not never seen";
+                    last LOOP;
+                }
+            }
+        } elsif ($k eq 'sometimes') {
+            foreach (@$v) {
+                unless ($seen{$_} > 0) {
+                    $problems_found = 1;
+                    $msg = "$_ was not seen anytime";
+                    last LOOP;
+                }
+            }
+
+        } elsif ($k eq 'sometimes_but_not_always') {
+            foreach (@$v) {
+                unless ($seen{$_} > 0 and $seen{$_} < $times) {
+                    $problems_found = 1;
+                    $msg = "Expected to see $_ sometimes but not always, but it was ";
+                    $msg .= ( $seen{$_} ? 'always' : 'never' );
+                    $msg .= ' seen';
+                    last LOOP;
+                }
+            }
+
+        } else {
+            confess "unknown quantifier $k";
+        }
+    }
+    ok( 1 - $problems_found, $msg );
+}
+
+sub output_always_contains{
+    my ( $subr, $arg ) = @_;
+    $arg = [ $arg ] unless ref($arg) eq "ARRAY";
+    output_contains $subr, always => $arg;
+}
+
+sub output_never_contains{
+    my ( $subr, $arg ) = @_;
+    $arg = [ $arg ] unless ref($arg) eq "ARRAY";
+    output_contains $subr, never => $arg;
+}
+
+sub output_sometimes_contains{
+    my ( $subr, $arg ) = @_;
+    $arg = [ $arg ] unless ref($arg) eq "ARRAY";
+    output_contains $subr, sometimes => $arg;
+}
+
+sub output_sometimes_but_not_always_contains{
+    my ( $subr, $arg ) = @_;
+    $arg = [ $arg ] unless ref($arg) eq "ARRAY";
+    output_contains $subr, sometimes_but_not_always => $arg;
+}
+
 
 1;

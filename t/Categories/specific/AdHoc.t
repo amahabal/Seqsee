@@ -56,7 +56,7 @@ $WSO_gca->describe_as($S::ASCENDING);
 #$WSO_gc = SAnchored->create($WSO_gca, $SWorkspace::elements[10], $SWorkspace::elements[11] );
 #SWorkspace->add_group($WSO_gc);
 
-my $cat = $S::AD_HOC->build({parts_count => 3});
+$cat = $S::AD_HOC->build({parts_count => 3});
 $WSO_ga->describe_as($cat);
 $WSO_gb->describe_as($cat);
 
