@@ -36,6 +36,7 @@ use SCat::sameness;
 #use SCat::number;
 use SCat::literal;
 use SCat::reln_based;
+use SCat::ad_hoc;
 
 use SObject;
 use SAnchored;
@@ -67,6 +68,7 @@ our $LITERAL    = $SCat::literal::literal;
 #our $number     = $SCat::number::number;
 our $SAMENESS    = $SCat::sameness::sameness;
 our $RELN_BASED = $SCat::reln_based::reln_based;
+our $AD_HOC     = $SCat::ad_hoc::AD_HOC;
 
 our $DOUBLE = SMetonymType->new(
     { category => $S::SAMENESS,

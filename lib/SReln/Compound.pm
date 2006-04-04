@@ -178,10 +178,13 @@ sub BUILD{
 multimethod _find_reln => qw(SObject SObject) => sub {
     my ( $o1, $o2 ) = @_;
     my @common_categories = $o1->get_common_categories($o2);
+    ## @common_categories
     return unless @common_categories;
 
     # Without the choosing infra, I'll just choose the first
     my $cat = $common_categories[0];
+
+    ## $cat
 
     return find_reln($o1, $o2, $cat);
 };
@@ -294,7 +297,8 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my ($o1, $o2, $cat) = @_;
     $o1 = $o1->get_effective_object;
     $o2 = $o2->get_effective_object;
-    _find_reln($o1, $o2, $cat);
+    my $ret = _find_reln($o1, $o2, $cat);
+    return $ret;
 };
 multimethod find_reln => qw(SObject SObject) => sub {
     my ($o1, $o2) = @_;
@@ -363,45 +367,48 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
         # no change...
         $new_bindings_ref->{$k} = $v;
     }
-    my $new_object = $cat->build( $new_bindings_ref );
-    ## $new_object
+    my $ret_obj = $cat->build( $new_bindings_ref );
+    ## $new_bindings_ref
     # We have not "applied the blemishes" yet, of course
 
     my $reln_meto_mode = $reln->get_base_meto_mode;
     my $object_meto_mode = $bindings->get_metonymy_mode;
     unless ($reln_meto_mode == $object_meto_mode) {
+        ## reln_meto_mode isnot object_meto_mode
         return;
     }
     
-    return $new_object if $reln_meto_mode == METO_MODE::NONE();
+    unless($reln_meto_mode == METO_MODE::NONE()){
+        # Calculate the metonymy type of the new object
+        my $new_metonymy_type = apply_reln( $reln->get_metonymy_reln,
+                                            $bindings->get_metonymy_type
+                                                );
+        return unless $new_metonymy_type;
 
-    # Calculate the metonymy type of the new object
-    my $new_metonymy_type = apply_reln( $reln->get_metonymy_reln,
-                                        $bindings->get_metonymy_type
-                                            );
-    return unless $new_metonymy_type;
-
-    if ($reln_meto_mode == 3) {
-        return $new_object->apply_blemish_everywhere( $new_metonymy_type )
-    } 
-
-    # If we get here, position is relevant!
-    my $new_position = apply_reln( $reln->get_position_reln,
-                                   $bindings->get_position
-                                       );
-    return unless $new_position;
-    ## $reln->get_position_reln()->get_text()
-    ## $bindings->get_position()->get_index
-    ## $new_position->get_index()
-    ## $reln_meto_mode
- 
-    ## $bindings->get_metonymy_type()->get_info_loss()
-    ## $reln->get_metonymy_reln()->get_change_ref()
-    ## $new_metonymy_type->get_info_loss() 
-    
-    ## $new_object->get_structure
-    my $ret_obj =
-        $new_object->apply_blemish_at( $new_metonymy_type, $new_position );
+        if ($reln_meto_mode == 3) {
+            $ret_obj = $ret_obj->apply_blemish_everywhere( $new_metonymy_type )
+        } else {
+            # If we get here, position is relevant!
+            my $new_position = apply_reln( $reln->get_position_reln,
+                                           $bindings->get_position
+                                               );
+            return unless $new_position;
+            ## $reln->get_position_reln()->get_text()
+            ## $bindings->get_position()->get_index
+            ## $new_position->get_index()
+            ## $reln_meto_mode
+        
+            ## $bindings->get_metonymy_type()->get_info_loss()
+            ## $reln->get_metonymy_reln()->get_change_ref()
+            ## $new_metonymy_type->get_info_loss() 
+            
+            ## $new_object->get_structure
+            $ret_obj =
+                $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position );
+            ## new object: $ret_obj->get_structure
+        }
+    }
+     
     $ret_obj->describe_as($cat);
 
     my $rel_dir = $reln->get_direction_reln;

@@ -732,6 +732,7 @@ sub describe_as{
     my ( $self, $cat ) = @_;
     my $is_of_cat = $self->is_of_category_p( $cat );
 
+    ## describe_as called on: $self->get_structure, $cat->get_name
     if ($is_of_cat->[0]) {
         # okay, already a member
         return $is_of_cat->[1];
@@ -745,6 +746,7 @@ sub describe_as{
 
     my $bindings = $cat->is_instance( $self );
     if ($bindings) {
+        ## describe_as succeeded!
         $self->add_category($cat, $bindings);
     }
 
