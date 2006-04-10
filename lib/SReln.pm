@@ -48,11 +48,25 @@ sub get_extent{
 
 sub insert{
     my ( $self ) = @_;
+
+    my ($f, $s) = $self->get_ends;
+    my $reln = $f->get_relation($s);
+    $reln->uninsert() if $reln;
+
     SWorkspace->add_reln($self);
     for ($self->get_ends) {
         $_->add_reln($self);
     }
 }
+
+sub uninsert{
+    my ( $self ) = @_;
+    SWorkspace->remove_reln($self);
+    for ($self->get_ends) {
+        $_->remove_reln($self);
+    }
+}
+
 
 sub get_direction{
     my ( $self ) = @_;

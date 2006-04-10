@@ -56,11 +56,8 @@ sub run{
     my ($f, $s) = $reln->get_ends();
     my $new_reln = find_reln($s, $f);
     return unless $new_reln; 
-    $f->remove_reln($reln);
-    $s->remove_reln($reln);
-    $f->add_reln($new_reln);
-    $s->add_reln($new_reln);
-    SWorkspace->remove_reln( $reln );
-    SWorkspace->add_reln( $new_reln );
+    $reln->uninsert;
+    $new_reln->insert;
+
 }
 1;

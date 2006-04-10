@@ -2,7 +2,7 @@ use strict;
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-plan tests => 26; 
+plan tests => 36; 
 
 use Class::Multimethods qw(find_reln);
 use Class::Multimethods qw(are_relns_compatible);
@@ -98,3 +98,35 @@ ok( $WSO_gb->get_right_extendibility() == EXTENDIBILE::PERHAPS(), );
 $WSO_gb->set_right_extendibility(EXTENDIBILE::NO());
 ok( $WSO_gb->get_right_extendibility() == EXTENDIBILE::NO(), );
 
+# More plonk_into_place stuff
+SUtil::clear_all();
+SWorkspace->init({seq => [qw( 1 1 1 7 8 9 1 1 )]});
+$WSO_o1 = $S::ASCENDING->build({ start => 7, end => 9});
+
+my $plonked = plonk_into_place( 3, DIR::RIGHT(), $WSO_o1 );
+isa_ok( $plonked, "SAnchored");
+$plonked->structure_ok([7,8,9]);
+ok( $SWorkspace::elements[3]->get_relation($SWorkspace::elements[4]), );
+
+my $WSO_o2 = $S::DESCENDING->build({ start => 9, end => 7});
+$WSO_o2->set_direction(DIR::LEFT());
+
+my $plonked2 = plonk_into_place( 5, DIR::LEFT(), $WSO_o2 );
+isa_ok( $plonked2, "SAnchored");
+$plonked2->structure_ok([9,8,7]);
+
+ok( $plonked eq plonk_into_place(5, DIR::LEFT(), $WSO_o1), );
+ok( $plonked2 eq plonk_into_place(3, DIR::RIGHT(), $WSO_o2), );
+
+SUtil::clear_all();
+SWorkspace->init({seq => [qw( 7 1 1 2 2 3 3 7)]});
+
+my $WSO_o3 = SObject->create([1, 1], [2,2], [3,3]);
+for (@$WSO_o3) { $_->set_direction(DIR::RIGHT()) }
+$WSO_o3->set_direction(DIR::RIGHT());
+
+$plonked = plonk_into_place(1, DIR::RIGHT(), $WSO_o3);
+isa_ok( $plonked, "SAnchored");
+$plonked->structure_ok([[1,1], [2,2], [3,3]]);
+
+ok( $plonked eq plonk_into_place(6, DIR::LEFT(), $WSO_o3), );

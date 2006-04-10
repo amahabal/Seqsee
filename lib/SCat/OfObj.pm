@@ -122,7 +122,8 @@ sub BUILD{
     ## Builder called: $opts_ref->{name}, $id 
     
     $builder_of{$id} = $opts_ref->{builder} or confess "Need builder!";
-    $name_of{$id}    = $opts_ref->{name}    or confess "Need name";
+    $name_of{$id}    = $opts_ref->{name};
+    confess "Need name" unless defined $name_of{$id};
     
     $positions_of_of{$id}          = $opts_ref->{positions} || {};
     $position_finders_of_of{$id}   = $opts_ref->{position_finders} || {};

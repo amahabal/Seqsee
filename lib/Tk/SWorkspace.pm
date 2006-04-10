@@ -79,8 +79,8 @@ sub Update{
     $canvas->delete('all');
     draw_elements();
     @used_spots = ();
-    draw_relations();
     draw_groups();
+    draw_relations();
 }
 
 sub draw_elements{

@@ -263,7 +263,7 @@ sub check_at_location{
     my @flattened = @{ $what->get_flattened };
     my $span = scalar(@flattened);
 
-    ## $direction, $start, $what
+    ### $direction, $start, $what
     ## @flattened
     if ($direction == DIR::RIGHT()) { # rightward
         my $current_pos = $start-1;

@@ -100,7 +100,7 @@ sub run{
 
     if ($EVAL_ERROR) {
         my $err = $EVAL_ERROR;
-        #main::message("Good! Error caught");
+        main::message("Good! Error caught");
         if (UNIVERSAL::isa($err, "SErr::AskUser")) {
             my $already_matched = $err->already_matched();
             my $ask_if_what = $err->next_elements();
@@ -179,10 +179,10 @@ sub run{
 
 sub worth_asking{
     my ( $matched, $unmatched, $extension_from_span ) = @_;
-    ## $matched
-    ## $unmatched
+    ### $matched
+    ### $unmatched
     my $penetration = (scalar(@$matched) + $extension_from_span) / $SWorkspace::elements_count;
-    ## $penetration
+    ### $penetration
     return unless $penetration;
 
     my $on_a_limb = scalar(@$unmatched)/(scalar(@$matched) + $extension_from_span);

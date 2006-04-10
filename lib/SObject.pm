@@ -782,6 +782,7 @@ sub add_reln{
     
     if (exists( $reln_other_of{$id}{$other}) and not($force)) {
         SErr->throw("duplicate reln being added");
+        #return;
     }
 
     $reln_other_of{$id}{$other} = $reln;

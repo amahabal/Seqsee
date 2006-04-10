@@ -21,6 +21,7 @@ my $builder = sub {
     $ret->add_category( $self, 
                    SBindings->create( {}, $args_ref, $ret)
                        );
+    $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
     return $ret;
 };
 

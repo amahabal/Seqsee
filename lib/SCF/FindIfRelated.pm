@@ -68,9 +68,7 @@ sub run{
     return unless $reln;
 
     # So a relation has been found
-    $a->add_reln( $reln );
-    $b->add_reln( $reln );
-    SWorkspace->add_reln( $reln );
+    $reln->insert;
     ContinueWith(SThought->create($reln));
 }
 1;
