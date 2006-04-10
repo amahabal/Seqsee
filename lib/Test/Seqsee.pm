@@ -299,12 +299,14 @@ sub stochastic_test_codelet{
 
 sub output_contains{
     my ( $subr, %scope ) = @_;
+    my $msg = delete($scope{msg}) || "output_contains";
     my %seen;
-    my $times;
+    my $times = 5;
     for (1..$times) {
         my $ret = $subr->();
         my %seen_here;
         for (@$ret) {
+            ## $_
             $seen_here{$_}++;
         }
         for (keys %seen_here) {
@@ -313,13 +315,12 @@ sub output_contains{
     }
 
     my $problems_found = 0;
-    my $msg = "output_contains";
-  LOOP: while (my ($k, $v) = each %seen) {
+  LOOP: while (my ($k, $v) = each %scope) {
         if ($k eq 'always') {
             foreach (@$v) {
                 unless ($seen{$_} == $times) {
                     $problems_found = 1;
-                    $msg = "$_ was not always seen";
+                    $msg .= "$_ was not always seen";
                     last LOOP;
                 }
             }
@@ -327,7 +328,7 @@ sub output_contains{
             foreach (@$v) {
                 unless ($seen{$_} == 0) {
                     $problems_found = 1;
-                    $msg = "$_ was not never seen";
+                    $msg .= "$_ was not never seen";
                     last LOOP;
                 }
             }
@@ -335,7 +336,7 @@ sub output_contains{
             foreach (@$v) {
                 unless ($seen{$_} > 0) {
                     $problems_found = 1;
-                    $msg = "$_ was not seen anytime";
+                    $msg .= "$_ was not seen anytime";
                     last LOOP;
                 }
             }
@@ -344,7 +345,7 @@ sub output_contains{
             foreach (@$v) {
                 unless ($seen{$_} > 0 and $seen{$_} < $times) {
                     $problems_found = 1;
-                    $msg = "Expected to see $_ sometimes but not always, but it was ";
+                    $msg .= "Expected to see $_ sometimes but not always, but it was ";
                     $msg .= ( $seen{$_} ? 'always' : 'never' );
                     $msg .= ' seen';
                     last LOOP;
@@ -380,6 +381,54 @@ sub output_sometimes_but_not_always_contains{
     my ( $subr, $arg ) = @_;
     $arg = [ $arg ] unless ref($arg) eq "ARRAY";
     output_contains $subr, sometimes_but_not_always => $arg;
+}
+
+sub fringe_contains{
+    my ( $self, %options ) = @_;
+    my $setup_sub;
+    
+    if (ref($self) eq "CODE") {
+        $setup_sub = $self;
+    }
+
+    my $subr;
+    if ($setup_sub) {
+        $subr = sub {
+            SUtil::clear_all();
+            $self = $setup_sub->();
+            return [map { $_->[0] } @{$self->get_fringe()}];
+        };
+
+    } else {
+        $subr = sub {
+            return [map { $_->[0] } @{$self->get_fringe()}];
+        };
+    }
+    output_contains($subr, msg => "fringe_contains", %options);
+}
+
+sub extended_fringe_contains{
+    my ( $self, %options ) = @_;
+    my $setup_sub;
+    
+    if (ref($self) eq "CODE") {
+        $setup_sub = $self;
+    }
+
+    my $subr;
+    if ($setup_sub) {
+        $subr = sub {
+            SUtil::clear_all();
+            $self = $setup_sub->();
+            return [map { $_->[0] } @{$self->get_extended_fringe()}];
+        };
+
+    } else {
+        $subr = sub {
+            return [map { $_->[0] } @{$self->get_extended_fringe()}];
+        };
+    }
+    output_contains($subr, msg => "extended_fringe_contains", %options);
 }
 
 
