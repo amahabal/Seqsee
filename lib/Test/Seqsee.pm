@@ -9,8 +9,10 @@ use Test::Stochastic qw(stochastic_all_seen_ok stochastic_all_seen_nok
 use English qw(-no_match_vars);
 use Carp;
 use List::MoreUtils;
+use Sub::Installer;
 
 use S;
+use Seqsee;
 
 ## useful to turn a few features off...
 $::TESTING_MODE = 1;
@@ -268,6 +270,27 @@ log4perl.appender.file.layout    = PatternLayout
 
 NOLOG
 
+    "main"->install_sub({ message => sub {
+                                      
+                          }});
+
+    "main"->install_sub({ ask_user => sub {
+                              my($arr_ref) = @_;
+                              my $ws_count = $SWorkspace::elements_count;
+                              my $ask_terms_count = scalar(@$arr_ref);
+                              unless ($ask_terms_count) {
+                                  die "ask_user called with 0 terms!";
+                              }
+                              my $known_elements_count =scalar(@main::_real_seq);
+                              unless ($ws_count + $ask_terms_count <= $known_elements_count) {
+                                  die "Don't know that many elements in the future";
+                              }
+                              for my $i (0..$ask_terms_count-1) {
+                                  return unless $main::_real_seq[$ws_count + $i] == $arr_ref->[$i];
+                              }
+                              return 1;
+                          }});
+
 }
 
 
@@ -458,6 +481,8 @@ sub action_contains{
     }
     output_contains($subr, msg => "action_contains  ", %options);
 }
+
+INITIALIZE_for_testing();
 
 
 1;

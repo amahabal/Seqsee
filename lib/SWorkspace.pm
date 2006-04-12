@@ -80,7 +80,14 @@ sub init {
         # print "Inserting '$_'\n";
         _insert_element( $_ );
     }
+    @main::_real_seq = @seq;
 }
+
+sub set_future_terms{
+    my ( $package, @terms ) = @_;
+    push @main::_real_seq, @terms;
+}
+
 
 sub insert_elements{
     shift;

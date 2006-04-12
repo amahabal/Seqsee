@@ -1,13 +1,12 @@
 use strict;
 use blib;
 use Test::Seqsee;
-plan tests => 16; 
+plan tests => 18; 
 
 use Smart::Comments;
 use Seqsee;
 use List::MoreUtils;
 
-INITIALIZE_for_testing();
 
 use Class::Multimethods;
 multimethod 'find_reln';
@@ -165,4 +164,31 @@ stochastic_test_codelet(
         ## $WSO_rd, $gp
         return ($WSO_rd and $gp and $gp->instance_of_cat($S::SAMENESS));
         }
+        );
+
+
+stochastic_test_codelet (
+    codefamily => 'AttemptExtension',
+    setup => sub 
+        {
+            SWorkspace->init({seq => [qw( 1 1 1 2 2 2 3 3)]});
+            SWorkspace->set_future_terms(3);
+            my $WSO_ga = SAnchored->create($SWorkspace::elements[0], $SWorkspace::elements[1], $SWorkspace::elements[2], );
+            SWorkspace->add_group($WSO_ga);
+            $WSO_ga->describe_as($S::SAMENESS);
+
+            my $WSO_gb = SAnchored->create($SWorkspace::elements[3], $SWorkspace::elements[4], $SWorkspace::elements[5], );
+            SWorkspace->add_group($WSO_gb);
+            $WSO_gb->describe_as($S::SAMENESS);
+
+            my $WSO_ra = find_reln($WSO_ga, $WSO_gb);
+            $WSO_ra->insert();
+             
+            return { core => $WSO_ra, direction => DIR::RIGHT() };
+        }, 
+    throws => [''],
+    post_run => sub {
+        return ($SWorkspace::elements_count == 9) ? 1 : 0;
+    }
+
         );
