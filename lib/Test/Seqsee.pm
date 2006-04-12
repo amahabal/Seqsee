@@ -318,31 +318,35 @@ sub output_contains{
   LOOP: while (my ($k, $v) = each %scope) {
         if ($k eq 'always') {
             foreach (@$v) {
+                $seen{$_} ||= 0;
                 unless ($seen{$_} == $times) {
                     $problems_found = 1;
-                    $msg .= "$_ was not always seen";
+                    $msg .= "$_ was not always seen. Seen $seen{$_} times out of $times";
                     last LOOP;
                 }
             }
         } elsif ($k eq 'never') {
             foreach (@$v) {
+                $seen{$_} ||= 0;
                 unless ($seen{$_} == 0) {
                     $problems_found = 1;
-                    $msg .= "$_ was not never seen";
+                    $msg .= "$_ was not never seen. Seen $seen{$_} times out of $times";
                     last LOOP;
                 }
             }
         } elsif ($k eq 'sometimes') {
             foreach (@$v) {
+                $seen{$_} ||= 0;
                 unless ($seen{$_} > 0) {
                     $problems_found = 1;
-                    $msg .= "$_ was not seen anytime";
+                    $msg .= "$_ was not seen anytime. Seen $seen{$_} times out of $times";
                     last LOOP;
                 }
             }
 
         } elsif ($k eq 'sometimes_but_not_always') {
             foreach (@$v) {
+                $seen{$_} ||= 0;
                 unless ($seen{$_} > 0 and $seen{$_} < $times) {
                     $problems_found = 1;
                     $msg .= "Expected to see $_ sometimes but not always, but it was ";
@@ -404,7 +408,7 @@ sub fringe_contains{
             return [map { $_->[0] } @{$self->get_fringe()}];
         };
     }
-    output_contains($subr, msg => "fringe_contains", %options);
+    output_contains($subr, msg => "fringe_contains  ", %options);
 }
 
 sub extended_fringe_contains{
@@ -428,7 +432,31 @@ sub extended_fringe_contains{
             return [map { $_->[0] } @{$self->get_extended_fringe()}];
         };
     }
-    output_contains($subr, msg => "extended_fringe_contains", %options);
+    output_contains($subr, msg => "extended_fringe_contains  ", %options);
+}
+
+sub action_contains{
+    my ( $self, %options ) = @_;
+    my $setup_sub;
+    
+    if (ref($self) eq "CODE") {
+        $setup_sub = $self;
+    }
+
+    my $subr;
+    if ($setup_sub) {
+        $subr = sub {
+            SUtil::clear_all();
+            $self = $setup_sub->();
+            return [map { ref($_) } $self->get_actions()];
+        };
+
+    } else {
+        $subr = sub {
+            return [map { ref($_) } $self->get_actions()];
+        };
+    }
+    output_contains($subr, msg => "action_contains  ", %options);
 }
 
 

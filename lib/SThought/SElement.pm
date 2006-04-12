@@ -59,6 +59,8 @@ sub get_fringe{
             push @ret, [ $_, 80];
     }
 
+    my $left_edge = $core_of{$id}->get_left_edge();
+    push @ret, ["absolute_position_$left_edge", 80];
 
     return \@ret;
 }
@@ -74,6 +76,11 @@ sub get_extended_fringe{
     my $mag = $magnitude_of{$id};
     push @ret, [$S::LITERAL->build({ structure => [$mag + 1] }), 50];
     push @ret, [$S::LITERAL->build({ structure => [$mag - 1] }), 50];
+
+    my $left_edge = $core_of{$id}->get_left_edge();
+    push(@ret, ["absolute_position_". ($left_edge - 1), 80]) if $left_edge;
+    push @ret, ["absolute_position_" .($left_edge + 1), 80];
+
 
     return \@ret;
 }
