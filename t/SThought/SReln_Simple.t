@@ -5,7 +5,6 @@ plan tests => 3;
 
 use Smart::Comments;
 use Seqsee;
-use List::MoreUtils;
 
 INITIALIZE_for_testing();
 

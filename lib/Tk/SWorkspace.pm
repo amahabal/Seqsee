@@ -4,7 +4,6 @@ use Config::Std;
 use Smart::Comments;
 use Tk::widgets qw{Canvas};
 use List::Util qw(min max);
-use List::MoreUtils qw(minmax);
 use base qw/Tk::Derived Tk::Canvas/;
 
 our $canvas;

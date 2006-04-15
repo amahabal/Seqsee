@@ -160,14 +160,15 @@ sub _think_the_current_thought{
             # my $k = (blessed $k) ? $k->as_text() : $k;
             # But if the fringe only contain categories or props, the following
             # will work:
-            $k = $S::Str2Cat{$k};
+            $k = $S::Str2Cat{$k} || $k;
             $k = $k->as_text() if blessed($k);
             $msg .= "\t- $k\t--> $v\n";
         }
         $msg .= "- extended_fringe:\n";
         for (@$extended_fringe) {
             my ($k, $v) = @$_;
-            $k = $S::Str2Cat{$k}->as_text();
+            $k = $S::Str2Cat{$k} || $k;
+            $k = $k->as_text() if blessed($k);
             $msg .= "\t- $k\t--> $v\n";
         }
         $fringe_logger->debug($msg);

@@ -8,7 +8,6 @@ use Test::Stochastic qw(stochastic_all_seen_ok stochastic_all_seen_nok
                             );
 use English qw(-no_match_vars);
 use Carp;
-use List::MoreUtils;
 use Sub::Installer;
 
 use S;

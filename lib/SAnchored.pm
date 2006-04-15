@@ -11,7 +11,7 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{SObject};
-use List::MoreUtils qw(minmax);
+# use List::MoreUtils qw(minmax);
 #use Smart::Comments;
 
 # variable: %left_edge_of 
@@ -59,7 +59,7 @@ sub recalculate_edges{
 
     my @keys = values %slots_taken;
     ## @keys
-    my ($left, $right) = minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element    
+    my ($left, $right) = List::MoreUtils::minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element    
     $left_edge_of{$id} = $left;
     $right_edge_of{$id} = $right;
 }
@@ -118,7 +118,7 @@ sub create{
     
     my @keys = values %slots_taken;
     ## @keys
-    my ($left, $right) = minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+    my ($left, $right) = List::MoreUtils::minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     ## $left, $right
     my $span = $right - $left + 1;
     unless (scalar(@keys) == $span) {
@@ -198,6 +198,7 @@ sub as_insertlist{
     if ($verbosity == 1 or $verbosity == 2) {
         my $list = $self->as_insertlist(0);
         $list->concat( $self->categories_as_insertlist($verbosity - 1)->indent(1));
+        $list->append( "Direction: ", 'heading', $self->get_direction);
         return $list;
     }
 

@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-plan tests => 11; 
+plan tests => 12; 
 
 use Class::Multimethods qw(find_reln);
 use Class::Multimethods qw(are_relns_compatible);
@@ -21,6 +21,7 @@ $WSO_rc->insert();
  
 my $WSO_rd = find_reln($SWorkspace::elements[6], $SWorkspace::elements[7]);
 $WSO_rd->insert();
+
  
 my $WSO_ga = SAnchored->create($SWorkspace::elements[0], $SWorkspace::elements[1], );
 SWorkspace->add_group($WSO_ga);
@@ -50,6 +51,12 @@ $WSO_gd->describe_as( $S::SAMENESS );
 
 my $WSO_re = find_reln($WSO_ga, $WSO_gb);
 $WSO_re->insert();
+
+dies_ok { my $WSO_re = find_reln($WSO_ga, $WSO_gc);
+          $WSO_re->insert();
+       };
+
+
  
 ok( UNIVERSAL::isa($WSO_re, "SReln") , );
 ok( exists $SWorkspace::relations{$WSO_re}, );

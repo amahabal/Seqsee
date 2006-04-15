@@ -91,7 +91,7 @@ sub get_actions{
     if ($core->get_right_extendibility()) {
         my $cl = new SCodelet("AttemptExtension", 100,
                               { core => $core,
-                                direction => 1,
+                                direction => DIR::RIGHT(),
                             }
                                   );
         push @ret, $cl;

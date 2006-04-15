@@ -1,6 +1,5 @@
 package S;
 
-use List::MoreUtils;
 use List::Util;
 use Scalar::Util;
 
@@ -84,6 +83,9 @@ package DIR;
 use enum qw{BITMASK: LEFT RIGHT
             ENUM: BOTH=3 NEITHER=0 UNKNOWN=4
         };
+our $LEFT = DIR::LEFT();
+our $RIGHT = DIR::RIGHT();
+our $UNKNOWN = DIR::UNKNOWN();
 
 package POS_MODE;
 use enum qw{BITMASK: FORWARD BACKWARD

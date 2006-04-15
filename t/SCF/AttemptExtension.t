@@ -5,7 +5,6 @@ plan tests => 18;
 
 use Smart::Comments;
 use Seqsee;
-use List::MoreUtils;
 
 
 use Class::Multimethods;
