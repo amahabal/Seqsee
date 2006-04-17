@@ -126,6 +126,7 @@ multimethod _insert_element => ( 'SElement') => sub {
     $elt->set_edges($elements_count, $elements_count);
     push( @elements, $elt );
     $elements_count++;
+    %::EXTENSION_REJECTED_BY_USER = ();
 };
 
 

@@ -307,7 +307,11 @@ sub init_display{
         };
         my $ask_user_displayer = sub {
             my ( $arr_ref ) = @_;
-            my $msg = "Are the next terms: @$arr_ref?";
+
+            return if already_rejected_by_user($arr_ref);
+
+            my $cnt = scalar(@$arr_ref);
+            my $msg = ($cnt == 1) ? "Is the next term @$arr_ref? " : "Are the next terms: @$arr_ref?";
             my $btn = $SGUI::MW->messageBox(-message => $msg, -type => "YesNo");
             return $btn eq "Yes"? 1 : 0;
         };
@@ -474,4 +478,16 @@ sub _display{
     } else {
         print "#"x10, "\n", "Error: the second argument to display must be one of 'w', 's' or 'c'";
     }
+}
+
+sub already_rejected_by_user{
+    my ( $aref ) = @_;
+    my @a = @$aref;
+    my $cnt = scalar @a;
+    for my $i (0..$cnt-1) {
+        my $substr = join(", ", @a[0..$i] );
+        ## Chekin for user rejection: $substr
+        return 1 if $::EXTENSION_REJECTED_BY_USER{$substr};
+    }
+    return 0;
 }

@@ -110,7 +110,11 @@ sub run{
                 my $ans = main::ask_user($ask_if_what);
                 if ($ans) {
                     SWorkspace->insert_elements( @$ask_if_what );
+                    $::_BREAK_LOOP = 1;
                 } else {
+                    my $seq = join(", ", @$ask_if_what);
+                    ## setting for rejection: $seq
+                    $::EXTENSION_REJECTED_BY_USER{ $seq } = 1;
                     $core->set_right_extendibility( EXTENDIBILE::NO());
                 }
             } else {

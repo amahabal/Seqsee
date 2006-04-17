@@ -125,7 +125,9 @@ sub setup_bindings{
 sub ask_seq{
     my $top = $MW->Toplevel();
     $top->Label(-text => "Enter sequence(space separated): ")->pack(-side => 'left');
+    $top->focusmodel('active');
     my $e = $top->Entry()->pack(-side => 'left');
+    $e->focus();
     $e->bind('<Return>' => sub {
                  my $v = $e->get();
                  $v =~ s/^\s+//;
