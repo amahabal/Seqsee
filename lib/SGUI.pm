@@ -118,6 +118,9 @@ sub setup_bindings{
     $mw->bind('<KeyPress-q>' => sub {
                   exit;
               });
+    $mw->bind('<KeyPress-p>' => sub {
+                  $::_BREAK_LOOP = 1;
+              });
 
     
 }
