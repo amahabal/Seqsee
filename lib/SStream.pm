@@ -12,7 +12,7 @@ use strict;
 use Perl6::Form;
 use Carp;
 use Smart::Comments;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed reftype);
 
 my ($logger, $fringe_logger);
 {
@@ -323,6 +323,7 @@ sub _is_there_a_hit{
         my $thought = $OlderThoughts[$i];
         next unless exists $thought_hit_intensity{$thought};
         $thought_hit_intensity{$thought} *= $dampen_by;
+        $thought_hit_intensity{$thought} *= thoughtTypeMatch($thought, $CurrentThought);
     }
 
     my $chosen_thought = SChoose->choose( [values %thought_hit_intensity] ,
@@ -330,5 +331,20 @@ sub _is_there_a_hit{
     return $ThoughtsSet{$chosen_thought};
 }
 
+{
+    my %Mapping = (
+
+            );
+    sub thoughtTypeMatch{
+        my ( $othertht, $cur_tht ) = @_;
+        my ($type1, $type2) = map { blessed($_) } ($othertht, $cur_tht);
+        #main::message("$type1 and $type2");
+        return 1 if $type1 eq $type2;
+        my $str = "$type1;$type2";
+        return $Mapping{$str} if exists $Mapping{$str};
+        #main::message("$str barely match!");
+        return 0.01;
+    }
+}
 
 1;
