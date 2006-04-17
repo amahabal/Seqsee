@@ -78,6 +78,18 @@ sub INITIALIZE{
 
     # Initialize display
     init_display( $OPTIONS_ref );
+
+    my @seq = @{ $OPTIONS_ref->{seq}};
+    my $tk = $OPTIONS_ref->{tk};
+    unless (@seq) {
+        if ($tk) {
+            # confess "Should ask for sequence";
+            SGUI->ask_seq();
+        } else {
+            confess "Sequence must be passed on the command line with --seq";
+        }
+    }
+
 }
 
 
@@ -140,7 +152,7 @@ sub _read_config_and_commandline{
                 "interactive!",
                 "max_steps=i",
                     );
-    for (qw{seed log tk seq max_steps 
+    for (qw{seed log tk max_steps 
             interactive update_interval
 
             UseScheduledThoughtProb ScheduledThoughtVanishProb
@@ -154,10 +166,12 @@ sub _read_config_and_commandline{
         $RETURN_ref->{$_} = $val;
     }
 
+    $RETURN_ref->{seq} = $options{seq}; # or confess "Sequence not set!";
+
     # SANITY CHECKING: SEQ
     my $seq = $RETURN_ref->{seq};
-    unless ($seq =~ /^[\d\s,]+$/) {
-        confess "The option --seq must be a space or comma separated list of integers";
+    unless ($seq =~ /^[\d\s,]*$/) {
+        confess "The option --seq must be a space or comma separated list of integers; I got '$seq' instead";
     }
     for ($seq) { s/^\s*//; s/\s*$//; }
     my @seq = split(/[\s,]+/, $seq);

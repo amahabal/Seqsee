@@ -175,7 +175,7 @@ sub draw_logical_rectangle{
          $end_fraction ) = @_;
     $start_fraction ||= 0;
     $end_fraction ||= 1;
-    ($start_col, $end_col) = minmax($start_col, $end_col);
+    ($start_col, $end_col) = List::MoreUtils::minmax($start_col, $end_col);
     my $x1 = $Margin + $space_per_elem * ($start_col + 0.1);
     my $x2 = $Margin + $space_per_elem * ($end_col + 1 - 0.1);
     my $y  = $group_space_offset + $eff_group_row_size * $row;
