@@ -93,6 +93,14 @@ sub get_actions{
         push @ret, $tht;
     }
 
+    {
+        my $cl=new SCodelet("AttemptExtension",100,{core=>$core,
+                                                    direction => DIR::RIGHT ()
+                                                });
+         push ( @ret , $cl);
+
+    }
+
     return @ret;
 }
 
