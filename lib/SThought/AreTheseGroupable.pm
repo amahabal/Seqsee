@@ -22,6 +22,7 @@ use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SThought};
 use List::Util qw{min max};
+use Smart::Comments;
 
 my %items_of :ATTR();
 my %reln_of :ATTR();
@@ -44,6 +45,7 @@ sub get_fringe{
     my @ret;
     foreach (@{$items_of{$id}}) {
         push @ret, [$_, 20];
+        ## $_
     }
     return \@ret;
 }

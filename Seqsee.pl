@@ -301,9 +301,7 @@ sub init_display{
             my ( $msg ) = @_;
             my $btn = $SGUI::MW->messageBox(-message => $msg, -type => "OkCancel");
 	    ## $btn
-	    if ($btn eq "Cancel") {
-	      $::_BREAK_LOOP = 1;
-	    }
+            $::_BREAK_LOOP = 1;
         };
         my $ask_user_displayer = sub {
             my ( $arr_ref ) = @_;
