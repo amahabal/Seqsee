@@ -19,8 +19,8 @@ my $first_pos = new SPos(1);
 
 my $builder = sub {
     my ( $self, $args_ref ) = @_;
-    croak "need each" unless exists $args_ref->{each};
-    croak "need length" unless exists $args_ref->{length};
+    confess "need each" unless exists $args_ref->{each};
+    confess "need length" unless exists $args_ref->{length};
 
     my @items = map { $args_ref->{each} } (1..$args_ref->{length});
     

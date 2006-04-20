@@ -513,5 +513,15 @@ multimethod are_relns_compatible => qw($ $) => sub {
     die "are_relns_compatible called with '$a' and '$b'!";
 };
 
+sub as_text{
+    my ( $self ) = @_;
+    return "SReln::Compound";
+}
+
+sub suggest_cat{
+    my ( $self ) = @_;
+    return;
+}
+
 
 1;
