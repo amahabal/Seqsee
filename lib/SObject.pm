@@ -754,6 +754,25 @@ sub describe_as{
 
 }
 
+# method: describe_as
+# Try to describe the object sa belonging to that category
+#
+
+sub redescribe_as{
+    my ( $self, $cat ) = @_;
+    my $bindings = $cat->is_instance( $self );
+    if ($bindings) {
+        ## describe_as succeeded!
+        $self->add_category($cat, $bindings);
+    } else {
+        $self->remove_category($cat);
+    }
+
+    return $bindings;
+
+}
+
+
 #
 # subsection: relation management
 
@@ -891,6 +910,17 @@ sub apply_reln_scheme{
     } else {
         confess "Relation scheme $scheme not implemented";
     }
+}
+
+sub recalculate_categories{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my $cats = $self->get_categories();
+    for my $cat (@$cats) {
+        $self->redescribe_as($cat);
+    }
+
 }
 
 

@@ -154,6 +154,11 @@ sub create{
             $direction = DIR::NEITHER();
         }
     }
+
+    if ($direction == DIR::NEITHER() or $direction == DIR::UNKNOWN()) {
+        # SErr->throw("Funny object creation attempted");
+        return;
+    }
     
     return $package->new( { items => [@items],
                             group_p => 1,
@@ -240,5 +245,13 @@ sub get_next_pos_in_dir{
     }
 
 }
+
+sub spans{
+    my ( $self, $other ) = @_;
+    my ($sl, $sr) = $self->get_edges;
+    my ($ol, $or) = $other->get_edges;
+    return ($sl <= $ol and $or <= $sr);
+}
+
 
 1;

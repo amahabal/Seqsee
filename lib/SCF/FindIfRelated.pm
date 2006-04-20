@@ -56,6 +56,10 @@ sub run{
     my $a = $opts_ref->{a} or confess "Need a";
     my $b = $opts_ref->{b} or confess "Need b";
 
+    if ($a->spans($b) or $b->spans($a)) {
+        return;
+    }
+
     my $reln;
     if ($reln = $a->get_relation($b)) {
         # No need to create another.

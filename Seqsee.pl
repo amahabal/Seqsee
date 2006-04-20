@@ -341,6 +341,15 @@ sub init_display{
             my ( $msg ) = @_;
             print "Message: ", $msg, "\n";
         };
+        my $ask_user_displayer = sub {
+            my ( $arr_ref ) = @_;
+
+            return if already_rejected_by_user($arr_ref);
+
+            my $cnt = scalar(@$arr_ref);
+            my $msg = ($cnt == 1) ? "Is the next term @$arr_ref? " : "Are the next terms: @$arr_ref?";
+            return prompt($msg, "-yn");
+        };
 
         "main"->install_sub( {update_display =>
                                   $update_display_sub
@@ -350,6 +359,10 @@ sub init_display{
         "main"->install_sub( { message =>
                                   $msg_displayer
                                   });
+        "main"->install_sub( { ask_user =>
+                                  $ask_user_displayer
+                                  });
+
     }
 }
 

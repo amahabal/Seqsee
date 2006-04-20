@@ -97,7 +97,9 @@ sub get_actions{
         push @ret, $cl;
     }
 
-    my $poss_cat = $core->get_underlying_reln()->suggest_cat();
+    my $poss_cat;
+    $poss_cat = $core->get_underlying_reln()->suggest_cat() 
+        if $core->get_underlying_reln;
     if ($poss_cat) {
         my $is_inst = $core->is_of_category_p($poss_cat)->[0];
         # main::message("$core is of $poss_cat? '$is_inst'");

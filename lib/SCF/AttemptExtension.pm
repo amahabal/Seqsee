@@ -84,7 +84,13 @@ sub run{
     $next_pos = $obj2->get_next_pos_in_dir( $direction );
     return unless defined($next_pos);
 
-    $what_next = apply_reln( $reln, $obj2 ) or return;
+    eval { $what_next = apply_reln( $reln, $obj2 )} or return;
+    if ($EVAL_ERROR) {
+        ### eval error in apply reln!
+        ### $reln
+        ### $obj2
+        exit;
+    }
 
     my $core_span = $core->get_span;
     
@@ -160,6 +166,7 @@ sub run{
                 unshift @$core_object_ref, $wso;
             }
             $core->recalculate_edges();
+            $core->recalculate_categories();
         }
         # main::message("Okay, extended");
     } else {

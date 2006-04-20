@@ -88,6 +88,28 @@ sub add_category{
 
 }
 
+sub remove_category{
+    my ( $self, $cat ) = @_;
+    
+    my $id = ident $self;
+    $cat->isa("SCat::OfObj")          or die "Need SCat";
+
+    my $cat_ref        = $cats_of_of{$id};
+    my $non_cat_ref    = $non_cats_of_of{$id};
+
+    if (exists $cat_ref->{$cat}) {
+        delete $cat_ref->{$cat};
+    }
+
+    # make string to object mapping
+    $S::Str2Cat{$cat} = $cat;
+
+    $non_cat_ref->{$cat} = 1;
+
+
+}
+
+
 # sub add_cat {
 #     ( @_ == 3 ) or croak "add cat requires three args";
 #     my ( $self, $cat, $bindings ) = @_;
