@@ -82,7 +82,13 @@ sub get_actions{
     return if $is_covering;
 
     my $new_group;
-    eval { $new_group = SAnchored->create(@{$items_of{$id}})};
+    eval { $new_group = SAnchored->create(@{$items_of{$id}});
+           if ($new_group){
+               $new_group->set_underlying_reln($reln_of{$id});
+               SWorkspace->add_group($new_group);
+           }
+
+       };
     if (my $e = $EVAL_ERROR) {
         if (UNIVERSAL::isa($e, "SErr::HolesHere")) {
             return;
@@ -90,8 +96,6 @@ sub get_actions{
         die $e;
     }
 
-    $new_group->set_underlying_reln($reln_of{$id});
-    SWorkspace->add_group($new_group);
     # confess "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
 
     return @ret;

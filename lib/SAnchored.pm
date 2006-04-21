@@ -11,8 +11,8 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{SObject};
-# use List::MoreUtils qw(minmax);
 #use Smart::Comments;
+use List::Util qw(min max);
 
 # variable: %left_edge_of 
 #    left edge
@@ -103,31 +103,25 @@ sub create{
     my ( $package, @items ) = @_;
 
     my @left_edges; # for finding direction
+    my @right_edges; # for finding direction
     if (@items == 1) {
         # SErr->throw("A group creation is being attempted based on a single object");
         return $items[0];
     }
 
-    my %slots_taken;
-    for my $item (@items) {
-        SErr->throw("SAnchored->create called with a non anchored object") unless UNIVERSAL::isa( $item, "SAnchored");
-        my ($left, $right) = $item->get_edges();
-        @slots_taken{ $left..$right } = ( $left .. $right );
-        push @left_edges, $left;
-    }
-    
-    my @keys = values %slots_taken;
-    ## @keys
-    my ($left, $right) = List::MoreUtils::minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element
-    ## $left, $right
-    my $span = $right - $left + 1;
-    unless (scalar(@keys) == $span) {
-        print "Trying to create SAnchored from @items. @keys are the keys, and the span is $span\n";
-        for (@items) {
-            print $_->get_bounds_string(), "\n";
-        }
+    my $holes_here = SWorkspace->are_there_holes_here(@items);
+    if ($holes_here) {
         SErr::HolesHere->throw("There are holes here!");
     }
+
+    for my $item (@items) {
+        my ($left, $right) = $item->get_edges();
+        push @left_edges, $left;
+        push @right_edges, $right;
+    }
+
+    my ($left, $right) = (min(@left_edges), max(@right_edges));
+
     # lets find the direction now
     my $direction;
     {
@@ -219,6 +213,16 @@ sub get_right_extendibility{
     
     return EXTENDIBILE::NO() unless $rel;
     return $right_extendibility_of{$id};
+}
+
+sub get_left_extendibility{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my $rel = $self->get_underlying_reln();
+    
+    return EXTENDIBILE::NO() unless $rel;
+    return $left_extendibility_of{$id};
 }
 
 sub set_underlying_reln :CUMULATIVE{

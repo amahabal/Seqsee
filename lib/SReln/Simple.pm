@@ -196,7 +196,7 @@ sub suggest_cat{
     } elsif ($str eq "succ") {
         return $S::ASCENDING;
     } elsif ($str eq "pred") {
-        return $s::DESCENDING;
+        return $S::DESCENDING;
     }
 
 }

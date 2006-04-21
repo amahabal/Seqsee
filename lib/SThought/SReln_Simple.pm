@@ -94,6 +94,7 @@ sub get_actions{
     }
 
     {
+        last if SWorkspace->are_there_holes_here( $core->get_ends );
         my $cl=new SCodelet("AttemptExtension",100,{core=>$core,
                                                     direction => DIR::RIGHT ()
                                                 });

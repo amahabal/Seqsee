@@ -923,6 +923,20 @@ sub recalculate_categories{
 
 }
 
+sub recalculate_relations{
+    my ( $self ) = @_;
+    my $hashref = $reln_other_of{ident $self};
+    while (my ($k, $v) = each %$hashref) {
+        my $new_rel = find_reln($v->get_ends);
+        if ($new_rel) {
+            $v->uninsert;
+            $new_rel->insert;
+        } else {
+            $v->uninsert;
+        }
+    }
+}
+
 
 1;
 

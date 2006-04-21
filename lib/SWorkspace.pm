@@ -409,6 +409,26 @@ sub rapid_create_gp{
     return $object;
 }
 
+sub are_there_holes_here{
+    my ( $self, @items ) = @_;
+    my %slots_taken;
+    for my $item (@items) {
+        SErr->throw("SAnchored->create called with a non anchored object") unless UNIVERSAL::isa( $item, "SAnchored");
+        my ($left, $right) = $item->get_edges();
+        @slots_taken{ $left..$right } = ( $left .. $right );
+    }
+    
+    my @keys = values %slots_taken;
+    ## @keys
+    my ($left, $right) = List::MoreUtils::minmax($keys[0], @keys); #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+    ## $left, $right
+    my $span = $right - $left + 1;
+
+    unless (scalar(@keys) == $span) {
+        return 1;
+    }
+    return 0;
+}
 
 
 1;

@@ -488,7 +488,7 @@ multimethod are_relns_compatible => qw(SReln::Compound SReln::Compound) => sub{
 
     while (my($k, $v) = each %$a_cbr) {
         my $v2 = $b_cbr->{$k};
-        unless (are_relns_compatible($v, $v2)) {
+        unless ($v2 and are_relns_compatible($v, $v2)) {
             return;
         }
     }

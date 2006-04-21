@@ -96,6 +96,14 @@ sub get_actions{
                                   );
         push @ret, $cl;
     }
+    if ($core->get_left_extendibility()) {
+        my $cl = new SCodelet("AttemptExtension", 100,
+                              { core => $core,
+                                direction => DIR::LEFT(),
+                            }
+                                  );
+        push @ret, $cl;
+    }
 
     my $poss_cat;
     $poss_cat = $core->get_underlying_reln()->suggest_cat() 

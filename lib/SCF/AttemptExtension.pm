@@ -167,10 +167,16 @@ sub run{
             }
             $core->recalculate_edges();
             $core->recalculate_categories();
+            $core->recalculate_relations();
         }
         # main::message("Okay, extended");
     } else {
         # maybe attempt extension
+        if ($direction == DIR::RIGHT()) {
+            $core->set_right_extendibility( EXTENDIBILE::NO() );
+        } elsif ($direction == DIR::LEFT()) {
+            $core->set_left_extendibility( EXTENDIBILE::NO() );
+        }
         if (SUtil::toss(0.5)) {
             return;
         } else {
