@@ -76,6 +76,8 @@ sub INITIALIZE{
     # Initialize Workspace
     SWorkspace->clear(); SWorkspace->init( $OPTIONS_ref );
 
+    SNode->clear(); SNode->init( $OPTIONS_ref );
+
     # Initialize display
     init_display( $OPTIONS_ref );
 
@@ -156,7 +158,7 @@ sub _read_config_and_commandline{
             interactive update_interval
 
             UseScheduledThoughtProb ScheduledThoughtVanishProb
-
+            DecayRate
         }) {
         my $val 
             = exists($options{$_})        ? $options{$_} :

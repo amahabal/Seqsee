@@ -3,6 +3,8 @@ package S;
 use List::Util;
 use Scalar::Util;
 
+use SNode;
+
 use SLog;
 use SInsertList;
 
