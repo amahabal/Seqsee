@@ -14,9 +14,10 @@ use Smart::Comments;
 use base qw{};
 
 my %core_of :ATTR;
-my %activation_of :ATTR( :get<activation>);
+my %activation_of :ATTR( :get<activation> :set<activation>);
 my %updated_activation_of :ATTR();
 my %depth_of :ATTR();
+my %name_of :ATTR( :get<name>);
 
 our %MEMOIZE;
 our $DECAY_RATE;
@@ -25,16 +26,21 @@ sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     $core_of{$id} = $opts_ref->{core} or confess "no core for snode!!";
     $depth_of{$id} = $opts_ref->{depth} or confess "need depth";
+    $activation_of{$id} = $opts_ref->{activation};
+    $name_of{$id} = "Node " . $core_of{$id}->as_text();
 
     confess "depth should be a number bigger than 1" if ($depth_of{$id} < 1);
+
+    ### Created node: $name_of{$id}
 
     $activation_of{$id} = 0;
 }
 
 sub create{
-    my ( $package, $core, $depth ) = @_;
+    my ( $package, $core, $depth, $activation ) = @_;
 
     $depth or confess "need depth";
+    $activation ||= 0;
 
     if (exists $MEMOIZE{$core}) {
         return $MEMOIZE{$core};
@@ -43,12 +49,14 @@ sub create{
     if ($core->isa('SThought')) {
         return $MEMOIZE{$core} = SNode->new({ 
             core => $core,
-            depth => $depth
+            depth => $depth,
+            activation => $activation,
                 });
     } else {
         return $MEMOIZE{$core} = SNode->new({ 
             core => SThought->create($core),
-            depth => $depth
+            depth => $depth,
+            activation => $activation,
                 });
     }
 

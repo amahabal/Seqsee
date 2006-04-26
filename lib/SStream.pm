@@ -119,6 +119,7 @@ sub add_thought{
 
     return if $thought eq $CurrentThought;
 
+    my $node = SNode->create($thought, 1, 100);
 
     if (exists $ThoughtsSet{$thought}) { #okay, so this is an older thought
         unshift( @OlderThoughts, $CurrentThought ) if $CurrentThought;
