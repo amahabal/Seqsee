@@ -172,9 +172,9 @@ sub run{
         # main::message("Okay, extended");
     } else {
         # maybe attempt extension
-        if ($direction == DIR::RIGHT()) {
+        if ($direction eq DIR::RIGHT()) {
             $core->set_right_extendibility( EXTENDIBILE::NO() );
-        } elsif ($direction == DIR::LEFT()) {
+        } elsif ($direction eq DIR::LEFT()) {
             $core->set_left_extendibility( EXTENDIBILE::NO() );
         }
         if (SUtil::toss(0.5)) {

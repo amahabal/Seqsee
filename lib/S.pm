@@ -82,12 +82,16 @@ our $cats_and_blemish_ref =
     [$ascending, $descending, $mountain];
 
 package DIR;
-use enum qw{BITMASK: LEFT RIGHT
-            ENUM: BOTH=3 NEITHER=0 UNKNOWN=4
-        };
-our $LEFT = DIR::LEFT();
-our $RIGHT = DIR::RIGHT();
-our $UNKNOWN = DIR::UNKNOWN();
+our $LEFT = bless {}, 'DIR';
+our $RIGHT = bless {}, 'DIR';
+our $UNKNOWN = bless {}, 'DIR';
+our $NEITHER = bless {}, 'DIR';
+
+sub LEFT{ $LEFT }
+sub RIGHT{ $RIGHT }
+sub UNKNOWN{ $UNKNOWN }
+sub NEITHER{ $NEITHER }
+
 
 package POS_MODE;
 use enum qw{BITMASK: FORWARD BACKWARD

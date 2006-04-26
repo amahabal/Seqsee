@@ -103,20 +103,20 @@ sub get_inverse{
     return find_reln($s, $f);
 }
 
-multimethod find_dir_reln => ('#', '#') => sub {
+multimethod find_dir_reln => ('DIR', 'DIR') => sub {
     my ( $da, $db ) = @_;
-    if ($da == DIR::RIGHT()) {
-        return ( $db == DIR::RIGHT()) ? "same" :
-            ( $db == DIR::LEFT()) ? "different" : "unknown";
-    } elsif ($da == DIR::LEFT()) {
-        return ( $db == DIR::RIGHT()) ? "different" :
-            ( $db == DIR::LEFT()) ? "same" : "unknown";
+    if ($da eq DIR::RIGHT()) {
+        return ( $db eq DIR::RIGHT()) ? "same" :
+            ( $db eq DIR::LEFT()) ? "different" : "unknown";
+    } elsif ($da eq DIR::LEFT()) {
+        return ( $db eq DIR::RIGHT()) ? "different" :
+            ( $db eq DIR::LEFT()) ? "same" : "unknown";
     } else {
         return "unknown";
     }
 };
 
-multimethod apply_reln_direction => ('$', '#') => sub {
+multimethod apply_reln_direction => ('$', 'DIR') => sub {
     my ( $rel_dir, $dir ) = @_;
     if ( $rel_dir eq 'unknown') {
         return DIR::UNKNOWN();
@@ -125,8 +125,8 @@ multimethod apply_reln_direction => ('$', '#') => sub {
         return $dir;
     }
     if ($rel_dir eq 'different') {
-        return ($dir == DIR::RIGHT()) ? DIR::LEFT() :
-            ( $dir == DIR::LEFT()) ? DIR::RIGHT():
+        return ($dir eq DIR::RIGHT()) ? DIR::LEFT() :
+            ( $dir eq DIR::LEFT()) ? DIR::RIGHT():
                 DIR::UNKNOWN();
     }
 };

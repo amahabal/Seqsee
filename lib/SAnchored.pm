@@ -149,7 +149,7 @@ sub create{
         }
     }
 
-    if ($direction == DIR::NEITHER() or $direction == DIR::UNKNOWN()) {
+    if ($direction eq DIR::NEITHER() or $direction eq DIR::UNKNOWN()) {
         # SErr->throw("Funny object creation attempted");
         return;
     }
@@ -238,9 +238,9 @@ sub get_next_pos_in_dir{
     my ( $self, $direction ) = @_;
     my $id = ident $self;
 
-    if ($direction == DIR::RIGHT()) {
+    if ($direction eq DIR::RIGHT()) {
         return $right_edge_of{$id} + 1;
-    } elsif ($direction == DIR::LEFT()) {
+    } elsif ($direction eq DIR::LEFT()) {
         my $le = $left_edge_of{$id};
         return unless $le > 0;
         return $le - 1;

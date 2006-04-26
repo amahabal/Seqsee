@@ -88,7 +88,7 @@ ok( $WSO_rm->get_base_pos_mode() eq POS_MODE::FORWARD(), );
 
 my $WSO_gn = apply_reln( $WSO_rm, $WSO_ge );
 ok( $WSO_gn, );
-ok( $WSO_gn->get_direction() == DIR::RIGHT(), );
+ok( $WSO_gn->get_direction() eq DIR::RIGHT(), );
 
 
 $WSO_gn->structure_ok( [1,2,[3,3]]);
