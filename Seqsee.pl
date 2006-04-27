@@ -305,14 +305,20 @@ sub init_display{
 	    ## $btn
             $::_BREAK_LOOP = 1;
         };
-        my $ask_user_displayer = sub {
+        my $ask_user_extension_displayer = sub {
             my ( $arr_ref ) = @_;
 
             return if already_rejected_by_user($arr_ref);
 
             my $cnt = scalar(@$arr_ref);
             my $msg = ($cnt == 1) ? "Is the next term @$arr_ref? " : "Are the next terms: @$arr_ref?";
-            my $btn = $SGUI::MW->messageBox(-message => $msg, -type => "YesNo");
+            my $mb = $SGUI::MW->Dialog(-text    => $msg,
+                                       -bitmap  => 'question',
+                                       -title   => 'Seqsee',
+                                       -buttons => [qw/Yes No/],
+                                           );
+            my $btn = $mb->Show; 
+                # $SGUI::MW->messageBox(-message => $msg, -type => "YesNo");
             return $btn eq "Yes"? 1 : 0;
         };
 
@@ -327,8 +333,8 @@ sub init_display{
         "main"->install_sub( { message =>
                                   $msg_displayer
                                   });
-        "main"->install_sub( { ask_user =>
-                                  $ask_user_displayer
+        "main"->install_sub( { ask_user_extension =>
+                                  $ask_user_extension_displayer
                                   });
 
 
@@ -343,7 +349,7 @@ sub init_display{
             my ( $msg ) = @_;
             print "Message: ", $msg, "\n";
         };
-        my $ask_user_displayer = sub {
+        my $ask_user_extension_displayer = sub {
             my ( $arr_ref ) = @_;
 
             return if already_rejected_by_user($arr_ref);
@@ -361,8 +367,8 @@ sub init_display{
         "main"->install_sub( { message =>
                                   $msg_displayer
                                   });
-        "main"->install_sub( { ask_user =>
-                                  $ask_user_displayer
+        "main"->install_sub( { ask_user_extension =>
+                                  $ask_user_extension_displayer
                                   });
 
     }

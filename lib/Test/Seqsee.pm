@@ -273,12 +273,12 @@ NOLOG
                                       
                           }});
 
-    "main"->install_sub({ ask_user => sub {
+    "main"->install_sub({ ask_user_extension => sub {
                               my($arr_ref) = @_;
                               my $ws_count = $SWorkspace::elements_count;
                               my $ask_terms_count = scalar(@$arr_ref);
                               unless ($ask_terms_count) {
-                                  die "ask_user called with 0 terms!";
+                                  die "ask_user_extension called with 0 terms!";
                               }
                               my $known_elements_count =scalar(@main::_real_seq);
                               unless ($ws_count + $ask_terms_count <= $known_elements_count) {
