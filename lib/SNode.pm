@@ -31,7 +31,7 @@ sub BUILD{
 
     confess "depth should be a number bigger than 1" if ($depth_of{$id} < 1);
 
-    ### Created node: $name_of{$id}
+    ## Created node: $name_of{$id}
 
     $activation_of{$id} = 0;
 }

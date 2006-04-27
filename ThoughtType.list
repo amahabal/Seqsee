@@ -6,3 +6,4 @@ SThought::SAnchored
 SThought::AreTheseGroupable
 SThought::ShouldIFlip
 SThought::SReln_Compound
+SThought::AreWeDone

@@ -168,6 +168,8 @@ sub run{
             $core->recalculate_edges();
             $core->recalculate_categories();
             $core->recalculate_relations();
+            ## HERE
+            ContinueWith( SThought::AreWeDone->new({group => $core}) );
         }
         # main::message("Okay, extended");
     } else {

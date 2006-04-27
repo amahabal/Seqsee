@@ -82,15 +82,20 @@ our $cats_and_blemish_ref =
     [$ascending, $descending, $mountain];
 
 package DIR;
-our $LEFT = bless {}, 'DIR';
-our $RIGHT = bless {}, 'DIR';
-our $UNKNOWN = bless {}, 'DIR';
-our $NEITHER = bless {}, 'DIR';
+our $LEFT = bless {text => 'left'}, 'DIR';
+our $RIGHT = bless {text => 'right'}, 'DIR';
+our $UNKNOWN = bless {text => 'unknown'}, 'DIR';
+our $NEITHER = bless {text => 'neither'}, 'DIR';
 
 sub LEFT{ $LEFT }
 sub RIGHT{ $RIGHT }
 sub UNKNOWN{ $UNKNOWN }
 sub NEITHER{ $NEITHER }
+
+sub as_text{
+    my ( $self ) = @_;
+    return $self->{text};
+}
 
 
 package POS_MODE;
