@@ -126,7 +126,7 @@ sub setup_bindings{
 }
 
 sub ask_seq{
-    my $top = $MW->Toplevel();
+    my $top = $MW->Toplevel(-title => "Seqsee Sequence Entry");
     $top->Label(-text => "Enter sequence(space separated): ")->pack(-side => 'left');
     $top->focusmodel('active');
     my $e = $top->Entry()->pack(-side => 'left');

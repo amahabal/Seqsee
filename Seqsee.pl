@@ -319,7 +319,11 @@ sub init_display{
                                            );
             my $btn = $mb->Show; 
                 # $SGUI::MW->messageBox(-message => $msg, -type => "YesNo");
-            return $btn eq "Yes"? 1 : 0;
+            my $ok= $btn eq "Yes" ? 1 : 0;
+            if ($ok) {
+                $main::AtLeastOneUserVerification = 1;
+            }
+            return $ok;
         };
 
 

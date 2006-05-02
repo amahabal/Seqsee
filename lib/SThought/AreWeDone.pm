@@ -69,7 +69,7 @@ sub get_actions{
     my $total_count = $SWorkspace::elements_count;
     ### $span, $total_count
     
-    if (($span / $total_count) > 0.8) {
+    if ($main::AtLeastOneUserVerification and ($span / $total_count) > 0.8) {
         # This very well may be it!
         if ($gp->get_left_edge() != 0) {
             if ($gp->get_left_extendibility() ne EXTENDIBILE::NO()) {
@@ -92,9 +92,14 @@ sub get_actions{
                 #Bingo!
                 if ($gp->get_right_extendibility() ne EXTENDIBILE::NO()) {
                     #great. 
+                    main::update_display();
                     main::message("I believe I got it");
                 } else {
-                    main::message("I think I am stuck");
+                    main::update_display();
+                    my $rejected = join(", ", keys %::EXTENSION_REJECTED_BY_USER);
+                    my $msg = "I think I am stuck. ";
+                    $msg .= "You have already rejected $rejected as possible continuation(s)";
+                    main::message($msg);
                 }
             } else {
                 my $action = SAction->new( {
