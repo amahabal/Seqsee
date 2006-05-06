@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-plan tests => 18; 
+plan tests => 20; 
 
 use Smart::Comments;
 use Seqsee;
@@ -188,6 +188,46 @@ stochastic_test_codelet (
     throws => [''],
     post_run => sub {
         return ($SWorkspace::elements_count == 9) ? 1 : 0;
+    }
+
+        );
+
+stochastic_test_codelet (
+    codefamily => 'AttemptExtension',
+    setup => sub 
+        {
+            SWorkspace->init({seq => [qw( 1 1 2 3 1 2 2 3 1 2 3 3)]});
+            my $WSO_ga = SAnchored->create($SWorkspace::elements[0], $SWorkspace::elements[1], );
+            SWorkspace->add_group($WSO_ga);
+            $WSO_ga->describe_as( $S::SAMENESS);
+            $WSO_ga->annotate_with_metonym( $S::SAMENESS, "each");
+            $WSO_ga->set_metonym_activeness(1);
+
+            my $WSO_gb = SAnchored->create($SWorkspace::elements[5], $SWorkspace::elements[6], );
+            SWorkspace->add_group($WSO_gb);
+            $WSO_gb->describe_as( $S::SAMENESS);
+            $WSO_gb->annotate_with_metonym( $S::SAMENESS, "each");
+            $WSO_gb->set_metonym_activeness(1);
+ 
+            my $WSO_gc = SAnchored->create($WSO_ga, $SWorkspace::elements[2], $SWorkspace::elements[3], );
+            SWorkspace->add_group($WSO_gc);
+            $WSO_gc->describe_as($S::ASCENDING);
+            $WSO_gc->tell_forward_story($S::ASCENDING);
+
+            my $WSO_gd = SAnchored->create($SWorkspace::elements[4], $WSO_gb, $SWorkspace::elements[7], );
+            SWorkspace->add_group($WSO_gd);
+            $WSO_gd->describe_as($S::ASCENDING);
+            $WSO_gd->tell_forward_story($S::ASCENDING);
+            
+            my $WSO_ra = find_reln($WSO_gc, $WSO_gd);
+            ## $WSO_ra
+            $WSO_ra->insert();
+             
+            return { core => $WSO_ra, direction => DIR::RIGHT() };
+        }, 
+    throws => [''],
+    post_run => sub {
+        return ($SWorkspace::elements_count == 12) ? 1 : 0;
     }
 
         );
