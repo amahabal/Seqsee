@@ -35,7 +35,7 @@ stochastic_test_codelet(
     codefamily => 'AttemptExtension',
     setup => sub 
         {
-            SWorkspace->init({seq => [qw( 1 1 2 2 2)]});
+            SWorkspace->init({seq => [qw( 1 1 2 2 2 3 3 3 3)]});
             my $WSO_ra = find_reln($SWorkspace::elements[0], $SWorkspace::elements[1]);
             $WSO_ra->insert();
             return { core => $WSO_ra, direction => DIR::RIGHT() };
@@ -49,7 +49,7 @@ stochastic_test_codelet (
     codefamily => 'AttemptExtension',
     setup => sub 
         {
-            SWorkspace->init({seq => [qw( 1 1 1 2 2 2)]});
+            SWorkspace->init({seq => [qw( 1 1 1 2 2 2 3 3 3 )]});
             my $WSO_ra = find_reln($SWorkspace::elements[0], $SWorkspace::elements[1]);
             $WSO_ra->insert();
             my $WSO_ga = SAnchored->create($SWorkspace::elements[0], $SWorkspace::elements[1], );
@@ -81,12 +81,12 @@ stochastic_test_codelet (
 
         );
 
-## Test
+### Test
 stochastic_test_codelet (
     codefamily => 'AttemptExtension',
     setup => sub 
         {
-            SWorkspace->init({seq => [qw( 1 1 1 2 2 2)]});
+            SWorkspace->init({seq => [qw( 1 1 1 2 2 2 3 3 3 4 4 4 5 5 5)]});
             my $WSO_ra = find_reln($SWorkspace::elements[2], $SWorkspace::elements[1]);
             $WSO_ra->insert();
             my $WSO_ga = SAnchored->create($SWorkspace::elements[2], $SWorkspace::elements[1], );
@@ -100,7 +100,7 @@ stochastic_test_codelet (
         return SWorkspace->is_there_a_covering_group(0,2);
     });
 
-## Test
+### Test
 stochastic_test_codelet (
     codefamily => 'AttemptExtension',
     setup => sub 

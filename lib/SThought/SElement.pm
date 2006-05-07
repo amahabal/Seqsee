@@ -43,26 +43,31 @@ sub BUILD{
     $magnitude_of{$id} = $core->get_mag;
 }
 
+multimethod get_fringe_for => ('SElement') => sub {
+    my ( $core ) = @_;
+    my $mag = $core->get_mag;
+    my @ret;
+
+    push @ret, [$S::LITERAL->build({ structure => [$mag] }), 100];
+
+    for (@{$core->get_categories()}) {
+            push @ret, [ $_, 80];
+    }
+
+    my $left_edge = $core->get_left_edge();
+    push @ret, ["absolute_position_$left_edge", 80];
+
+    return \@ret;
+};
+
+
 # method: get_fringe
 # 
 #
 sub get_fringe{
     my ( $self ) = @_;
     my $id = ident $self;
-    my @ret;
-
-    my $mag = $magnitude_of{$id};
-    push @ret, [$S::LITERAL->build({ structure => [$mag] }), 100];
-
-    # my $cats_ref = $core_of{$id}->get_categories();
-    for (@{$core_of{$id}->get_categories()}) {
-            push @ret, [ $_, 80];
-    }
-
-    my $left_edge = $core_of{$id}->get_left_edge();
-    push @ret, ["absolute_position_$left_edge", 80];
-
-    return \@ret;
+    return get_fringe_for( $core_of{$id});
 }
 
 # method: get_extended_fringe

@@ -40,16 +40,10 @@ sub BUILD{
     # main::message( "An SAnchored object was thought about!");
 }
 
-# method: get_fringe
-# 
-#
-sub get_fringe{
-    my ( $self ) = @_;
-    my $id = ident $self;
-    my $core = $core_of{$id};
-
+multimethod get_fringe_for => ('SAnchored') => sub {
+    my ( $core ) = @_;
     my @ret;
-    my $structure = $core_of{$id}->get_structure();
+    my $structure = $core->get_structure();
     push @ret, [$S::LITERAL->build({ structure => $structure }), 100];
 
     my $rel = $core->get_underlying_reln();
@@ -64,6 +58,18 @@ sub get_fringe{
 
 
     return \@ret;
+    
+};
+
+
+# method: get_fringe
+# 
+#
+sub get_fringe{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $core = $core_of{$id};
+    return get_fringe_for($core->get_effective_object);
 }
 
 # method: get_extended_fringe
