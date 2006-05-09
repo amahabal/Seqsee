@@ -90,6 +90,9 @@ sub get_actions{
     my ( $self ) = @_;
     my $id = ident $self;
     my $core = $core_of{$id};
+    my $metonym = $core->get_metonym;
+    my $metonym_activeness = $core->get_metonym_activeness;
+
 
     my @ret;
 
@@ -125,7 +128,20 @@ sub get_actions{
                                           });
             push @ret, $cl;
         }
+
+        if ($S::IsMetonyable{$poss_cat} and not($metonym)) {
+            my $cl = new SCodelet("FindIfMetonyable",
+                                  100,
+                                  { object => $core,
+                                    category => $poss_cat,
+                                });
+            push @ret, $cl;
+                                  
+        }
+
     }
+
+    
 
     return @ret;
 }

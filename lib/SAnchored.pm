@@ -33,6 +33,8 @@ my %right_extendibility_of :ATTR(:set<right_extendibility>);
 #    same as above, leftward?
 my %left_extendibility_of :ATTR(:set<left_extendibility>);
 
+use overload fallback => 1;
+
 # method: BUILD
 # 
 #
@@ -197,9 +199,16 @@ sub as_insertlist{
     if ($verbosity == 1 or $verbosity == 2) {
         my $list = $self->as_insertlist(0);
         $list->concat( $self->categories_as_insertlist($verbosity - 1)->indent(1));
-        $list->append( "Direction: ", 'heading', $self->get_direction);
+        $list->append( "Direction: ", 'heading', $self->get_direction->as_text, "", "\n");
+        $list->append( "Fringe: ", 'heading', "\n");
+        for (@{ SThought->create($self)->get_fringe}) {
+            my ($t, $v) = @$_;
+            $list->append("\t$v\t$t\n");
+        }
+
         return $list;
     }
+
 
     confess "Verbosity $verbosity not implemented for ". ref $self;
 

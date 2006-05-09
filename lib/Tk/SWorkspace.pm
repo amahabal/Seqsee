@@ -13,7 +13,7 @@ my ($eff_width, $eff_height);
 my ($group_space_offset, $group_spacing_factor, $group_row_count, $group_space_height, $max_group_row_count);
 my ($group_row_size, $eff_group_row_size);
 my (@element_options, @line_options, @reln_bgd_options, @reln_fgd_options,
-    @group_bgd_options, @group_fgd_options
+    @group_bgd_options, @group_fgd_options, @group_meto_options,
         );
 my ($space_per_elem);
 my @used_spots;
@@ -26,6 +26,7 @@ BEGIN {
     @reln_fgd_options = %{$config{reln_fgd}}; 
     @group_bgd_options = %{$config{group_bgd}}; 
     @group_fgd_options = %{$config{group_fgd}}; 
+    @group_meto_options= %{$config{group_meto}};
     $Margin            = $config{placing}{-margin};
     $group_spacing_factor = $config{placing}{-group_spacing_factor};
     $group_row_count      = $config{placing}{-group_row_count};
@@ -143,6 +144,12 @@ sub SAnchored::draw{
     my $from = $self->get_left_edge;
     my $to   = $self->get_right_edge;
     my $row = get_next_available_row($from, $to, $self);
+
+    if ($self->get_metonym_activeness) {
+        draw_logical_rectangle( $row, $from-0.1, $to+ 0.1,
+                                \@group_meto_options, -0.1, 1.1
+                                    );
+    }
 
     draw_logical_rectangle( $row, $from, $to, \@group_bgd_options);
     my @items = @{$self->get_parts_ref()};

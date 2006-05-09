@@ -135,6 +135,8 @@ sub BUILD{
     $meto_finder_of_of{$id} = $opts_ref->{metonymy_finders} || {};
     $meto_unfinder_of_of{$id} = $opts_ref->{metonymy_unfinders} || {};
 
+    my $is_metonyable = (%{$meto_finder_of_of{$id}}) ? 1 : 0;
+
     my $guesser_ref = $guesser_of_of{$id} = {};
     my $type_ref = $att_type_of_of{$id};
     
@@ -197,12 +199,24 @@ sub BUILD{
         _install_instancer($id);
     }
 
+    $S::IsMetonyable{$self} = $is_metonyable;
     $S::Str2Cat{$self} = $self;
 }
 
 #
 # subsection: Public Interface
 
+
+sub is_metonyable{
+    my ( $self ) = @_;
+    return $S::IsMetonyable{$self};
+}
+
+sub get_meto_types{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return keys %{ $meto_finder_of_of{$id} };
+}
 
 
 # method: find_metonym
@@ -226,7 +240,10 @@ sub find_metonym{
     my $bindings = $object->get_cat_bindings( $cat ) 
         or croak "Object must belong to category";
 
-    return $finder->( $object, $cat, $name, $bindings );
+    my $obj =  $finder->( $object, $cat, $name, $bindings );
+    $obj->get_starred->set_edges( $object->get_edges );
+    
+    return $obj;
 }
 
 

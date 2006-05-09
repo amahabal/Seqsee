@@ -445,8 +445,10 @@ sub Seqsee_Step{
 
     eval {
         if ($runnable->isa("SCodelet")) {
+            $::CurrentRunnableString = "SCF::". $runnable->[0];
             $runnable->run();
         } elsif ($runnable->isa("SThought")) {
+            $::CurrentRunnableString = ref($runnable);
             SStream->add_thought( $runnable );
         } else {
             SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");

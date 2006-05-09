@@ -4,6 +4,7 @@ use List::Util;
 use Scalar::Util;
 
 use SNode;
+use SHistory;
 
 use SLog;
 use SInsertList;
