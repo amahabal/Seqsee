@@ -106,7 +106,7 @@ sub create{
 
     my @left_edges; # for finding direction
     my @right_edges; # for finding direction
-    if (@items == 1) {
+    if (@items == 1 and UNIVERSAL::isa($items[0], "SAnchored")) {
         # SErr->throw("A group creation is being attempted based on a single object");
         return $items[0];
     }

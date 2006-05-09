@@ -15,6 +15,7 @@ use Seqsee;
 
 ## useful to turn a few features off...
 $::TESTING_MODE = 1;
+$::CurrentRunnableString = "";
 
 sub undef_ok {
     my ( $what, $msg ) = @_;

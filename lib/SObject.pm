@@ -15,7 +15,7 @@ use Class::Std;
 use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
-use base qw{SInstance};
+use base qw{SInstance SHistory};
 
 multimethod 'find_reln';
 

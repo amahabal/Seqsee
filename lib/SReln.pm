@@ -9,7 +9,7 @@ package SReln;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{};
+use base qw{SHistory};
 
 use Class::Std;
 my %direction_reln_of : ATTR( :get<direction_reln> :set<direction_reln>  );

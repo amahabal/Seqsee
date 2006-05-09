@@ -60,7 +60,7 @@ my $meto_finder_each = sub {
     return SMetonym->new({
         category  => $cat,
         name      => $name,
-        starred   => SObject->create( $starred ),
+        starred   => SAnchored->create( $starred ), 
         unstarred => $object,
         info_loss => $info_lost,
             });

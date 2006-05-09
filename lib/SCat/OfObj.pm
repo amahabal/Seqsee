@@ -241,7 +241,10 @@ sub find_metonym{
         or croak "Object must belong to category";
 
     my $obj =  $finder->( $object, $cat, $name, $bindings );
-    $obj->get_starred->set_edges( $object->get_edges );
+    ## next line kludgy
+    if (UNIVERSAL::isa($object, "SAnchored")) {
+        $obj->get_starred->set_edges( $object->get_edges );
+    }
     
     return $obj;
 }
