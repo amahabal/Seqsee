@@ -85,6 +85,7 @@ sub get_actions{
     eval { $new_group = SAnchored->create(@{$items_of{$id}});
            if ($new_group){
                $new_group->set_underlying_reln($reln_of{$id});
+               return unless $new_group->describe_as( $S::RELN_BASED );
                SWorkspace->add_group($new_group);
            }
 

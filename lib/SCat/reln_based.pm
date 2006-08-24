@@ -48,7 +48,7 @@ my $instancer = sub {
         }
     }    
 
-    return SBindings->create( $slippages, { relation => $reln }, $object);
+    return SBindings->create( $slippages, { }, $object);
 };
 
 our $reln_based =

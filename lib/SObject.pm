@@ -305,6 +305,7 @@ sub annotate_with_metonym{
     my $meto = $cat->find_metonym( $self, $name );
     SErr::MetonymNotAppicable->throw() unless $meto;
 
+    $self->add_history("Added metonym \"$name\" for cat " . $cat->get_name);
     $self->set_metonym( $meto );
 }
 
@@ -564,6 +565,7 @@ sub tell_forward_story{
     my $bindings = $self->get_binding($cat);
     confess "Object $self does not belong to category ". $cat->get_name()
         unless $bindings;
+    $self->add_history("Forward story telling for " . $cat->get_name );
     $bindings->tell_forward_story($self);
 }
 
@@ -576,6 +578,7 @@ sub tell_backward_story{
     my $bindings = $self->get_binding($cat);
     confess "Object $self does not belong to category $cat!"
         unless $bindings;
+    $self->add_history("Backward story telling for " . $cat->get_name );
     $bindings->tell_backward_story($self);
 }
 
@@ -763,8 +766,10 @@ sub redescribe_as{
     my $bindings = $cat->is_instance( $self );
     if ($bindings) {
         ## describe_as succeeded!
+        $self->add_history("redescribe as instance of category " . $cat->get_name . " succeded" );
         $self->add_category($cat, $bindings);
     } else {
+        $self->add_history("redescribe as instance of category " . $cat->get_name . " failed" );
         $self->remove_category($cat);
     }
 
@@ -803,7 +808,7 @@ sub add_reln{
         SErr->throw("duplicate reln being added");
         #return;
     }
-
+    $self->add_history("added reln to " . $other->get_bounds_string );
     $reln_other_of{$id}{$other} = $reln;
 }
 
@@ -817,6 +822,7 @@ sub remove_reln{
     my $id = ident $self;
 
     my $other = $self->_get_other_end_of_reln($reln);
+    $self->add_history("removed reln to " . $other->get_bounds_string );
     delete $reln_other_of{$id}{$other};
 }
 
@@ -833,7 +839,7 @@ sub get_relation{
 sub set_underlying_reln :CUMULATIVE{
     my ( $self, $reln ) = @_;
     my $id = ident $self;
-    
+    $self->add_history("Underlying relation set: " );
     $underlying_reln_of{$id} = $reln;
 }
 
@@ -856,8 +862,10 @@ sub set_metonym_activeness{
         unless ($metonym_of{$id}) {
             SErr->throw("Cannot set_metonym_activeness without a metonym");
         }
+        $self->add_history("Metonym activeness turned on");
         $metonym_activeness_of{$id} = 1;
     } else {
+        $self->add_history("Metonym activeness turned off");
         $metonym_activeness_of{$id} = 0;
     }
 
@@ -907,6 +915,8 @@ sub apply_reln_scheme{
             my $rel = find_reln($a, $b);
             $rel->insert() if $rel;
         }
+        $self->add_history("Relation scheme \"chain\" applied");
+
     } else {
         confess "Relation scheme $scheme not implemented";
     }

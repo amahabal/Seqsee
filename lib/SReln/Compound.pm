@@ -247,6 +247,7 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
             $unchanged_ref->{$k} = $v1;
             next;
         }
+        ### $k, $v1
         my $rel = find_reln($v1, $v2);
         return unless $rel;
         $changed_ref->{$k} = $rel;
@@ -471,6 +472,12 @@ sub as_insertlist{
         while (my($k, $v) = each %{$unchanged_bindings_of_of{$id}}) {
             $list->concat( SInsertList->new($k, "", "\t", "", $v, "\n")->indent(1));
         }
+
+        $list->append( "History: ", 'heading', "\n");
+        for (@{$self->get_history}) {
+            $list->append("$_\n");
+        }
+
 
         return $list;
     }

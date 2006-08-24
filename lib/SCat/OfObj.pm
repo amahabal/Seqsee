@@ -242,9 +242,9 @@ sub find_metonym{
 
     my $obj =  $finder->( $object, $cat, $name, $bindings );
     ## next line kludgy
-    if (UNIVERSAL::isa($object, "SAnchored")) {
-        $obj->get_starred->set_edges( $object->get_edges );
-    }
+    #if (UNIVERSAL::isa($object, "SAnchored")) {
+    $obj->get_starred->set_edges( $object->get_edges );
+    #}
     
     return $obj;
 }

@@ -54,7 +54,7 @@ my $each_finder = sub {
 
 my $meto_finder_each = sub {
     my ( $object, $cat, $name, $bindings ) = @_;
-    my $starred = $bindings->get_binding("each");
+    my $starred = SObject->create($bindings->get_binding("each"));
     my $info_lost = { length => $bindings->get_binding("length") };
     
     return SMetonym->new({

@@ -206,6 +206,10 @@ sub as_insertlist{
             $list->append("\t$v\t$t\n");
         }
 
+        $list->append( "History: ", 'heading', "\n");
+        for (@{$self->get_history}) {
+            $list->append("$_\n");
+        }
         return $list;
     }
 

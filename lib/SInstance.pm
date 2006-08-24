@@ -80,6 +80,9 @@ sub add_category{
         delete $non_cat_ref->{$cat};
     }
 
+
+    $self->add_history("Added category " . $cat->get_name );
+
     # make string to object mapping
     $S::Str2Cat{$cat} = $cat;
 
@@ -98,6 +101,7 @@ sub remove_category{
     my $non_cat_ref    = $non_cats_of_of{$id};
 
     if (exists $cat_ref->{$cat}) {
+        $self->add_history("Removed category " . $cat->get_name );
         delete $cat_ref->{$cat};
     }
 

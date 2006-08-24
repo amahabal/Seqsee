@@ -234,6 +234,13 @@ sub as_insertlist{
         $list->append("Second: ", "first_second", "\n");
         $list->concat( $second_of{$id}->as_insertlist(1)->indent(1) );
         $list->append("\n");
+
+        $list->append( "History: ", 'heading', "\n");
+        for (@{$self->get_history}) {
+            $list->append("$_\n");
+        }
+
+
         return $list;
     }
 
