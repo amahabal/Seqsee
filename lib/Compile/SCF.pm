@@ -59,7 +59,14 @@ sub param_string{
 
     my $required_hash = $param_of_of{$id};
     for (keys %$required_hash) {
-        $ret .= "my \$$_ = \$opts_ref->{$_} or confess \"Need $_\";\n";
+        my $is_necessary;
+        if (m#!$#) { # Required!
+            chop;
+            $is_necessary = 1;
+        }
+        $ret .= "my \$$_ = \$opts_ref->{$_}";
+        $ret .= " or confess \"Need $_\"" if $is_necessary;
+        $ret .= ";\n";
     }
 
     my $optional_hash = $default_of_of{$id};
