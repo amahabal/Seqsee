@@ -1,4 +1,4 @@
-SCF::Reader
+# SCF::Reader
 SCF::FindIfGroupable
 SCF::FindIfMetonyable
 SCF::FindIfRelated

@@ -60,6 +60,7 @@ use SThought;
 use SStream;
 use SWorkspace;
  
+use SCF::All;
 
 # use SUtil;
 
