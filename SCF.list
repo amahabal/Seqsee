@@ -1,9 +1,5 @@
-# SCF::Reader
-SCF::FindIfGroupable
-SCF::FindIfMetonyable
-SCF::FindIfRelated
-SCF::FindIfRelatedRelns
-SCF::flipReln
-SCF::AttemptExtension
-#SCF::CheckIfInstance
-#SCF::SetLiteralCat
+#SCF::FindIfGroupable
+#SCF::FindIfMetonyable
+#SCF::FindIfRelated
+#SCF::FindIfRelatedRelns
+#SCF::flipReln
