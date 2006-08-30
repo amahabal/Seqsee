@@ -193,9 +193,11 @@ sub _think_the_current_thought{
             SCoderack->add_codelet($x);
         } elsif ($x_type eq "SAction") {
             # print "Action of family ", $x->get_family(), " to be run\n";
+            # main::message("Action of family ", $x->get_family());
             $x->conditionally_run();
         } else {
-            confess "Huh? " unless $x->isa("SThought");
+            confess "Huh? non-thought '$x' returned by get_actions"
+                unless UNIVERSAL::isa($x, "SThought");
             push @_thoughts, $x;
         }
     }
