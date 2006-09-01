@@ -195,60 +195,6 @@ sub _read_config_and_commandline{
 }
 
 
-
-# method: Interaction_step_n
-# Takes upto n steps
-#
-#    Updates display after update_after
-#
-#    usage:
-#       Interaction_step_n( $options_ref )     
-#
-#    parameter list:
-#        n - steps to take
-#        update_after - update display every so many steps
-#
-#    return value:
-#      bool, whether program has finished
-#
-#    possible exceptions:
-
-sub Interaction_step_n{
-    my $opts_ref = shift;
-    ## In Interaction_step_n: $opts_ref
-
-    my $n = $opts_ref->{n} or confess "Need n";
-    $n = min( $n, 
-              $OPTIONS_ref->{max_steps} - $Steps_Finished );
-    return 1 unless $n; # i.e, okay to stop now!
-
-    my $update_after = $opts_ref->{update_after} || $n;
-
-    my $change_after_last_display = 0;#to prevent repeats at end
-    my $program_finished = 0;
-
-    STEP_LOOP: for my $steps_executed (1..$n) {
-	$::_BREAK_LOOP = 0;
-
-        ## Interaction_step_n executing step number: $steps_executed
-        $program_finished = Seqsee_Step();
-        ## Interaction_step_n finished step: $steps_executed 
-        $change_after_last_display = 1;
-        
-        if (not ($steps_executed % $update_after)) {
-            update_display();
-            $change_after_last_display = 0;
-        }
-        last if $program_finished;
-	last if $::_BREAK_LOOP;
-    }
-    
-    update_display() if $change_after_last_display;
-    return $program_finished;
-}
-
-
-
 # method: Interaction_continue
 # Keeps taking steps until done
 #
@@ -256,10 +202,11 @@ sub Interaction_step_n{
 
 sub Interaction_continue{
     return
-        Interaction_step_n
+        Seqsee::Interaction_step_n
             ( {
                 n => $OPTIONS_ref->{max_steps},
                 update_after => $OPTIONS_ref->{update_interval},
+                max_steps => $OPTIONS_ref->{max_steps},
             });
 }
 
@@ -273,8 +220,9 @@ sub Interaction_continue{
 
 sub Interaction_step{
     return 
-        Interaction_step_n( { n => 1,
+        Seqsee::Interaction_step_n( { n => 1,
                               update_after => 1,
+                              max_steps => $OPTIONS_ref->{max_steps},
                           });
 }
 
@@ -392,11 +340,12 @@ sub TextMainLoop{
     while (my $line = prompt -require => { "Seqsee[$Steps_Finished] > " =>  qr{\S}},
            "Seqsee[$Steps_Finished] > ") {
         if ($line =~ m/^ \s* s \s* $/xi) {
-            Interaction_step( { n => 1, update_after => 1 } );
+            Interaction_step( { n => 1,
+                                update_after => 1,} );
         } elsif ( $line =~ m/^ \s* s \s* (\d+) \s* $/xi) {
-            Interaction_step_n( { n => $1, 
+            Seqsee::Interaction_step_n( { n => $1, 
                                 update_after=> $OPTIONS_ref->{update_interval},
-                            } );
+                                  max_steps => $OPTIONS_ref->{max_steps},                            } );
         } elsif ( $line =~ m/^ \s* c \s* $/ix) {
             Interaction_continue();
         } elsif ($line =~ m/^ \s* e \s* $/ix) {
@@ -413,64 +362,6 @@ sub TextMainLoop{
     }
 }
 
-
-
-# method: Seqsee_Step
-# One step of Seqsee execution. 
-# 
-# Details:
-#  Backround activity is things that should happen between steps, update activation etc. Done using a call to do_background_activity()
-#
-#  The call SCoderack->get_next_runnable() returns a codelet or a thought, taking into account whether a thought is scheduled, etc.
-# 
-#  If a thought is returned, we should call SStream->add_thought(), which, er, thinks the thought.
-#
-#  If it is a codelet, it should be executed, and its return value looked at: If the return value is a thought, that should also result in SStream->add_thought(), too.
-# 
-# Error Checking:
-#   * If running a codelet, traps SErr::ProgOver and SErr::Think
-#   * If running a thought, traps SErr::Think
-#
-# return value: 
-#    true if prog finished
-
-sub Seqsee_Step{
-    $Steps_Finished++;
-    do_background_activity();
-
-    ## $Steps_Finished
-    my $runnable = SCoderack->get_next_runnable();
-    ## $runnable
-    return unless $runnable; # prog not yet finished!
-
-    eval {
-        if ($runnable->isa("SCodelet")) {
-            $::CurrentRunnableString = "SCF::". $runnable->[0];
-            $runnable->run();
-        } elsif ($runnable->isa("SThought")) {
-            $::CurrentRunnableString = ref($runnable);
-            SStream->add_thought( $runnable );
-        } else {
-            SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");
-        }
-    };
-
-    if ($EVAL_ERROR) {
-        my $err = $EVAL_ERROR;
-        ## Caught an error: ref($err)
-        if (UNIVERSAL::isa($err, 'SErr::ProgOver')) {
-            return 1;
-        }
-        if (UNIVERSAL::isa($err, 'SErr::NeedMoreData') or
-              UNIVERSAL::isa($err, 'SErr::ContinueWith')
-                    ) {
-            $err->payload()->schedule();
-            return;
-        }
-        default_error_handler($err);        
-    }
-    return;
-}
 
 # method: do_background_activity
 # Don't know what this'll do
