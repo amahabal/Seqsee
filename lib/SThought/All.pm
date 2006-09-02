@@ -1,3 +1,5 @@
+##########################################
+##########################################
 use Compile::SThought;
 [package] SThought::AreRelated
 [param] a!
@@ -28,6 +30,8 @@ use Compile::SThought;
     }
 </actions>
 
+##########################################
+##########################################
  no Compile::SThought;
  use Compile::SThought;
  [package] SThought::AreTheseGroupable
@@ -73,6 +77,8 @@ use Compile::SThought;
      # confess "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
  </actions>
 
+##########################################
+##########################################
  no Compile::SThought;
  use Compile::SThought;
  [package] SThought::AreWeDone
@@ -108,7 +114,7 @@ use Compile::SThought;
                  if ($gp->get_right_extendibility() ne EXTENDIBILE::NO()) {
                      #great. 
                      main::update_display();
-                     main::message("I believe I got it");
+                     BelieveDone();
                  } else {
                      main::update_display();
                      my $rejected = join(", ", keys %::EXTENSION_REJECTED_BY_USER);
@@ -126,6 +132,19 @@ use Compile::SThought;
      }
  </actions>
 
+sub BelieveDone{
+    my ( $group ) = @_;
+    if ($::TESTING_MODE) {
+        # Currently assume belief always right.
+        SErr::FinishedTest->new()
+              ->throw();
+    }
+    main::message("I believe I got it");    
+}
+
+
+##########################################
+##########################################
  no Compile::SThought;
  use Compile::SThought;
  [package] SThought::SAnchored
@@ -194,6 +213,8 @@ use Compile::SThought;
      }
  </actions>
 
+##########################################
+##########################################
  no Compile::SThought;
  use Compile::SThought;
  [package] SThought::SElement
@@ -239,6 +260,8 @@ use Compile::SThought;
 
  </actions>
 
+##########################################
+##########################################
  no Compile::SThought;
  use Compile::SThought;
  [package] SThought::SReln_Compound
@@ -266,6 +289,8 @@ use Compile::SThought;
 
  </actions>
 
+##########################################
+##########################################
   no Compile::SThought;
   use Compile::SThought;
   [package] SThought::SReln_Simple
@@ -298,6 +323,8 @@ use Compile::SThought;
       }
   </actions>
 
+##########################################
+##########################################
   no Compile::SThought;
   use Compile::SThought;
   [package] SThought::ShouldIFlip

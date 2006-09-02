@@ -22,6 +22,8 @@ use Exception::Class (
     'SErr::HolesHere' => {}, #thrown by SAnchored constructor
 
     'SErr::AskUser' => { fields => [qw{already_matched next_elements}]},
+
+    'SErr::FinishedTest' => { fields => [qw()] },
 );
 1;
 

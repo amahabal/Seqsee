@@ -17,6 +17,19 @@ use Seqsee;
 $::TESTING_MODE = 1;
 $::CurrentRunnableString = "";
 
+{
+    my $failed_requests;
+    sub ResetFailedRequests{
+        $failed_requests = 0;
+    }
+    sub IncrementFailedRequests{
+        $failed_requests++;
+    }
+    sub GetFailedRequests{
+        return $failed_requests;
+    }
+}
+
 sub undef_ok {
     my ( $what, $msg ) = @_;
     if ( not( defined $what ) ) {
@@ -274,23 +287,27 @@ NOLOG
                                       
                           }});
 
-    "main"->install_sub({ ask_user_extension => sub {
-                              my($arr_ref) = @_;
-                              my $ws_count = $SWorkspace::elements_count;
-                              my $ask_terms_count = scalar(@$arr_ref);
-                              unless ($ask_terms_count) {
-                                  die "ask_user_extension called with 0 terms!";
-                              }
-                              my $known_elements_count =scalar(@main::_real_seq);
-                              unless ($ws_count + $ask_terms_count <= $known_elements_count) {
-                                  die "Don't know that many elements in the future";
-                              }
-                              for my $i (0..$ask_terms_count-1) {
-                                  return unless $main::_real_seq[$ws_count + $i] == $arr_ref->[$i];
-                              }
-                              return 1;
-                          }});
-
+    "main"->install_sub({ 
+        ask_user_extension => sub {
+            my($arr_ref) = @_;
+            my $ws_count = $SWorkspace::elements_count;
+            my $ask_terms_count = scalar(@$arr_ref);
+            unless ($ask_terms_count) {
+                die "ask_user_extension called with 0 terms!";
+            }
+            my $known_elements_count =scalar(@main::_real_seq);
+            unless ($ws_count + $ask_terms_count <= $known_elements_count) {
+                die "Don't know that many elements in the future";
+            }
+            for my $i (0..$ask_terms_count-1) {
+                unless ($main::_real_seq[$ws_count + $i] == $arr_ref->[$i]) {
+                    IncrementFailedRequests();
+                    return;
+                }
+            }
+            return 1;
+        }});
+    
 }
 
 
