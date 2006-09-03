@@ -136,7 +136,7 @@ sub BelieveDone{
     my ( $group ) = @_;
     if ($::TESTING_MODE) {
         # Currently assume belief always right.
-        SErr::FinishedTest->new()
+        SErr::FinishedTest->new(got_it => 1)
               ->throw();
     }
     main::message("I believe I got it");    

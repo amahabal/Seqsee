@@ -5,6 +5,9 @@ use version; our $VERSION = version->new( "0.0.3" );
 use English qw(-no_match_vars);
 use List::Util qw(min max);
 use Carp;
+use Smart::Comments;
+use Config::Std;
+use Getopt::Long;
 
 sub run{
     my (@sequence) = @_;
@@ -65,6 +68,25 @@ sub initialize_thoughttypes{
     }
 }
 
+# method: do_background_activity
+
+sub do_background_activity{
+    SCoderack->add_codelet( SCodelet->new( "Reader",
+                                           50, {}
+                                               ));
+
+}
+sub already_rejected_by_user{
+    my ( $aref ) = @_;
+    my @a = @$aref;
+    my $cnt = scalar @a;
+    for my $i (0..$cnt-1) {
+        my $substr = join(", ", @a[0..$i] );
+        ## Chekin for user rejection: $substr
+        return 1 if $::EXTENSION_REJECTED_BY_USER{$substr};
+    }
+    return 0;
+}
 
 # method: Seqsee_Step
 # One step of Seqsee execution. 
@@ -87,11 +109,10 @@ sub initialize_thoughttypes{
 
 sub Seqsee_Step{
     $::Steps_Finished++;
-    main::do_background_activity();
+    do_background_activity();
 
     ## $Steps_Finished
     my $runnable = SCoderack->get_next_runnable();
-    ## $runnable
     return unless $runnable; # prog not yet finished!
 
     eval {
@@ -100,6 +121,7 @@ sub Seqsee_Step{
             $runnable->run();
         } elsif ($runnable->isa("SThought")) {
             $::CurrentRunnableString = ref($runnable);
+            ## $runnable
             SStream->add_thought( $runnable );
         } else {
             SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");
@@ -174,6 +196,84 @@ sub Interaction_step_n{
     main::update_display() if $change_after_last_display;
     return $program_finished;
 }
+
+# var: %DEFAULTS
+# Defaults for configuration
+#
+# used if not spec'd in config file or on the command line.
+my %DEFAULTS 
+    = ( seed => int( rand() * 32000 ),
+        update_interval => 0, # If default used, carps when interactive 
+            );
+
+sub _read_commandline{
+    my %options;
+    GetOptions( \%options,
+                "seed=i",
+                "log!",
+                "tk!",
+                "seq=s",
+                "update_interval=i",
+                "interactive!",
+                "max_steps=i",
+                    );
+    return %options;
+}
+
+
+# method: _read_config_and_commandline
+# reads in config/commandline/defaults
+#
+# Reads the configuration (conf/seqsee.conf), updates what it sees using the commandline arguments, sets defaults, and returns the whole thing in a HASH
+#
+#    return value:
+#       The OptionsRef      
+
+sub _read_config{
+    my %options = @_;
+    my $RETURN_ref = {};
+    read_config 'config/seqsee.conf' => my %config;
+
+    for (qw{seed log tk max_steps 
+            interactive update_interval
+
+            UseScheduledThoughtProb ScheduledThoughtVanishProb
+            DecayRate
+        }) {
+        my $val 
+            = exists($options{$_})        ? $options{$_} :
+              exists($config{seqsee}{$_}) ? $config{seqsee}{$_} :
+              exists($DEFAULTS{$_})       ? $DEFAULTS{$_} :
+                  confess "Option '$_' not set either on command line, conf file or defauls";
+        $RETURN_ref->{$_} = $val;
+    }
+
+    $RETURN_ref->{seq} = $options{seq}; # or confess "Sequence not set!";
+
+    # SANITY CHECKING: SEQ
+    my $seq = $RETURN_ref->{seq};
+    unless ($seq =~ /^[\d\s,]*$/) {
+        confess "The option --seq must be a space or comma separated list of integers; I got '$seq' instead";
+    }
+    for ($seq) { s/^\s*//; s/\s*$//; }
+    my @seq = split(/[\s,]+/, $seq);
+    $RETURN_ref->{seq} = [ @seq ];
+
+    # SANITY CHECKING: interactive
+    if ($RETURN_ref->{tk} and not($RETURN_ref->{interactive})) {
+        print "Using Tk forces interactivity! Reading your mind...\n";
+        $RETURN_ref->{interactive} = 1;
+    }
+
+    # SANITY CHECKING: update_interval
+    if ($RETURN_ref->{interactive} 
+            and not($RETURN_ref->{update_interval})) {
+        confess "Seqsee is being used interactively: absolutely must have the update interval: it cannot use the value $RETURN_ref->{update_interval}";
+    }
+
+    return $RETURN_ref;
+}
+
 
 
 

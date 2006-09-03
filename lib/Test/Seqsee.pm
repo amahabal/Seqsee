@@ -12,6 +12,7 @@ use Sub::Installer;
 
 use S;
 use Seqsee;
+use Smart::Comments;
 
 ## useful to turn a few features off...
 $::TESTING_MODE = 1;
@@ -269,7 +270,7 @@ sub code_throws_stochastic_all_and_only_nok{
 }
 
 sub INITIALIZE_for_testing{ 
-
+    $::TestingOPTIONS_ref = Seqsee::_read_config(seq => '0'); # Random
     Seqsee->initialize_codefamilies();
     Seqsee->initialize_thoughttypes();
             Log::Log4perl::init(\<<'NOLOG');
@@ -284,7 +285,11 @@ log4perl.appender.file.layout    = PatternLayout
 NOLOG
 
     "main"->install_sub({ message => sub {
-                                      
+                          }});
+    "main"->install_sub({ update_display => sub {
+                          }});
+    "main"->install_sub({ default_error_handler => sub {
+                              $_[0]->throw();
                           }});
 
     "main"->install_sub({ 
@@ -297,7 +302,9 @@ NOLOG
             }
             my $known_elements_count =scalar(@main::_real_seq);
             unless ($ws_count + $ask_terms_count <= $known_elements_count) {
-                die "Don't know that many elements in the future";
+                my $msg = "Known Elements: $known_elements_count; " . 
+                    "WS: $ws_count; Being asked: $ask_terms_count";
+                die "Don't know that many elements in the future: $msg";
             }
             for my $i (0..$ask_terms_count-1) {
                 unless ($main::_real_seq[$ws_count + $i] == $arr_ref->[$i]) {
@@ -305,6 +312,7 @@ NOLOG
                     return;
                 }
             }
+            $main::AtLeastOneUserVerification = 1;
             return 1;
         }});
     
@@ -498,6 +506,58 @@ sub action_contains{
     }
     output_contains($subr, msg => "action_contains  ", %options);
 }
+
+sub RegTestHelper{
+    my ( $opts_ref ) = @_;
+    my $seq = $opts_ref->{seq} or confess;
+    my $continuation = $opts_ref->{continuation} or confess;
+    my $max_false_continuations = $opts_ref->{max_false} or confess;
+    my $max_steps = $opts_ref->{max_steps} or confess;
+    my $min_extension = $opts_ref->{min_extension} or confess;
+
+
+
+    ResetFailedRequests();
+    SWorkspace->init({ %$::TestingOPTIONS_ref, seq => $seq});
+    push @main::_real_seq, @$continuation;
+    SCoderack->init($::TestingOPTIONS_ref);
+    SStream->init($::TestingOPTIONS_ref);
+    SNode->init($::TestingOPTIONS_ref);
+
+    eval {
+        while (!Seqsee::Interaction_step_n( {
+            n => $max_steps,
+            max_steps => $max_steps,
+            update_after => $max_steps, })) {
+            # Just do Interaction_step_n until finished...
+        }
+        ### Finished run, with steps: $main::Steps_Finished
+        ### Workspace has this many elements: $SWorkspace::elements_count
+    };
+    if (my $err = $EVAL_ERROR) {
+        unless (UNIVERSAL::isa($err, "SErr::FinishedTest")) {
+            print $err;
+            return "UnnaturalDeath";
+        }
+        my $failed_requests = GetFailedRequests();
+        if ($failed_requests > $max_false_continuations) {
+            return "TooManyFalseQueries";
+        }
+        if ($err->got_it()) {
+            return "GotIt";
+        } else {
+            confess "A SErr::FinishedTest thrown without getting it. Bad.";
+        }
+    } else {
+        # Natural end?
+        if ($SWorkspace::elements_count - scalar(@$seq) > $min_extension) {
+            return "ExtendedWithoutGettingIt";
+        } else {
+            return "NotEvenExtended";
+        }
+    }
+}
+
 
 INITIALIZE_for_testing();
 

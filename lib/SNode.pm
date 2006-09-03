@@ -100,7 +100,7 @@ sub clear{
 
 sub init{
     my ( $package, $opts_ref ) = @_;
-    $DECAY_RATE = $opts_ref->{DecayRate};
+    $DECAY_RATE = $opts_ref->{DecayRate} or die;
 }
 
 
