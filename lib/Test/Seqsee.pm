@@ -509,11 +509,14 @@ sub action_contains{
 
 sub RegTestHelper{
     my ( $opts_ref ) = @_;
-    my $seq = $opts_ref->{seq} or confess;
-    my $continuation = $opts_ref->{continuation} or confess;
-    my $max_false_continuations = $opts_ref->{max_false} or confess;
-    my $max_steps = $opts_ref->{max_steps} or confess;
-    my $min_extension = $opts_ref->{min_extension} or confess;
+    for (qw(seq continuation max_false max_steps min_extension)) {
+        confess "Missing option $_" unless exists $opts_ref->{$_};
+    }
+    my $seq = $opts_ref->{seq};
+    my $continuation = $opts_ref->{continuation};
+    my $max_false_continuations = $opts_ref->{max_false};
+    my $max_steps = $opts_ref->{max_steps};
+    my $min_extension = $opts_ref->{min_extension};
 
 
 

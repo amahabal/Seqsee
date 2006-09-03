@@ -137,6 +137,11 @@ multimethod _insert_element => ( 'SElement') => sub {
 sub read_object{
     my ( $package ) = @_;
     my $object = _get_some_object_at( $ReadHead );
+    unless ($object) {
+        ### Failed to read any object at ReadHead = : $ReadHead
+        ### elements_count: $elements_count
+        confess;
+    }
     my $right_edge = $object->get_right_edge;
     
     if ($right_edge == $elements_count - 1 ) {
