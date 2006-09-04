@@ -56,6 +56,7 @@ BLEMISHED_IS_INST: {
   cmp_ok( $bindings->get_binding('end'), 'eq', 8 );
   
   $object = SObject->quik_create([3,4,[5,5],6,7,8]);
+  ## $object
   ok( $object->can_be_seen_as(SObject->create(3,4,5,6,7,8)), "Can be seen as" );
 
   $bindings =

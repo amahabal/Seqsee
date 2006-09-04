@@ -29,7 +29,7 @@ our %groups;
 #    Points just beyond the last object read.
 #     
 #    If never called before any reads, points to 0.
-my $ReadHead = 0;
+our $ReadHead = 0;
 
 
 # variable: %relations
@@ -64,6 +64,7 @@ sub clear{
     @elements       = ();
     %groups = ();
     %relations = ();
+    $ReadHead = 0;
 }
 
 # method: init

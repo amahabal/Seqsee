@@ -58,7 +58,7 @@ stochastic_test_codelet (
              
             return { core => $WSO_ga, direction => DIR::RIGHT() };
         }, 
-    throws => [''],
+    throws => ['', 'AreWeDone'],
     post_run => sub {
         return SWorkspace->is_there_a_covering_group(0,2);
     });

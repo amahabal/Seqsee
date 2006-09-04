@@ -228,7 +228,8 @@ sub throws_no_thought_ok{
 }
 
 sub _wrap_to_get_payload_type{
-    my ( $subr ) = @_;
+    my ( $subr, $check_sub ) = @_;
+    # check_sub runs only if no eval error.
     return sub {
         eval { $subr->( ) };
         if (my $e = $EVAL_ERROR ) {
@@ -240,14 +241,21 @@ sub _wrap_to_get_payload_type{
             }
             die $e;
         }
+        if ($check_sub) {
+            my $check_value = $check_sub->();
+            unless ($check_value) {
+                # No exception, and yet the check sub did not deliver.
+                return "Failed Check";
+            }
+        }
         return "";
     };
 }
 
 
 sub code_throws_stochastic_ok{
-    my ( $subr, $arr_ref ) = @_;
-    my $new_sub = _wrap_to_get_payload_type( $subr );
+    my ( $subr, $arr_ref, $check_sub ) = @_;
+    my $new_sub = _wrap_to_get_payload_type( $subr, $check_sub );
     stochastic_all_seen_ok $new_sub, $arr_ref;
 }
 
@@ -258,9 +266,9 @@ sub code_throws_stochastic_nok{
 }
 
 sub code_throws_stochastic_all_and_only_ok{
-    my ( $subr, $arr_ref ) = @_;
-    my $new_sub = _wrap_to_get_payload_type( $subr );
-    stochastic_all_and_only_ok $new_sub, $arr_ref;
+    my ( $subr, $arr_ref, $check_sub ) = @_;
+    my $new_sub = _wrap_to_get_payload_type( $subr, $check_sub );
+    stochastic_all_and_only_ok $new_sub, $arr_ref, $check_sub;
 }
 
 sub code_throws_stochastic_all_and_only_nok{
@@ -271,6 +279,8 @@ sub code_throws_stochastic_all_and_only_nok{
 
 sub INITIALIZE_for_testing{ 
     $::TestingOPTIONS_ref = Seqsee::_read_config(seq => '0'); # Random
+    $::Steps_Finished = 0;
+    $::CurrentRunnableString = "";
     Seqsee->initialize_codefamilies();
     Seqsee->initialize_thoughttypes();
             Log::Log4perl::init(\<<'NOLOG');
@@ -324,9 +334,9 @@ sub stochastic_test_codelet{
     my ($setup_sub, $expected_throws, $check_sub, $codefamily) =
         @opts_ref{ qw(setup throws post_run codefamily)};
 
-    if ($check_sub) {
-        confess ' defining a check_sub when there can be exceptions is useless..  here, we are expecting' . "@$expected_throws" unless List::MoreUtils::all { $_ eq '' } @$expected_throws;
-    }
+    #    if ($check_sub) {
+    #         confess ' defining a check_sub when there can be exceptions is useless..  here, we are expecting' . "@$expected_throws" unless List::MoreUtils::all { $_ eq '' } @$expected_throws;
+    #}
 
     code_throws_stochastic_all_and_only_ok
         sub {
@@ -526,6 +536,7 @@ sub RegTestHelper{
     SCoderack->init($::TestingOPTIONS_ref);
     SStream->init($::TestingOPTIONS_ref);
     SNode->init($::TestingOPTIONS_ref);
+    $SWorkspace::ReadHead = 0;
 
     eval {
         while (!Seqsee::Interaction_step_n( {
