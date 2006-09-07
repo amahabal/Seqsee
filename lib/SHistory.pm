@@ -13,6 +13,9 @@ use base qw{};
 
 my %messages_of :ATTR( :get<history>);
 
+$::Steps_Finished ||= '';
+$::CurrentRunnableString ||= '';
+
 sub BUILD{
     my ( $self, $id, $opts ) = @_;
     $messages_of{$id} = [ history_string("created") ];

@@ -66,7 +66,7 @@ our %ComponentOwnership_of = ();
 
 # variable: $CurrentThought
 #    The current thought
-our $CurrentThought;
+our $CurrentThought = '';
 
 our %vivify;
 
@@ -76,7 +76,7 @@ our %vivify;
 sub clear{
     $OlderThoughtCount   = 0;
     @OlderThoughts       = ();
-    $CurrentThought      = undef;
+    $CurrentThought      = '';
     %ComponentStrength   = ();
     %ComponentOwnership_of = ();
 }
@@ -262,7 +262,7 @@ sub init{
 sub antiquate_current_thought{
    my $package = shift;
    unshift(@OlderThoughts, $CurrentThought);
-   $CurrentThought = undef;
+   $CurrentThought = '';
    $OlderThoughtCount++;
    _recalculate_Compstrength();
 }
@@ -278,7 +278,7 @@ sub display_as_text{
         "*******************************************",
         "Current Thought:                           ",
         "{[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-        (defined $CurrentThought) ? $CurrentThought->as_text() : "none",
+        $CurrentThought ? $CurrentThought->as_text() : "none",
         "*******************************************",
         "{>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<}",
         ["OLDER THOUGHTS"],
@@ -319,6 +319,7 @@ sub _is_there_a_hit{
         }
     }
     
+    return unless %thought_hit_intensity;
     # Dampen their effect...
     my $dampen_by = 1;
     for my $i (0..$OlderThoughtCount-1) {

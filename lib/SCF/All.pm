@@ -62,9 +62,6 @@ use Compile::SCF;
 [param] direction!
 
 <run>
-    my $core = $opts_ref->{core} or confess "need core";
-    my $direction = $opts_ref->{direction} or confess "need direction";
-
     my $direction_of_core = $core->get_direction;
     my $type = $core->isa('SObject') ? "object" : "reln";
 

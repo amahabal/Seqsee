@@ -161,7 +161,7 @@ sub _choose_codelet{
 
 }
 
-############## ACCESSORS, mostly for testing
+# ACCESSORS, mostly for testing
 
 sub get_urgencies_sum { return $URGENCIES_SUM }
 sub get_codelet_count { return $CODELET_COUNT }
