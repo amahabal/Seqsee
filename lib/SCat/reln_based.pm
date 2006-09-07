@@ -29,9 +29,9 @@ my $instancer = sub {
     my @parts = map { $_->get_effective_object } @{ $object->get_parts_ref };
     my $parts_count = scalar(@parts);
 
-    for (my $i=0; $i< $parts_count - 1;$i++) {
+    for my $i (0 .. ($parts_count - 2)) {
         my $rel_between_parts = $parts[$i]->get_relation($parts[$i+1]);
-        ## $rel_between_parts, $parts[$i], $parts[$i+1]
+        ## Relations: $rel_between_parts, $parts[$i], $parts[$i+1]
         return unless $rel_between_parts;
         return unless are_relns_compatible($reln, $rel_between_parts);
     }
@@ -39,7 +39,7 @@ my $instancer = sub {
 
     my $slippages = {};
     @parts = @{ $object->get_parts_ref };
-    for (my $i=0; $i< $parts_count;$i++) {
+    for my $i (0 .. $parts_count - 1) {
         my $part = $parts[$i];
         if ($part->get_metonym_activeness) {
             my $metonym = $part->get_metonym;
@@ -48,7 +48,7 @@ my $instancer = sub {
         }
     }    
 
-    return SBindings->create( $slippages, { }, $object);
+    return SBindings->create( $slippages, { relation => $reln }, $object);
 };
 
 our $reln_based =
