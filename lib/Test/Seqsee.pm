@@ -241,11 +241,15 @@ sub _wrap_to_get_payload_type{
             }
             die $e;
         }
+
+        # We reach here only if no exception was thrown.
+        # Beyond here, if $check_sub->() fails(or returns false),
+        # we should die. If it returns true, return "".
         if ($check_sub) {
             my $check_value = $check_sub->();
             unless ($check_value) {
                 # No exception, and yet the check sub did not deliver.
-                return "Failed Check";
+                confess "Failed Check in check_sub";
             }
         }
         return "";
@@ -338,7 +342,7 @@ sub stochastic_test_codelet{
     #         confess ' defining a check_sub when there can be exceptions is useless..  here, we are expecting' . "@$expected_throws" unless List::MoreUtils::all { $_ eq '' } @$expected_throws;
     #}
 
-    code_throws_stochastic_all_and_only_ok
+    code_throws_stochastic_ok
         sub {
             SUtil::clear_all();
             my $opts_ref = $setup_sub->();
@@ -349,8 +353,7 @@ sub stochastic_test_codelet{
     if ($check_sub) {
         ok( $check_sub->(), 'checking the after effects');
     } else {
-        ok( 1, 'nothing to check' );
-
+        ok( 1, 'No check_sub: nothing to check' );
     }
 
 }
