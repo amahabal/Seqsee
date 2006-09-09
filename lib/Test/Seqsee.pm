@@ -608,10 +608,16 @@ sub RegStat{
     while (my ($k, $v) = each %outputs) {
         print "$v\t times: $k\n";
     }
+    return \%outputs;
 }
 
+my %TooLow = ( 0 => -1, 1 => 0, 2 => 0, 3 => 1, 4 => 2, 5 => 3, 6 => 4,
+                   7 => 5, 8 => 6, 9 => 7, 10 => 9);
+my %PleasantlyHigh = ( 0 => 1, 1 => 3, 2 => 4, 3 => 5, 4 => 6, 5 => 7, 6 => 8,
+                           7 => 9, 8 => 9, 9 => 10, 10 => 11);
 sub RegHarness{
     my @files = glob("Reg/*.reg");
+    my (@improved, @became_worse);
     for (@files) {
         my %opts;
         read_config $_ => %opts;
@@ -620,8 +626,53 @@ sub RegHarness{
         $opts{max_false} ||= 10;
         $opts{max_steps} ||= 10000;
         $opts{min_extension} ||= 2;
-        RegStat(\%opts);
+        my $output = RegStat(\%opts);
+        my $current_GotIt = $output->{GotIt} ||= 0;
+
+        my $earlier_GotIt = 0;
+        my $last_res_file = $_ . ".last_res";
+        my $log_file = $_ . ".log_res";
+        if (-e $last_res_file) {
+            read_config $last_res_file => my %out;
+            $earlier_GotIt = $out{''}->{GotIt};
+        }
+
+        open LOG, ">>", $log_file;
+        open CURRENT, ">", $last_res_file;
+        while (my($k, $v) = each %$output) {
+            print LOG "$k = $v\n";
+            print CURRENT "$k = $v\n";
+        }
+        close LOG;
+        close CURRENT;
+
+        if ($current_GotIt <= $TooLow{$earlier_GotIt}) {
+            print "##########\n# PERFORMANCE WORSE!\n Had Got It ",
+                "$earlier_GotIt times, now just $current_GotIt";
+            push @became_worse, [$opts{seq}, $earlier_GotIt, $current_GotIt];
+        } elsif ($current_GotIt >= $PleasantlyHigh{$earlier_GotIt}) {
+            print "!!!!!!!!!\n# PERFORMANCE BETTER!\n Had Got It ",
+                "$earlier_GotIt times, now it is $current_GotIt";
+            push @improved, [$opts{seq}, $earlier_GotIt, $current_GotIt];
+        }
+
     }
+
+    if (@improved) {
+        print "\nThe following improved:\n";
+        for (@improved) {
+            print "\tFrom $_->[1] to $_->[2]\n\t\t", join(", ", @{$_->[0]}),
+                "\n";
+        }
+    }
+    if (@became_worse) {
+        print "\nThe following became worse:\n";
+        for (@became_worse) {
+            print "\tFrom $_->[1] to $_->[2]\n\t\t", join(", ", @{$_->[0]}),
+                "\n";
+        }
+    }
+
 }
 
 sub ParseSeq_{
