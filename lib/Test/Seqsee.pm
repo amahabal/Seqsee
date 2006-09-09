@@ -13,6 +13,7 @@ use Sub::Installer;
 use S;
 use Seqsee;
 use Smart::Comments;
+use Config::Std;
 
 ## useful to turn a few features off...
 $::TESTING_MODE = 1;
@@ -554,7 +555,7 @@ sub RegTestHelper{
     if (my $err = $EVAL_ERROR) {
         unless (UNIVERSAL::isa($err, "SErr::FinishedTest")) {
             print $err;
-            return "UnnaturalDeath";
+            return "UnnaturalDeath: $err";
         }
         my $failed_requests = GetFailedRequests();
         if ($failed_requests > $max_false_continuations) {
@@ -574,6 +575,68 @@ sub RegTestHelper{
         }
     }
 }
+
+sub RegStat{
+    my ( $opts_ref ) = @_;
+    my %outputs;
+    my %errors;
+    for (1..10) {
+        my $out;
+        eval { $out = RegTestHelper( $opts_ref ); };
+        if ($EVAL_ERROR) {
+            $errors{$EVAL_ERROR}++;
+            $outputs{UnnaturalDeath}++;
+            next;
+        }
+
+        if ($out =~ m/^UnnaturalDeath:\s*(.*)$/) {
+            $errors{$1}++;
+            $outputs{UnnaturalDeath}++;
+            next;
+        }
+
+        $outputs{$out}++;
+    }
+
+    print "============\n";
+    while (my ($k, $v) = each %$opts_ref) {
+        print "$k\t=>  $v\n";
+    }
+
+    print "============\n";
+    while (my ($k, $v) = each %outputs) {
+        print "$v\t times: $k\n";
+    }
+}
+
+sub RegHarness{
+    my @files = glob("Reg/*.reg");
+    for (@files) {
+        my %opts;
+        read_config $_ => %opts;
+        %opts = %{$opts{''}};
+        ### seq: $opts{seq}
+        ($opts{seq}, $opts{continuation}) = ParseSeq_($opts{seq});
+        ### seq: @{$opts{seq}}
+        $opts{max_false} ||= 10;
+        $opts{max_steps} ||= 10000;
+        $opts{min_extension} ||= 2;
+        RegStat(\%opts);
+    }
+}
+
+sub ParseSeq_{
+    my ( $seq ) = @_;
+    ### seq: $seq
+    my ($s, $c) = split(/\|/, $seq);
+    for ($s, $c) {
+        s/^\s*//;
+        s/\s*$//;
+    }
+    ### s, c: $s, $c
+    return ([split(/\s+/, $s)], [split(/\s+/, $c)]);
+}
+
 
 
 INITIALIZE_for_testing();

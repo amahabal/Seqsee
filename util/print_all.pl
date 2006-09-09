@@ -138,8 +138,16 @@ sub print_file($file){
   my $file_ = $file;
   $file_ =~ s#_#\\_#g;
   print OUT "\\section*{$file_}\n";
-  my $open_what = ($file =~ m#\.p.$#) ? 
-    "perltidy -l=100 -st $file | " : $file;
+  my $open_what;
+  
+  if ($file =~ m#All\.pm$#) { # SCF/All and SThought/All
+      $open_what = $file;
+  } elsif ($file =~ m#\.p.$#) {
+      $open_what =     "perltidy -l=100 -st $file | ";
+  } else {
+      $open_what = $file;
+  }
+
   open IN, $open_what;
   print OUT "\\begin{verbatim}\n";
   while ($_ = <IN>) { print OUT;}
