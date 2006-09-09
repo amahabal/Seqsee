@@ -600,7 +600,8 @@ sub RegStat{
 
     print "============\n";
     while (my ($k, $v) = each %$opts_ref) {
-        print "$k\t=>  $v\n";
+        my $v2 = (ref $v) eq "ARRAY" ? join(", ", @$v) : $v;
+        print "$k\t=>  $v2\n";
     }
 
     print "============\n";
@@ -615,9 +616,7 @@ sub RegHarness{
         my %opts;
         read_config $_ => %opts;
         %opts = %{$opts{''}};
-        ### seq: $opts{seq}
         ($opts{seq}, $opts{continuation}) = ParseSeq_($opts{seq});
-        ### seq: @{$opts{seq}}
         $opts{max_false} ||= 10;
         $opts{max_steps} ||= 10000;
         $opts{min_extension} ||= 2;
@@ -627,13 +626,11 @@ sub RegHarness{
 
 sub ParseSeq_{
     my ( $seq ) = @_;
-    ### seq: $seq
     my ($s, $c) = split(/\|/, $seq);
     for ($s, $c) {
         s/^\s*//;
         s/\s*$//;
     }
-    ### s, c: $s, $c
     return ([split(/\s+/, $s)], [split(/\s+/, $c)]);
 }
 

@@ -301,6 +301,7 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my $ret = _find_reln($o1, $o2, $cat);
     return $ret;
 };
+
 multimethod find_reln => qw(SObject SObject) => sub {
     my ($o1, $o2) = @_;
     $o1 = $o1->get_effective_object;

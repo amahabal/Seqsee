@@ -48,7 +48,9 @@ my $instancer = sub {
         }
     }    
 
-    return SBindings->create( $slippages, { relation => $reln }, $object);
+    # NOTE: relation is not an attribute because o/w we will need to see how
+    # relations change. We may need other mechanisms.
+    return SBindings->create( $slippages, { }, $object);
 };
 
 our $reln_based =
