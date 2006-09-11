@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{xspace}
+\usepackage{makeidx}
+
+\makeindex
+\begin{document}
+
+\section{Introduction}
+\label{sec:intro}
+
+\newcommand{\V}[1]{version-#1\xspace}
+\newcommand{\hof}{Hofstadter\xspace}
+\newcommand{\dan}{Dan Dennett\xspace}
+\newcommand{\andy}{Andy Clark\xspace}
+\newcommand{\seq}{Seqsee\xspace}
+\newcommand{\tofillout}[1]{[Need to fill gap: #1\index{Gaps!#1}]}
+
+
+My Ph.D. project may be looked at from two related but quite distinct perspectives.  The first view which I call \V{A} could seem to a distant observer to be all that my project is about:
+
+\paragraph{Version A.} I am designing and implementing a computer system that extends pattern sequences in human-like ways.
+
+\paragraph{} The second view---\V{B}---is closer to my main interest in the project:
+
+\paragraph{Version B.} Simulating how we think and all the spell-it-out that such an endevour entails is likely to bring to the fore problems and issues that can otherwise be overlooked, and writing the program, thus, is merely a cover for  exploring deeper.
+
+
+\section{The context of Seqsee}
+\label{sec:context}
+
+This work is being carried out in the Fluid Analogies Research Group, and is highly influenced by \hof and other FARGonauts. In methodology, in architecture, and in the general types of issues tackled it is strikingly similar to Copycat and other FARG projects.
+
+There have been other projects which have shared the \V{A} goals of \seq: they designed a program to extend integer sequences. Most notably, Simon and Kotovsky worked on such a program. \tofillout{SimonKotovsky}\tofillout{SeekWhence}
+
+As \seq is intended to extend sequences in ``a human-like way'', it's construction has been influenced by several cognitive scientists' ideas:
+
+\begin{itemize}
+\item The program gets its traction from tagging various intermediate objects with labels. These labels help \seq notice high-level similarity between constructs.
+
+Several people including \dan and \andy have described this role of ``words'' in human language, and how it aids cognition. The specific labels that I use are fluid categoriesof the sort described by \hof.
+
+I will have much more to say about this tagging in a later section.
+
+\item Noticing similarity between constructs
+\end{itemize}
+
+\printindex
+\end{document}
