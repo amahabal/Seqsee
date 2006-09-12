@@ -1,0 +1,59 @@
+\documentclass{article}
+\makeatletter
+\renewcommand{\theenumi}{\Roman{enumi}}
+\renewcommand{\theenumii}{\Alph{enumii}}
+\renewcommand{\theenumiii}{\alph{enumiii}}
+\makeatother
+\begin{document}
+
+\begin{enumerate}
+\item Introduction
+\item Related work
+\item The task in greater detail
+  \begin{enumerate}
+  \item The domain
+    \begin{enumerate}
+    \item Patterns, not math. Examples, and some non examples
+    \end{enumerate}
+  \item Some annotated should-see sequences
+  \item More than just extending
+    \begin{enumerate}
+    \item Creating variations
+    \item Memory (a l\'a Metacat)
+    \item Meta-thoughts
+    \end{enumerate}
+  \item Subtleties
+    \begin{enumerate}
+    \item What constitutes understanding?
+      \begin{enumerate}
+      \item Seeing motion, hitting walls?
+      \end{enumerate}
+    \item Multiple parsings
+    \end{enumerate}
+  \end{enumerate}
+\item Framework and Methodology
+\item How Seqsee works (currently)
+  \begin{enumerate}
+  \item Intro; explain necessarily sketchy
+  \item The workspace and codelets
+    \begin{enumerate}
+    \item No deviation yet from copycat
+    \item Justifying: quote \cite{Hofstadter:FCCA}, \cite{Hearsay}
+    \end{enumerate}
+  \item The ``discovery'' of similarity
+    \begin{enumerate}
+    \item The FindIfRelated codelet and how it gets triggered. The fringe \cite{James}
+    \item Tagging; Justification using \cite{Clark:MagicWords} and \cite{Dennett:Labeling}
+      \item Tags, fuzzy categories and analogies: \cite{Hofstadter:LeTon}
+    \end{enumerate}
+  \end{enumerate}
+  
+\item Timeframe
+\item References
+
+\end{enumerate}
+
+\bibliographystyle{apalike}
+\bibliography{merged}
+
+\end{document}
