@@ -1,0 +1,74 @@
+\documentclass{article}
+
+\begin{document}
+
+\section{The task in greater detail}
+\label{sec:task}
+
+
+\subsection{The domain}
+\label{sec:domain}
+
+
+\subsection{A wish-list of sequences}
+\label{sec:list}
+
+The following annotated listing of sequences is offered in ordered to add accounatability: These are sequences that Seqsee should ``get'' before we can pronounce it \emph{good enough}. The list starts out rather simply, but builds tempo as it goes along.
+
+Most of these sequences come from \cite[Chapter 1]{Hofstadter:FCCA}.
+
+\renewcommand{\theenumi}{\alph{enumi}}
+\begin{enumerate}
+\item \textbf{1 2 3 4 $\ldots$}
+
+Seqsee must get this, of course, but it should also get this rapidly even if a hundred terms are initially presented. It's performance should be about linear. If it takes time quadratic (or even just super-linear) in the number of input terms, there is something seriously wrong with the model.
+
+\item \textbf{ 1 1 2 2 3 3 $\ldots$}
+\item \textbf{ 1 2 2 3 3 3 $\ldots$}
+
+Seqsee should see the initial ``group of size 1''.
+
+\item \textbf{12 13 14 11 12 13 14 10 11 12 13 14 $\ldots$}
+
+The program---and it is aware of negative numbers---should know that it is going to hit a wall in the future.
+
+\item \textbf{1 1 2 3 1 2 2 3 4 1 2 3 3 4 5 $\ldots$}
+
+I want Seqsee to be \emph{able} to see the initial 1123 as a variant of 123, and likewise the following groups as variants of 1234 and 12345.
+
+\item \textbf{1 1 2 3 1 2 2 3 1 2 3 3 1 1 2 3 1 2 2 3 1 2 3 3$\ldots$}
+\item \textbf{1 1 2 3 1 2 2 3 1 2 3 3 1 2 2 3 1 1 2 3 1 2 2 3$\ldots$}
+\item \textbf{1 1 2 3 1 2 2 3 1 2 3 3 1 2 3 1 2 3 1 2 3$\ldots$}
+
+These three sequences are all ``doubler'' sequences: the first two were called marching- and bouncing-doubler, respectively, in \cite{Hofstadter:FCCA}. I call the last the piercing-doubler.
+
+For these, Seqsee should be able to, as in sequence e above, an endless list of 123 variants, with funny things happening. As the names of these sequences, people can perceive ``motion'' happening in these, and I'd like the program to be able to, too. It should also notice that all three are similar sequences, cut from the same cloth.
+
+\item \textbf{ 2 10 1 3 11 2 4 12 3$\ldots$}
+\item \textbf{ 2 10 2 3 11 2 3 4 12$\ldots$}
+
+These interlaced sequences cannot be perceived merely by a rudimentary ``try every n$^\textrm{th}$ term and see if they fit together'', as can be seen fron sequence j.
+
+\item \textbf{ 2 1 2 2 2 2 2 3 2 2 4 2$\ldots$}
+
+A counfounding cousin of i and j above.
+
+\item \textbf{ 1 0 0 1 1 1 0 0 0 0$\ldots$}
+\item \textbf{ 1 2 3 1 2 2 3 1 2 2 2 3$\ldots$}
+\item \textbf{ 5 4 3 4 5 4 3 4 5 $\ldots$}
+\item \textbf{ 1 2 3 3 4 4 5 5 5 6 6 6$\ldots$}
+
+Somehow I feel that the last one above is going to require the greatest amount of work.
+\end{enumerate}
+
+\subsection{More than just extending}
+\label{sec:more}
+
+
+\subsection{Subtleties}
+\label{sec:subtleties}
+
+\bibliographystyle{apalike}
+\bibliography{merged}
+
+\end{document}
