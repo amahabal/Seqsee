@@ -1,11 +1,20 @@
 \documentclass{article}
 \usepackage{xspace}
 \usepackage{makeidx}
+\usepackage{relsize}
+\usepackage{chicago}
 
 \makeindex
 \begin{document}
 
-\section{Introduction}
+\title{Seqsee: Yet Another Cognitive Architecture\\{\relsize{-3}(Ph.D. Proposal)}}
+\author{Abhijit Mahabal}
+\date{Oct 6, 2006}
+\maketitle
+
+\renewcommand{\baselinestretch}{1.5}\small
+
+\section*{Introduction}
 \label{sec:intro}
 
 \newcommand{\V}[1]{version-#1\xspace}
@@ -22,35 +31,43 @@ My Ph.D. project may be looked at from two related but quite distinct perspectiv
 
 \paragraph{} The second view---\V{B}---is closer to my main interest in the project:
 
-\paragraph{Version B.} Simulating how we think and all the spell-it-out that such an endevour entails is likely to bring to the fore problems and issues that can otherwise be overlooked, and writing the program, thus, is merely a cover for  exploring deeper.
+\paragraph{Version B.} Simulating how we think and all the spell-it-out that such an endeavor entails is likely to bring to the fore problems and issues that can otherwise be overlooked, and writing the program, thus, is merely a cover for  exploring deeper.
 
 \paragraph{} There is also a third version that is important to me, but which I wish not to tie to my Ph.D.:
 
-\paragraph{Version C.}  I am designing and implementing a system to solve hard problems not easily amenable to traditional computer science, by reverse engineering, as it were, the human mind.  Seqsee is but a test case.
+\paragraph{Version C.}  I am designing and implementing a system to solve hard problems not easily amenable to traditional computer science, by reverse engineering, as it were, some aspects of the human mind.  Seqsee is but a test case.
 
 \paragraph{} My reasons for not making this a requirement is that in order to claim any generality of this engineering approach I would need to show that it works on other things besides sequences.  Modifying the program to work for other cases would not be tough theoretically (hopefully), but it would still be a lot of work.
 
+\tableofcontents
 
 \section{The context of Seqsee}
 \label{sec:context}
 
-This work is being carried out in the Fluid Analogies Research Group, and is highly influenced by \hof and other FARGonauts. In methodology, in architecture, and in the general types of issues tackled it is strikingly similar to Copycat and other FARG projects.
+This section describes other work that is similar either in architecture, goals or in idea-space. This work is being carried out in the Fluid Analogies Research Group, and is highly influenced by \hof and other FARGonauts. In methodology, in architecture, and in the general types of issues tackled it is strikingly similar to Copycat and other FARG projects. It draws most substantially from \citeN{Mitchell90}, \citeN{Marshall} and \citeN{Hofstadter:FCCA}. Chapter 1 of this last cited book describes the project of sequence extension and the evolution of the project's goals.
 
-There have been other projects which have shared the \V{A} goals of \seq: they designed a program to extend integer sequences. Most notably, Simon and Kotovsky worked on such a program. \tofillout{SimonKotovsky}\tofillout{SeekWhence}
+A larger body of work within which the various FARG implementations lie is that of programs inspired by the blackboard system designed by \citeN{Reddy}, which in turn can be said to belong to systems with a pandemonium style architecture \cite{Dennett:Consciousness}, characterized by large tasks being achieved by large numbers of small relatively independent not-very-smart agents. 
+
+This is by no means the first program to attempt this task. There have been several other projects which have shared the \V{A} goals of \seq. Most notably, Simon and Kotovsky worked on such a program. \tofillout{SimonKotovsky}\tofillout{Meredith}
 
 As \seq is intended to extend sequences in ``a human-like way'', it's construction has been influenced by several cognitive scientists' ideas:
 
 \begin{itemize}
 \item The program gets its traction from tagging various intermediate objects with labels. These labels help \seq notice high-level similarity between constructs.
 
-Several people including \dan and \andy have described this role of ``words'' in human language, and how it aids cognition. The specific labels that I use are fluid categoriesof the sort described by \hof.
+Several people including \dan and \andy have described this role of ``words'' in human language, and how it aids cognition. The specific labels that I use are fluid categories of the sort described by \hof.
 
 I will have much more to say about this tagging in a later section.
 
 \item Noticing similarity between constructs also happens when the ``fringe'' of a construct overlaps another. \cite{James} had described 
 \end{itemize}
 
-\bibliographystyle{apalike}
+\include{TheTask}
+\include{How}
+
+\section{Implications of success}
+\section{A tentative time-frame}
+\bibliographystyle{chicago}
 \bibliography{merged}
 \printindex
 \end{document}
