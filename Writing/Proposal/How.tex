@@ -1,0 +1,47 @@
+\documentclass{article}
+%\usepackage{chicago}
+\begin{document}
+
+\section{How seqsee works currently}
+\label{sec:how}
+
+What follows is a broad brush stroke description of the working of seqsee and it's theoretical underpinnings.  For want of space it skimps on details but I would be happy to elaborate on any of this during the actual presentation.
+
+\subsection{The workspace and the codelets}
+
+Seqsee, like copycat and other FARG projects has a workspace which is the arena where perceived objects live.  These ``perceived objects'' include chunks of input elements that seqsee has created, the relations between various objects other things besides.  The workspace is almost exactly the same as its namesake in copycat and I shall not comment on it further.
+
+Codelets, too, are similar to their copycat counterpart. Each codelet contains a small piece of code that does some microscopic act of cognition.  Examples include checking if two objects are related and checking if an object belongs to a certain category, and so forth.
+
+The only different thing in seqsee is a variety of codelets that can be run immediately rather than being stored in the coderack.  This can of force be simulated by the copycat codelet system by using codelets of extremely high urgency thereby causing it to get run almost immediately.
+
+\section{The discovery of similarity}
+
+The codelet ``find if related'' can look at two objects and determine--- given its current knowledge of the two objects--- if it can find a relation between the two.  This section is not its story.  Rather, it is a story of why some other part of seqsee created this codelet to work on those two specific objects.  In other words, speaking anthropomorphically, why somebody thought that these two objects had some chance of being related.
+
+Here seqsee diverges from copycat.  Copycat also has a codelet with a similar function: the bond scout.  The difference is that the bond scout chooses its objects randomly (though preferring salient objects).  Even the top down cousin of the bond scout chooses its objects randomly.  ``Find if related'' on the other hand gets called only on objects that could be ``similar''.  This has a major advantage in terms of how smoothly the discovery of structures proceeds.  (Several other things in seqsee are bottom up, of course).
+
+The story unravels in three very related segments.
+
+\subsection{The fringe of an object}
+
+The notion that concepts have a fringe of floating associations is not new, going back to at least William James.  Several people have commented on the fringe, including Hofstadter.  Chapter 10 ``on words and their magical halos'' of \cite{Hofstadter:LeTon} for instance deals with this.  A particular example from this chapter is that of cheese, and how it brings up images of either ``orangy processed squares that come pre-sliced and pre-wrapped in plastic'' or ``a tray full of unprocessed cheeses, perhaps a hunk of Brie, some Gouda, some che\'vre'' depending on the context.
+
+``Concepts'' in seqsee have fringes, and these too are context dependent.  Note that each object in the workspace is also a concept.  If you see a few numbers written on a whiteboard, then you may point to the first \emph{7} on the board.  That \emph{7} is a concept, different from another \emph{7} on the same whiteboard.  These are temporary concepts in that they would almost certainly not enter the long-term memory, and similarly objects in the workspace are also quiet transient.  In seqsee, a concept activates other concepts to various degrees and thus other concepts are in the fringe to different degrees.
+
+I will hold on for the moment to what fringes contain, but in short two concepts are considered worth the attention if their fringes overlap.  This can be made concrete with the following example.  In the sequence \emph{1 7 2 8} the fringe of the object \emph{7} contains the number seven and to a lesser extent the numbers eight and six.  The fringe of the object \emph{8} also contains the number eight and thus the two objects may be related.
+
+\subsection{Tagging}
+
+The story for the seven and eight above was simple.  But how are the groups 123 and 1234 seen to be potentially similar?  The answer is that when the have both been perceived as ascending groups--- and not before--- they appear similar to seqsee.  These tags are part of the fringe, and clearly, if both are so tagged their fringes overlap.  The overlap is a matter of degrees and hence so is this feeling of similarity.
+
+I think that is something cognitively interesting going on here that I would like to draw your attention to via a quote from \cite{Clark:MindWare}.
+
+Learning a set of tags and labels is rather closely akin to acquiring a new perceptual modality.  For like a perceptual modality, it renders certain features of our world concrete and salient, and allows us to target our thoughts (and learning algorithms) on a new domain of basic objects.  This new domain compresses what were previously complex and unruly sensory patterns into simple objects.  The simple objects can then be attended to in ways that quickly reveal further (otherwise hidden) patterns, as in the case of relations between relations.
+
+In the case when fringes overlap includes such tags there is more information to discover the relationship.  Seqsee does not deal with prime numbers, pretend for a moment that it does and has been presented with the sequence ``2 3 5 7 11''. If both 5 and 7 have been tagged as primes then in the process of relation finding the program may discover that 7 is the next prime after 5, and use this information to understand the sequence.
+
+
+\bibliographystyle{apalike}
+\bibliography{merged}
+\end{document}
