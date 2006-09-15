@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[letterpaper]{article}
 \usepackage{xspace}
 \usepackage{makeidx}
 \usepackage{relsize}
@@ -48,21 +48,26 @@ This section describes other work that is similar either in architecture, in goa
 
 A larger body of work within which the various FARG implementations lie is that of programs inspired by the blackboard architecture of the HEARSAY-II system \cite{Reddy}, which in turn can be said to belong to systems with a pandemonium style architecture \cite{Dennett:Consciousness}, characterized by large tasks being achieved by large numbers of small relatively independent not-very-smart agents. 
 
-Seqsee is by no means the first program to attempt this task. There have been several other projects which have shared the \V{A} goals of \seq. Most notably, Simon and Kotovsky worked on such a program. Though the claims of their paper \cite{SimonKotovsky} are big(their italics: ``\emph{normal adult beings have stored in memory a program capable of interpreting and executing descriptions of serial patterns. In its essential structure, the program is like the one we have just described}''), the program does not seem to do much. Appendix-A lists my 30-line program that solves all the 25 problems the Simon-Kotovsky system was tested on (where as their program solved 22). While my 30-line version can not be called \emph{cognitively plausible}, I think that neither can their. Their system deals only with periodic patterns, and even \emph{1 1 2 1 2 3 1 2 3 4} is out of bounds.
+Seqsee is by no means the first program to attempt this task. There have been several other projects that have shared the \V{A} goals of \seq. Most notably, \citeN{SimonKotovsky} worked on such a program. Though the claims of their paper are big(their italics: ``\emph{normal adult beings have stored in memory a program capable of interpreting and executing descriptions of serial patterns. In its essential structure, the program is like the one we have just described}''), the program does not seem to do much. I have on my website \cite{Mahabal:simon} my 30-line program that solves all the 25 problems the Simon-Kotovsky system was tested on (where as their program solved 22). While my 30-line version can not be called \emph{cognitively plausible}, I think that neither can theirs. Their system deals only with periodic patterns, and even \emph{1 1 2 1 2 3 1 2 3 4} is out of bounds.
 
 Marsha Meredith's Seek-Whence \cite{Meredith} was another sequence program. If I have my history right, it was difficulties encountered in the sequence domain that were the genesis of the copycat family. Seqsee has surpassed Seek-Whence in the sequences that it can handle.
 
-As \seq is intended to extend sequences in ``a human-like way'', it's construction has been influenced by several cognitive scientists' ideas:
+As \seq is intended to extend sequences in ``a human-like way'', it's construction has been influenced by several cognitive scientists' ideas, and the following list is presented as Seqsee's context in idea-space:
 
 \begin{itemize}
 \item The program gets its traction from tagging various intermediate objects with labels. These labels help \seq notice high-level similarity between constructs.
 
-Several people including \dan and \andy have described this role of ``words'' in human language, and how it aids cognition. The specific labels that I use are fluid categories of the sort described by \hof.
+Several people including \citeN{Dennett:labeling} and Andy Clark \cite{Clark:MindWare,Clark:MagicWords} have described this role of ``words'' in human language, and how it aids cognition. The specific labels that I use are fluid categories of the sort described by \hof.
 
-I will have much more to say about this tagging in a later section.
+I will have much more to say about tagging in section \ref{sec:tagging}.
 
-\item Noticing similarity between constructs also happens when the ``fringe'' of a construct overlaps another. \cite{James} had described 
+\item Noticing similarity between constructs also happens when the ``fringe'' of a construct overlaps another. \citeN{James} talks at lenght about it, and I describe how Seqsee uses it in section \ref{sec:fringe}. 
+
+\item The way thought leads to thought happens in seqsee is via something not unlike Gibson's affordences.  This, and the somewhat related Roger Shank's theory of scripts, is elaborated in section \ref{sec:affordances}.
+
+\item And finally, seqsee features an explicit \emph{stream of thought} \cite{James} and this, with a lot of hedges, qualifications and warnings about only loosely appropriate metaphor, is the subject of section \ref{sec:stream}.
 \end{itemize}
+
 
 \include{TheTask}
 \include{How}
