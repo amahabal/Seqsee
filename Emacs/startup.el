@@ -10,7 +10,6 @@
 (load "cperl-mode.el")
 (load "seq.el")
 (load "cperl6-mode.el")
-(load "latex.el")
 
 
 (defface cperl-pod-face-face
@@ -224,8 +223,10 @@
 (define-abbrev cperl-mode-abbrev-table "sxtc"
   "" 'seq-stochastic-test-codelet 0)
 
-(define-abbrev cperl-mode-abbrev-table "sx"
-  "" 'seq-expansion- 0)
+(define-abbrev cperl-mode-abbrev-table "cmtb"
+  "" 'seq-comment-board 0)
+(define-abbrev cperl-mode-abbrev-table "todo"
+  "" 'seq-comment-todo 0)
 
 
 (setq skeleton-end-hook nil)

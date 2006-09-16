@@ -318,3 +318,23 @@
   > "post_run   => sub {\n" > _ "\n" > "}\n"
   > ");\n"
 )
+
+(defvar insert-date-format "%Y/%m/%d"
+  "*Format for \\[insert-date] (c.f. 'format-time-string' for how to
+ format)")
+
+(define-skeleton seq-comment-board
+  ""
+  nil
+  "# XXX(Board-it-up): [" 
+  (setq v1 (format-time-string insert-date-format (current-time))) "] "
+  _ "\n"
+)
+
+(define-skeleton seq-comment-todo
+  ""
+  nil
+  "# ToDo: [" (setq v1 (format-time-string insert-date-format (current-time)))
+  "] " _ "\n"
+)
+
