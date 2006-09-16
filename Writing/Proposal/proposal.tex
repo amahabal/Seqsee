@@ -26,7 +26,7 @@
 \newcommand{\tofillout}[1]{[Need to fill gap: #1\index{Gaps!#1}]}
 
 
-My Ph.D. project may be looked at from two related but quite distinct perspectives.  The first view which I call \V{A} could seem to a distant observer to be all that my project is about:
+My Ph.D. project may be looked at from two related but quite distinct perspectives.  The first view, which I call \V{A}, could seem to a distant observer to be all that my project is about:
 
 \paragraph{Version A.} I am designing and implementing a computer system that extends pattern sequences in human-like ways.
 
@@ -36,34 +36,34 @@ My Ph.D. project may be looked at from two related but quite distinct perspectiv
 
 \paragraph{} There is also a third version that is important to me, but which I wish not to tie to my Ph.D.:
 
-\paragraph{Version C.}  I am designing and implementing a system to solve hard problems not easily amenable to traditional computer science, by reverse engineering, as it were, some aspects of the human mind.  Seqsee is but a test case.
+\paragraph{Version C.}  I am designing and implementing a system to solve some hard problems not easily amenable to traditional computer science, by reverse engineering, as it were, some aspects of the human mind.  Seqsee is but a test case.
 
-\paragraph{} My reasons for not making this a requirement is that in order to claim any generality of this engineering approach I would need to show that it works on other things besides sequences.  Modifying the program to work for other cases would not be tough theoretically (hopefully), but it would still be a lot of work.
+\paragraph{} My reasons for not making this a requirement is that in order to claim any generality of this engineering approach I would need to show that it works on other things besides sequences.  Modifying the program to work for other cases would (hopefully) not be tough theoretically, but it would still be a lot of work.
 
 \tableofcontents
 
 \section{The context of Seqsee}
 \label{sec:context}
 
-This section describes other work that is similar either in architecture, in goals or in idea-space. This work is being carried out in the Fluid Analogies Research Group, and is highly influenced by \hof and other FARGonauts. In methodology, in architecture, and in the general types of issues tackled it is strikingly similar to Copycat and other FARG projects. It draws most substantially from \citeN{Mitchell90}, \citeN{Marshall} and \citeN{Hofstadter:FCCA}. Chapter 1 of this last cited book describes the project of sequence extension (as envisioned by Hofstadter) and the evolution of the project's goals.
+This section describes other work that is similar either in architecture, in goals or in idea-space. This work is being carried out in the Fluid Analogies Research Group (FARG), and is highly influenced by \hof and the other FARGonauts. In methodology, in architecture, and in the general types of issues tackled it is strikingly similar to Copycat and other FARG projects. It draws most substantially from \citeN{Mitchell90}, \citeN{Marshall} and \citeN{Hofstadter:FCCA}. Chapter 1 of this last cited book describes the project of sequence extension (as envisioned by Hofstadter) and the evolution of the project's goals.
 
 A larger body of work within which the various FARG implementations lie is that of programs inspired by the Blackboard architecture of the HEARSAY-II system \cite{Reddy}, which in turn can be said to belong to systems with a pandemonium style architecture \cite{Dennett:Consciousness}, characterized by large tasks being achieved by large numbers of small relatively independent not-very-smart agents. 
 
-Seqsee is by no means the first program to attempt this task. There have been several other projects that have shared the \V{A} goals of \seq. Most notably, \citeN{SimonKotovsky} worked on such a program. Though the claims of their paper are big (their italics: ``\emph{normal adult beings have stored in memory a program capable of interpreting and executing descriptions of serial patterns. In its essential structure, the program is like the one we have just described}''), the program does not seem to do much. I have on my website \cite{Mahabal:simon} my 30-line program that solves all the 25 problems the Simon-Kotovsky system was tested on (where as their program solved 22). While my 30-line version can not be called \emph{cognitively plausible}, I think that neither can theirs. Their system deals only with periodic patterns, and even \emph{1 1 2 1 2 3 1 2 3 4} is considered out of bounds.
+Seqsee is by no means the first program to attempt this task. There have been several other projects that have shared the \V{A} goals of \seq. Most notably, \citeN{SimonKotovsky} worked on such a program. Though the claims of their paper are big (their italics: ``\emph{normal adult beings have stored in memory a program capable of interpreting and executing descriptions of serial patterns. In its essential structure, the program is like the one we have just described}''), the program does not seem to do much. I have on my website \cite{Mahabal:simon} my 30-line program that solves all the 25 problems which the Simon-Kotovsky system was tested on (where as their program solved 22). While my 30-line version can not be called \emph{cognitively plausible}, I think that neither can theirs. Their system deals only with periodic patterns, and even \emph{1 1 2 1 2 3 1 2 3 4} is considered out of bounds.
 
 Marsha Meredith's Seek-Whence \cite{Meredith} was another sequence program. If I have my history right, it was difficulties encountered in the sequence domain that were the genesis of the Copycat family of programs. Seqsee has surpassed Seek-Whence in the sequences that it can handle.
 
-As \seq is intended to extend sequences in \emph{a human-like way}, it's construction has been influenced by several cognitive scientists' ideas, and the following list is presented as Seqsee's context in idea-space:
+As \seq is intended to extend sequences in a \emph{human}-like way, it's construction has been influenced by several cognitive scientists' ideas, and the following list is presented as Seqsee's context in idea-space:
 
 \begin{itemize}
 \item The program gets its traction from tagging various intermediate objects with labels. These labels help \seq notice high-level similarity between constructs. Several people including \citeN{Dennett:labeling} and Andy Clark \cite{Clark:MindWare,Clark:MagicWords} have described this role of ``words'' in human language, and how it aids cognition. The specific labels that I use are fluid categories of the sort described by \hof.
 I will have much more to say about tagging in section \ref{sec:tagging}.
 
-\item Noticing similarity between constructs also happens when the ``fringe'' of a construct overlaps another. \citeN{James} talks at lenght about fringes, and I describe how Seqsee uses them in section \ref{sec:fringe}. 
+\item Noticing similarity between constructs also happens when the \emph{fringe} of a construct overlaps another. \citeN{James} talks at length about fringes, and I describe how Seqsee uses them in section \ref{sec:fringe}. 
 
-\item The way thought leads to thought happens in Seqsee is via something not unlike Gibson's affordences.  This, and the somewhat related Roger Schank's theory of scripts, is elaborated in section \ref{sec:affordances}.
+\item The way thought leads to thought happens in Seqsee is via something not unlike Gibson's affordences.  This, and the somewhat related Roger Schank's theory of scripts, is elaborated on in section \ref{sec:affordances}.
 
-\item And finally, Seqsee features an explicit \emph{stream of thought} \cite{James} and this, with hedges, qualifications and warnings about only loosely appropriate metaphor, is the subject of section \ref{sec:stream}.
+\item And finally, Seqsee features an explicit \emph{stream of thought} \cite{James} and this---with hedges, qualifications and warnings about only loosely appropriate metaphor---is the subject of section \ref{sec:stream}.
 \end{itemize}
 
 \section{The task in greater detail}
@@ -74,7 +74,7 @@ I will have much more to say about tagging in section \ref{sec:tagging}.
 \label{sec:domain}
 Hofstadter's interest in sequence-extending programs goes back at least a quarter of a centuary, and the tasks intended for ``the program'' have shifted over time. In the original pre-Seek-Whence guise, a typical input for the program could have been, for instance, the sequence of alternate primes \emph{2 5 11 17 23$\ldots$}.
 
-Gradually Hofstadter's interest shifted away from such mathematical-knowledge intensive sequences to a smaller domain: that of sequences which involve no knowledge of arithmetics beyond the relationship of successor and predecessor, and the ability to count. This meant outlawing such sequences as the primes, and even the addition-involving Fibonacci sequence. The shift to this stark domain is described in \citeN[pages 48-49]{Hofstadter:FCCA}.
+Gradually Hofstadter's interest shifted away from such mathematical-knowledge intensive sequences to a smaller domain: that of sequences which involve no knowledge of arithmetics beyond the relationship of successor and predecessor and the ability to count. This meant outlawing such sequences as the primes, and even the addition-involving Fibonacci sequence. The shift to this stark domain is described in \citeN[pages 48-49]{Hofstadter:FCCA}.
 
 This restricted domain is by no means poor in sequences that tax the intellect, or even in sequences excellent for exploring program-cognition. For sequence \emph{k} in the next section, for example, it is interesting to contemplate how a program might navigate the \emph{2 2 2 2 2} conundrum. Several other sequences require for their honest human-like understanding the ability to chunk (almost all examples in the next section) and even to see an object \emph{as} another (examples \emph{e, f, g, } and \emph{h}).
 
@@ -83,7 +83,7 @@ I shall not here try to delineate further the problems that could be the inputs 
 \subsection{A wish-list of sequences}
 \label{sec:list}
 
-The following annotated listing of sequences is offered in ordered to add accountability: These are sequences that Seqsee should ``get'' before we can pronounce it to be \emph{good enough}. The list starts out rather simply, but builds tempo as it goes along.
+The following annotated listing of sequences is offered in ordered to add accountability: These are sequences that Seqsee should ``get'' before we can pronounce it to be \emph{good enough}. The list starts out rather simply, but builds up tempo as it goes along.
 
 Most of these sequences come from chapter 1 of \citeN{Hofstadter:FCCA}.
 
@@ -110,7 +110,7 @@ I want Seqsee to be \emph{able} to see the initial 1123 as a variant of 123, and
 \item \textbf{1 1 2 3 1 2 2 3 1 2 3 3 1 2 2 3 1 1 2 3 1 2 2 3$\ldots$}
 \item \textbf{1 1 2 3 1 2 2 3 1 2 3 3 1 2 3 1 2 3 1 2 3$\ldots$}
 
-These three sequences are all ``doubler'' sequences: the first two were called marching- and bouncing-doubler, respectively, by Hofstadter. I call the last the piercing-doubler.
+These three sequences are all ``doubler'' sequences: The first two were called marching- and bouncing-doubler, respectively, by Hofstadter. I call \emph{h} the piercing-doubler.
 
 As in the sequence \emph{e} above, Seqsee should be able to see an endless list of 123 variants, with funny things happening in all three cases. As the names of these sequences indicate, people can perceive ``motion'' happening in these, and I'd like the program to be able to, too. It should also notice that all three are similar sequences, cut from the same cloth.
 
@@ -133,11 +133,11 @@ Somehow I feel that the last one above is going to require the greatest amount o
 
 \subsection{More than just extending}
 \label{sec:more}
-The goals of the project also include things apart from extending.  Making variations on a theme is an example of such a goal.  To take a simple example a variation of \emph{1 2 3 1 2 3 1 2 3} is \emph{1 2 3 4 1 2 3 4 1 2 3 4}.  A more subtle example would be the variation of  sequence f (the marching doubler) to produce the marching singler (\emph{1 2 2 3 3 1 1 2 3 3 1 1 2 2 3}). \citeN[chapter 12]{Hofstadter:Meta} discusses the general theme of variation making.
+The goals of the project also include things apart from extending.  Making variations on a theme is an example of such a goal.  To take a simple example a variation of \emph{1 2 3 1 2 3 1 2 3} is \emph{1 2 3 4 1 2 3 4 1 2 3 4}.  A more subtle example would be the variation of  sequence f (the marching doubler) to produce the marching singler (\emph{1 2 2 3 3 1 1 2 3 3 1 1 2 2 3}). \citeN[chapter 12]{Hofstadter:Meta} discusses the general theme of variation-making.
 
-It is important to note that how we perceive the sequence influences the variations we make.  The marching doubler can be perceived in a life-less way as the following 12 terms repeating indefinitely: \emph{1 1 2 3 1 2 2 3 1 2 3 3}.  seen this way without noticing the internal structure a faithful variant would be the following 12 terms repeated indefinitely: \emph{17 2 11 18 5 1 6 9 7 12 5 13}. In some sense that would completely miss the point. Thus the issue of variation making is not divorced from the issue of sequence perception.
+It is important to note that how we perceive the sequence influences the variations we can make.  The marching doubler can be perceived in a life-less way as the following 12 terms repeating indefinitely: \emph{1 1 2 3 1 2 2 3 1 2 3 3}.  Seen this way without noticing the internal structure one possible ``faithful'' variant would be the following 12 terms repeated indefinitely: \emph{17 2 11 18 5 1 6 9 7 12 5 13}. In some sense that would completely miss the point. Thus the issue of variation making is not divorced from the issue of sequence perception.
 
-Another aim is that the program be reminded of earlier sequences that were similar.  This functionality is similar to the episodic memory in Metacat \cite{Marshall}.
+Another aim is that the program be reminded of earlier sequences that were similar.  This functionality is similar to the \emph{episodic memory} in Metacat \cite{Marshall}.
 
 A third aspect of going beyond just extending concerns meta-thoughts.  Consider the question of when to stop.  Whether we have found the answer or not is a judgment call, as is the question of whether we should give up. A central question that Metacat addressed beyond Copycat was that of self-watching, and self-watching will also be very important for Seqsee. It already has some meta-thoughts. Now that the other things are falling into place I can pay self-watching and meta-thoughts the attention that is due. 
 
@@ -152,7 +152,7 @@ What follows is a broad brush stroke description of the working of Seqsee and it
 
 \subsection{The workspace and the codelets}
 
-Seqsee, like copycat and other FARG projects, has a workspace which is the arena where ``perceived objects'' live.  These perceived objects include chunks that Seqsee has created out of the input elements, the relations between various objects other things besides.  The workspace is almost exactly the same as its namesake in Copycat and I shall not comment on it further.
+Seqsee, like copycat and other FARG projects, has a workspace which is the arena where ``perceived objects'' live.  These perceived objects include chunks that Seqsee has created out of the input elements, the relations between various objects and other things besides.  The workspace is almost exactly the same as its namesake in Copycat and I shall not comment on it further.
 
 Codelets, too, are similar to their Copycat counterpart. Each codelet contains a small piece of code that does some microscopic act of cognition.  Examples include checking if two objects are related and checking if an object belongs to a certain category.
 
@@ -160,7 +160,7 @@ The only different thing in Seqsee is a variety of codelets that can be run imme
 
 \subsection{The discovery of similarity}
 
-The codelet \emph{find-if-related} can look at two objects and determine---given its current knowledge of the two objects---if it can find a relation between the two.  This section is \emph{not} its story.  Rather, it is the story of why some other part of Seqsee created this codelet to work on those two specific objects.  In other words, speaking anthropomorphically, why somebody thought that these two objects had some chance of being related.
+The codelet \emph{find-if-related} can look at two objects and determine---given it's current knowledge of the two objects---if it can find a relation between the two.  This section is \emph{not} its story.  Rather, it is the story of why some other part of Seqsee created this codelet to work on those two specific objects.  In other words, speaking anthropomorphically, why somebody thought that these two objects had some chance of being related.
 
 Here Seqsee diverges from Copycat.  Copycat also has a codelet with a similar function: the \emph{bond-scout}.  The difference is that the \emph{bond-scout} chooses it's objects randomly (though preferring salient objects).  Even the top-down cousin of the \emph{bond-scout} chooses its objects randomly.  \emph{find-if-related} on the other hand gets called only on objects that could be ``similar''.  This has a major advantage in terms of how smoothly the discovery of structures proceeds.  (Several other things in Seqsee are bottom-up, of course).
 
@@ -204,15 +204,17 @@ Seqsee does not currently use scripts.  It is conceivable that something similar
 \subsection{The Stream}
 \label{sec:stream}
 
+[ Does not flow]
+
 Where all this comes together is the stream of thought.  It is the star player in the central cognitive loop.  Seqsee has objects (in the workspace) and thoughts about those objects in the stream.  Unlike the highly parallel buzz of activity of the codelets, there is something slightly more linear about the stream.  When I describe the stream, people sometimes have the sense of one thought leading to the next leading to the next---the $n+1^{\mathrm{th}}$ thought being caused somehow by the $n^\mathrm{th}$ thought.  That is not how Seqsee's stream works.  I must describe it more carefully here.
 
-One way to start describing it is to say where the $n+1^{\mathrm{th}}$ thought can come from.  It can of course come  from the immediate prior thoughts but more importantly it can come from any codelet whatsoever.  Consider the hypothetical case where seqsee is solving five problems in parallel.  There are several codelets toiling away on each problem.  A thought in the stream corresponds to focusing attention on something for a short period of time.  In principle it could happen that the thoughts that pass through the stream are perfectly interlaced: the first, the sixth, the 11th thoughts coming from the first problem and so forth.  In this sense, then, the stream is just a list of all thoughts happening anywhere in the system, just sorted by time.  So much for linearity.
+One way to start describing it is to say where the $n+1^{\mathrm{th}}$ thought can come from.  It can of course come  from the immediate prior thoughts but more importantly it can come from any codelet whatsoever.  Consider the hypothetical case where seqsee is solving five problems in parallel.  There are several codelets toiling away on each problem.  A thought in the stream corresponds to focusing attention on something for a short period of time.  In principle it could happen that the thoughts that pass through the stream are perfectly interlaced: the first, the sixth, the 11th thoughts coming from the first problem and so forth.  In this sense, then, the stream is just a list of all thoughts happening anywhere in the system, sorted by time.  So much for linearity.
 
 If the stream is almost merely a birth-registery of attention-fixations, what, if anything, does it buy us? What it gives us is temporality.  Seqsee keeps in memory the fringes of the last few thoughts, and these decay with time.  If the fringe of a new thought intersects with the fringe of one of the more recent thoughts from anywhere in the system, Seqsee's similarity-ears get perked.  In the hypothetical five problem case we would see very strong recency effects and interference from seqsee.  It is as if the stream is distributed throughout the "brain" of seqsee, but whenever a thought occurs anywhere its echo reverberates throughout, potentially influencing for a short time the processing everywhere.
 
-This is not a completely unmotivated move on my part.  A somewhat similar mechanism is used by \citeN{Dennett:Consciousness} in what he calls the \emph{Joycean machine}---a more or less serial machine simulated imperfectly on parallel neural hardware.
+ Adding a stream was not a completely unmotivated move on my part. While it was done for pragmatic reasons mentioned in the next paragraph, I was pleasantly surprised to recently discover a somewhat similar mechanism used by \citeN{Dennett:Consciousness} in what he calls the \emph{Joycean machine}---a more or less serial machine simulated imperfectly on parallel neural hardware.
 
-More pragmatically, using the stream has made seqsee much smarter (as compared to Seqsee 12 months ago when there was no stream).  In a sequence like \emph{1 1 1 1 17 2 2 2 2 18} the way Seqsee discovers the 17-18 relationship is by being lucky and thinking about the 17 and 18 somewhat close together in time.  Because of all the hubbub of the parallel codelet activity such lucky episodes are guaranteed to happen.  Without the stream, seeing the 17 -- 18 relationship was much more unlikely.  With a \emph{bond-scout} like mechanism where objects are randomly chosen it is necessary to bias against choosing objects distant from each other because such random long-distance checking is statistically less likely to produce useful results.  So even though the 17-18 relationship stands a chance of being discovered it is not predestined.
+Using the stream has made seqsee much smarter as compared to Seqsee 12 months ago when there was no stream.  In a sequence like \emph{1 1 1 1 17 2 2 2 2 18} the way Seqsee discovers the 17-18 relationship is by being lucky and thinking about the 17 and 18 somewhat close together in time.  Because of all the hubbub of the parallel codelet activity such lucky episodes are guaranteed to happen.  Without the stream, seeing the 17 -- 18 relationship was much more unlikely.  With a \emph{bond-scout} like mechanism where objects are randomly chosen it is necessary to bias against choosing objects distant from each other because such random long-distance checking is statistically less likely to produce useful results.  So even though the 17-18 relationship stands a chance of being discovered it is not predestined.
 
 
 \section{Implications of success}
