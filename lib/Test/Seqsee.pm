@@ -552,14 +552,16 @@ sub RegTestHelper{
         ### Finished run, with steps: $main::Steps_Finished
         ### Workspace has this many elements: $SWorkspace::elements_count
     };
+
+    my $failed_requests = GetFailedRequests();
+    if ($failed_requests > $max_false_continuations) {
+        return "TooManyFalseQueries";
+    }
+
     if (my $err = $EVAL_ERROR) {
         unless (UNIVERSAL::isa($err, "SErr::FinishedTest")) {
             print $err;
             return "UnnaturalDeath: $err";
-        }
-        my $failed_requests = GetFailedRequests();
-        if ($failed_requests > $max_false_continuations) {
-            return "TooManyFalseQueries";
         }
         if ($err->got_it()) {
             return "GotIt";

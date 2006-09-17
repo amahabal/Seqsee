@@ -338,3 +338,10 @@
   "] " _ "\n"
 )
 
+(define-skeleton seq-comment-assumption
+  ""
+  nil
+  "# XXX(Assumption): [" (setq v1 (format-time-string insert-date-format (current-time)))
+  "] " _ "\n"
+)
+

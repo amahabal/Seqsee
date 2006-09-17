@@ -225,6 +225,8 @@
 
 (define-abbrev cperl-mode-abbrev-table "cmtb"
   "" 'seq-comment-board 0)
+(define-abbrev cperl-mode-abbrev-table "cmta"
+  "" 'seq-comment-assumption 0)
 (define-abbrev cperl-mode-abbrev-table "todo"
   "" 'seq-comment-todo 0)
 

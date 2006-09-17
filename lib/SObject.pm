@@ -21,10 +21,9 @@ multimethod 'find_reln';
 
 # variable: %items_of
 #    The items of this object. 
-#     
-#    These can be integers, or other SObjects.
-#     
-#    It is guarenteed that if there is a single object, it will be an SInt: So, no vacuosly deep groups like [[[3]]]
+
+#    It is guarenteed that if there is a single object, it will be an SInt: So,
+#  no vacuosly deep groups like [[[3]]]
 my %items_of : ATTR( :get<parts_ref> );
 
 use overload fallback => 1;
@@ -46,6 +45,8 @@ my %metonym_of :ATTR( :get<metonym>);
 my %metonym_activeness_of :ATTR( :get<metonym_activeness>);
 
 # variable: %reln_other_of
+# XXX(Assumption): [2006/09/16] Only a single reln between two objects possible
+# this way.
 my %reln_other_of :ATTR(:get<reln_other_ref>);
 
 
@@ -54,9 +55,7 @@ my %reln_other_of :ATTR(:get<reln_other_ref>);
 my %underlying_reln_of :ATTR( :get<underlying_reln>);
 
 # variable: %direction_of
-# xxx now using DIR::LEFT and DIR::RIGHT
-#    direction: 1 for right, -1 for left; 0 if neither
-#    Based on the left edge
+# Can be DIR::*, *=LEFT, RIGHT, UNKNOWN or NEITHER
 my %direction_of :ATTR( :get<direction> :set<direction>  );
 
 my %reln_scheme_of :ATTR( :get<reln_scheme> :set<reln_scheme>  );
@@ -81,6 +80,7 @@ sub BUILD{
     $metonym_activeness_of{$id} = 0;
     $metonym_of{$id}= undef;
     $direction_of{$id} = $opts_ref->{direction}|| DIR::UNKNOWN();
+    $reln_scheme_of{$id} = "";
 }
 
 
@@ -898,6 +898,7 @@ sub _get_structure_string{
     }
 }
 
+# XXX(Assumption): [2006/09/16] Parts are non-overlapping.
 sub get_span{
     my ( $self ) = @_;
     return List::Util::sum( map { $_->get_span } @$self );
@@ -905,8 +906,8 @@ sub get_span{
 
 sub apply_reln_scheme{
     my ( $self, $scheme ) = @_;
-
-    if ($scheme = RELN_SCHEME::CHAIN()) {
+    return unless $scheme;
+    if ($scheme == RELN_SCHEME::CHAIN()) {
         my $parts_ref = $self->get_parts_ref;
         my $cnt = scalar(@$parts_ref);
         for my $i (0 .. ($cnt - 2)) {
@@ -921,6 +922,9 @@ sub apply_reln_scheme{
         confess "Relation scheme $scheme not implemented";
     }
 }
+
+# XXX(Board-it-up): [2006/09/16] Recalculation ignores categories.
+# XXX(Assumption): [2006/09/16] Unique relation between two objects.
 
 sub recalculate_categories{
     my ( $self ) = @_;

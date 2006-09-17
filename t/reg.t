@@ -18,5 +18,5 @@ cmp_ok( RegTestHelper({seq => [qw(1 2 3 4)],
 cmp_ok( RegTestHelper({seq => [qw(1 2 3 4)],
                        continuation => [qw(9)],
                        max_false => 0,
-                       max_steps => 10000, 
+                       max_steps => 1000, 
                        min_extension => 1}), 'eq', 'TooManyFalseQueries', );

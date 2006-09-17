@@ -48,6 +48,7 @@ my $instancer = sub {
         }
     }    
 
+    # XXX(Board-it-up): [2006/09/17] Need to fix this!!
     # NOTE: relation is not an attribute because o/w we will need to see how
     # relations change. We may need other mechanisms.
     return SBindings->create( $slippages, { }, $object);
