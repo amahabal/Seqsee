@@ -164,8 +164,8 @@ sub init_display{
     my $tk = $OPTIONS_ref->{tk};
 
     if ($tk) {
-        "Tk"->require();
-        "SGUI"->require();
+        "Tk"->require() or confess "Failed require Tk";
+        "SGUI"->require() or confess "Failed require SGUI";
         import Tk;
         SGUI::setup();
         SGUI::Update();

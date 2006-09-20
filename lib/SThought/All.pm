@@ -162,6 +162,7 @@ sub BelieveDone{
      }
 
      for (@{$core->get_cats()}) {
+         next if $_ eq $S::RELN_BASED;
          FRINGE 100, $_;
      }
 
@@ -203,13 +204,13 @@ sub BelieveDone{
                      cat => $poss_cat
                          };
          }
-
-         if ($S::IsMetonyable{$poss_cat} and not($metonym)) {
-             CODELET 100, FindIfMetonyable,
-                 { object => $core,
-                   category => $poss_cat,
-               };
-         }
+         
+         #if ($S::IsMetonyable{$poss_cat} and not($metonym)) {
+         #    CODELET 100, FindIfMetonyable,
+         #        { object => $core,
+         #          category => $poss_cat,
+         #      };
+         # }
      }
  </actions>
 
@@ -230,6 +231,7 @@ sub BelieveDone{
      FRINGE 100, $S::LITERAL->build( { structure => [$mag] });
 
      for (@{$core->get_categories()}) {
+         next if $_ eq $S::RELN_BASED;
          FRINGE 80, $_;
      }
     

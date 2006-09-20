@@ -610,6 +610,7 @@ sub RegStat{
 
     print "============\n";
     while (my ($k, $v) = each %outputs) {
+        $k = substr($k, 0, 25);
         print "$v\t times: $k\n";
     }
     return \%outputs;
@@ -640,8 +641,9 @@ sub RegHarness{
         my $last_res_file = $_ . ".last_res";
         my $log_file = $_ . ".log_res";
         if (-e $last_res_file) {
-            read_config $last_res_file => my %out;
-            $earlier_GotIt = $out{''}->{GotIt};
+            my %out;
+            eval { read_config $last_res_file => %out; };
+            $earlier_GotIt = $EVAL_ERROR ? 0 : $out{''}->{GotIt};
         }
 
         open LOG, ">>", $log_file;
