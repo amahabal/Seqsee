@@ -14,6 +14,7 @@
 \maketitle
 
 \renewcommand{\baselinestretch}{1.5}\small
+\newcommand{\sequence}[1]{`\emph{#1 }{\ensuremath\ldots}'\xspace}
 
 \section*{Introduction}
 \label{sec:intro}
@@ -34,7 +35,7 @@ My Ph.D. project may be looked at from two related but quite distinct perspectiv
 
 \paragraph{Version B.} Simulating how we think and all the spell-it-out that such an endeavor entails is likely to bring to the fore problems and issues that can otherwise be overlooked, and writing the program, thus, is merely a cover for  exploring deeper.
 
-\paragraph{} There is also a third version that is important to me, but which I wish not to tie to my Ph.D.:
+\paragraph{} There is also a third version that is important to me that I wish not to tie to my Ph.D.:
 
 \paragraph{Version C.}  I am designing and implementing a system to solve some hard problems not easily amenable to traditional computer science, by reverse engineering, as it were, some aspects of the human mind.  Seqsee is but a test case.
 
@@ -49,7 +50,7 @@ This section describes other work that is similar either in architecture, in goa
 
 A larger body of work within which the various FARG implementations lie is that of programs inspired by the Blackboard architecture of the HEARSAY-II system \cite{Reddy}, which in turn can be said to belong to systems with a pandemonium style architecture \cite{Dennett:Consciousness}, characterized by large tasks being achieved by large numbers of small relatively independent not-very-smart agents. 
 
-Seqsee is by no means the first program to attempt this task. There have been several other projects that have shared the \V{A} goals of \seq. Most notably, \citeN{SimonKotovsky} worked on such a program. Though the claims of their paper are big (their italics: ``\emph{normal adult beings have stored in memory a program capable of interpreting and executing descriptions of serial patterns. In its essential structure, the program is like the one we have just described}''), the program does not seem to do much. I have on my website \cite{Mahabal:simon} my 30-line program that solves all the 25 problems which the Simon-Kotovsky system was tested on (where as their program solved 22). While my 30-line version can not be called \emph{cognitively plausible}, I think that neither can theirs. Their system deals only with periodic patterns, and even \emph{1 1 2 1 2 3 1 2 3 4} is considered out of bounds.
+Seqsee is by no means the first program to attempt this task. There have been several other projects that have shared the \V{A} goals of \seq. Most notably, \citeN{SimonKotovsky} worked on such a program. Though the claims of their paper are big (their italics: ``\emph{normal adult beings have stored in memory a program capable of interpreting and executing descriptions of serial patterns. In its essential structure, the program is like the one we have just described}''), the program does not seem to do much. I have on my website \cite{Mahabal:simon} my 30-line program that solves all the 25 problems which the Simon-Kotovsky system was tested on (where as their program solved 22). While my 30-line version can not be called \emph{cognitively plausible}, I think that neither can theirs. Their system deals only with periodic patterns, and even \sequence{1 1 2 1 2 3 1 2 3 4} is considered out of bounds.
 
 Marsha Meredith's Seek-Whence \cite{Meredith} was another sequence program. If I have my history right, it was difficulties encountered in the sequence domain that were the genesis of the Copycat family of programs. Seqsee has surpassed Seek-Whence in the sequences that it can handle.
 
@@ -61,7 +62,7 @@ I will have much more to say about tagging in section \ref{sec:tagging}.
 
 \item Noticing similarity between constructs also happens when the \emph{fringe} of a construct overlaps another. \citeN{James} talks at length about fringes, and I describe how Seqsee uses them in section \ref{sec:fringe}. 
 
-\item The way thought leads to thought happens in Seqsee is via something not unlike Gibson's accordances.  This, and the somewhat related Roger Schank's theory of scripts, is elaborated on in section \ref{sec:affordances}.
+\item The way thought leads to thought happens in Seqsee is via something not unlike Gibson's affordances.  This, and the somewhat related Roger Schank's theory of scripts, is elaborated on in section \ref{sec:affordances}.
 
 \item And finally, Seqsee features an explicit \emph{stream of thought} \cite{James} and this---with hedges, qualifications and warnings about only loosely appropriate metaphor---is the subject of section \ref{sec:stream}.
 \end{itemize}
@@ -72,7 +73,7 @@ I will have much more to say about tagging in section \ref{sec:tagging}.
 
 \subsection{The Domain}
 \label{sec:domain}
-Hofstadter's interest in sequence-extending programs goes back at least a quarter of a century, and the tasks intended for ``the program'' have shifted over time. In the original pre-Seek-Whence guise, a typical input for the program could have been, for instance, the sequence of alternate primes \emph{2 5 11 17 23$\ldots$}.
+Hofstadter's interest in sequence-extending programs goes back at least a quarter of a century, and the tasks intended for ``the program'' have shifted over time. In the original pre-Seek-Whence guise, a typical input for the program could have been, for instance, the sequence of alternate primes \sequence{2 5 11 17 23}
 
 Gradually Hofstadter's interest shifted away from such mathematical-knowledge intensive sequences to a smaller domain: that of sequences which involve no knowledge of arithmetics beyond the relationship of successor and predecessor and the ability to count. This meant outlawing such sequences as the primes, and even the addition-involving Fibonacci sequence. The shift to this stark domain is described by \citeN[pages 48-49]{Hofstadter:FCCA}.
 
@@ -133,9 +134,9 @@ Somehow I feel that the last one above is going to require the greatest amount o
 
 \subsection{More than Just Extending}
 \label{sec:more}
-The goals of the project also include things apart from extending.  Making variations on a theme is an example of such a goal.  To take a simple example a variation of the sequence \emph{1 2 3 1 2 3 1 2 3} is the sequence \emph{1 2 3 4 1 2 3 4 1 2 3 4}.  A more subtle example would be the variation of  sequence f (the marching doubler) to produce the marching singler (\emph{1 2 2 3 3 1 1 2 3 3 1 1 2 2 3}). \citeN[chapter 12]{Hofstadter:Meta} discusses the general theme of variation-making.
+The goals of the project also include things apart from extending.  Making variations on a theme is an example of such a goal.  To take a simple example, a variation of the sequence \sequence{1 2 3 1 2 3 1 2 3} is the sequence \sequence{1 2 3 4 1 2 3 4 1 2 3 4}$\enskip$ A more subtle example would be the variation of  sequence \emph{f} (the marching doubler) to produce the marching singler (\sequence{1 2 2 3 3 1 1 2 3 3 1 1 2 2 3}). \citeN[chapter 12]{Hofstadter:Meta} discusses the general theme of variation-making.
 
-It is important to note that how we perceive the sequence influences the variations we can make.  The marching doubler can be perceived in a life-less way as the following 12 terms repeating indefinitely: \emph{1 1 2 3 1 2 2 3 1 2 3 3}.  Seen this way without noticing the internal structure, one possible ``faithful'' variant would be the following 12 terms repeated indefinitely: \emph{17 2 11 18 5 1 6 9 7 12 5 13}. In some sense that would completely miss the point. Thus the issue of variation making is not divorced from the issue of sequence perception.
+It is important to note that how we perceive the sequence influences the variations we can make.  The marching doubler can be perceived in a life-less way as the following 12 terms repeating indefinitely: \emph{1 1 2 3 1 2 2 3 1 2 3 3}. Seen this way without noticing the internal structure, one possible ``faithful'' variant would be the following 12 terms repeated indefinitely: \emph{17 2 11 18 5 1 6 9 7 12 5 13}. In some sense that would completely miss the point. Thus the issue of variation making is not divorced from the issue of sequence perception.
 
 Another aim is that the program be reminded of earlier sequences that were similar.  This functionality is similar to the \emph{episodic memory} in Metacat \cite{Marshall}.
 
@@ -162,7 +163,7 @@ The only different thing in Seqsee is a variety of codelets that can be run imme
 
 The codelet \emph{find-if-related} can look at two objects and determine---given its current knowledge of the two objects---if it can find a relation between the two.  This section is \emph{not} its story.  Rather, it is the story of why some other part of Seqsee created this codelet to work on those two specific objects.  In other words, speaking anthropomorphically, why somebody thought that these two objects had some chance of being related.
 
-Here Seqsee diverges from Copycat.  Copycat also has a codelet with a similar function: the \emph{bond-scout}.  The difference is that the \emph{bond-scout} chooses its objects randomly (though preferring salient objects).  Even the top-down cousin of the \emph{bond-scout} chooses its objects randomly.  \emph{find-if-related} on the other hand gets called only on objects that \emph{could} be similar.  This has a major advantage in terms of how smoothly the discovery of structures proceeds.  (Several other things in Seqsee are bottom-up, of course).
+Here Seqsee diverges from Copycat.  Copycat also has a codelet with a similar function: the \emph{bond-scout}.  The difference is that the \emph{bond-scout} chooses its objects randomly (though preferring salient objects).  Even the top-down cousin of the \emph{bond-scout} chooses its objects randomly.  \emph{find-if-related}, on the other hand, gets called only on objects that \emph{could} be similar.  This has a major advantage in terms of how smoothly the discovery of structures proceeds.  (Several other things in Seqsee are bottom-up, of course).
 
 Before I describe how this sense of similarity comes about, a short digression. Note that each object in the workspace is also a concept.  If you see a few numbers written on some white-board, then you may point to the first \emph{7} on the board.  That \emph{7} is a concept, different from another \emph{7} on the same white-board.  These are temporary concepts in that they would almost certainly not enter the long-term memory, and similarly objects in the workspace are also quiet transient, but are real for that short duration. Now back to the \emph{discovery-of-similarity} story, which unravels in three very related segments.
 
@@ -177,14 +178,14 @@ The notion that concepts have a fringe of floating associations is not new, goin
 
   Several people have commented on the fringe, including \citeN{Hofstadter:LeTon} in Chapter 10 \emph{On words and their magical halos}. A particular example from this chapter is that of the concept \emph{cheese}, and how it brings up images of either ``orangy processed squares that come pre-sliced and pre-wrapped in plastic'' or ``a tray full of unprocessed cheeses, perhaps a hunk of Brie, some Gouda, some che\'vre'' depending on the context.
 
-Concepts in Seqsee have fringes, and these too are context dependent. In Seqsee, a concept activates other concepts to various degrees and thus other concepts are in the fringe to different degrees. As objects in the workspace are concepts they too have fringes.
+Concepts in Seqsee have fringes, and these are also context dependent. In Seqsee, a concept activates other concepts to various degrees and thus other concepts are in the fringe to different degrees. As objects in the workspace are concepts, they too have fringes.
 
-I will hold on for the moment to what fringes contain, but in short two concepts are considered worth the attention of a \emph{find-if-related} codelet if their fringes overlap.  This can be made concrete with the following example.  In the sequence \emph{1 7 2 8} the fringe of the object \emph{7} contains the number seven and to a lesser extent the numbers eight and six.  The fringe of the object \emph{8} also contains the number eight and thus the two objects stand a chance of being perceived as related.
+I will hold on for the moment to what fringes contain, but in short two concepts are considered worth the attention of a \emph{find-if-related} codelet if their fringes overlap.  This can be made concrete with the following example.  In the sequence \sequence{1 7 2 8} the fringe of the object \emph{7} contains the number seven and to a lesser extent the numbers eight and six.  The fringe of the object \emph{8} also contains the number eight and thus the two objects stand a chance of being perceived as related.
 
 \subsubsection{Tagging}
 \label{sec:tagging}
 
-The story for \emph{7} and \emph{8} above was simple.  But how are the groups \emph{123} and \emph{1234} seen to be potentially similar?  The answer is that when they have both been perceived as \emph{ascending groups}--- and not before---they appear similar to Seqsee.  These tags are part of the fringe, and clearly, if both objects share a tag their fringes overlap.  The overlap is a matter of degrees and hence so is this feeling of similarity.
+The story for \emph{7} and \emph{8} above was simple.  But how are the groups \emph{123} and \emph{1234} seen to be potentially similar?  The answer is that when they have both been perceived as \emph{ascending groups}--- and not before---they appear similar to Seqsee.  These tags are part of the fringe, and clearly, if both objects share a tag, their fringes overlap.  The overlap is a matter of degrees and hence so is this feeling of similarity.
 
 I think there is something cognitively interesting going on here that I would like to draw your attention to via a quote from Andy Clark \cite{Clark:MindWare}.
 
@@ -193,7 +194,7 @@ Learning a set of tags and labels is rather closely akin to acquiring a new perc
 \end{quote}
 
 
-In the case when the overlap of the fringes includes such tags there is more information to discover the relationship.  Seqsee does not deal with prime numbers, but pretend for a moment that it does and that it has been presented with the sequence ``2 3 5 7 11''. If both 5 and 7 have been tagged as primes then in the process of relation finding the program may discover that 7 is the next prime after 5, and use this information to understand the sequence.
+In the case when the overlap of the fringes includes such tags there is more information to discover the relationship.  Seqsee does not deal with prime numbers, but pretend for a moment that it does and that it has been presented with the sequence \sequence{2 3 5 7 11}$\enskip$ If both 5 and 7 have been tagged as primes then in the process of relation finding the program may discover that 7 is the next prime after 5, and use this information to understand the sequence.
 
 
 \subsubsection{Categories}
@@ -210,22 +211,22 @@ When we go to a restaurant we know what to do.  This was the central example tha
 
  Another theory that attempts to explain how we know what to do is the affordances theory of Gibson. A chair affords sitting, for example, and that is how we know what to do with chairs.  The two theories are not quite at odds with each other: they are just trying to explain similar phenomena at different granularity.
 
-The micro decisions Seqsee makes in choosing what codelets should be created next occurs via an affordances-like mechanism. Groups afford extending, for example.  Even meta thoughts afford.  The thought \emph{I am in a rut} affords destroying weak groups and trying less likely possibilities like exploring if the sequence is interlaced.
+The micro-decisions Seqsee makes in choosing what codelets should be created next occurs via an affordances-like mechanism. Groups afford extending, for example.  Even meta-thoughts afford.  The thought \emph{I am in a rut} affords destroying weak groups and trying less likely possibilities like exploring if the sequence is interlaced.
 
 Seqsee does not currently use scripts.  It is conceivable that something similar may be called for. 
 
 \subsection{The Stream}
 \label{sec:stream}
 
-Where all this comes together is in the stream of thought. But first a qualification for the word \emph{thought} as used in Seqsee. Thinking about an object in the workspace is just focusing on that object for a short while: calculating its fringe and adding more codelets as are suggested by its affordances. Seqsee has objects (in the workspace) and thoughts about those objects in the stream.  Unlike the highly parallel buzz of activity of the codelets, there is something slightly more linear about the stream.  When I describe the stream, people sometimes have the sense of one thought leading to the next leading to the next---the $n+1^{\mathrm{th}}$ thought being caused somehow by the $n^\mathrm{th}$ thought.That is not how Seqsee's stream works. Either my descriptions have been sloppy, or maybe such linearity is conjured up by the word \emph{stream}. I must describe it more carefully here.
+Where all this comes together is in the stream of thought. But first a qualification for the word \emph{thought} as used in Seqsee. Thinking about an object in the workspace is just focusing on that object for a short while: calculating its fringe and adding more codelets as are suggested by its affordances. Seqsee has objects (in the workspace) and thoughts about those objects in the stream.  Unlike the highly parallel buzz of activity of the codelets, there is something slightly more linear about the stream.  When I describe the stream, people sometimes have the sense of one thought leading to the next leading to the next---the $n+1^{\mathrm{th}}$ thought being caused somehow by the $n^\mathrm{th}$ thought. That is not how Seqsee's stream works. Either my descriptions have been sloppy, or maybe such linearity was conjured up by the word \emph{stream}. I must describe it more carefully here.
 
-One way to start describing it is to say where the $n+1^{\mathrm{th}}$ thought can come from.  It can of course come  from the immediate prior thoughts: The affordance of an object may include focusing on something else, in a manner similar to a street sign affording focusing on the writing.But more importantly the next thought can come from any codelet whatsoever.  Consider the hypothetical case where Seqsee is solving five problems in parallel.  There are several codelets toiling away on each problem.  Since a thought in the stream corresponds to focusing attention on something for a short period of time, it could happen that the thoughts that pass through the stream are well interlaced: thoughts from each of the five problems braided together. In this sense, then, the stream is just a list of all thoughts happening anywhere in the system, sorted by time, and linearity is somewhat of an illusion. It is not totally illusory, though, in the sense that for several simple problems, Seqsee can just go directly to the solution pretty fast. Seqsee solves \emph{1 2 3 4$\ldots$} blazingly fast because the affordances turn out to be exactly right for this problem.
+One way to start describing it is to say where the $n+1^{\mathrm{th}}$ thought can come from.  It can of course come  from the immediate prior thoughts: The affordance of an object may include focusing on something else, in a manner similar to a street sign affording focusing on the writing. But more importantly the next thought can come from any codelet whatsoever.  Consider the hypothetical case where Seqsee is solving five problems in parallel.  There are several codelets toiling away on each problem.  Since a thought in the stream corresponds to focusing attention on something for a short period of time, it could happen that the thoughts that pass through the stream are well interlaced: thoughts from each of the five problems braided together. In this sense, then, the stream is just a list of all thoughts happening anywhere in the system, sorted by time, and linearity is somewhat of an illusion. It is not totally illusory, though, in the sense that for several simple problems, Seqsee can just go directly to the solution pretty fast. Seqsee solves \emph{1 2 3 4$\ldots$} blazingly fast because the affordances turn out to be exactly right for this problem.
 
-If the stream is almost merely a birth-registry of attention-fixations, what, if anything, does it buy us? What it gives us is temporality.  Seqsee keeps in memory the fringes of the last few thoughts, and these decay with time.  If the fringe of a new thought intersects with the fringe of one of the more recent thoughts from anywhere in the system, Seqsee's similarity-ears get perked.  In the hypothetical five problem case we would see very strong recency effects and interference from Seqsee.  It is as if the stream is distributed throughout the "brain" of Seqsee, but whenever a thought occurs anywhere its echo reverberates throughout, potentially influencing for a short time the processing everywhere.
+If the stream is almost merely a birth-registry of attention-fixations, what, if anything, does it buy us? What it gives us is temporality.  Seqsee keeps in memory the fringes of the last few thoughts, and these decay with time.  If the fringe of a new thought intersects with the fringe of one of the more recent thoughts from anywhere in the system, Seqsee's similarity-ears get perked.  In the hypothetical five problem case we would see very strong recency effects and interference.  It is as if the stream is distributed throughout the ``brain'' of Seqsee, but whenever a thought occurs anywhere its echo reverberates throughout, potentially influencing for a short time the processing everywhere.
 
  Adding a stream was not a completely unmotivated move on my part. While it was done for pragmatic reasons mentioned in the next paragraph, I was pleasantly surprised to recently discover a somewhat similar mechanism used by \citeN{Dennett:Consciousness} in what he calls the \emph{Joycean machine}---a more or less serial machine simulated imperfectly on parallel neural hardware.
 
-Using the stream has made Seqsee much smarter as compared to Seqsee 12 months ago when there was no stream.  In a sequence like \emph{1 1 1 1 17 2 2 2 2 18} the way Seqsee discovers the 17-18 relationship is by being lucky and thinking about the 17 and 18 somewhat close together in time.  Because of all the hubbub of the parallel codelet activity such lucky episodes are guaranteed to happen.  Without the stream, seeing the 17-18 relationship was much more unlikely.  With a \emph{bond-scout} like mechanism where objects are randomly chosen it is necessary to bias against choosing objects distant from each other because such random long-distance checking is statistically less likely to produce useful results.  So even though the 17-18 relationship stands a chance of being discovered it is not predestined.
+Using the stream has made Seqsee much smarter as compared to Seqsee 12 months ago when there was no stream.  In a sequence like \sequence{1 1 1 1 17 2 2 2 2 18} the way Seqsee discovers the 17-18 relationship is by being lucky and thinking about the 17 and 18 somewhat close together in time.  Because of all the hubbub of the parallel codelet activity such lucky episodes are guaranteed to happen.  Without the stream, seeing the 17-18 relationship was much more unlikely.  With a \emph{bond-scout} like mechanism where objects are randomly chosen it is necessary to bias against choosing objects distant from each other because such random long-distance checking is statistically less likely to produce useful results.  So even though the 17-18 relationship stands a chance of being discovered it is not predestined.
 
 
                                 % \section{Implications of success}

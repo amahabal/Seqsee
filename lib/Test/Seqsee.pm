@@ -536,11 +536,12 @@ sub RegTestHelper{
 
     ResetFailedRequests();
     SWorkspace->init({ %$::TestingOPTIONS_ref, seq => $seq});
-    push @main::_real_seq, @$continuation;
+    SWorkspace->set_future_terms(@$continuation);
     SCoderack->init($::TestingOPTIONS_ref);
     SStream->init($::TestingOPTIONS_ref);
     SNode->init($::TestingOPTIONS_ref);
     $SWorkspace::ReadHead = 0;
+    $::Steps_Finished = 0;
 
     eval {
         while (!Seqsee::Interaction_step_n( {
@@ -549,8 +550,8 @@ sub RegTestHelper{
             update_after => $max_steps, })) {
             # Just do Interaction_step_n until finished...
         }
-        ### Finished run, with steps: $main::Steps_Finished
-        ### Workspace has this many elements: $SWorkspace::elements_count
+        ## Finished run, with steps: $main::Steps_Finished
+        ## Workspace has this many elements: $SWorkspace::elements_count
     };
 
     my $failed_requests = GetFailedRequests();
@@ -573,6 +574,7 @@ sub RegTestHelper{
         if ($SWorkspace::elements_count - scalar(@$seq) > $min_extension) {
             return "ExtendedWithoutGettingIt";
         } else {
+            # print "Steps finished : $main::Steps_Finished\n";
             return "NotEvenExtended";
         }
     }
@@ -582,7 +584,7 @@ sub RegStat{
     my ( $opts_ref ) = @_;
     my %outputs;
     my %errors;
-    for (1..10) {
+    for (1..10) { ### Trials===[%]      Done
         my $out;
         eval { $out = RegTestHelper( $opts_ref ); };
         if ($EVAL_ERROR) {
@@ -628,7 +630,10 @@ sub RegHarness{
         $opts{max_false} ||= 10;
         $opts{max_steps} ||= 10000;
         $opts{min_extension} ||= 2;
+        my $start_time = time();
         my $output = RegStat(\%opts);
+        my $total_time = time() - $start_time;
+        print "Processing time: $total_time\n";
         my $current_GotIt = $output->{GotIt} ||= 0;
 
         my $earlier_GotIt = 0;

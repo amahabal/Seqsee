@@ -25,7 +25,23 @@ MAKE_FRAG
 WriteMakefile(
     NAME              => 'Seqsee',
     VERSION_FROM      => 'lib/Seqsee.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+        Class::Multimethods => 0,
+        Class::Std => 0,
+        Config::Std => 0,
+        Exception::Class => 0,
+        List::Util => 0,
+        Log::Log4perl => 0,
+        Perl6::Form => 0,
+        Scalar::Util => 0,
+        Smart::Comments => 0,
+        Sub::Installer => 0,
+        Test::Builder => 0,
+        Test::Deep => 0,
+        Test::Exception => 0,
+        Test::Stochastic => 0,
+        UNIVERSAL::require => 0,
+            }, # e.g., Module::Name => 1.1
     test => { TESTS             => 't/*.t t/*/*.t t/*/*/*.t'},	      
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (
