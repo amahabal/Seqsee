@@ -109,7 +109,6 @@ sub create{
     my @left_edges; # for finding direction
     my @right_edges; # for finding direction
     if (@items == 1 and UNIVERSAL::isa($items[0], "SAnchored")) {
-        # SErr->throw("A group creation is being attempted based on a single object");
         return $items[0];
     }
 
@@ -243,6 +242,7 @@ sub get_left_extendibility{
 sub set_underlying_reln :CUMULATIVE{
     my ( $self, $reln ) = @_;
     my $id = ident $self;
+    return unless $reln;
     
     $right_extendibility_of{$id} = EXTENDIBILE::PERHAPS();
     $left_extendibility_of{$id}  = EXTENDIBILE::PERHAPS();

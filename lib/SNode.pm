@@ -42,10 +42,9 @@ sub create{
     $depth or confess "need depth";
     $activation ||= 0;
 
-    if (exists $MEMOIZE{$core}) {
-        return $MEMOIZE{$core};
-    }
+    return $MEMOIZE{$core} if exists $MEMOIZE{$core};
 
+# XXX(Assumption): [2006/09/25] Node always a thought.
     if ($core->isa('SThought')) {
         return $MEMOIZE{$core} = SNode->new({ 
             core => $core,
@@ -66,8 +65,9 @@ sub decay{
     my ( $self, $timesteps ) = @_;
     my $id = ident $self;
 
-    $updated_activation_of{$id} = $activation_of{$id} * 
-        ( $DECAY_RATE ** ($timesteps / $depth_of{$id} ));
+    $updated_activation_of{$id} = 
+        int ($activation_of{$id} * 
+                 ( $DECAY_RATE ** ($timesteps / $depth_of{$id} )));
 }
 
 sub Decay_All{
@@ -88,7 +88,7 @@ sub excite{
 
     my $new_val = ($activation_of{$id} += $amt);
     if ($new_val > 100) {
-        $activation_of{$id} = $new_val;
+        $activation_of{$id} = 100;
     }
 
 }
@@ -100,6 +100,7 @@ sub clear{
 
 sub init{
     my ( $package, $opts_ref ) = @_;
+    clear();
     $DECAY_RATE = $opts_ref->{DecayRate} or die;
 }
 

@@ -16,14 +16,11 @@ use base qw{SAnchored};
 use overload fallback => 1;
 
 my %mag_of :ATTR(:get<mag>);
-#my %left_edge_of : ATTR( :set<left_edge> :get<left_edge> );
-#my %right_edge_of : ATTR( :set<right_edge> :get<right_edge> );
 
 sub BUILD {
     my ( $self, $id, $opts ) = @_;
-    $mag_of{$id} = $opts->{mag};
-    confess "Need mag" unless defined $mag_of{$id};
-    $mag_of{$id} = int($mag_of{$id});
+    confess "Need mag" unless defined $opts->{mag};
+    $mag_of{$id} = int($opts->{mag});
 }
 
 

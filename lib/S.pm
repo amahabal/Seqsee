@@ -22,7 +22,6 @@ use SFasc;
 use SCodelet;
 use SAction;
 use SCoderack;
-use SCodeConfig;
 
 use SMetonym;
 use SMetonymType;
