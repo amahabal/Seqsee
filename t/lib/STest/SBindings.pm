@@ -23,7 +23,7 @@ sub ascending1 :Test(6){
     my $squinting_ref = $bindings->get_squinting_raw();
     ok( scalar(keys %$squinting_ref) == 0);
 
-    ok($bindings->get_metonymy_mode() eq 0);
+    cmp_ok($bindings->get_metonymy_mode(), 'eq', $METO_MODE::NONE);
 
 }
 
@@ -46,7 +46,7 @@ sub ascending2 :Test(9){
     ok( exists $squinting_ref->{1});
     isa_ok( $squinting_ref->{1}, "SMetonym" );
 
-    ok($bindings->get_metonymy_mode() eq 1);
+    ok($bindings->get_metonymy_mode() eq $METO_MODE::SINGLE);
     cmp_ok($bindings->get_metonymy_cat(),  'eq', $S::SAMENESS);
     cmp_ok($bindings->get_metonymy_name(), 'eq', "each");
 
@@ -71,7 +71,7 @@ sub ascending3 :Test(9){
     ok( exists $squinting_ref->{0});
     isa_ok( $squinting_ref->{0}, "SMetonym" );
 
-    ok($bindings->get_metonymy_mode() eq 3);
+    ok($bindings->get_metonymy_mode() eq $METO_MODE::ALL);
     cmp_ok($bindings->get_metonymy_cat(),  'eq', $S::SAMENESS);
     cmp_ok($bindings->get_metonymy_name(), 'eq', "each");
 

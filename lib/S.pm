@@ -102,12 +102,24 @@ sub as_text{
 
 
 package POS_MODE;
-use enum qw{BITMASK: FORWARD BACKWARD
-            
-        };
+our $FORWARD = bless { mode => 'FORWARD'}, 'POS_MODE';
+our $BACKWARD = bless { mode => 'FORWARD'}, 'POS_MODE';
+
+sub FORWARD { $FORWARD }
+sub BACKWARD{ $BACKWARD }
+
+
 
 package METO_MODE;
-use enum qw{ENUM: NONE=0 SINGLE ALLBUTONE ALL};
+our $NONE = bless { mode => 'NONE'}, 'METO_MODE';
+our $SINGLE = bless { mode => 'SINGLE'}, 'METO_MODE';
+our $ALLBUTONE = bless { mode => 'ALLBUTONE'}, 'METO_MODE';
+our $ALL = bless { mode => 'ALL'}, 'METO_MODE';
+sub NONE { $NONE }
+sub SINGLE { $SINGLE }
+sub ALLBUTONE { $ALLBUTONE }
+sub ALL { $ALL }
+
 
 package EXTENDIBILE;
 use enum qw{ENUM: NO=0 UNKNOWN PERHAPS};

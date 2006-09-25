@@ -3,13 +3,18 @@
 #    Package: SAction
 #
 #####################################################
-#   Codelets that run "immediately"
+#Codelets that run "immediately"
 #    
-#   Actions are really like codelets---in fact, they share almost all the code---except they never see the coderack. These are actions that get taken immediately, with a certain probability.
+#Actions are really like codelets---in fact, they share almost all the code
+#---except they never see the coderack. These are actions that get taken
+#immediately, with a certain probability.
 #    
-#   For any thought, it is possible to call the function get_actions(). This returns a bunch of codelets (which get scheduled) and a bunch of actions, which may get executed based on their urgencies.
+#For any thought, it is possible to call the function get_actions(). This
+#returns a bunch of codelets (which get scheduled) and a bunch of actions,
+#which may get executed based on their urgencies.
 #    
-#   Running an action is just like running a codelet. Every action has a codefamily associated with it.
+#Running an action is just like running a codelet. Every action has a
+#codefamily associated with it.
 #####################################################
 
 package SAction;

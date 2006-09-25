@@ -41,6 +41,8 @@ use overload fallback => 1;
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
+    $self->set_left_extendibility($EXTENDIBILE::UNKNOWN);
+    $self->set_right_extendibility($EXTENDIBILE::UNKNOWN);
 }
 
 

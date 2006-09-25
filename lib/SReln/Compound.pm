@@ -134,7 +134,7 @@ sub BUILD{
     $unchanged_bindings_of_of{$id} = $opts_ref->{unchanged_bindings}
         or confess "Need unchanged_bindings";
     
-    if ($meto_mode) { # that is, metonymy's present!
+    if ($meto_mode ne $METO_MODE::NONE) { # that is, metonymy's present!
         my $pos_mode = $base_pos_mode_of{$id} = $opts_ref->{base_pos_mode};
         confess "Need base pos mode" unless defined($pos_mode);
 
@@ -229,7 +229,7 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
 
     # Meto mode
     my $meto_mode = $b1->get_metonymy_mode;
-    return unless $meto_mode == $b2->get_metonymy_mode;
+    return unless $meto_mode eq $b2->get_metonymy_mode;
     $opts_ref->{base_meto_mode} = $meto_mode;
 
     ## Base meto mode found: $meto_mode
@@ -258,7 +258,7 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     ## changed_bindings found: $changed_ref
     ## unchanged_bindings found: $unchanged_ref
 
-    if ($meto_mode) {
+    if ($meto_mode ne $METO_MODE::NONE) {
         # So other stuff is relevant, too!
         if ($meto_mode != METO_MODE::ALL()) { # Position relevant!
             my $pos_mode = $b1->get_position_mode;

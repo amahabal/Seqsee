@@ -25,7 +25,7 @@ IS_INSTANCE: {
   ## $bo->get_structure
   $bindings = $cat_123->is_instance($bo);
   ok $bindings;
-  cmp_ok($bindings->get_metonymy_mode(), 'eq', 1);
+  cmp_ok($bindings->get_metonymy_mode(), 'eq', $METO_MODE::SINGLE);
 }
 
 my $cat_1 = $cat_literal->build( { structure => [1] });

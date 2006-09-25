@@ -58,7 +58,7 @@ sub reln_123_123b :Test(8){
     my $reln = find_reln($o123, $o123b);
     isa_ok($reln, "SReln::Compound");
     cmp_ok($reln->get_base_category(), 'eq', $S::ASCENDING);
-    cmp_ok($reln->get_base_meto_mode(), 'eq', 0);
+    cmp_ok($reln->get_base_meto_mode(), 'eq', $METO_MODE::NONE);
     cmp_ok( scalar( keys %{$reln->get_unchanged_bindings_ref()}), '==', 2);
     cmp_ok( scalar( keys %{$reln->get_changed_bindings_ref()}),   '==', 0);
     
@@ -75,7 +75,7 @@ sub reln_123_1234 :Test(7){
     my $reln = find_reln($o123, $o1234);
     isa_ok($reln, "SReln::Compound");
     cmp_ok($reln->get_base_category(), 'eq', $S::ASCENDING);
-    cmp_ok($reln->get_base_meto_mode(), 'eq', 0);
+    cmp_ok($reln->get_base_meto_mode(), 'eq', $METO_MODE::NONE);
     cmp_ok( scalar( keys %{$reln->get_unchanged_bindings_ref()}), '==', 1);
     cmp_ok( scalar( keys %{$reln->get_changed_bindings_ref()}),   '==', 1);
     cmp_ok( $reln->get_changed_bindings_ref()->{end}->get_text(), 'eq',"succ");
@@ -90,11 +90,11 @@ sub reln_1123f_1223f :Test(9){
     my $reln = find_reln($o1123f, $o1223f);
     isa_ok($reln, "SReln::Compound");
     cmp_ok($reln->get_base_category(), 'eq', $S::ASCENDING);
-    cmp_ok($reln->get_base_meto_mode(), 'eq', 1);
+    cmp_ok($reln->get_base_meto_mode(), 'eq', $METO_MODE::SINGLE);
     cmp_ok( scalar( keys %{$reln->get_unchanged_bindings_ref()}), '==', 2);
     cmp_ok( scalar( keys %{$reln->get_changed_bindings_ref()}),   '==', 0);
     
-    cmp_ok($reln->get_base_pos_mode(), 'eq', 1); # 1 is FWD
+    cmp_ok($reln->get_base_pos_mode(), 'eq', $POS_MODE::FORWARD);
     cmp_ok($reln->get_position_reln()->get_text(), 'eq', "succ");
 
     my $meto_reln = $reln->get_metonymy_reln;
@@ -110,11 +110,11 @@ sub reln_1223f_12223f :Test(9){
     my $reln = find_reln($o1223f, $o12223f);
     isa_ok($reln, "SReln::Compound");
     cmp_ok($reln->get_base_category(), 'eq', $S::ASCENDING);
-    cmp_ok($reln->get_base_meto_mode(), 'eq', 1);
+    cmp_ok($reln->get_base_meto_mode(), 'eq', $METO_MODE::SINGLE);
     cmp_ok( scalar( keys %{$reln->get_unchanged_bindings_ref()}), '==', 2);
     cmp_ok( scalar( keys %{$reln->get_changed_bindings_ref()}),   '==', 0);
     
-    cmp_ok($reln->get_base_pos_mode(), 'eq', 1); # 1 is FWD
+    cmp_ok($reln->get_base_pos_mode(), 'eq', $POS_MODE::FORWARD);
     cmp_ok($reln->get_position_reln()->get_text(), 'eq', "same");
 
     my $meto_reln = $reln->get_metonymy_reln;
