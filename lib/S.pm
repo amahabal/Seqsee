@@ -122,9 +122,19 @@ sub ALL { $ALL }
 
 
 package EXTENDIBILE;
-use enum qw{ENUM: NO=0 UNKNOWN PERHAPS};
+our $NO = 0;
+our $PERHAPS = bless { mode => 'PERHAPS' }, 'EXTENDIBILE';
+our $UNKNOWN = bless {mode => 'UNKNOWN' }, 'EXTENDIBILE';
+sub NO{ $NO }
+sub PERHAPS { $PERHAPS }
+sub UNKNOWN{ $UNKNOWN }
 
 package RELN_SCHEME;
-use enum qw{ENUM: CHAIN=1};
+our $NONE = 0;
+our $CHAIN = bless { type => 'CHAIN' }, 'RELN_SCHEME';
+sub NONE{$NONE}
+sub CHAIN{$CHAIN}
+
+
 
 1;
