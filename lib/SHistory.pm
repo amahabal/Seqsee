@@ -13,7 +13,7 @@ use base qw{};
 
 my %messages_of :ATTR( :get<history>);
 
-$::Steps_Finished ||= '';
+$Global::Steps_Finished ||= '';
 $::CurrentRunnableString ||= '';
 
 sub BUILD{
@@ -23,7 +23,7 @@ sub BUILD{
 
 sub history_string{
     my ( $msg ) = @_;
-    return "[$::Steps_Finished]$::CurrentRunnableString\t$msg";
+    return "[$Global::Steps_Finished]$::CurrentRunnableString\t$msg";
 }
 
 sub add_history{

@@ -77,7 +77,7 @@ sub generate_log_msg{
     my $id = ident $self;
     my $family = $family_of{$id};
 
-    my $ret = join("", "\n=== $::Steps_Finished ", 
+    my $ret = join("", "\n=== $Global::Steps_Finished ", 
                    "=" x 10, "  ACTION $family\n");
     while (my($k, $v) = each %{$args_of_of{$id}}) {
         my $val = (blessed $v)? $v->as_text() : $v;

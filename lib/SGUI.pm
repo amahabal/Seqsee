@@ -119,7 +119,7 @@ sub setup_bindings{
                   exit;
               });
     $mw->bind('<KeyPress-p>' => sub {
-                  $::_BREAK_LOOP = 1;
+                  $Global::Break_Loop = 1;
               });
 
     

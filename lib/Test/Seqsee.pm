@@ -284,7 +284,7 @@ sub code_throws_stochastic_all_and_only_nok{
 
 sub INITIALIZE_for_testing{ 
     $::TestingOPTIONS_ref = Seqsee::_read_config(seq => '0'); # Random
-    $::Steps_Finished = 0;
+    $Global::Steps_Finished = 0;
     $::CurrentRunnableString = "";
     Seqsee->initialize_codefamilies();
     Seqsee->initialize_thoughttypes();
@@ -541,7 +541,7 @@ sub RegTestHelper{
     SStream->init($::TestingOPTIONS_ref);
     SNode->init($::TestingOPTIONS_ref);
     $SWorkspace::ReadHead = 0;
-    $::Steps_Finished = 0;
+    $Global::Steps_Finished = 0;
 
     eval {
         while (!Seqsee::Interaction_step_n( {
@@ -550,7 +550,7 @@ sub RegTestHelper{
             update_after => $max_steps, })) {
             # Just do Interaction_step_n until finished...
         }
-        ## Finished run, with steps: $main::Steps_Finished
+        ## Finished run, with steps: $Global::Steps_Finished
         ## Workspace has this many elements: $SWorkspace::elements_count
     };
 
@@ -574,7 +574,7 @@ sub RegTestHelper{
         if ($SWorkspace::elements_count - scalar(@$seq) > $min_extension) {
             return "ExtendedWithoutGettingIt";
         } else {
-            # print "Steps finished : $main::Steps_Finished\n";
+            # print "Steps finished : $Global::Steps_Finished\n";
             return "NotEvenExtended";
         }
     }

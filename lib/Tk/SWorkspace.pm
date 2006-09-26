@@ -207,9 +207,9 @@ sub get_next_available_row{
     }
     if ($group_row_count < $max_group_row_count){
         $group_row_count++;
-        return get_next_available_row(@_);
         $group_row_size = $group_space_height / ( $group_row_count * ( 1 + $group_spacing_factor));
         $eff_group_row_size = $group_row_size * ( 1 + $group_spacing_factor );
+        return get_next_available_row(@_);
 
     }
 

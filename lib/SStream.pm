@@ -113,7 +113,7 @@ sub add_thought{
     my ( $package, $thought ) = @_;
 
     if (LOGGING_DEBUG()) {
-        $logger->debug( "\n=== $::Steps_Finished ==========  NEW THOUGHT $thought" );
+        $logger->debug( "\n=== $Global::Steps_Finished ==========  NEW THOUGHT $thought" );
         $logger->debug( "== ", $thought->as_text() );
     }
 

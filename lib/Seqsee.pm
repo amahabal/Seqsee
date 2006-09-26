@@ -108,10 +108,10 @@ sub already_rejected_by_user{
 #    true if prog finished
 
 sub Seqsee_Step{
-    $::Steps_Finished++;
+    $Global::Steps_Finished++;
     do_background_activity();
 
-    ## $Steps_Finished
+    ## $Global::Steps_Finished
     my $runnable = SCoderack->get_next_runnable();
     return unless $runnable; # prog not yet finished!
 
@@ -169,7 +169,7 @@ sub Interaction_step_n{
 
     my $n = $opts_ref->{n} or confess "Need n";
     $n = min( $n, 
-              $opts_ref->{max_steps} - $::Steps_Finished );
+              $opts_ref->{max_steps} - $Global::Steps_Finished );
     return 1 unless $n > 0; # i.e, okay to stop now!
 
     my $update_after = $opts_ref->{update_after} || $n;
@@ -178,7 +178,7 @@ sub Interaction_step_n{
     my $program_finished = 0;
 
     STEP_LOOP: for my $steps_executed (1..$n) {
-	$::_BREAK_LOOP = 0;
+	$Global::Break_Loop = 0;
 
         ## Interaction_step_n executing step number: $steps_executed
         $program_finished = Seqsee_Step();
@@ -190,7 +190,7 @@ sub Interaction_step_n{
             $change_after_last_display = 0;
         }
         last if $program_finished;
-	last if $::_BREAK_LOOP;
+	last if $Global::Break_Loop;
     }
     
     main::update_display() if $change_after_last_display;

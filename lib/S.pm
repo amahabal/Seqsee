@@ -1,5 +1,7 @@
 package S;
 
+use Global;
+
 use List::Util;
 use Scalar::Util;
 
