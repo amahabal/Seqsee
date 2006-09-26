@@ -123,7 +123,7 @@ use Compile::SCF;
                 } else {
                     my $seq = join(", ", @$ask_if_what);
                     ## setting for rejection: $seq
-                    $::EXTENSION_REJECTED_BY_USER{ $seq } = 1;
+                    $Global::ExtensionRejectedByUser{ $seq } = 1;
                     $core->set_right_extendibility( EXTENDIBILE::NO());
                 }
             } else {

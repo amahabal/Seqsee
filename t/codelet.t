@@ -17,7 +17,7 @@ BEGIN {
   }
 }
 
-$::CurrentEpoch = 20;
+$Global::Steps_Finished = 20;
 my $cl = SCodelet->new( "family_foo", 10, { a => 3, b => 5 } );
 
 isa_ok $cl, "SCodelet";
@@ -28,8 +28,8 @@ is $cl->[3]{a}, 3;            # other args
 
 # Running, and its consequences
 is $cl->run(), 100;           # run
-is $::CurrentCodelet,       $cl;
-is $::CurrentCodeletFamily, "family_foo";
+is $Global::CurrentCodelet,       $cl;
+is $Global::CurrentCodeletFamily, "family_foo";
 
 my $cl2 = SCodelet->new( "family_nonexistant", 20 );
 throws_ok { $cl2->run() } "SErr::Code";

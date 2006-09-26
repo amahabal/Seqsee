@@ -16,8 +16,8 @@ use Smart::Comments;
 use Config::Std;
 
 ## useful to turn a few features off...
-$::TESTING_MODE = 1;
-$::CurrentRunnableString = "";
+$Global::TestingMode = 1;
+$Global::CurrentRunnableString = "";
 
 {
     my $failed_requests;
@@ -283,9 +283,9 @@ sub code_throws_stochastic_all_and_only_nok{
 }
 
 sub INITIALIZE_for_testing{ 
-    $::TestingOPTIONS_ref = Seqsee::_read_config(seq => '0'); # Random
+    $Global::TestingOptionsRef = Seqsee::_read_config(seq => '0'); # Random
     $Global::Steps_Finished = 0;
-    $::CurrentRunnableString = "";
+    $Global::CurrentRunnableString = "";
     Seqsee->initialize_codefamilies();
     Seqsee->initialize_thoughttypes();
             Log::Log4perl::init(\<<'NOLOG');
@@ -327,7 +327,7 @@ NOLOG
                     return;
                 }
             }
-            $main::AtLeastOneUserVerification = 1;
+            $Global::AtLeastOneUserVerification = 1;
             return 1;
         }});
     
@@ -535,13 +535,13 @@ sub RegTestHelper{
 
 
     ResetFailedRequests();
-    SWorkspace->init({ %$::TestingOPTIONS_ref, seq => $seq});
+    SWorkspace->init({ %{$Global::TestingOptionsRef}, seq => $seq});
     SWorkspace->set_future_terms(@$continuation);
-    SCoderack->init($::TestingOPTIONS_ref);
-    SStream->init($::TestingOPTIONS_ref);
-    SNode->init($::TestingOPTIONS_ref);
+    SCoderack->init($Global::TestingOptionsRef);
+    SStream->init($Global::TestingOptionsRef);
+    SNode->init($Global::TestingOptionsRef);
     $SWorkspace::ReadHead = 0;
-    $Global::Steps_Finished = 0;
+    Global->clear();
 
     eval {
         while (!Seqsee::Interaction_step_n( {

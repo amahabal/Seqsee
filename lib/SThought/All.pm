@@ -94,7 +94,7 @@ use Compile::SThought;
      my $total_count = $SWorkspace::elements_count;
      ### $span, $total_count
     
-     if ($main::AtLeastOneUserVerification and ($span / $total_count) > 0.8) {
+     if ($Global::AtLeastOneUserVerification and ($span / $total_count) > 0.8) {
          # This very well may be it!
          if ($gp->get_left_edge() != 0) {
              if ($gp->get_left_extendibility() ne EXTENDIBILE::NO()) {
@@ -134,7 +134,7 @@ use Compile::SThought;
 
 sub BelieveDone{
     my ( $group ) = @_;
-    if ($::TESTING_MODE) {
+    if ($Global::TestingMode) {
         # Currently assume belief always right.
         SErr::FinishedTest->new(got_it => 1)
               ->throw();

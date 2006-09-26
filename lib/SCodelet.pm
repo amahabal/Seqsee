@@ -5,13 +5,13 @@ use Carp;
 sub new {
     my ( $package, $family, $urgency, $args_ref ) = @_;
     $args_ref ||= {};
-    bless [ $family, $urgency, $::CurrentEpoch, $args_ref ], $package;
+    bless [ $family, $urgency, $Global::Steps_Finished, $args_ref ], $package;
 }
 
 sub run {
     my $self = shift;
-    $::CurrentCodelet       = $self;
-    $::CurrentCodeletFamily = $self->[0];
+    $Global::CurrentCodelet       = $self;
+    $Global::CurrentCodeletFamily = $self->[0];
     no strict;
     my $code = *{"SCF::$self->[0]::run"}{CODE}
         or fishy_codefamily( $self->[0] );
@@ -39,7 +39,7 @@ sub fishy_codefamily {
 # exceptions     :
 
 sub generate_log_msg{
-    return '' if $::TESTING_MODE;
+    return '' if $Global::TestingMode;
     my $codelet = shift;
     my $ret =         join("", "\n=== $Global::Steps_Finished ", 
              "="x10, "  CODELET $codelet->[0] \n");

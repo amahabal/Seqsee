@@ -65,7 +65,8 @@ sub Update{
         $SCoderack::LastSelectedRunnable->display_self($Info);
         $Info->insert('0.0', "Last Run Runnable:", "heading", "\n\n");
     }
-    $Info->insert_autoTagged('end', $::LogString);
+    #XXX why does this fail?
+    #$Info->insert_autoTagged('end', $Global::LogString);
     $MW->update();
 }
 

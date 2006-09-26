@@ -83,7 +83,7 @@ sub already_rejected_by_user{
     for my $i (0..$cnt-1) {
         my $substr = join(", ", @a[0..$i] );
         ## Chekin for user rejection: $substr
-        return 1 if $::EXTENSION_REJECTED_BY_USER{$substr};
+        return 1 if $Global::ExtensionRejectedByUser{$substr};
     }
     return 0;
 }
@@ -117,10 +117,10 @@ sub Seqsee_Step{
 
     eval {
         if ($runnable->isa("SCodelet")) {
-            $::CurrentRunnableString = "SCF::". $runnable->[0];
+            $Global::CurrentRunnableString = "SCF::". $runnable->[0];
             $runnable->run();
         } elsif ($runnable->isa("SThought")) {
-            $::CurrentRunnableString = ref($runnable);
+            $Global::CurrentRunnableString = ref($runnable);
             ## $runnable
             SStream->add_thought( $runnable );
         } else {

@@ -17,13 +17,6 @@ use Sub::Installer;
 use IO::Prompt 0.99.4;
 use English qw(-no_match_vars );
 
-# variable: $Steps_Finished
-#    number of steps taken so far
-#
-# Should be my!!
-our $Steps_Finished = 0;
-
-
 # variable: $OPTIONS_ref
 #    final configuration hash
 #     
@@ -179,7 +172,7 @@ sub init_display{
             my ( $msg ) = @_;
             my $btn = $SGUI::MW->messageBox(-message => $msg, -type => "OkCancel");
 	    ## $btn
-            $::_BREAK_LOOP = 1;
+            $Global::Break_Loop = 1;
         };
         my $ask_user_extension_displayer = sub {
             my ( $arr_ref ) = @_;
@@ -197,7 +190,7 @@ sub init_display{
                 # $SGUI::MW->messageBox(-message => $msg, -type => "YesNo");
             my $ok= $btn eq "Yes" ? 1 : 0;
             if ($ok) {
-                $main::AtLeastOneUserVerification = 1;
+                $Global::AtLeastOneUserVerification = 1;
             }
             return $ok;
         };
@@ -265,8 +258,9 @@ sub init_display{
 # 'e' - exit
 
 sub TextMainLoop{
-    while (my $line = prompt -require => { "Seqsee[$Steps_Finished] > " =>  qr{\S}},
-           "Seqsee[$Steps_Finished] > ") {
+    while (my $line = prompt -require => { "Seqsee[$Global::Steps_Finished] > "
+                                               =>  qr{\S}},
+           "Seqsee[$Global::Steps_Finished] > ") {
         if ($line =~ m/^ \s* s \s* $/xi) {
             Interaction_step( { n => 1,
                                 update_after => 1,} );
