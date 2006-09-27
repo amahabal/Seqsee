@@ -8,20 +8,19 @@ use Exception::Class (
     'SErr::Att::Missing'       => { fields => ['what'] },
     'SErr::Att::Extra'         => { fields => ['what'] },
 
-    'SErr::Code'                => {},
+    'SErr::Code' => {},
 
-    'SErr::ProgOver'             => {},
-    
+    'SErr::ProgOver' => {},
+
     'SErr::NotOfCat'            => {},
     'SErr::MetonymNotAppicable' => {},
 
+    'SErr::NeedMoreData' => { fields => ['payload'] },
+    'SErr::ContinueWith' => { fields => ['payload'] },
 
-    'SErr::NeedMoreData'   => { fields => ['payload']},
-    'SErr::ContinueWith'   => { fields => ['payload']},
+    'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
-    'SErr::HolesHere' => {}, #thrown by SAnchored constructor
-
-    'SErr::AskUser' => { fields => [qw{already_matched next_elements}]},
+    'SErr::AskUser' => { fields => [qw{already_matched next_elements}] },
 
     'SErr::FinishedTest' => { fields => [qw( got_it)] },
 );

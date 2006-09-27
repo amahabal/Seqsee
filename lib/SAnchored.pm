@@ -11,27 +11,26 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{SObject};
+
 #use Smart::Comments;
 use List::Util qw(min max);
 
-# variable: %left_edge_of 
+# variable: %left_edge_of
 #    left edge
-my %left_edge_of :ATTR(:get<left_edge> :set<left_edge>);
+my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);
 
 # variable: %right_edge_of
 #    right edge
-my %right_edge_of :ATTR(:get<right_edge> :set<right_edge>);
-
+my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);
 
 # variable: %right_extendibility_of
 #    Could this gp be extended rightward?
 #    -1 means No!, 0 means unknown.
-my %right_extendibility_of :ATTR(:set<right_extendibility>);
-
+my %right_extendibility_of : ATTR(:set<right_extendibility>);
 
 # variable: %left_extendibility_of
 #    same as above, leftward?
-my %left_extendibility_of :ATTR(:set<left_extendibility>);
+my %left_extendibility_of : ATTR(:set<left_extendibility>);
 
 use overload fallback => 1;
 

@@ -4,13 +4,13 @@
 #
 #####################################################
 #   Keeps information about how an object is an instance of a particular category.
-#    
+#
 #   I am not completely sure how things here would be represented. Here is the part I am sure about.
-#    
+#
 #   There are two parts to this binding. The first part---called squinting---connects the object to an idealized version. For example, The object [1 2 2 3 4 5] is, for the purposes of the category ascending, connected to the category [1 2 3 4 5]. More details on this later.
-#    
+#
 #   The second part, bindings, maps descriptors to values. Continuing the same example as above, it would have a hashref, containing start => 1, end => 5, length => 5 etc.
-#    
+#
 #   The code is totally out of sync with this description, currently.
 #
 #  Bindings:
@@ -26,7 +26,7 @@
 #
 #   Squinting, Story:
 #      This is a story of how the metonyms fit together if there are several of them etc. The reason something like this is needed is because the same thing can be interpreted in several ways; When [1 2 2 3] is seen as 123, it could be that the blemish exists in the second element, or in the last butone, or in the "2". The story indicates which of these is currently believed.
-# 
+#
 #    The story involves the metonymy_mode: this is an enum that can have the values NONE, ONE, ALLBUTONE and ALL, indicating "where" the blemish is. If it is the latter 2, all the metonyms must have the same category and meto_name. In general this may not be true: this is just a simplification I make to make the code managable.
 #
 # If the mode is ONE or ALLBUTONE, then another mode, position_mode, is important: whether positions are being considered absolute, or reverse absolute, or named.
@@ -45,11 +45,11 @@ use Smart::Comments;
 
 # variable: %bindings_of_of
 #    The actual bindings like start => 1
-my %bindings_of_of :ATTR(:get<bindings_ref>);
+my %bindings_of_of : ATTR(:get<bindings_ref>);
 
 # variable: %squinting_raw_of
 #    Hash ref: indexed by absolute positions in the object, and having values that are SMetonyms
-my %squinting_raw_of :ATTR(:get<squinting_raw>);
+my %squinting_raw_of : ATTR(:get<squinting_raw>);
 
 # variable: %metonymy_mode_of
 #    How many metonymys are there?
@@ -60,28 +60,25 @@ my %squinting_raw_of :ATTR(:get<squinting_raw>);
 #     * ALL
 #    XXX: now stored in package METO_MODE
 #    Stored in reality, currently, as 0, 1, 2 and 3.
-my %metonymy_mode_of :ATTR(:get<metonymy_mode>);
-
+my %metonymy_mode_of : ATTR(:get<metonymy_mode>);
 
 # variable: %position_mode_of
 #    If positions are an issue, how are positions reckoned? Can have one of the following values
 #    * FORWARD
 #    * BACKWARD
 #    * NAMED
-#     
-my %position_mode_of :ATTR(:get<position_mode>);
-
+#
+my %position_mode_of : ATTR(:get<position_mode>);
 
 # variable: %position_of
 #    If positions are an issue, then this stores the current story of what the position is.
-my %position_of :ATTR(:get<position>);
-
+my %position_of : ATTR(:get<position>);
 
 # variable: %metonymy_type_of
 #    What is the metonymy type?
-#     
+#
 #    This includes the cat, name and info lost
-my %metonymy_type_of :ATTR(:get<metonymy_type>);
+my %metonymy_type_of : ATTR(:get<metonymy_type>);
 
 #
 # subsection: Creation

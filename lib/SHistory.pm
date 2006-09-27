@@ -11,26 +11,25 @@ use Carp;
 use Class::Std;
 use base qw{};
 
-my %messages_of :ATTR( :get<history>);
+my %messages_of : ATTR( :get<history>);
 
-$Global::Steps_Finished ||= '';
+$Global::Steps_Finished        ||= '';
 $Global::CurrentRunnableString ||= '';
 
-sub BUILD{
+sub BUILD {
     my ( $self, $id, $opts ) = @_;
     $messages_of{$id} = [ history_string("created") ];
 }
 
-sub history_string{
-    my ( $msg ) = @_;
+sub history_string {
+    my ($msg) = @_;
     return "[$Global::Steps_Finished]$Global::CurrentRunnableString\t$msg";
 }
 
-sub add_history{
+sub add_history {
     my ( $self, $msg ) = @_;
-    push @{$messages_of{ident $self}}, history_string($msg);
+    push @{ $messages_of{ ident $self} }, history_string($msg);
 }
 
-1; 
-
+1;
 
