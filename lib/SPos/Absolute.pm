@@ -8,6 +8,7 @@ use Class::Std;
 my %finder_of :ATTR;
 my %name_of :ATTR(:set<name> :get<name> );
 
+# XXX(Board-it-up): [2006/09/26] Don't need a PosFinder...
 
 # variable: %index_of
 #    The index of the position (2, -3, etc)

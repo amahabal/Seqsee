@@ -79,6 +79,8 @@ sub clear{
     $CurrentThought      = '';
     %ComponentStrength   = ();
     %ComponentOwnership_of = ();
+    %ThoughtsSet = ();
+    %vivify = ();
 }
 
 
@@ -89,24 +91,26 @@ sub clear{
 #    This is a crucial function, so I must document it carefully.
 #     
 #    Here are the steps of what happens:
-#    * The fringe and extended fringe is calculated, by calls to get_fringe() and get_extended_fringe()
-#    * These are compared with older thoughts (via the fringes remembered in %ComponentStrength. If there is a hit, then the hit is remembered in the local variable $_hit_with.
-#    * The action set of the thought is calculated by a call to get_actions(). This is appended to if there was a hit.
-#    * All actions apart from those that are about "future actions" (like launching codelets) are executed. These may add yet more "future actions"
-#    * of these future actions, 0 or 1 can be chosen as a thought to schedule, and such scheduling occurs via a call to SCoderack->schedule_thought($thought). Others are launched as codelets via SCoderack->launch_codelets(@...). This interface may change...
+#    * The fringe and extended fringe is calculated, by calls to get_fringe()
+#      and get_extended_fringe()
+#    * These are compared with older thoughts (via the fringes remembered in
+#      %ComponentStrength. If there is a hit, then the hit is remembered in the
+#      local variable $_hit_with.
+#    * The action set of the thought is calculated by a call to get_actions().
+#      This is appended to if there was a hit.
+#    * All actions apart from those that are about "future actions" (like
+#      launching codelets) are executed. These may add yet more "future actions
+#    * of these future actions, 0 or 1 can be chosen as a thought to schedule,
+#      and such scheduling occurs via a call to SCoderack->schedule_thought(
+#      $thought). Others are launched as codelets via
+#      SCoderack->launch_codelets(@...). This interface may change...
 #
 #    usage:
 #     SStream->add_thought( $thought )
 #
-#    parameter list:
-#
-#    return value:
-#      
-#
 #    possible exceptions:
 #        SErr::ProgOver
 #
-# THIS IS NOT YET IMPLEMENTED!!
 
 sub add_thought{
     @_ == 2 or confess "new thought takes two arguments";
@@ -291,7 +295,11 @@ sub display_as_text{
 # method: _is_there_a_hit
 # Is there another thought with a common fringe?
 #
-# Given the fringe and the extended fringe (each being an array ref, each of whose elements are 2 element array refs, the first being a component and the second the strength, it checks if there is a hit; If there is, the thought with which the hit occured is returned. Perhaps only thoughts of the same core type as the current are returned.
+# Given the fringe and the extended fringe (each being an array ref, each of
+# whose elements are 2 element array refs, the first being a component and the
+# second the strength, it checks if there is a hit; If there is, the thought
+# with which the hit occured is returned. Perhaps only thoughts of the same
+# core type as the current are returned.
 sub _is_there_a_hit{
     my ( $fringe_ref, $extended_ref ) = @_;
     ## $fringe_ref

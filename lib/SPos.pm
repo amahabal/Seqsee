@@ -19,9 +19,6 @@ use Carp;
 my %Memoize;
 my %Memoize_the;
 
-
-
-
 # method: new
 #    -
 #
@@ -47,13 +44,11 @@ my %Memoize_the;
 sub new {
     my $package = shift;
     my $what    = shift;
+    croak "A position must have a number or a string as the first argument ".
+        "to new." unless $what;
     return $Memoize{$what} if $Memoize{$what};
-    my %args = @_;
-    croak
-        "A position must have a number or a string as the first argument to new."
-        unless $what;
     my $self;
-    if ( $what =~ m/^-?\d+$/ ) {
+    if ( $what =~ m/^ -? \d+ $/ox ) {
         $self = new SPos::Absolute( { index => $what } );
     }
     else {
