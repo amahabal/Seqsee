@@ -246,6 +246,18 @@ sub get_all_covering_groups{
     return @ret;
 }
 
+sub get_all_groups_with_exact_span{
+    my ( $self, $left, $right ) = @_;
+    my @ret;
+
+    foreach (values %groups) {
+        my ($l, $r) = $_->get_edges;
+        push(@ret, $_) if ($l == $left and $r == $right);
+    }
+
+    return @ret;
+}
+
 
 sub add_group{
     my ( $self, $gp ) = @_;

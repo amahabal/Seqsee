@@ -1,3 +1,5 @@
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::Reader
 <run>
@@ -18,6 +20,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::CheckIfInstance
 [param] obj!
@@ -27,6 +31,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::SetLiteralCat
 [param] object!
@@ -52,6 +58,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::AttemptExtension
 [multi] find_reln
@@ -118,6 +126,7 @@ use Compile::SCF;
                 # main::message("We may ask the user if the next elements are: @$ask_if_what");
                 my $ans = main::ask_user_extension($ask_if_what);
                 if ($ans) {
+                    $is_this_what_is_present = 1;
                     SWorkspace->insert_elements( @$ask_if_what );
                     $Global::Break_Loop = 1;
                 } else {
@@ -212,6 +221,8 @@ sub worth_asking{
 }
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::flipReln;
 [multi] find_reln
@@ -227,6 +238,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::FindIfRelated
 [multi] find_reln
@@ -255,6 +268,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::FindIfMetonyable
 [param] object!
@@ -267,6 +282,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::FindIfGroupable
 [param] category!
@@ -290,6 +307,11 @@ use Compile::SCF;
             } else {
                 die $e; 
             }
+        } else { # So: object created.
+            if (SWorkspace->get_all_groups_with_exact_span($object->get_edges())) {
+                return;
+            }
+            
         }
     } elsif (!$anchored_count) { # none anchored
         $object = SObject->new({ items   => $items_ref,
@@ -317,6 +339,8 @@ use Compile::SCF;
 </run>
 
 no Compile::SCF;
+#####################################
+#####################################
 use Compile::SCF;
 [package] SCF::FindIfRelatedRelns
 [multi] are_relns_compatible
