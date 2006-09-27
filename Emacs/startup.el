@@ -158,6 +158,26 @@
 (setq fill-column 78)
 (setq auto-fill-mode t)
 
+(defun perltidy-region ()
+    "Run perltidy on the current region."
+    (interactive)
+    (save-excursion
+      (shell-command-on-region (point) (mark) "perltidy -q" nil t)
+      (cperl-mode)))
+
+(defun perltidy-all ()
+    "Run perltidy on the current region."
+    (interactive)
+    (let ((p (point)))
+      (save-excursion
+        (shell-command-on-region (point-min) (point-max) "perltidy -q" nil t)
+        )
+      (goto-char p)
+      (cperl-mode)))
+
+(global-set-key "\M-t" `perltidy-region)
+(global-set-key "\M-T" `perltidy-all)
+
 
 (cperl-mode)
 (define-abbrev cperl-mode-abbrev-table "docm"

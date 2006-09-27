@@ -11,11 +11,10 @@ our $TestingMode;
 our %ExtensionRejectedByUser;
 our $LogString = '';
 
-
-sub clear{
-    $Steps_Finished = 0;
+sub clear {
+    $Steps_Finished             = 0;
     $AtLeastOneUserVerification = 0;
-    %ExtensionRejectedByUser = ();
+    %ExtensionRejectedByUser    = ();
 }
 
 1;

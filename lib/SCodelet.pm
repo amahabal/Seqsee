@@ -26,10 +26,8 @@ sub fishy_codefamily {
             "The codefamily $family IS NOT EVEN USED! Do you need to add it to SCF.list? Have you run 'perl Makefile.PL' recently enough?"
         );
     }
-    SErr::Code->throw(
-        "COuld not find codeobject for family $family. Problem?");
+    SErr::Code->throw("COuld not find codeobject for family $family. Problem?");
 }
-
 
 #### method generate_log_msg
 # description    :generates the log message for logging. Called only if it will get logged
@@ -38,39 +36,35 @@ sub fishy_codefamily {
 # context of call:called from individual codefamilies
 # exceptions     :
 
-sub generate_log_msg{
+sub generate_log_msg {
     return '' if $Global::TestingMode;
     my $codelet = shift;
-    my $ret =         join("", "\n=== $Global::Steps_Finished ", 
-             "="x10, "  CODELET $codelet->[0] \n");
-    while (my($k, $v) = each %{$codelet->[3]}) {
-        $ret.= "== $k \t--> $v\n";
+    my $ret = join( "", "\n=== $Global::Steps_Finished ", "=" x 10, "  CODELET $codelet->[0] \n" );
+    while ( my ( $k, $v ) = each %{ $codelet->[3] } ) {
+        $ret .= "== $k \t--> $v\n";
     }
     return $ret;
 }
-
-
 
 # method: schedule
 # adds self to Coderack
 #
 #    Parallels a method in SThought that schedules itself.
-sub schedule{
-    my ( $self ) = @_;
-    SCoderack->add_codelet( $self );
+sub schedule {
+    my ($self) = @_;
+    SCoderack->add_codelet($self);
 }
 
-sub display_self{
+sub display_self {
     my ( $self, $widget ) = @_;
-    $widget->Display("Codelet", ["heading"], "\n", 
-                     "\tFamily:\t", $self->[0], "\n",
-                     "\tUrgency:\t", $self->[1], "\n",
-                     "\tArguments:\t\n",
-                     map { ("\t\t", $_, "\t=>", $self->[3]{$_}) } 
-                         (keys %{$self->[3]}),
-                         );
+    $widget->Display(
+        "Codelet", ["heading"], "\n",
+        "\tFamily:\t",  $self->[0], "\n",
+        "\tUrgency:\t", $self->[1], "\n",
+        "\tArguments:\t\n",
+        map { ( "\t\t", $_, "\t=>", $self->[3]{$_} ) }
+            ( keys %{ $self->[3] } ),
+    );
 }
-
-
 
 1;

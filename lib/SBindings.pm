@@ -86,8 +86,6 @@ my %metonymy_type_of :ATTR(:get<metonymy_type>);
 #
 # subsection: Creation
 
-
-
 # method: create
 # Creates an SBindings object
 #
@@ -96,38 +94,35 @@ my %metonymy_type_of :ATTR(:get<metonymy_type>);
 #    bindings_ref - a hash ref
 #    object - needed to weave a story
 
-sub create{
-    my ($package, $slippage_ref, $bindings_ref, $object) = @_;
+sub create {
+    my ( $package, $slippage_ref, $bindings_ref, $object ) = @_;
     ## SBindings constructor: $slippage_ref, $bindings_ref, $object
-    (defined($slippage_ref) 
-         and defined($bindings_ref)
-             and defined($object)) or confess "Need three args!";
-    return $package->new({ raw_slippages => $slippage_ref,
-                           bindings      => $bindings_ref,
-                           object        => $object,
-                       });
+    ( defined($slippage_ref) and defined($bindings_ref) and defined($object) )
+        or confess "Need three args!";
+    return $package->new(
+        {   raw_slippages => $slippage_ref,
+            bindings      => $bindings_ref,
+            object        => $object,
+        }
+    );
 }
-
-
 
 # method: BUILD
 # Builds the object
 #
 #    Sets bindings, squinting_raw. Then calls weave story that can set the other parameters.
 
-sub BUILD{
+sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
-    $bindings_of_of{$id} = $opts_ref->{bindings}       || confess "Need bindings";
-    $squinting_raw_of{$id} = $opts_ref->{raw_slippages}|| confess "Need slippages";
-    my $object = $opts_ref->{object} 
+    $bindings_of_of{$id}   = $opts_ref->{bindings}      || confess "Need bindings";
+    $squinting_raw_of{$id} = $opts_ref->{raw_slippages} || confess "Need slippages";
+    my $object = $opts_ref->{object}
         || confess "Need object (in order to weave a story)";
-    $self->_weave_story( $object );
+    $self->_weave_story($object);
 }
 
 #
 # subsection: Public Interface
-
-
 
 # method: get_binding
 # Extracts the particular value from the binding.
@@ -135,61 +130,57 @@ sub BUILD{
 #    Example:
 #    $bdg->get_binding("start")
 
-sub get_binding{
+sub get_binding {
     my ( $self, $what ) = @_;
     my $id = ident $self;
 
     return $bindings_of_of{$id}{$what};
 }
 
-
-
 # method: get_metonymy_cat
 # Get the category slippage is based on.
 #
 
-sub get_metonymy_cat{
-    my ( $self ) = @_;
+sub get_metonymy_cat {
+    my ($self) = @_;
     my $id = ident $self;
-    
+
     return $metonymy_type_of{$id}->get_category();
 }
-
-
 
 # method: get_metonymy_name
 # get the name of the slippage
 #
 
-sub get_metonymy_name{
-    my ( $self ) = @_;
+sub get_metonymy_name {
+    my ($self) = @_;
     my $id = ident $self;
 
     return $metonymy_type_of{$id}->get_name();
 }
-
-
 
 # method: tell_forward_story
 # Reinterprets bindings so that now positions go in a forward direction.
 #
 # Assumption is that a story has already been woven once
 
-sub tell_forward_story{
+sub tell_forward_story {
     my ( $self, $object ) = @_;
     my $id = ident $self;
 
     my $metonymy_mode = $self->get_metonymy_mode;
-    if ($metonymy_mode == METO_MODE::NONE() 
-            or $metonymy_mode == METO_MODE::ALL()) {
+    if (   $metonymy_mode == METO_MODE::NONE()
+        or $metonymy_mode == METO_MODE::ALL() )
+    {
+
         # no positions involved!
         return;
     }
-    if ($metonymy_mode == METO_MODE::ALLBUTONE()) {
+    if ( $metonymy_mode == METO_MODE::ALLBUTONE() ) {
         confess "story retelling not implemented for this metonymy_mode";
     }
     my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, POS_MODE::FORWARD());
+    $self->_describe_position( $object, $index, POS_MODE::FORWARD() );
 
 }
 
@@ -198,131 +189,130 @@ sub tell_forward_story{
 #
 # Assumption is that a story has already been woven once
 
-sub tell_backward_story{
+sub tell_backward_story {
     my ( $self, $object ) = @_;
     my $id = ident $self;
 
     my $metonymy_mode = $self->get_metonymy_mode;
-    if ($metonymy_mode == METO_MODE::NONE() or $metonymy_mode == METO_MODE::ALL()) {
+    if ( $metonymy_mode == METO_MODE::NONE() or $metonymy_mode == METO_MODE::ALL() ) {
+
         # no positions involved!
         return;
     }
-    if ($metonymy_mode == METO_MODE::ALLBUTONE()) {
+    if ( $metonymy_mode == METO_MODE::ALLBUTONE() ) {
         confess "story retelling not implemented for this metonymy_mode";
     }
     my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, POS_MODE::BACKWARD());
+    $self->_describe_position( $object, $index, POS_MODE::BACKWARD() );
 
 }
 
-
 #
 # subsection: Private methods
-
 
 # method: _weave_story
 #  Given the raw arguments, this methods weaves a story: choosing a metonymy mode, position mode and so forth.
 #
 #    I should detail this function a lot more.
 
-sub _weave_story{
+sub _weave_story {
     my ( $self, $object ) = @_;
     my $id = ident $self;
 
-    my $slippages = $squinting_raw_of{$id};
-    my $object_size = $object->get_parts_count();
-    my $slippages_count = scalar(keys %$slippages);
+    my $slippages       = $squinting_raw_of{$id};
+    my $object_size     = $object->get_parts_count();
+    my $slippages_count = scalar( keys %$slippages );
 
-    my ($metonymy_mode, $position_mode, $position); 
-    my ($metonymy_cat, $metonymy_name); 
+    my ( $metonymy_mode, $position_mode, $position );
+    my ( $metonymy_cat, $metonymy_name );
     my ($metonymy_type);
 
     # Metonymy_Mode
-    if ($slippages_count == 0) {
+    if ( $slippages_count == 0 ) {
         $metonymy_mode = METO_MODE::NONE();
-    } else {
-        # So: slippages are involved!
-        $metonymy_type = SMetonym->intersection(values %$slippages);
+    }
+    else {
 
-        if ($slippages_count == $object_size) {
+        # So: slippages are involved!
+        $metonymy_type = SMetonym->intersection( values %$slippages );
+
+        if ( $slippages_count == $object_size ) {
+
             # XXX:If both are 1, I should have the choice of putting mode = 1!
-            $metonymy_mode = METO_MODE::ALL();            
-        } elsif ($slippages_count == 1) {
+            $metonymy_mode = METO_MODE::ALL();
+        }
+        elsif ( $slippages_count == 1 ) {
             $metonymy_mode = METO_MODE::SINGLE();
             $self->_describe_position( $object, keys %$slippages );
         }
     }
 
-
-
     $metonymy_mode_of{$id} = $metonymy_mode;
+
     #$position_mode_of{$id} = $position_mode;
     #$position_of{$id}      = $position;
     $metonymy_type_of{$id} = $metonymy_type;
 }
 
-
-
-
 # method: _describe_position
 # Given the object and the (0 based) position index, returns a position mode and position.
 #
 
-sub _describe_position{
+sub _describe_position {
     my ( $self, $object, $index, $position_mode ) = @_;
     my $id = ident $self;
 
     # XXX: Will only be fwd or backward, currently
-    unless (defined $position_mode) {
-        $position_mode = SUtil::toss(0.5) ? POS_MODE::FORWARD() 
-            : POS_MODE::BACKWARD(); 
+    unless ( defined $position_mode ) {
+        $position_mode =
+              SUtil::toss(0.5)
+            ? POS_MODE::FORWARD()
+            : POS_MODE::BACKWARD();
     }
-    
+
     $position_mode_of{$id} = $position_mode;
-    
-    if ($position_mode == POS_MODE::FORWARD()) {
-        return $position_of{$id} =
-            SPos->new( $index + 1); # It is 1-based, input is 0-based
-    } else {
-        my $object_size = $object->get_parts_count;
-        return $position_of{$id} =
-            SPos->new( $index - $object_size );
+
+    if ( $position_mode == POS_MODE::FORWARD() ) {
+        return $position_of{$id} = SPos->new( $index + 1 );    # It is 1-based, input is 0-based
     }
-    
+    else {
+        my $object_size = $object->get_parts_count;
+        return $position_of{$id} = SPos->new( $index - $object_size );
+    }
+
 }
 
-sub as_insertlist{
+sub as_insertlist {
     my ( $self, $verbosity ) = @_;
     my $id = ident $self;
 
-    if ($verbosity == 0) {
-        my $list = new SInsertList;
+    if ( $verbosity == 0 ) {
+        my $list     = new SInsertList;
         my $bind_ref = $bindings_of_of{$id};
-        while (my($k, $v) = each %$bind_ref) {
-            $list->append($k, "binding_att", "\t", "", $v, "binding_val", "\n");
+        while ( my ( $k, $v ) = each %$bind_ref ) {
+            $list->append( $k, "binding_att", "\t", "", $v, "binding_val", "\n" );
         }
         return $list;
     }
 
-    if ($verbosity == 1 or $verbosity == 2) {
+    if ( $verbosity == 1 or $verbosity == 2 ) {
         my $list = $self->as_insertlist(0);
-        while (my($k, $v) = each %{$squinting_raw_of{$id}}) {
-            $list->append("squint: $k => $v", "", "\n");
+        while ( my ( $k, $v ) = each %{ $squinting_raw_of{$id} } ) {
+            $list->append( "squint: $k => $v", "", "\n" );
         }
-        $list->append("Meto mode: ", "binding_meta_att", 
-                      $metonymy_mode_of{$id}, "binding_meta_att", "\n");
-        $list->append("Pos mode: ", "binding_meta_att", 
-                      $position_mode_of{$id}, "binding_meta_att", "\n");
-        $list->append("Position: ", "binding_meta_att", 
-                      $position_of{$id}, "binding_meta_att", "\n");
-        $list->append("Meto type: ", "binding_meta_att", 
-                      $metonymy_type_of{$id}, "binding_meta_att", "\n");
+        $list->append( "Meto mode: ", "binding_meta_att", $metonymy_mode_of{$id},
+            "binding_meta_att", "\n" );
+        $list->append( "Pos mode: ", "binding_meta_att", $position_mode_of{$id}, "binding_meta_att",
+            "\n" );
+        $list->append( "Position: ", "binding_meta_att", $position_of{$id}, "binding_meta_att",
+            "\n" );
+        $list->append( "Meto type: ", "binding_meta_att", $metonymy_type_of{$id},
+            "binding_meta_att", "\n" );
         return $list;
     }
 
-    confess "Verbosity $verbosity not implemented for ". ref $self;
-    
-}
+    confess "Verbosity $verbosity not implemented for " . ref $self;
 
+}
 
 1;
