@@ -295,34 +295,60 @@ sub BelieveDone{
 ##########################################
   no Compile::SThought;
   use Compile::SThought;
+  use Sort::Key qw(ikeysort);
   [package] SThought::SReln_Simple
   [param] core!
   [param] str
   [build] $str_of{$id} = $core->get_text();
   <fringe>
-      FRINGE 100, $str;
-      FRINGE 50, $core->get_first();
-      FRINGE 50, $core->get_second();
+    FRINGE 100, $str;
+    FRINGE 50,  $core->get_first();
+    FRINGE 50,  $core->get_second();
   </fringe>
 
   <actions>
-      if ($str eq "same") {
-          THOUGHT AreTheseGroupable,
-              {
-                  items => [ $core->get_first(),
-                             $core->get_second(),
-                                 ],
-                  reln  => $core,
-              };
-      }
+    my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
-      {
-          last if SWorkspace->are_there_holes_here( $core->get_ends );
-          CODELET 100, AttemptExtension,
-              {core=>$core,
-               direction => DIR::RIGHT()
-                   };
-      }
+    if ( $str eq "same" ) {
+        THOUGHT AreTheseGroupable,
+            {
+            items => [ $core->get_first(), $core->get_second(), ],
+            reln  => $core,
+            };
+    }
+
+    {
+        last if $holey;
+        CODELET 100, AttemptExtension,
+            {
+            core      => $core,
+            direction => DIR::RIGHT()
+            };
+    }
+
+    {
+        last unless $holey;
+        my ( $l1, $r1, $l2, $r2 )
+            = map { $_->get_edges() } ( $core->get_first(), $core->get_second() );
+        my @gap                 = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
+        my @intervening_objects = SWorkspace->get_intervening_objects(@gap);
+        my $distance            = scalar(@intervening_objects);
+
+        if ( $distance == 1 ) {    # Cheat? create an ad hoc gp...
+            my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
+            my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
+            if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
+                return;
+            }
+            SWorkspace->add_group($new_obj);
+            $new_obj->describe_as( $S::AD_HOC->build( { parts_count => 2 } ) );
+
+            #main::message("The relation has a gap: @gap; distance = $distance");
+
+        }
+
+    }
+
   </actions>
 
 ##########################################

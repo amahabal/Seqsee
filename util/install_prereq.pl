@@ -23,6 +23,7 @@ Perl6::Export
 Perl6::Form
 Scalar::Util
 Smart::Comments
+Sort::Key
 Sub::Installer
 Sub::Uplevel
 Sys::Hostname

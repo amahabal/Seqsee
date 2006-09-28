@@ -28,8 +28,10 @@ sub indent {
     for (@$self) {
         $_->[0] =~ s#\n#$replace#g;
     }
-    $self->[-1][0] =~ s#$replace$#\n#;
-    unshift @$self, [ "  " x $dep, "" ];
+    if (@$self) {
+        $self->[-1][0] =~ s#$replace$#\n#;
+        unshift @$self, [ "  " x $dep, "" ];
+    }
     $self;
 }
 

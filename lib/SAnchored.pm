@@ -271,4 +271,11 @@ sub spans {
     return ( $sl <= $ol and $or <= $sr );
 }
 
+sub overlaps {
+    my ( $self, $other ) = @_;
+    my ( $sl,   $sr )    = $self->get_edges;
+    my ( $ol,   $or )    = $other->get_edges;
+    return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
+}
+
 1;

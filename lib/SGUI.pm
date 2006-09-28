@@ -59,7 +59,7 @@ sub Update {
     }
 
     #XXX why does this fail?
-    #$Info->insert_autoTagged('end', $Global::LogString);
+    $Info->insert_autoTagged('end', $Global::LogString);
     $MW->update();
 }
 

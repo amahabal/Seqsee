@@ -168,7 +168,15 @@ use Compile::SCF;
         } else {
             $reln_to_add = find_reln($wso, $obj2);
         }
-        $reln_to_add->insert;
+
+        if ($reln_to_add) {
+            $reln_to_add->insert;
+        } else {
+            # ToDo: [2006/09/27] For ad_hoc, the constucted object has type ad_hoc, but it's
+            # constituents are not correctly typed
+            #   main::message("No relation found to insert!");
+        }
+
 
         if ($type eq "object") {
             my $core_object_ref = $core->get_parts_ref();
@@ -247,7 +255,7 @@ use Compile::SCF;
 [param] b!
 
 <run>
-    if ($a->spans($b) or $b->spans($a)) {
+    if ($a->overlaps($b)) {
         return;
     }
 
