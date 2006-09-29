@@ -72,6 +72,8 @@ sub print_preamble(){
 \usepackage{pslatex}
 \usepackage{pifont}
 \usepackage{longtable}
+\usepackage{times}
+\usepackage{fancyvrb}
 \begin{document}
 \scriptsize
 END
@@ -143,15 +145,15 @@ sub print_file($file){
   if ($file =~ m#All\.pm$#) { # SCF/All and SThought/All
       $open_what = $file;
   } elsif ($file =~ m#\.p.$#) {
-      $open_what =     "perltidy -l=100 -st $file | ";
+      $open_what =     "perltidy -l=120 -st $file | ";
   } else {
       $open_what = $file;
   }
 
   open IN, $open_what;
-  print OUT "\\begin{verbatim}\n";
+  print OUT "\\begin{Verbatim}[fontfamily=courier,numbers=left,numbersep=12pt,stepnumber=5]\n";
   while ($_ = <IN>) { print OUT;}
-  print OUT "\\end{verbatim}\n";
+  print OUT "\\end{Verbatim}\n";
   close IN;
   $reviewing_tex .= "\\ding{111} & \\ding{111} & $file_ & \\\\\\hline\n";
 }

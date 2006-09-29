@@ -730,6 +730,7 @@ sub RegHarness {
 
         open LOG,     ">>", $log_file;
         open CURRENT, ">",  $last_res_file;
+        print LOG "[", sprintf("%d/%d/%d %d:%d:%d", (localtime)[5,4,3,2,1,0]) ,"]\n";
         while ( my ( $k, $v ) = each %$output ) {
             print LOG "$k = $v\n";
             print CURRENT "$k = $v\n";
