@@ -591,11 +591,14 @@ sub RegTestHelper {
             else {
                 confess "A SErr::FinishedTest thrown without getting it. Bad.";
             }
-        } elsif ( UNIVERSAL::isa( $err, "SErr::NotClairvoyant" ) ) {
+        }
+        elsif ( UNIVERSAL::isa( $err, "SErr::NotClairvoyant" ) ) {
             return "Extended";
-        } elsif ( UNIVERSAL::isa($err, 'SErr::FinishedTestBlemished')) {
+        }
+        elsif ( UNIVERSAL::isa( $err, 'SErr::FinishedTestBlemished' ) ) {
             return "BlemishedGotIt";
-        } else {
+        }
+        else {
             die $err;
         }
     }
@@ -733,8 +736,7 @@ sub RegHarness {
 
         open LOG,     ">>", $log_file;
         open CURRENT, ">",  $last_res_file;
-        print LOG "[", sprintf( "%2d/%02d/%02d %02d:%02d:%02d", (localtime)[ 5, 4, 3, 2, 1, 0 ] ),
-            "]\n";
+        print LOG "[", sprintf( time() ), "]\n";
         while ( my ( $k, $v ) = each %$output ) {
             $k =~ s#\W##g;
             print LOG "$k = $v\n";

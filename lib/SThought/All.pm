@@ -333,6 +333,7 @@ sub BelieveBlemish{
     }
 
     {
+        last; # Checking without interlaced support. Should be an option
         last unless $holey;
         my ( $l1, $r1, $l2, $r2 )
             = map { $_->get_edges() } ( $core->get_first(), $core->get_second() );
