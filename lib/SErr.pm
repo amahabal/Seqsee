@@ -23,6 +23,8 @@ use Exception::Class (
     'SErr::AskUser' => { fields => [qw{already_matched next_elements}] },
 
     'SErr::FinishedTest' => { fields => [qw( got_it)] },
+    'SErr::FinishedTestBlemished' => {},
+    'SErr::NotClairvoyant' => {},
 );
 1;
 

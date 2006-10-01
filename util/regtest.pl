@@ -2,8 +2,10 @@ use blib;
 use Test::Seqsee;
 use warnings;
 
+my $pattern = $ARGV[0] || "Reg/seq_[ab].reg";
+
 my (@improved, @became_worse);
-my @files = glob("Reg/seq_*.reg");
+my @files = glob($pattern);
 
 for $file (@files) {
     my ( $imp_ref, $worse_ref ) = RegHarness($file);

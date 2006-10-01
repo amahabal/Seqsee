@@ -104,7 +104,7 @@ use Compile::SThought;
                            };
              } else {
                  if ($total_count - $span == $gp->get_left_edge) {
-                     main::message("I believe this group has a blemish at the beginning");
+                     BelieveBlemish();
                  }
              }
          } else {
@@ -142,6 +142,12 @@ sub BelieveDone{
     main::message("I believe I got it");    
 }
 
+sub BelieveBlemish{
+    if ($Global::TestingMode) {
+        SErr::FinishedTestBlemished->new()->throw();
+    }
+    main::message("I believe this group has a blemish at the beginning");
+}
 
 ##########################################
 ##########################################

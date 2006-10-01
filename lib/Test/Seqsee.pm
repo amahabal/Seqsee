@@ -14,6 +14,7 @@ use S;
 use Seqsee;
 use Smart::Comments;
 use Config::Std;
+use List::Util qw(sum);
 
 ## useful to turn a few features off...
 $Global::TestingMode           = 1;
@@ -330,9 +331,7 @@ NOLOG
                 }
                 my $known_elements_count = scalar(@main::_real_seq);
                 unless ( $ws_count + $ask_terms_count <= $known_elements_count ) {
-                    my $msg = "Known Elements: $known_elements_count; "
-                        . "WS: $ws_count; Being asked: $ask_terms_count";
-                    die "Don't know that many elements in the future: $msg";
+                    SErr::NotClairvoyant->new()->throw();
                 }
                 for my $i ( 0 .. $ask_terms_count - 1 ) {
                     unless ( $main::_real_seq[ $ws_count + $i ] == $arr_ref->[$i] ) {
@@ -585,16 +584,19 @@ sub RegTestHelper {
     }
 
     if ( my $err = $EVAL_ERROR ) {
-        unless ( UNIVERSAL::isa( $err, "SErr::FinishedTest" ) ) {
-
-            # print $err;
-            return "UnnaturalDeath: $err";
-        }
-        if ( $err->got_it() ) {
-            return "GotIt";
-        }
-        else {
-            confess "A SErr::FinishedTest thrown without getting it. Bad.";
+        if ( UNIVERSAL::isa( $err, "SErr::FinishedTest" ) ) {
+            if ( $err->got_it() ) {
+                return "GotIt";
+            }
+            else {
+                confess "A SErr::FinishedTest thrown without getting it. Bad.";
+            }
+        } elsif ( UNIVERSAL::isa( $err, "SErr::NotClairvoyant" ) ) {
+            return "Extended";
+        } elsif ( UNIVERSAL::isa($err, 'SErr::FinishedTestBlemished')) {
+            return "BlemishedGotIt";
+        } else {
+            die $err;
         }
     }
     else {
@@ -662,7 +664,7 @@ sub RegTestHelper {
     sub RegStatShell {
         my ($opts_ref) = @_;
         open TEMP, ">", $tmp_file;
-        print TEMP Data::Dumper->Dump( [ $opts_ref ], ["opts_ref"] );
+        print TEMP Data::Dumper->Dump( [$opts_ref], ["opts_ref"] );
         close TEMP;
         system 'perl -Mblib -e "use Test::Seqsee; use warnings; RegStat();"';
         open REG, "<", $tmp_file;
@@ -715,6 +717,7 @@ sub RegHarness {
         $opts{min_extension} ||= 2;
         my $start_time = time();
         my $output     = RegStatShell( \%opts );
+        return unless sum( values %$output ) == 10;
         my $total_time = time() - $start_time;
         print "Processing time: $total_time\n";
         my $current_GotIt = $output->{GotIt} ||= 0;
@@ -730,8 +733,10 @@ sub RegHarness {
 
         open LOG,     ">>", $log_file;
         open CURRENT, ">",  $last_res_file;
-        print LOG "[", sprintf("%d/%d/%d %d:%d:%d", (localtime)[5,4,3,2,1,0]) ,"]\n";
+        print LOG "[", sprintf( "%2d/%02d/%02d %02d:%02d:%02d", (localtime)[ 5, 4, 3, 2, 1, 0 ] ),
+            "]\n";
         while ( my ( $k, $v ) = each %$output ) {
+            $k =~ s#\W##g;
             print LOG "$k = $v\n";
             print CURRENT "$k = $v\n";
         }
