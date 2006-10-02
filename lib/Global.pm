@@ -10,6 +10,8 @@ our $TestingOptionsRef;
 our $TestingMode;
 our %ExtensionRejectedByUser;
 our $LogString = '';
+our %PossibleFeatures = map { $_ => 1 } qw(interlaced);
+our %Feature;
 
 sub clear {
     $Steps_Finished             = 0;

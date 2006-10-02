@@ -91,7 +91,7 @@ sub process_single_seq {
 
     read_config $file => my %opts2;
     delete $opts2{''};
-    my @times = sort keys %opts2;
+    my @times = sort { $b <=> $a }keys %opts2;
     @times = splice(@times, 0, $GroupSize);
     for my $time (@times) {
         my %opts = %{$opts2{$time}};
@@ -145,3 +145,4 @@ print OUT $output_core;
 
 print OUT '\end{document}';
 close OUT;
+system "lmake reg_rep";

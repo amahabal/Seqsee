@@ -207,7 +207,17 @@ my %DEFAULTS
             );
 
 sub _read_commandline{
-    my %options;
+    my %options = (
+        f => sub {
+            my ( $ignored, $feature_name ) = @_;
+            print "$feature_name will be turned on\n";
+            unless ($Global::PossibleFeatures{$feature_name}) {
+                print "No feature $feature_name. Typo?\n";
+                exit;
+            }
+            $Global::Feature{$feature_name} = 1;
+        }
+            );
     GetOptions( \%options,
                 "seed=i",
                 "log!",
@@ -216,6 +226,7 @@ sub _read_commandline{
                 "update_interval=i",
                 "interactive!",
                 "max_steps=i",
+                'f=s',
                     );
     return %options;
 }

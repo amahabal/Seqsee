@@ -295,6 +295,32 @@ sub BelieveBlemish{
 
  <actions>
 
+    my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
+
+    {
+        last;
+        last unless $Global::Feature{interlaced};
+        last unless $holey;
+        my ( $l1, $r1, $l2, $r2 )
+            = map { $_->get_edges() } ( $core->get_first(), $core->get_second() );
+        my @gap                 = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
+        my @intervening_objects = SWorkspace->get_intervening_objects(@gap);
+        my $distance            = scalar(@intervening_objects);
+
+        if ( $distance == 1 ) {    # Cheat? create an ad hoc gp...
+            my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
+            my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
+            if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
+                return;
+            }
+            SWorkspace->add_group($new_obj);
+            $new_obj->describe_as( $S::AD_HOC->build( { parts_count => 2 } ) );
+
+            #main::message("The relation has a gap: @gap; distance = $distance");
+
+        }
+
+    }
  </actions>
 
 ##########################################
@@ -333,7 +359,7 @@ sub BelieveBlemish{
     }
 
     {
-        last; # Checking without interlaced support. Should be an option
+        last unless $Global::Feature{interlaced};
         last unless $holey;
         my ( $l1, $r1, $l2, $r2 )
             = map { $_->get_edges() } ( $core->get_first(), $core->get_second() );
