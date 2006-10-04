@@ -31,7 +31,7 @@ use English qw(-no_match_vars );
 #  update_interval - force redisplay after so many steps
 #  interactive - for non-tk, this specifies interactivity
 
-my $OPTIONS_ref = Seqsee::_read_config(Seqsee::_read_commandline());
+my $OPTIONS_ref = $Global::Options_ref = Seqsee::_read_config(Seqsee::_read_commandline());
 INITIALIZE();
 GET_GOING(); # Potentially "infinite" loop
 

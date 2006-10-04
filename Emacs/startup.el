@@ -145,7 +145,8 @@
  '(cperl-continued-statement-offset 4)
  '(cperl-indent-level 4)
  '(cperl-indent-parens-as-block t)
- '(cperl-tab-always-indent t))
+ '(cperl-tab-always-indent t)
+ '(dired-listing-switches "-lR"))
 
 ;(custom-set-variables
 ; '(cperl6-close-paren-offset 4)
@@ -177,6 +178,22 @@
 
 (global-set-key "\M-t" `perltidy-region)
 (global-set-key "\M-T" `perltidy-all)
+
+(defun mark-all-pm ()
+  (interactive)
+  (dired-mark-files-regexp "\\.pm$")
+)
+
+(defun mark-all-t ()
+  (interactive)
+  (dired-mark-files-regexp "\\.t$")
+)
+
+(add-hook 'dired-mode-hook
+	  '(lambda ()
+	     (progn (define-key dired-mode-map "p" 'mark-all-pm)
+                    (define-key dired-mode-map "t" 'mark-all-t)
+		    )))
 
 
 (cperl-mode)

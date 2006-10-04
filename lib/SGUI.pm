@@ -59,7 +59,7 @@ sub Update {
     }
 
     #XXX why does this fail?
-    $Info->insert_autoTagged('end', $Global::LogString);
+    $Info->insert_autoTagged( 'end', $Global::LogString );
     $MW->update();
 }
 
@@ -82,7 +82,12 @@ sub setup_buttons {
                 }
         ],
         [   'step 5' => sub {
-                main::Interaction_step_n( { n => 5, update_after => 5 } );
+                Seqsee::Interaction_step_n(
+                    {   n            => 5,
+                        update_after => 5,
+                        max_steps    => $Global::Options_ref->{max_steps},
+                    }
+                );
                 }
         ],
         [   continue => sub {
@@ -115,9 +120,10 @@ sub setup_bindings {
     for my $N ( 1 .. 9 ) {
         $mw->bind(
             "<KeyPress-$N>" => sub {
-                main::Interaction_step_n(
+                Seqsee::Interaction_step_n(
                     {   n            => 5 * $N,
-                        update_after => 5 * $N
+                        update_after => 5 * $N,
+                        max_steps    => $Global::Options_ref->{max_steps},
                     }
                 );
             }

@@ -12,6 +12,7 @@ our %ExtensionRejectedByUser;
 our $LogString = '';
 our %PossibleFeatures = map { $_ => 1 } qw(interlaced);
 our %Feature;
+our $Options_ref;
 
 sub clear {
     $Steps_Finished             = 0;
