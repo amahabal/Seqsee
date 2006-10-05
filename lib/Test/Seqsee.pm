@@ -669,7 +669,10 @@ sub RegTestHelper {
         open TEMP, ">", $tmp_file;
         print TEMP Data::Dumper->Dump( [$opts_ref], ["opts_ref"] );
         close TEMP;
-        system 'perl -Mblib -e "use Test::Seqsee; use warnings; RegStat();"';
+        my $FeatureSetCommand
+            = join( ";", map {"\$Global::Feature{$_} = 1"} (keys %Global::Feature) );
+        system "perl -Mblib -e \"use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
+            and die "The subcommand was cancelled. exiting";
         open REG, "<", $tmp_file;
         my $VAR1;
         my $reg_out = join( "\n", <REG> );

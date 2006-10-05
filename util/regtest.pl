@@ -1,10 +1,30 @@
 use blib;
 use Test::Seqsee;
+use Getopt::Long;
+use Seqsee;
 use warnings;
+use Smart::Comments;
 
-my $pattern = $ARGV[0] || "Reg/seq_[ab].reg";
+my $pattern = "seq_[ab]";
+my %options = (
+    f => sub {
+        my ( $ignored, $feature_name ) = @_;
+        print "$feature_name will be turned on\n";
+        unless ( $Global::PossibleFeatures{$feature_name} ) {
+            print "No feature named '$feature_name'. Typo?\n";
+            exit;
+        }
+        $Global::Feature{$feature_name} = 1;
+    },
+    pattern => \$pattern,
+    p => \$pattern,
+);
 
-my (@improved, @became_worse);
+GetOptions(\%options, 'f=s', 'pattern=s', 'p=s');
+$pattern = "Reg/$pattern.reg";
+### $pattern
+
+my ( @improved, @became_worse );
 my @files = glob($pattern);
 
 for $file (@files) {
