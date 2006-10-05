@@ -1,0 +1,30 @@
+\documentclass[12pt]{article}
+\usepackage{xspace}
+\usepackage{makeidx}
+\usepackage{relsize}
+\usepackage{chicago}
+\usepackage{times}
+\usepackage{url}
+\begin{document}
+
+\title{Seqsee: Yet Another Cognitive Architecture\\{\relsize{-3}(Ph.D. Proposal)}}
+\author{Abhijit Mahabal}
+\date{Oct 6, 2006}
+\maketitle
+
+% \renewcommand{\baselinestretch}{1.5}\small
+\newcommand{\sequence}[1]{`\emph{#1 }{\ensuremath\ldots}'\xspace}
+
+This project aims to build a computer program that simulates a human being extending an integer
+ pattern sequence. The goal is to simulate the human tendencies of chunking, categorization and even of making counterfactuals in order to understand and extend the sequence.
+
+The basic architecture of the program is fairly similar to that of Copycat \cite{Mitchell90} and its successor Metacat \cite{Marshall} and more generally to the several programs that have come out of the fluid analogies research group. 
+
+Several points of departures exist from these projects, though. Most notably, the discovery of similarity in Seqsee has a very strong temporal component to it, and this is further accentuated by an explicit stream of thought. A crucial part of extending the sequence relates to the use of categories as labels for intermediate structures constructed during the understanding of the sequence. The sense of similarity between various structures obtains from their sharing labels, and similarity is what drives the perception of patterns, a major part of being able to extend.
+
+A longer treatment of the problem being solved can be found in chapter~1 of \citeN{Hofstadter:FCCA}, and a fuller version of the proposal document at \url{http://www.cs.indiana.edu/~amahabal/proposal.pdf}.
+
+\bibliographystyle{chicago}
+\bibliography{merged}
+
+\end{document}
