@@ -34,6 +34,7 @@ sub create {
             mag        => $mag,
             left_edge  => $pos,
             right_edge => $pos,
+            strength   => 20,       # default strength for elements
         }
     );
     $obj->get_parts_ref()->[0] = $obj;    #[sic]
@@ -87,6 +88,10 @@ sub get_at_position {
 sub get_flattened {
     my ($self) = @_;
     return [ $self->get_mag ];
+}
+
+sub UpdateStrength{
+    # do nothing.
 }
 
 1;

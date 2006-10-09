@@ -9,7 +9,8 @@ use Compile::SCF;
         if ( LOGGING_INFO() and $object ) {
             my ( $l, $r, $s )
                 = ( $object->get_left_edge, $object->get_right_edge, $object->get_structure, );
-            my $msg = "* Read Object: \t[$l,$r] $s\n";
+            my $strength = $object->get_strength();
+            my $msg = "* Read Object: \t[$l,$r] $s\n\tstrength: $strength\n";
             $logger->info($msg);
         }
     }
@@ -192,6 +193,7 @@ use Compile::SCF;
             $core->recalculate_edges();
             $core->recalculate_categories();
             $core->recalculate_relations();
+            $core->UpdateStrength();
             ## HERE
             ContinueWith( SThought::AreWeDone->new({group => $core}) );
         }

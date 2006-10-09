@@ -13,7 +13,7 @@ use Class::Std;
 use base qw{SObject};
 
 #use Smart::Comments;
-use List::Util qw(min max);
+use List::Util qw(min max sum);
 
 # variable: %left_edge_of
 #    left edge
@@ -157,7 +157,7 @@ sub create {
         return;
     }
 
-    return $package->new(
+    my $object = $package->new(
         {   items      => [@items],
             group_p    => 1,
             left_edge  => $left,
@@ -165,6 +165,9 @@ sub create {
             direction  => $direction,
         }
     );
+
+    $object->UpdateStrength();
+    return $object;
 }
 
 # method: get_bounds_string
@@ -276,6 +279,13 @@ sub overlaps {
     my ( $sl,   $sr )    = $self->get_edges;
     my ( $ol,   $or )    = $other->get_edges;
     return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
+}
+
+sub UpdateStrength {
+    my ($self) = @_;
+    my $strength = 40 + 0.1 * sum( map { $_->get_strength() } @{ $self->get_parts_ref() } );
+    $strength = 100 if $strength > 100;
+    $self->set_strength($strength);
 }
 
 1;
