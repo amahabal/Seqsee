@@ -121,4 +121,9 @@ sub using_fascination {
     $package->choose( $array_ref, \@imp );
 }
 
+sub uniform {
+    my ( $package, $arr_ref ) = @_;
+    return $arr_ref->[ int( rand() * scalar(@$arr_ref) ) ];
+}
+
 1;

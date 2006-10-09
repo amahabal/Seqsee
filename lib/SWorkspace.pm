@@ -157,6 +157,12 @@ sub read_object {
 
 }
 
+sub read_relation{
+    my ( $ws ) = @_;
+    return SChoose->uniform([values %relations]);
+}
+
+
 # method: _get_some_object_at
 # returns some object spanning that index.
 #

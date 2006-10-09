@@ -43,8 +43,6 @@ sub process_set_of_last_res {
         $file =~ m#(\w+).reg.last_res$# or confess "Huh?";
         my $seq_name = $1;
         $seq_name =~ s#_# #g;
-        unshift @result, $seq_name;
-        push @list, \@result;
 
         my $seq_file = $file;
         $seq_file =~ s#.last_res$##;
@@ -52,6 +50,9 @@ sub process_set_of_last_res {
         %opts2 = %{ $opts2{''} };
         my ( $seq, $ext ) = split( /\|/, $opts2{seq} );
         $out_str_table .= "$seq_name & $seq & $ext \\\\\n";
+
+        unshift @result, $seq;
+        push @list, \@result;
     }
     $out_str_table .= '\end{tabular}';
     open OUT, ">", "tmpfile$file_number.csv";
@@ -60,7 +61,7 @@ sub process_set_of_last_res {
     }
     close OUT;
 
-    my $out_str_graph = '\begin{pspicture}(2,2)(15,15)\readpsbardata{\data}{'
+    my $out_str_graph = '\begin{pspicture}(-4,-1)(5,10)\readpsbardata{\data}{'
         . "tmpfile$file_number.csv"
         . '}\psbarchart[orientation=horizontal,chartstyle=stack,barstyle={blue,yellow,green,white,red}]{\data}\end{pspicture}';
     $$output_core .= "$out_str_table\n$out_str_graph\n\\newpage\n";
@@ -114,7 +115,7 @@ sub process_single_seq {
     }
     close OUT;
 
-    my $out_str_graph = '\begin{pspicture}(1,1)(10,10)\readpsbardata{\data}{'
+    my $out_str_graph = '\begin{pspicture}(-4,-1)(5,10)\readpsbardata{\data}{'
         . "tmpfile$file_number.csv"
         . '}\psbarchart[orientation=horizontal,chartstyle=stack,barstyle={blue,yellow,green,white,red}]{\data}\end{pspicture}';
     $$output_core .= "$out_str_table\n\n$out_str_graph\n\\newpage\n";
