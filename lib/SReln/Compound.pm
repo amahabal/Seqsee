@@ -39,6 +39,7 @@ use Class::Std;
 use Class::Multimethods;
 use base qw{SReln SInstance };
 use Smart::Comments;
+use List::Util qw(sum);
 
 multimethod 'apply_reln_direction';
 
@@ -531,5 +532,12 @@ sub suggest_cat{
     return;
 }
 
+sub UpdateStrength {
+    my ($self) = @_;
+    my $strength = 20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );
+
+    $strength = 100 if $strength > 100;
+    $self->set_strength( $strength );
+}
 
 1;

@@ -10,16 +10,19 @@ use Compile::SCF;
             my ( $l, $r, $s )
                 = ( $object->get_left_edge, $object->get_right_edge, $object->get_structure, );
             my $strength = $object->get_strength();
-            my $msg = "* Read Object: \t[$l,$r] $s\n\tstrength: $strength\n";
+            my $msg = "* Read Object: \t[$l,$r] $s\n";
             $logger->info($msg);
         }
     }
     else {
         $object = SWorkspace->read_relation();
+        my $strength = $object->get_strength();
         $logger->info("* Read Relation \n");
     }
     if ($object) {
         # main::message("read an SAnchored!") if (ref $object) eq "SAnchored";
+        my $strength = $object->get_strength();
+        $logger->info("\tstrength: $strength\n");
         SThought->create($object)->schedule();
     }
 </run>
