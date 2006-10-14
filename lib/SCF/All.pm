@@ -16,7 +16,6 @@ use Compile::SCF;
     }
     else {
         $object = SWorkspace->read_relation();
-        my $strength = $object->get_strength();
         $logger->info("* Read Relation \n");
     }
     if ($object) {

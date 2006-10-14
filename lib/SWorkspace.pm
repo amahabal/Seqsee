@@ -157,25 +157,27 @@ sub read_object {
 
 }
 
-sub read_relation{
-    my ( $ws ) = @_;
-    return SChoose->uniform([values %relations]);
-}
+{
+    my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
 
+    sub read_relation {
+        my ($ws) = @_;
+        return $strength_chooser->( [ values %relations ] );
+    }
 
-# method: _get_some_object_at
-# returns some object spanning that index.
-#
+    # method: _get_some_object_at
+    # returns some object spanning that index.
+    #
 
-sub _get_some_object_at {
-    my ($idx) = @_;
-    my @matching_objects =
-        grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
-        ( @elements, values %groups );
+    sub _get_some_object_at {
+        my ($idx) = @_;
+        my @matching_objects =
+            grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
+            ( @elements, values %groups );
 
-    my $how_many = scalar(@matching_objects);
-    return unless $how_many;
-    return $matching_objects[ int( rand() * $how_many ) ];
+        return $strength_chooser->(\@matching_objects);
+    }
+
 }
 
 # method: display_as_text
