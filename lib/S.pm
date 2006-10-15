@@ -96,9 +96,19 @@ sub RIGHT   {$RIGHT}
 sub UNKNOWN {$UNKNOWN}
 sub NEITHER {$NEITHER}
 
+sub PotentiallyExtendible {
+    my ($self) = @_;
+    return ( $self eq $LEFT or $self eq $RIGHT );
+}
+
 sub as_text {
     my ($self) = @_;
     return $self->{text};
+}
+
+sub as_insertlist {
+    my ( $self, $verbosity ) = @_;
+    return new SInsertList( $self->{text}, '' );
 }
 
 package POS_MODE;
@@ -108,15 +118,37 @@ our $BACKWARD = bless { mode => 'FORWARD' }, 'POS_MODE';
 sub FORWARD  {$FORWARD}
 sub BACKWARD {$BACKWARD}
 
+sub as_insertlist {
+    my ( $self, $verbosity ) = @_;
+    return new SInsertList( $self->{mode}, '' );
+}
+
 package METO_MODE;
 our $NONE      = bless { mode => 'NONE' },      'METO_MODE';
 our $SINGLE    = bless { mode => 'SINGLE' },    'METO_MODE';
 our $ALLBUTONE = bless { mode => 'ALLBUTONE' }, 'METO_MODE';
 our $ALL       = bless { mode => 'ALL' },       'METO_MODE';
+our $OTHER     = bless { mode => 'OTHER' },     'METO_MODE';
 sub NONE      {$NONE}
 sub SINGLE    {$SINGLE}
 sub ALLBUTONE {$ALLBUTONE}
 sub ALL       {$ALL}
+sub OTHER     {$OTHER}
+
+sub as_insertlist {
+    my ( $self, $verbosity ) = @_;
+    return new SInsertList( $self->{mode}, '' );
+}
+
+sub is_position_relevant {
+    my ($self) = @_;
+    if ( $self eq $SINGLE or $self eq $ALLBUTONE ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
 
 package EXTENDIBILE;
 our $NO      = 0;
@@ -125,6 +157,11 @@ our $UNKNOWN = bless { mode => 'UNKNOWN' }, 'EXTENDIBILE';
 sub NO      {$NO}
 sub PERHAPS {$PERHAPS}
 sub UNKNOWN {$UNKNOWN}
+
+sub as_insertlist {
+    my ( $self, $verbosity ) = @_;
+    return new SInsertList( $self->{mode}, '' );
+}
 
 package RELN_SCHEME;
 our $NONE = 0;

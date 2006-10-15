@@ -1,7 +1,7 @@
 use blib;
 use Test::Seqsee;
 use Smart::Comments;
-BEGIN { plan tests => 16; }
+BEGIN { plan tests => 17; }
 
 BEGIN {
   use_ok "SCat::ascending";
@@ -64,7 +64,7 @@ BLEMISHED_IS_INST: {
   ## $bindings
   cmp_ok( $bindings->get_binding('start'), 'eq', 3 );
   cmp_ok( $bindings->get_binding('end'), 'eq', 8 );
-  
+  cmp_ok( $bindings->get_metonymy_mode(), 'eq', $METO_MODE::SINGLE);
 
 }
 

@@ -267,6 +267,9 @@
 (define-abbrev cperl-mode-abbrev-table "todo"
   "" 'seq-comment-todo 0)
 
+(define-abbrev cperl-mode-abbrev-table "p6m"
+  "" 'seq-perl6-method 0)
+
 
 (setq skeleton-end-hook nil)
 

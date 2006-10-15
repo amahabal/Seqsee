@@ -309,7 +309,7 @@ sub categories_as_insertlist {
         my $cat = $S::Str2Cat{$c};
         $list->concat( $cat->as_insertlist(0)->indent(1) );
         if ( $verbosity > 0 ) {
-            $list->concat( $bindings->as_insertlist( $verbosity - 1 )->indent(2) );
+            $list->concat( $bindings->as_insertlist( $verbosity )->indent(2) );
         }
     }
 
@@ -319,7 +319,9 @@ sub categories_as_insertlist {
         $list->concat( $cat->as_insertlist(0)->indent(1) );
     }
 
-    $list->append( "Properties: ", "heading2", "\n  Not currently used\n" );
+    # $list->append( "Properties: ", "heading2", "\n  Not currently used\n" );
+
+    return $list;
 }
 
 1;

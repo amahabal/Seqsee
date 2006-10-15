@@ -225,9 +225,10 @@ sub _read_commandline{
                 "seq=s",
                 "update_interval=i",
                 "interactive!",
-                "max_steps=i",
+                "max_steps=i", "n=i", # same option!
                 'f=s',
                     );
+    $options{max_steps} ||= $options{n} if exists $options{n};
     return %options;
 }
 

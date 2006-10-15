@@ -42,6 +42,8 @@ my %metonym_of : ATTR( :get<metonym>);
 #    is metonym active?
 my %metonym_activeness_of : ATTR( :get<metonym_activeness>);
 
+my %is_a_metonym_of :ATTR( :get<is_a_metonym> :set<is_a_metonym>);
+
 # variable: %reln_other_of
 # XXX(Assumption): [2006/09/16] Only a single reln between two objects possible
 # this way.
@@ -304,6 +306,7 @@ sub annotate_with_metonym {
 
     $self->add_history( "Added metonym \"$name\" for cat " . $cat->get_name );
     $self->set_metonym($meto);
+    $meto->get_starred()->set_is_a_metonym($self);
 }
 
 # method: maybe_annotate_with_metonym
@@ -456,7 +459,7 @@ multimethod can_be_seen_as => ( 'SObject', '#' ) => sub {
 
     return {} if SUtil::compare_deep( $self_structure, $int );
     return {}
-        if ( $metonym_of{$id}
+        if ( $metonym_of{$id} and $metonym_activeness_of{$id}
         and SUtil::compare_deep( $metonym_of{$id}->get_starred()->get_structure, $int ) );
 
     my $object_parts_ref = $o1->get_parts_ref;
@@ -649,6 +652,7 @@ sub apply_blemish_at {
         my $metonym = shift(@metonyms);
         $ret->[$index]->describe_as($meto_cat);
         $ret->[$index]->set_metonym($metonym);
+        $metonym->get_starred()->set_is_a_metonym($ret->[$index]);
         $ret->[$index]->set_metonym_activeness(1);
     }
     return $ret;
@@ -799,6 +803,7 @@ sub get_relation {
 
 sub set_underlying_reln : CUMULATIVE {
     my ( $self, $reln ) = @_;
+    $reln or confess "Cannot set underlying relation to be an undefined value!";
     my $id = ident $self;
     $self->add_history("Underlying relation set: ");
     $underlying_reln_of{$id} = $reln;
@@ -810,6 +815,7 @@ sub set_metonym {
 
     SErr->throw( "Metonym must be an SObject! Got: " . $meto->get_starred )
         unless UNIVERSAL::isa( $meto->get_starred, "SObject" );
+    $is_a_metonym_of{ident($meto->get_starred())}=$self;
     $metonym_of{$id} = $meto;
 }
 

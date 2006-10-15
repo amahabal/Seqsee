@@ -43,10 +43,6 @@ GET_GOING(); # Potentially "infinite" loop
 #   should get called only once, at the beginning
 
 sub INITIALIZE{ 
-
-    Seqsee->initialize_codefamilies();
-    Seqsee->initialize_thoughttypes();
-
     # Initialize logging
     SLog->init( $OPTIONS_ref );
 
@@ -68,7 +64,6 @@ sub INITIALIZE{
     my $tk = $OPTIONS_ref->{tk};
     unless (@seq) {
         if ($tk) {
-            # confess "Should ask for sequence";
             SGUI->ask_seq();
         } else {
             confess "Sequence must be passed on the command line with --seq";

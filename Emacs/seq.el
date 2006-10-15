@@ -345,3 +345,11 @@
   "] " _ "\n"
 )
 
+(define-skeleton seq-perl6-method
+  ""
+  nil
+  "method " (skeleton-read "method name: ") " ( "
+  (if (string-match "y" (setq v1 (skeleton-read "Has a invocant? " "y")))
+      "$self: " "") 
+  ") "
+)

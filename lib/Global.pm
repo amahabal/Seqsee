@@ -10,7 +10,7 @@ our $TestingOptionsRef;
 our $TestingMode;
 our %ExtensionRejectedByUser;
 our $LogString = '';
-our %PossibleFeatures = map { $_ => 1 } qw(interlaced);
+our %PossibleFeatures = map { $_ => 1 } qw(interlaced meto);
 our %Feature;
 our $Options_ref;
 

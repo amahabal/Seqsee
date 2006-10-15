@@ -36,7 +36,8 @@ use Compile::SThought;
  use Compile::SThought;
  [package] SThought::AreTheseGroupable
  [param] items!
- [param] reln
+ [param] reln!
+
 
  <fringe>
      foreach (@$items) {
@@ -59,8 +60,11 @@ use Compile::SThought;
      return if $is_covering;
 
      my $new_group;
-     eval { $new_group = SAnchored->create(@$items);
-            if ($new_group){
+     eval { 
+         my @unstarred_items = map { my $unstarred = $_->get_is_a_metonym();
+                                     $unstarred ? $unstarred : $_ } @$items;         
+         $new_group = SAnchored->create(@unstarred_items);
+         if ($new_group){
                 $new_group->set_underlying_reln($reln);
                 return unless $new_group->describe_as( $S::RELN_BASED );
                 SWorkspace->add_group($new_group);
@@ -211,12 +215,12 @@ sub BelieveBlemish{
                          };
          }
          
-         #if ($S::IsMetonyable{$poss_cat} and not($metonym)) {
-         #    CODELET 100, FindIfMetonyable,
-         #        { object => $core,
-         #          category => $poss_cat,
-         #      };
-         # }
+         if ($Global::Feature{meto} and $S::IsMetonyable{$poss_cat} and not($metonym)) {
+             CODELET 100, FindIfMetonyable,
+                 { object => $core,
+                   category => $poss_cat,
+               };
+          }
      }
  </actions>
 
@@ -296,6 +300,15 @@ sub BelieveBlemish{
  <actions>
 
     my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
+
+    if ( not $holey ) {
+        if ( $core->get_right_extendibility() eq $EXTENDIBILE::PERHAPS ) {
+            ACTION 80, AttemptExtension, { core => $core, direction => $DIR::RIGHT };
+        }
+        if ( $core->get_left_extendibility() eq $EXTENDIBILE::PERHAPS ) {
+            ACTION 80, AttemptExtension, { core => $core, direction => $DIR::LEFT };
+        }
+    }
 
     {
         last;

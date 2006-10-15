@@ -43,6 +43,7 @@ $cat_1->build({})->structure_ok( 1 );
   ok( not($cat_1->is_instance($obj)), );
 
   $obj->annotate_with_metonym($S::SAMENESS, "each");
+  $obj->set_metonym_activeness(1);
   ok( $cat_1->is_instance($obj), );
 
   

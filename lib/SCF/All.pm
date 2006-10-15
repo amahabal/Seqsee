@@ -57,11 +57,7 @@ use Compile::SCF;
     
     my $lit_cat = $S::LITERAL->build({ structure => [@structure] });
     ## $lit_cat, ident $lit_cat
-    my $bindings = $object->describe_as( $lit_cat );
-    ## $bindings
-    unless ($bindings) {
-        confess "Hey, should NEVER have failed!";
-    }
+    my $bindings = $object->describe_as( $lit_cat ) or confess "Hey, should NEVER have failed!";
 </run>
 
 no Compile::SCF;
@@ -78,12 +74,13 @@ use Compile::SCF;
 
 <run>
     my $direction_of_core = $core->get_direction;
+    return unless $direction_of_core->PotentiallyExtendible(); # i.e., is LEFT or RIGHT
     my $type = $core->isa('SObject') ? "object" : "reln";
 
     ## $direction, $direction_of_core, $type
 
     my ( $reln, $obj1, $obj2, $next_pos, $what_next );
-    if ($direction == $direction_of_core) {
+    if ($direction eq $direction_of_core) {
         if ($type eq "reln") {
             ($reln, $obj1, $obj2 ) = ($core, $core->get_ends );
         } else {
@@ -92,9 +89,9 @@ use Compile::SCF;
         }
     } else {
         if ($type eq "reln") {
-            ($reln, $obj2, $obj1 ) = ($core->get_inverse, $core->get_ends );
+            ($reln, $obj2, $obj1 ) = ($core->FlippedVersion(), $core->get_ends );
         } else {
-            $reln = $core->get_underlying_reln()->get_inverse() or return;
+            $reln = $core->get_underlying_reln()->FlippedVersion() or return;
             $obj2 = $core->[0];
         }
     }
@@ -102,7 +99,7 @@ use Compile::SCF;
     $next_pos = $obj2->get_next_pos_in_dir( $direction );
     return unless defined($next_pos);
 
-    eval { $what_next = apply_reln( $reln, $obj2 )} or return;
+    eval { $what_next = apply_reln( $reln, $obj2->get_effective_object() )} or return;
     if ($EVAL_ERROR) {
         ### eval error in apply reln!
         ### $reln
@@ -170,7 +167,7 @@ use Compile::SCF;
 
 
         my $reln_to_add;
-        if ($direction == $direction_of_core) {
+        if ($direction eq $direction_of_core) {
             $reln_to_add = find_reln($obj2, $wso);
         } else {
             $reln_to_add = find_reln($wso, $obj2);
@@ -187,7 +184,7 @@ use Compile::SCF;
 
         if ($type eq "object") {
             my $core_object_ref = $core->get_parts_ref();
-            if ($direction == $direction_of_core) {
+            if ($direction eq $direction_of_core) {
                 push @$core_object_ref, $wso;
             } else {
                 unshift @$core_object_ref, $wso;
@@ -245,10 +242,7 @@ use Compile::SCF;
 [param] reln!
 
 <run>
-    my ($f, $s) = $reln->get_ends();
-#XXX: Should be based on same category!
-    my $new_reln = find_reln($s, $f);
-    return unless $new_reln; 
+    my $new_reln = $reln->FlippedVersion() or return;
     $reln->uninsert;
     $new_reln->insert;
 </run>
@@ -263,9 +257,7 @@ use Compile::SCF;
 [param] b!
 
 <run>
-    if ($a->overlaps($b)) {
-        return;
-    }
+    return if ($a->overlaps($b));
 
     my $reln;
     if ($reln = $a->get_relation($b)) {
@@ -275,8 +267,8 @@ use Compile::SCF;
     }
 
     ## Running FindIfRelated: $a, $b
-    $reln = find_reln( $a, $b );
-    return unless $reln;
+    $reln = find_reln( $a, $b ) or return;
+    $reln->add_history("Found relation!");
 
     # So a relation has been found
     $reln->insert;
@@ -292,7 +284,8 @@ use Compile::SCF;
 [param] category!
 <run>
     my @meto_types = $category->get_meto_types;
-    my $meto_type = $meto_types[0]; #XXX
+    # XXX(Board-it-up): [2006/10/14] Choose biased!
+    my $meto_type = $meto_types[0];
     $object->annotate_with_metonym($category, $meto_type);
     $object->set_metonym_activeness(1);
 </run>
@@ -316,7 +309,14 @@ use Compile::SCF;
     ## Got here in FindIfGroupable
 
     if ($anchored_count == scalar( @anchored_p ) ) {
-        eval { $object = SAnchored->create( @$items_ref ) };
+        my @unstarred_items = map { my $unstarred = $_->get_is_a_metonym();
+                                    if ($unstarred) {
+                                        main::message("unstarred seen!");
+                                    } else {
+                                        main::message("unstarred not seen!");
+                                    }
+                                $unstarred ? $unstarred : $_ } @$items_ref;
+        eval { $object = SAnchored->create( @unstarred_items ) };
         if (my $e = $EVAL_ERROR) {
             if (UNIVERSAL::isa($e, "SErr::HolesHere")) {
                 return;

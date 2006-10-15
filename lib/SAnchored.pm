@@ -25,7 +25,6 @@ my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);
 
 # variable: %right_extendibility_of
 #    Could this gp be extended rightward?
-#    -1 means No!, 0 means unknown.
 my %right_extendibility_of : ATTR(:set<right_extendibility>);
 
 # variable: %left_extendibility_of
@@ -66,6 +65,7 @@ sub recalculate_edges {
         ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     $left_edge_of{$id}  = $left;
     $right_edge_of{$id} = $right;
+    ### insist: scalar(@keys) == $right + $left - 1 
 }
 
 # method: set_edges
@@ -106,10 +106,7 @@ sub create {
         return $items[0];
     }
 
-    my $holes_here = SWorkspace->are_there_holes_here(@items);
-    if ($holes_here) {
-        SErr::HolesHere->throw("There are holes here!");
-    }
+    SWorkspace->are_there_holes_here(@items) and  SErr::HolesHere->throw("There are holes here!");
 
     for my $item (@items) {
         my ( $left, $right ) = $item->get_edges();
@@ -202,7 +199,19 @@ sub as_insertlist {
     if ( $verbosity == 1 or $verbosity == 2 ) {
         my $list = $self->as_insertlist(0);
         $list->concat( $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
+        $list->append( "Extendibility: ", 'heading');
+        my ($le, $re) = ($left_extendibility_of{$id}, $right_extendibility_of{$id});
+        $list->append(
+            ( $le ? "$le->{mode}, " : "No, " ),
+            "", ( $re ? "$re->{mode}" : "No" ),
+            "", "\n"
+        );
         $list->append( "Direction: ", 'heading', $self->get_direction->as_text, "", "\n" );
+        $list->append( "Meto activeness: ", 'heading', $self->get_metonym_activeness(), "", "\n");
+        $list->append( "Self:             ", 'heading', $self, '', "\n");
+        $list->append( "Effective object: ", 'heading', $self->get_effective_object(), '', "\n");
+        $list->append( "Flattened: ", 'heading', join(", ", @{$self->get_flattened()}), '', "\n");
+        $list->append( "Items: ", 'heading', join(", ", @{$self->get_parts_ref}), '', "\n");
         $list->append( "Fringe: ", 'heading', "\n" );
         for ( @{ SThought->create($self)->get_fringe } ) {
             my ( $t, $v ) = @$_;
@@ -220,6 +229,7 @@ sub as_insertlist {
 
 }
 
+# XXX(Assumption): [2006/10/14] Based on underlying relation, may change with rules.
 sub get_right_extendibility {
     my ($self) = @_;
     my $id = ident $self;
@@ -243,7 +253,7 @@ sub get_left_extendibility {
 sub set_underlying_reln : CUMULATIVE {
     my ( $self, $reln ) = @_;
     my $id = ident $self;
-    return unless $reln;
+    $reln or confess "Cannot set underlying relation to be an undefined value!";
 
     $right_extendibility_of{$id} = EXTENDIBILE::PERHAPS();
     $left_extendibility_of{$id}  = EXTENDIBILE::PERHAPS();

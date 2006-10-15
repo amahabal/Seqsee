@@ -251,7 +251,12 @@ sub UpdateStrength {
     my $strength = 20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );
 
     $strength = 100 if $strength > 100;
-    $self->set_strength( $strength );
+    $self->set_strength($strength);
+}
+
+sub FlippedVersion {
+    my ($self) = @_;
+    return find_reln( reverse( $self->get_ends() ) );
 }
 
 1;

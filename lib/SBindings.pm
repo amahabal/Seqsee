@@ -156,6 +156,20 @@ sub get_metonymy_name {
     return $metonymy_type_of{$id}->get_name();
 }
 
+sub TellDirectedStory {
+    my ( $self, $object, $position_mode ) = @_;
+    my $id = ident $self;
+
+    my $metonymy_mode = $self->get_metonymy_mode;
+    return unless $metonymy_mode->is_position_relevant();
+
+    if ( $metonymy_mode eq METO_MODE::ALLBUTONE() ) {
+        confess "story retelling not implemented for this metonymy_mode";
+    }
+    my ($index) = keys %{ $squinting_raw_of{$id} };
+    $self->_describe_position( $object, $index, $position_mode );
+}
+
 # method: tell_forward_story
 # Reinterprets bindings so that now positions go in a forward direction.
 #
@@ -163,22 +177,7 @@ sub get_metonymy_name {
 
 sub tell_forward_story {
     my ( $self, $object ) = @_;
-    my $id = ident $self;
-
-    my $metonymy_mode = $self->get_metonymy_mode;
-    if (   $metonymy_mode == METO_MODE::NONE()
-        or $metonymy_mode == METO_MODE::ALL() )
-    {
-
-        # no positions involved!
-        return;
-    }
-    if ( $metonymy_mode == METO_MODE::ALLBUTONE() ) {
-        confess "story retelling not implemented for this metonymy_mode";
-    }
-    my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, POS_MODE::FORWARD() );
-
+    $self->TellDirectedStory( $object, $POS_MODE::FORWARD );
 }
 
 # method: tell_backward_story
@@ -188,20 +187,7 @@ sub tell_forward_story {
 
 sub tell_backward_story {
     my ( $self, $object ) = @_;
-    my $id = ident $self;
-
-    my $metonymy_mode = $self->get_metonymy_mode;
-    if ( $metonymy_mode == METO_MODE::NONE() or $metonymy_mode == METO_MODE::ALL() ) {
-
-        # no positions involved!
-        return;
-    }
-    if ( $metonymy_mode == METO_MODE::ALLBUTONE() ) {
-        confess "story retelling not implemented for this metonymy_mode";
-    }
-    my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, POS_MODE::BACKWARD() );
-
+    $self->TellDirectedStory( $object, $POS_MODE::BACKWARD );
 }
 
 #
@@ -260,6 +246,7 @@ sub _describe_position {
     my $id = ident $self;
 
     # XXX: Will only be fwd or backward, currently
+    # XXX(Board-it-up): [2006/10/14] Should be more biased...
     unless ( defined $position_mode ) {
         $position_mode =
               SUtil::toss(0.5)
@@ -269,7 +256,7 @@ sub _describe_position {
 
     $position_mode_of{$id} = $position_mode;
 
-    if ( $position_mode == POS_MODE::FORWARD() ) {
+    if ( $position_mode eq $POS_MODE::FORWARD ) {
         return $position_of{$id} = SPos->new( $index + 1 );    # It is 1-based, input is 0-based
     }
     else {
@@ -297,14 +284,17 @@ sub as_insertlist {
         while ( my ( $k, $v ) = each %{ $squinting_raw_of{$id} } ) {
             $list->append( "squint: $k => $v", "", "\n" );
         }
-        $list->append( "Meto mode: ", "binding_meta_att", $metonymy_mode_of{$id},
+        $list->append( "Meto mode: ", "binding_meta_att", $metonymy_mode_of{$id}->{mode},
             "binding_meta_att", "\n" );
-        $list->append( "Pos mode: ", "binding_meta_att", $position_mode_of{$id}, "binding_meta_att",
-            "\n" );
-        $list->append( "Position: ", "binding_meta_att", $position_of{$id}, "binding_meta_att",
-            "\n" );
+        if ( $metonymy_mode_of{$id}->is_position_relevant() ) {
+            $list->append( "Pos mode: ", "binding_meta_att", $position_mode_of{$id}->{mode},
+                "binding_meta_att", "\n" );
+            $list->append( "Position: ", "binding_meta_att", $position_of{$id}, "binding_meta_att",
+                "\n" );
+        }
         $list->append( "Meto type: ", "binding_meta_att", $metonymy_type_of{$id},
-            "binding_meta_att", "\n" );
+            "binding_meta_att", "\n" )
+            if $metonymy_mode_of{$id} ne $METO_MODE::NONE;
         return $list;
     }
 

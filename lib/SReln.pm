@@ -99,12 +99,6 @@ sub get_span{
     return List::Util::max($ra, $rb) - List::Util::min($la, $lb) + 1;
 }
 
-sub get_inverse{
-    my ( $self ) = @_;
-    my ($f, $s) = $self->get_ends;
-    return find_reln($s, $f);
-}
-
 multimethod find_dir_reln => ('DIR', 'DIR') => sub {
     my ( $da, $db ) = @_;
     if ($da eq DIR::RIGHT()) {
