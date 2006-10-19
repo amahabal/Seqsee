@@ -13,8 +13,8 @@ use base qw{};
 
 my $builder = sub {
     my ( $self, $args_ref ) = @_;
-    croak "need start" unless exists $args_ref->{start};
-    croak "need end"   unless exists $args_ref->{end};
+    confess "need start" unless exists $args_ref->{start};
+    confess "need end"   unless exists $args_ref->{end};
 
     my $ret = SObject->create( $args_ref->{start} .. $args_ref->{end} );
     $ret->add_category( $self, 
