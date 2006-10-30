@@ -1,0 +1,131 @@
+#####################################################
+#
+#    Package: SRuleApp
+#
+#####################################################
+#   Application of a rule: the structure created by applying a rule to part of a sequence
+#####################################################
+
+package SRuleApp;
+use strict;
+use Carp;
+use Class::Std;
+use English qw{-no-match-vars};
+use base qw{};
+
+use Class::Multimethods;
+for (qw{apply_reln plonk_into_place}) {
+    multimethod $_;
+}
+
+my %Rule_of : ATTR;      # The underlying rule.
+my %Items_of : ATTR;     # Objects to which the rule has been applied.
+my %States_of : ATTR;    # The states corresponding to the types.
+
+sub BUILD {
+    my ( $self, $id, $opts_ref ) = @_;
+    $Rule_of{$id}   = $opts_ref->{rule}   or confess;
+    $Items_of{$id}  = $opts_ref->{items}  or confess;
+    $States_of{$id} = $opts_ref->{states} or confess;
+}
+
+# method GetItems( $self:  ) returns [@SObjects]
+sub GetItems {
+    my ($self) = @_;
+    return $Items_of{ ident $self};
+}
+
+sub GetStates {
+    my ($self) = @_;
+    return $States_of{ ident $self};
+}
+
+sub ExtendInDirection {
+    my ( $self, $id, $direction, $object_at_end, $relation, $next_state ) = @_;
+    my $next_pos = $object_at_end->get_next_pos_in_dir($direction);
+    my $next_object = eval { apply_reln( $relation, $object_at_end->get_effective_object() ) };
+
+    if ( my $e = $EVAL_ERROR ) {
+        confess qq{Errors in extension are currently not being handled: $e};
+    }
+
+    my $is_this_what_is_present = SWorkspace->check_at_location(
+        {   start     => $next_pos,
+            direction => $direction,
+            what      => $next_object
+        }
+    );
+
+    if ($is_this_what_is_present) {
+        my $wso = plonk_into_place( $next_pos, $direction, $next_object );
+        if ( $direction eq $DIR::RIGHT ) {
+            push @{ $Items_of{$id} },  $wso;
+            push @{ $States_of{$id} }, $next_state;
+        }
+        elsif ( $direction eq $DIR::LEFT ) {
+            unshift @{ $Items_of{$id} },  $wso;
+            unshift @{ $States_of{$id} }, $next_state;
+        }
+        else {
+            confess "Huh?";
+        }
+
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+# method ExtendRight( $self:  )
+sub ExtendRight {
+    my ( $self, $steps ) = @_;
+    $steps ||= 1;
+    my $id = ident $self;
+
+    my $items_ref  = $Items_of{$id};
+    my $states_ref = $States_of{$id};
+    my $count      = scalar(@$states_ref);    # Useful for undo
+    my $rule       = $Rule_of{$id};
+
+    for ( 1 .. $steps ) {
+        my $current_rightmost = $items_ref->[-1];
+        my $rightmost_state   = $states_ref->[-1];
+        my ( $relation, $next_state ) = $rule->GetRelationAndTransition($rightmost_state);
+        my $result = $self->ExtendInDirection( $id, $DIR::RIGHT, $current_rightmost, $relation,
+            $next_state );
+        unless ($result) {                    # Could not extend as many steps as desired!
+            splice( @$items_ref,  $count );
+            splice( @$states_ref, $count );
+            return;
+        }
+    }
+    return 1;
+}
+
+sub ExtendLeft {
+    my ( $self, $steps ) = @_;
+    $steps ||= 1;
+    my $id = ident $self;
+
+    my $items_ref  = $Items_of{$id};
+    my $states_ref = $States_of{$id};
+    my $count      = scalar(@$states_ref);    # Useful for undo
+    my $rule       = $Rule_of{$id};
+
+    for my $step ( 1 .. $steps ) {
+        my $current_leftmost = $items_ref->[0];
+        my $leftmost_state   = $states_ref->[0];
+        my ( $relation, $next_state ) = $rule->GetReverseRelationAndTransition($leftmost_state);
+        my $result = $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost, $relation,
+            $next_state );
+        unless ($result) {                    # Could not extend as many steps as desired!
+            splice( @$items_ref,  0, $step - 1 );
+            splice( @$states_ref, 0, $step - 1 );
+            return;
+        }
+    }
+    return 1;
+}
+
+1;
