@@ -35,6 +35,7 @@ sub create : Test(startup => 1){
     my $cat = SCat::OfObj->new
         ( {name => "test_cat",
            builder => $builder,
+           to_recreate => ' ', # unused
            to_guess => [qw/foo bar/],
            positions => $positions_ref,
            position_finders => $position_finders_ref,

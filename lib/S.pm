@@ -28,7 +28,7 @@ use SMetonym;
 use SMetonymType;
 use SMulti;
 
-#use SCat;
+use SCat;
 use SCat::OfObj;
 use SCat::OfCat;
 use SCat::ascending;
@@ -57,6 +57,8 @@ use SReln::Simple;
 use SReln::Compound;
 use SReln::Position;
 use SReln::MetoType;
+use SRelnType::Compound;
+use SRelnType::Simple;
 use SThought;
 use SStream;
 use SWorkspace;
@@ -112,11 +114,16 @@ sub as_insertlist {
 }
 
 package POS_MODE;
-our $FORWARD  = bless { mode => 'FORWARD' }, 'POS_MODE';
-our $BACKWARD = bless { mode => 'FORWARD' }, 'POS_MODE';
+our $FORWARD  = bless { mode => 'FORWARD' },  'POS_MODE';
+our $BACKWARD = bless { mode => 'BACKWARD' }, 'POS_MODE';
 
 sub FORWARD  {$FORWARD}
 sub BACKWARD {$BACKWARD}
+
+sub as_text {
+    my ($self) = @_;
+    return $self->{mode};
+}
 
 sub as_insertlist {
     my ( $self, $verbosity ) = @_;
@@ -134,6 +141,11 @@ sub SINGLE    {$SINGLE}
 sub ALLBUTONE {$ALLBUTONE}
 sub ALL       {$ALL}
 sub OTHER     {$OTHER}
+
+sub as_text {
+    my ($self) = @_;
+    return $self->{mode};
+}
 
 sub as_insertlist {
     my ( $self, $verbosity ) = @_;

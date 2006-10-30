@@ -17,7 +17,7 @@ multimethod 'are_relns_compatible';
 
 my $builder = sub {
     my ( $self ) = @_;
-    confess "Should never be called!";
+    confess q{Should never be called!};
 };
 
 my $instancer = sub {
@@ -56,7 +56,8 @@ my $instancer = sub {
 
 our $reln_based =
     SCat::OfObj->new({
-        name => 'reln_based',
+        name => q{reln_based},
+        to_recreate => q{$S::RELN_BASED},
         builder => $builder,
         instancer => $instancer,
     });

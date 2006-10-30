@@ -37,6 +37,7 @@ ok( $tht ne $tht3, );
 
 my $arbit_cat = SCat::OfObj->new({builder => sub {},
                                   name => "arbit",
+                                  to_recreate => ' ', # unused...
                                       });
 fringe_contains( $tht, never => [ $arbit_cat ]);
 $SWorkspace::elements[0]->add_category( $arbit_cat, 

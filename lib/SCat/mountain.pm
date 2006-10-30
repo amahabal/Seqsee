@@ -14,41 +14,35 @@ use base qw{};
 
 my $builder = sub {
     my ( $self, $args_ref ) = @_;
-    croak "need foot" unless $args_ref->{foot};
-    croak "need peak" unless $args_ref->{peak};
+    croak q{need foot} unless $args_ref->{foot};
+    croak q{need peak} unless $args_ref->{peak};
 
     my $ret = SObject->create( $args_ref->{foot} .. $args_ref->{peak},
-                               reverse($args_ref->{foot}.. $args_ref->{peak}-1)
-                                   );
-    $ret->add_category( $self,
-                   SBindings->create( {}, $args_ref, $ret)
-                       );
+        reverse( $args_ref->{foot} .. $args_ref->{peak} - 1 ) );
+    $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
     return $ret;
 };
 
 my $peak_finder = sub {
-    my ( $object ) = @_;
+    my ($object) = @_;
     my $item_count = $object->get_parts_count;
     return unless $item_count % 2;
-    my $idx = ($item_count - 1) / 2;
+    my $idx = ( $item_count - 1 ) / 2;
     return [$idx];
 };
 
+our $mountain = SCat::OfObj->new(
+    {   name        => q{mountain},
+        to_recreate => q{$S::MOUNTAIN},
+        builder     => $builder,
 
-our $mountain =
-    SCat::OfObj->new(
-        {
-            name    => "mountain",
-            builder => $builder,
+        to_guess => [qw/foot peak/],
+        att_type => { foot => 'int', peak => 'int' },
 
-            to_guess  => [qw/foot peak/],
-            att_type  => { foot => 'int', peak => 'int'},
-
-            positions => { foot => SPos->new(1),
-                       },
-            position_finders => { peak => $peak_finder },
-        }
-            );
+        positions        => { foot => SPos->new(1), },
+        position_finders => { peak => $peak_finder },
+    }
+);
 
 1;
 

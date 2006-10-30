@@ -557,7 +557,8 @@ sub RegTestHelper {
     SWorkspace->set_future_terms(@$continuation);
     SCoderack->init($Global::TestingOptionsRef);
     SStream->init($Global::TestingOptionsRef);
-    SNode->init($Global::TestingOptionsRef);
+
+    # XXX(Board-it-up): [2006/10/23] Init memory here
     $SWorkspace::ReadHead = 0;
     Global->clear();
 

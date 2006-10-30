@@ -16,7 +16,7 @@ package SCat::OfObj;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{SInstance}; # Scat removed currently
+use base qw{SInstance SCat};
 use Smart::Comments;
 
 
@@ -382,6 +382,7 @@ sub derive_assuming{
     my $name = $category->get_name(). " with ". join(", ", %$assuming_ref);
 
     return SCat::OfObj->new({ builder   => $builder,
+                              to_recreate => q{Recreation of derived categories not implemented},
                               name      => $name,
                               instancer => $instancer,
                           });

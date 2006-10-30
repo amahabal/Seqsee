@@ -123,7 +123,8 @@ sub add_thought{
 
     return if $thought eq $CurrentThought;
 
-    my $node = SNode->create($thought, 1, 100);
+    # XXX(Board-it-up): [2006/10/23] Need to hook into "real" memory
+    # my $node = SNode->create($thought, 1, 100);
 
     if (exists $ThoughtsSet{$thought}) { #okay, so this is an older thought
         unshift( @OlderThoughts, $CurrentThought ) if $CurrentThought;

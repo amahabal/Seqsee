@@ -860,7 +860,7 @@ sub get_structure_string {
 sub _get_structure_string {
     my ($struct) = @_;
     if ( ref $struct ) {
-        return "(" . join( ",", map { _get_structure_string($_) } @$struct ) . ")";
+        return "[" . join( ",", map { _get_structure_string($_) } @$struct ) . "]";
     }
     else {
         return $struct;
@@ -930,6 +930,22 @@ sub recalculate_relations {
         }
     }
 }
+
+# Cannot be retrieved after being dumped. Main function for being in memory is to pass around
+# activation.
+# Probably unneeded.
+# sub as_dump{
+#     my ( $self ) = @_;
+#     confess "Should never be in memory: so why am I dumping this?";
+# }
+
+# sub as_text{
+#     my ( $self ) = @_;
+#     return q{<object>};
+# }
+
+
+
 
 1;
 

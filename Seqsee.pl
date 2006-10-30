@@ -55,7 +55,8 @@ sub INITIALIZE{
     # Initialize Workspace
     SWorkspace->clear(); SWorkspace->init( $OPTIONS_ref );
 
-    SNode->clear(); SNode->init( $OPTIONS_ref );
+    # XXX(Board-it-up): [2006/10/23] Will need to pull memory in about here
+    #    SNode->clear(); SNode->init( $OPTIONS_ref );
 
     # Initialize display
     init_display( $OPTIONS_ref );
