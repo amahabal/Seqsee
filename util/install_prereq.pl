@@ -9,6 +9,7 @@ Digest::MD5
 Exception::Class
 File::Basename
 File::Glob
+File::Slurp
 File::Spec
 File::Spec::Unix
 File::Spec::Win32

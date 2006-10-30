@@ -103,13 +103,22 @@
   "\n\n"
 )
 
+(define-skeleton seq-sub-options
+  ""
+  nil
+  > "my ( " ("Argument: " str ", ")  -2 " ) = @_;\n"
+  )
+
 (define-skeleton seq-sub-body
   ""
   nil
-  "sub " (skeleton-read "Subroutine name: ") "{\n"
-  > "my ( " ("Argument: " str ", ")  -2 " ) = @_;\n"
-      _ >
-  "\n" "}\n"
+  "sub " (setq v1 (skeleton-read "Subroutine name: ")) "{\n"
+  (if (string-match "y" (setq v2 (skeleton-read "Does it have arguments? " "y")))
+      (seq-sub-options)
+    "")
+  _ >
+  "\n" "}"  
+  (if (string-match "^$" v1) ";" "") "\n"
 )
 
 (define-skeleton seq-method-entry
@@ -345,11 +354,79 @@
   "] " _ "\n"
 )
 
+(define-skeleton seq-perl6-method-or-sub
+  ""
+  nil
+  > "# "
+  (if (string-match "y" (setq v1 (skeleton-read "Does this routine have an invocant? " "y")))
+      (seq-perl6-method) 
+    (if (string-match "p" v1) 
+        (seq-perl6-package-method)
+      ( if (string-match "mm" v1) (seq-perl6-multimethod) (seq-perl6-sub))))
+)
+
 (define-skeleton seq-perl6-method
   ""
   nil
-  "method " (skeleton-read "method name: ") " ( "
-  (if (string-match "y" (setq v1 (skeleton-read "Has a invocant? " "y")))
-      "$self: " "") 
+  "method " (skeleton-read "Method name: ") "( $self: "
+  (if (string-match "y" (setq v2 (skeleton-read "Does it have other arguments? " "y")))
+      (seq-perl6-parameters)
+    "")
+  " ) " 
+  (if (string-match "^$" (setq v2 (skeleton-read "Return type? " "")))
+      ""
+    (concat "returns " v2))
+  "\n" >)
+
+(defcustom seq-multimethod-name "" "")
+(define-skeleton seq-perl6-multimethod
+  ""
+  nil
+  "proto method " (setq seq-multimethod-name (skeleton-read "Method name: ")) " (...) "
+  (if (string-match "^$" (setq v2 (skeleton-read "Return type? " "")))
+      ""
+    (concat "returns " v2))
+  "\n")
+
+(define-skeleton seq-perl6-multimethod-strand
+  ""
+  nil
+  > "# multi method " (skeleton-read "Method name: " seq-multimethod-name) "( "
+  (if (string-match "y" (setq v2 (skeleton-read "Does it have arguments? " "y")))
+      (seq-perl6-parameters)
+    "")
+  > " )\n" 
+  )
+
+(define-skeleton seq-perl6-package-method
+  ""
+  nil
+  "method " (skeleton-read "Method name: ") "( $package: "
+  (if (string-match "y" (setq v2 (skeleton-read "Does it have other arguments? " "y")))
+      (seq-perl6-parameters)
+    "")
+  " ) " 
+  (if (string-match "^$" (setq v2 (skeleton-read "Return type? " "")))
+      ""
+    (concat "returns " v2))
+  "\n" >)
+
+
+
+(define-skeleton seq-perl6-sub
+  ""
+  nil
+  "sub " (skeleton-read "Sub name: ") "( "
+  (if (string-match "y" (setq v2 (skeleton-read "Does it have arguments? " "y")))
+      (seq-perl6-parameters)
+    "")
   ") "
-)
+  (if (string-match "^$" (setq v2 (skeleton-read "Return type? " "")))
+      ""
+    (concat "returns " v2))
+  "\n" >)
+
+(define-skeleton seq-perl6-parameters
+  ""
+  nil
+  ("Parameter, optionally with type: " str ", ")  -2)  
