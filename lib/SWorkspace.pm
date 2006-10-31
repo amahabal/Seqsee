@@ -175,7 +175,7 @@ sub read_object {
             grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
             ( @elements, values %groups );
 
-        return $strength_chooser->(\@matching_objects);
+        return $strength_chooser->( \@matching_objects );
     }
 
 }
@@ -419,6 +419,15 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
         $new_obj->apply_reln_scheme($rel_scheme);
     }
 
+    for ( @{ $obj->get_categories() } ) {
+        $new_obj->describe_as($_) or confess "Description failed";
+    }
+
+    if (my $metonym = $obj->get_metonym()) {
+        my ($cat, $name) = ($metonym->get_category(), $metonym->get_name());
+        $new_obj->annotate_with_metonym($cat, $name);
+        $new_obj->set_metonym_activeness( $obj->get_metonym_activeness );
+    }
     return $new_obj;
 
 };

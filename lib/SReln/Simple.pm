@@ -259,5 +259,11 @@ sub FlippedVersion {
     return find_reln( reverse( $self->get_ends() ) );
 }
 
+sub get_type{
+    my ( $self ) = @_;
+    return SRelnType::Simple->create( $self );
+}
+
+
 1;
 
