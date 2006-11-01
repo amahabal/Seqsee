@@ -80,7 +80,7 @@ my $WSO_rd = find_reln( $SWorkspace::elements[1], $SWorkspace::elements[2] );
 $WSO_rd->insert();
 
 my $rule3 = createRule($WSO_rd);
-my $rule4 = createRule( $WSO_rc, $WSO_rd );
+my $rule4 = createRule( $WSO_rc, $WSO_rd);
 
 my $ruleapp4 = $rule3->AttemptApplication( { start => $SWorkspace::elements[1], terms => 3 } );
 ok( not($ruleapp4), );
@@ -104,6 +104,7 @@ $ruleapp5 = $rule4->AttemptApplication(
 );
 is_deeply( $ruleapp5->GetItems(), [ @SWorkspace::elements[ 0 .. 4 ] ], q{Items, ruleapp5} );
 is_deeply( $ruleapp5->GetStates(), [ 0, 1, 0, 1, 0 ] );
+
 
 my $ruleapp6 = $rule4->AttemptApplication(
     {   start => $SWorkspace::elements[1],

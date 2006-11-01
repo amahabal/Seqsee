@@ -40,13 +40,13 @@ multimethod find_reln => qw(SPos::Absolute SPos::Absolute) => sub {
     my $idx2 = $pos2->get_index;
     if ( $idx1 > 0 and $idx2 > 0 ) {
         if ( $idx1 == $idx2 ) {
-            return SReln::Position->new( { text => "same" } );
+            return SReln::Position->create( { text => "same" } );
         }
         elsif ( $idx1 + 1 == $idx2 ) {
-            return SReln::Position->new( { text => "succ" } );
+            return SReln::Position->create( { text => "succ" } );
         }
         elsif ( $idx1 - 1 == $idx2 ) {
-            return SReln::Position->new( { text => "pred" } );
+            return SReln::Position->create( { text => "pred" } );
         }
         else {
             return;
@@ -54,13 +54,13 @@ multimethod find_reln => qw(SPos::Absolute SPos::Absolute) => sub {
     }
     elsif ( $idx1 < 0 and $idx2 < 0 ) {
         if ( $idx1 == $idx2 ) {
-            return SReln::Position->new( { text => "same" } );
+            return SReln::Position->create( { text => "same" } );
         }
         elsif ( $idx1 - 1 == $idx2 ) {
-            return SReln::Position->new( { text => "succ" } );
+            return SReln::Position->create( { text => "succ" } );
         }
         elsif ( $idx1 + 1 == $idx2 ) {
-            return SReln::Position->new( { text => "pred" } );
+            return SReln::Position->create( { text => "pred" } );
         }
         else {
             return;
@@ -70,6 +70,15 @@ multimethod find_reln => qw(SPos::Absolute SPos::Absolute) => sub {
         return;
     }
 };
+
+{
+    my %MEMO;
+    sub create{
+        my ( $package, $opts_ref ) = @_;
+        return $MEMO{$opts_ref->{text}} ||= $package->new($opts_ref);
+    }
+
+}
 
 # method: BUILD
 # Builds the relation

@@ -11,6 +11,7 @@ use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
+use Smart::Comments;
 use base qw{SReln};
 
 # variable: %name_of
@@ -57,9 +58,9 @@ multimethod find_reln => qw(SMetonymType SMetonymType) => sub {
         return unless exists $info_loss2->{$k};
         my $v2 = $info_loss2->{$k};
         my $rel = find_reln( $v, $v2 );
-        $change_ref->{$k} = $rel;
+        $change_ref->{$k} = $rel->get_type();
     }
-    return SReln::MetoType->new(
+    return SReln::MetoType->create(
         {   category => $cat1,
             name     => $name1,
             change   => $change_ref,
@@ -67,6 +68,19 @@ multimethod find_reln => qw(SMetonymType SMetonymType) => sub {
     );
 
 };
+
+{
+    my %MEMO;
+    sub create{
+        my ( $package, $opts_ref ) = @_;
+        my $string = join(';', $opts_ref->{category}, $opts_ref->{name},
+                          %{$opts_ref->{change}});
+        ## Attempting Reln Metotype creation: $string
+        return $MEMO{$string} ||= $package->new($opts_ref);
+    }
+
+
+}
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;

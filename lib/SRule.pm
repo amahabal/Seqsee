@@ -17,14 +17,29 @@ use Smart::Comments;
 our %StateCount_of : ATTR;                   # How many states?
 our %TransitionFunction_of : ATTR;           # state->state
 our %Relations_of : ATTR;                    # state->reln
+our %FlippedRelations_of : ATTR;             # Fliped versions, if needed.
 our %InverseTransitionFunction_of : ATTR;    # To move left. state->[state]
 our %ReverseRelations_of : ATTR;             # To move left. state->reln.
 
+# Either provide SRelns in :relations and NOT provide flipped_relations, in which case the
+# SRelnTypes of both relations and inverses are inferred.
+# -- OR --
+# Provide SRelnTypes for both relations and flipped_relations
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     my $count       = $StateCount_of{$id}         = $opts_ref->{state_count};
     my $transitions = $TransitionFunction_of{$id} = $opts_ref->{transition_fn};
     my $relations   = $Relations_of{$id}          = $opts_ref->{relations};
+
+    my $flipped_relations;
+    if ( exists $opts_ref->{flipped_relations} ) {    # SRelnTypes provided for both.
+        $flipped_relations = $FlippedRelations_of{$id} = $opts_ref->{flipped_relations};
+    }
+    else {    # So: only relations provided. Calculate SRelnTypes
+        $flipped_relations = $FlippedRelations_of{$id}
+            = [ map { $_->FlippedVersion()->get_type() } @$relations ];
+        $relations = $Relations_of{$id} = [ map { $_->get_type() } @$relations ];
+    }
 
     my @inv_transition;
     for my $i ( 0 .. $count - 1 ) {
@@ -36,11 +51,12 @@ sub BUILD {
     for my $i ( 0 .. $count - 1 ) {
         for my $prev_state ( @{ $inv_transition[$i] } ) {
             if ( $transitions->[$prev_state] == $i ) { # could also have been because of exceptions.
-                push @{ $rev_reln[$i] }, $relations->[$prev_state]->FlippedVersion;
+                push @{ $rev_reln[$i] }, $flipped_relations->[$prev_state];
             }
         }
     }
     $ReverseRelations_of{$id} = \@rev_reln;
+
 }
 
 {
@@ -50,7 +66,7 @@ sub BUILD {
 
         # XXX(Board-it-up): [2006/10/29] I need relation type; I aready have such code along
         # the ltm branch; Use it after merge.
-        return $MEMO{$reln} ||= SRule->new(
+        return $MEMO{ $reln->get_type() } ||= SRule->new(
             {   state_count   => 1,
                 transition_fn => [0],
                 relations     => [$reln],
@@ -66,7 +82,7 @@ sub BUILD {
 
         # XXX(Board-it-up): [2006/10/29] I need relation type; I aready have such code along
         # the ltm branch; Use it after merge.
-        my $key = "$reln1;$reln2";
+        my $key = join( ';', $reln1->get_type(), $reln2->get_type() );
         return $MEMO{$key} ||= SRule->new(
             {   state_count   => 2,
                 transition_fn => [ 1, 0 ],

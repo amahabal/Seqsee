@@ -43,6 +43,7 @@ sub GetStates {
 sub ExtendInDirection {
     my ( $self, $id, $direction, $object_at_end, $relation, $next_state ) = @_;
     my $next_pos = $object_at_end->get_next_pos_in_dir($direction);
+    return unless defined $next_pos;
     my $next_object = eval { apply_reln( $relation, $object_at_end->get_effective_object() ) };
 
     if ( my $e = $EVAL_ERROR ) {

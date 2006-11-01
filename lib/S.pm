@@ -162,6 +162,12 @@ sub is_position_relevant {
     }
 }
 
+sub is_metonymy_present{
+    my ( $self ) = @_;
+    return ($self eq $NONE) ? 0 : 1;
+}
+
+
 package EXTENDIBILE;
 our $NO      = 0;
 our $PERHAPS = bless { mode => 'PERHAPS' }, 'EXTENDIBILE';

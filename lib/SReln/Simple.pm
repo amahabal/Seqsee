@@ -17,17 +17,10 @@ use List::Util qw(sum);
 
 multimethod 'apply_reln_direction';
 
-# variable: %str_of
-#    The string representation of the relation
 my %str_of : ATTR(:get<text>);
-
-# variable: %first_of
-#    The first of the two things the relation is between
-my %first_of : ATTR( :get<first>);
-
-# variable: %second_of
-#    The second
-my %second_of : ATTR( :get<second>);
+my %first_of : ATTR(:get<first>);
+my %second_of : ATTR(:get<second>);
+my %type_of : ATTR(:get<type>);
 
 # method: BUILD
 # Builds.
@@ -40,25 +33,8 @@ sub BUILD {
 
     $first_of{$id}  = $arg_ref->{first}  if $arg_ref->{first};
     $second_of{$id} = $arg_ref->{second} if $arg_ref->{second};
-
+    $type_of{$id} = SRelnType::Simple->create( $arg_ref->{text} );
 }
-
-# multi: find_reln ( #, # )
-# Relation between two numbers
-#
-#    This one is simple: can be same, succ, pred or nothing
-#
-#    Feels like I am writing this for the 100th time!
-#
-#    usage:
-#
-#
-#    parameter list:
-#
-#    return value:
-#
-#
-#    possible exceptions:
 
 multimethod find_reln => ( '#', '#' ) => sub {
     my ( $a, $b ) = @_;
@@ -90,37 +66,9 @@ multimethod find_reln => ( '#', '#' ) => sub {
     return;
 };
 
-# multi: apply_reln ( SReln::Simple, # )
-# Apply a simple relation to an integer
-#
-#
-#    usage:
-#
-#
-#    parameter list:
-#
-#    return value:
-#
-#
-#    possible exceptions:
-
 multimethod apply_reln => ( 'SReln::Simple', '#' ) => sub {
     my ( $reln, $num ) = @_;
-    my $text = $str_of{ ident $reln};
-
-    if ( $text eq "same" ) {
-        return $num;
-    }
-    elsif ( $text eq "succ" ) {
-        return $num + 1;
-    }
-    elsif ( $text eq "pred" ) {
-        return $num - 1;
-    }
-    else {
-        confess "Reln not applicable to num";
-    }
-
+    return apply_reln( $type_of{ ident $reln}, $num );
 };
 
 #
@@ -150,22 +98,9 @@ multimethod _find_reln => qw( SElement SElement ) => sub {
     return $rel;
 };
 
-# multi: apply_reln ( SReln::Simple, SElement )
-#
 multimethod apply_reln => qw(SReln::Simple SElement) => sub {
-    my ( $rel, $el ) = @_;
-    my $new_mag = apply_reln( $rel, $el->get_mag() );
-
-    # Need to return an selement, but unanchored. Sigh.
-    my $ret = SElement->create( $new_mag, 0 );
-
-    my $rel_dir = $rel->get_direction_reln;
-    my $obj_dir = $el->get_direction;
-    my $new_dir = apply_reln_direction( $rel_dir, $obj_dir );
-
-    $ret->set_direction($new_dir);
-
-    return $ret;
+    ## In apply_reln SReln Simple SElement
+    return apply_reln( $_[0]->get_type(), $_[1] );
 };
 
 sub as_text {
@@ -258,12 +193,6 @@ sub FlippedVersion {
     my ($self) = @_;
     return find_reln( reverse( $self->get_ends() ) );
 }
-
-sub get_type{
-    my ( $self ) = @_;
-    return SRelnType::Simple->create( $self );
-}
-
 
 1;
 

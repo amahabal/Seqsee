@@ -318,6 +318,7 @@ sub remove_gp {
 sub check_at_location {
     my ( $self, $opts_ref ) = @_;
     my $direction = $opts_ref->{direction} || die "need direction";
+    confess "Need start" unless defined $opts_ref->{start};
     my $start     = $opts_ref->{start};
     my $what      = $opts_ref->{what};
     my @flattened = @{ $what->get_flattened };
@@ -420,7 +421,12 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     }
 
     for ( @{ $obj->get_categories() } ) {
-        $new_obj->describe_as($_) or confess "Description failed";
+        my $bindings = $new_obj->describe_as($_) or confess "Description failed";
+        my $old_bindings = $obj->describe_as($_);
+        my $old_pos_mode = $old_bindings->get_position_mode();
+        if (defined $old_pos_mode) {
+            $bindings->TellDirectedStory($new_obj, $old_pos_mode);
+        }
     }
 
     if (my $metonym = $obj->get_metonym()) {

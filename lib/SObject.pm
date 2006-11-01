@@ -209,7 +209,8 @@ sub quik_create {
     }
 
     for (@potential_cats) {
-        $object->maybe_annotate_with_cat($_);
+        $object->describe_as($_) or confess;
+        $object->tell_forward_story($_);
     }
 
     return $object;

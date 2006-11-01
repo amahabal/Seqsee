@@ -43,6 +43,8 @@ use List::Util qw(sum);
 
 multimethod 'apply_reln_direction';
 
+my %type_of :ATTR(:get<type>);
+
 # variable: %base_category_of
 #    Category on which this relation is based
 my %base_category_of : ATTR(:get<base_category>);
@@ -145,7 +147,7 @@ sub BUILD {
                 or confess "Need position reln";
         }
     }
-
+    $type_of{$id} = SRelnType::Compound->create($opts_ref);
     $self->add_history("Created");
 }
 
@@ -344,11 +346,13 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     my $new_bindings_ref     = {};
 
     while ( my ( $k, $v ) = each %$bindings_ref ) {
+        ## $k, $v: $k, $v
         if ( exists $changed_bindings_ref->{$k} ) {
+            ## cbr: $changed_bindings_ref->{$k}
             $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k}, $v );
             next;
         }
-
+        ## handled
         # no change...
         $new_bindings_ref->{$k} = $v;
     }

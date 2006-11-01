@@ -30,6 +30,7 @@ $WSO_ra->insert();
  
 ## $WSO_ra
 my $next = apply_reln( $WSO_ra, $WSO_gb );
+## $next
 $next->structure_ok( [3, 6, 10]);
 instance_of_cat_ok( $next, $cat );
 

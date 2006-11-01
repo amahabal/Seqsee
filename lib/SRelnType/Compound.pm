@@ -11,22 +11,25 @@ package SRelnType::Compound;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{};
+use Smart::Comments;
+use base qw{SRelnType};
 
 my %string_representation_of : ATTR;
 my %base_category_of : ATTR;
 my %base_meto_mode_of : ATTR;
 my %pos_mode_of : ATTR;
 my %changed_bindings_of_of : ATTR;
+my %position_reln_of : ATTR;
 my %metonymy_reln_of : ATTR;
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
-    $base_category_of{$id}         = $opts_ref->{base_cat};
-    $base_meto_mode_of{$id}        = $opts_ref->{meto_mode};
-    $pos_mode_of{$id}              = $opts_ref->{posn_mode};
-    $changed_bindings_of_of{$id}   = $opts_ref->{changed};
-    $metonymy_reln_of{$id}         = $opts_ref->{meto_reln};
+    $base_category_of{$id}         = $opts_ref->{base_category};
+    $base_meto_mode_of{$id}        = $opts_ref->{base_meto_mode};
+    $pos_mode_of{$id}              = $opts_ref->{base_pos_mode};
+    $changed_bindings_of_of{$id}   = $opts_ref->{changed_bindings};
+    $metonymy_reln_of{$id}         = $opts_ref->{metonymy_reln};
+    $position_reln_of{$id}         = $opts_ref->{position_reln};
     $string_representation_of{$id} = $opts_ref->{string};
 }
 
@@ -34,61 +37,76 @@ sub BUILD {
     my %MEMO = ();
 
     sub create {
-        my ( $package, $reln ) = @_;
-        my $cat_id           = SLTM->GetExactId( $reln->get_base_category() );
-        my $meto_mode_of     = SLTM->GetExactId( $reln->get_base_meto_mode() );
-        my $pos_mode_of      = SLTM->GetExactId( $reln->get_base_pos_mode() );
-        my $meto_reln        = SLTM->GetExactId( $reln->get_metonymy_reln() );
-        my %changed_bindings = %{ $reln->get_changed_bindings_ref() };
-        while ( my ( $k, $v ) = each %changed_bindings ) {
-            $v = SLTM->GetExactId($v);
-        }
-        my $string = join( '#',
-            $cat_id, $meto_mode_of, $pos_mode_of, $meto_reln,
-            join( ";", map { "$_=>" . $changed_bindings{$_} } keys %changed_bindings ) );
+        my ( $package, $opts_ref ) = @_;
+        my %opts = %$opts_ref;
 
-        return $MEMO{$string} ||= $package->new(
-            {   base_cat  => $reln->get_base_category(),
-                meto_mode => $reln->get_base_meto_mode(),
-                posn_mode => $reln->get_base_pos_mode(),
-                meto_reln => $reln->get_metonymy_reln(),
-                changed   => { %{ $reln->get_changed_bindings_ref() } },
-                string    => $string,
-            }
+        my $meto_mode = $opts{base_meto_mode};
+        if ( not $meto_mode->is_metonymy_present() ) {
+            $opts{metonymy_reln} = 'x';    # Don't care.
+            $opts{base_pos_mode} = 'x';
+        }
+        if ( not $meto_mode->is_position_relevant() ) {
+            $opts{position_reln} = ' x';
+        }
+
+        my %changed_bindings = %{ $opts_ref->{changed_bindings} };
+
+        my $string = join(
+            '#',
+            @opts{
+                qw(base_category base_meto_mode metonymy_reln base_pos_mode
+                    position_reln                                       )
+                },
+            join( ";", map { "$_=>" . $changed_bindings{$_}->get_type() } keys %changed_bindings )
         );
+
+        ## attempted creation: $string
+        return $MEMO{$string} ||= $package->new( \%opts );
+    }
+
+    sub get_dependent_memories {
+        my ($self) = @_;
+        my $id = ident $self;
+
+        return grep { ref($_) }    # To weed out the 'x's
+            (
+            $base_category_of{$id}, $base_meto_mode_of{$id}, $pos_mode_of{$id},
+            $position_reln_of{$id}, $metonymy_reln_of{$id}, values %{ $changed_bindings_of_of{$id} }
+            );
+    }
+
+    sub as_dump {
+        my ($self) = @_;
+        my $id = ident $self;
+        my @set = grep { ref($_) ? GetLTMIndex($_) : $_ }    # To weed out the 'x's
+            (
+            $base_category_of{$id}, $base_meto_mode_of{$id},
+            $pos_mode_of{$id},      $position_reln_of{$id},
+            $metonymy_reln_of{$id}, %{ $changed_bindings_of_of{$id} }
+            );
+        return join( ';', @set );
     }
 
     sub resuscicate {
         my ( $package, $string ) = @_;
 
         # Assumption: all components already resuscicated.
-        my ( $cat_id, $meto_mode_of, $pos_mode_of, $meto_reln, $change_string )
-            = split( '#', $string );
+        my ( $cat_id, $meto_mode_of, $pos_mode_of, $posn_reln, $meto_reln, %change )
+            = map { $_ =~ /^\d+$/o ? GetAtLTMIndex($_) : $_ } split( ';', $string );
 
-        my $change = {};
-        for ( split( ';', $change_string ) ) {
-            my ( $k, $v ) = split( '=>', $_, 2 );
-            $change->{$k} = GetObjectAtId($v);
-        }
-
-        return $MEMO{$string} = $package->new(
-            {   base_cat  => GetObjectAtId($cat_id),
-                meto_mode => GetObjectAtId($meto_mode_of),
-                posn_mode => GetObjectAtId($pos_mode_of),
-                meto_reln => GetObjectAtId($meto_reln),
-                string    => $string,
-                change    => $change,
+        return $package->create(
+            {   base_category    => $cat_id,
+                base_meto_mode   => $meto_mode_of,
+                base_pos_mode    => $pos_mode_of,
+                metonymy_reln    => $meto_reln,
+                position_reln    => $posn_reln,
+                changed_bindings => \%change,
             }
         );
     }
 }
 
 sub as_text {
-    my ($self) = @_;
-    return $string_representation_of{ ident $self};
-}
-
-sub as_dump {
     my ($self) = @_;
     return $string_representation_of{ ident $self};
 }
