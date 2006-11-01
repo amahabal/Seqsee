@@ -148,7 +148,10 @@ sub AttemptApplication {
     my @states_to_check_from = ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
 
     for my $start_state (@states_to_check_from) {
+        ## Checking state: $start_state
         my $ruleapp = $self->CreateApplication( { start => $start, state => $start_state } );
+        return $ruleapp if ($terms == 1);
+        ## ruleapp: $ruleapp
         if ( $ruleapp->ExtendRight( $terms - 1 ) ) {
             return $ruleapp;
         }

@@ -42,8 +42,8 @@ use Smart::Comments;
 use List::Util qw(sum);
 
 multimethod 'apply_reln_direction';
-
-my %type_of :ATTR(:get<type>);
+multimethod 'find_dir_reln';
+my %type_of : ATTR(:get<type>);
 
 # variable: %base_category_of
 #    Category on which this relation is based
@@ -147,6 +147,10 @@ sub BUILD {
                 or confess "Need position reln";
         }
     }
+
+    my $dir_reln
+        = find_dir_reln( $first_of{$id}->get_direction(), $second_of{$id}->get_direction() );
+    $opts_ref->{dir_reln} = $dir_reln;
     $type_of{$id} = SRelnType::Compound->create($opts_ref);
     $self->add_history("Created");
 }
