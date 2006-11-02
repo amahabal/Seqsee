@@ -1,0 +1,11 @@
+#!c:/Perl/bin/perl
+my $filename = 'dis';
+my @indices  = qw{sequences};
+
+system qq{pdflatex $filename};
+for (@indices) {
+    system qq{makeindex $_};
+}
+system qq{bibtex $filename};
+
+system qq{pdflatex $filename} for 1..3;

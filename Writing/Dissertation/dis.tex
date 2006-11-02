@@ -1,0 +1,36 @@
+\documentclass{memoir}
+
+\renewcommand{\maketitlehookc}{\begin{center} Some stuff \end{center}}
+\newcommand{\myepigraph}[3]{\epigraph{#1}{\textit{#2}\\ \textsc{#3}}}
+
+\makeindex[sequences]
+
+\begin{document}
+
+\frontmatter
+
+\title{Seqsee: \\ A cognitive architecture}
+\author{Abhijit A. Mahabal}
+\date{Mar 2008}
+\thispagestyle{empty}
+\maketitle
+
+\clearpage
+\tableofcontents
+
+\mainmatter
+\chapterstyle{companion}
+\pagestyle{companion}
+
+
+\chapter{Some Introduction}
+\myepigraph{All men are born equal, but some are more equal than others.}{Animal Farm}{George Orwell}
+
+What happens on tjr next page?
+\index[sequences]{1 2 3 4 5 6}
+
+\newpage
+
+\printindex[sequences]
+
+\end{document}
