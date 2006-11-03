@@ -82,9 +82,9 @@ $WSO_ge->tell_forward_story($S::ASCENDING);
 my $WSO_rm = find_reln($WSO_gb, $WSO_ge);
 $WSO_rm->insert();
 isa_ok($WSO_rm, "SReln::Compound");
-ok( $WSO_rm->get_base_category() eq $S::ASCENDING, );
-ok( $WSO_rm->get_base_meto_mode() eq METO_MODE::SINGLE(), );
-ok( $WSO_rm->get_base_pos_mode() eq POS_MODE::FORWARD(), );
+ok( $WSO_rm->get_type()->get_base_category() eq $S::ASCENDING, );
+ok( $WSO_rm->get_type()->get_base_meto_mode() eq METO_MODE::SINGLE(), );
+ok( $WSO_rm->get_type()->get_base_pos_mode() eq POS_MODE::FORWARD(), );
 
 my $WSO_gn = apply_reln( $WSO_rm, $WSO_ge );
 ok( $WSO_gn, );

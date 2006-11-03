@@ -1,7 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
-plan tests => 12; 
+plan tests => 11; 
 
 use Class::Multimethods qw(find_reln);
 use Class::Multimethods qw(are_relns_compatible);
@@ -64,10 +64,10 @@ ok( UNIVERSAL::isa($WSO_ga, "SAnchored") , );
 
 ok( UNIVERSAL::isa($WSO_re, "SReln::Compound") , );
 
-ok( $WSO_re->get_base_category() eq $S::SAMENESS, );
-ok( $WSO_re->get_base_meto_mode() eq METO_MODE::NONE(), );
-ok( $WSO_re->get_unchanged_bindings_ref()->{length} eq 2, );
-ok( UNIVERSAL::isa( $WSO_re->get_changed_bindings_ref()->{each}, "SReln::Simple") );
+ok( $WSO_re->get_type()->get_base_category() eq $S::SAMENESS, );
+ok( $WSO_re->get_type()->get_base_meto_mode() eq METO_MODE::NONE(), );
+# ok( $WSO_re->get_unchanged_bindings_ref()->{length} eq 2, );
+ok( UNIVERSAL::isa( $WSO_re->get_type()->get_changed_bindings_ref()->{each}, "SReln::Simple") );
 ok( $WSO_re->get_first() eq $WSO_ga, );
 ok( $WSO_re->get_second() eq $WSO_gb, );
 
