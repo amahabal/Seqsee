@@ -1,7 +1,19 @@
-\documentclass{memoir}
+\documentclass[oldfontcommands]{memoir}
+\usepackage{chicago}
+
+%\renewenvironment{thebibliography}[1]{\bibsection}{}
+\renewenvironment{thebibliography}[1]{%
+  \bibsection
+  \begin{bibitemlist}{xxxxxxxxxx}}{\end{bibitemlist}\postbibhook}
 
 \renewcommand{\maketitlehookc}{\begin{center} Some stuff \end{center}}
 \newcommand{\myepigraph}[3]{\epigraph{#1}{\textit{#2}\\ \textsc{#3}}}
+
+\newcommand{\sequenceIndexPageFontSolved}[1]{{\textbf #1}}
+\newcommand{\sequenceIndexPageFont}[1]{{\textit #1}}
+\newcommand{\sequence}[1]{{\ensuremath #1\ldots}\index[sequences]{#1@{\ensuremath #1\ldots}|sequenceIndexPageFont}}
+\newcommand{\sequenceSolved}[1]{{\ensuremath #1\ldots}\index[sequences]{#1@{\ensuremath #1\ldots}|sequenceIndexPageFont}}
+
 
 \makeindex[sequences]
 
@@ -12,25 +24,34 @@
 \title{Seqsee: \\ A cognitive architecture}
 \author{Abhijit A. Mahabal}
 \date{Mar 2008}
-\thispagestyle{empty}
+%\thispagestyle{empty}
 \maketitle
 
 \clearpage
 \tableofcontents
 
-\mainmatter
-\chapterstyle{companion}
-\pagestyle{companion}
+\onecolindextrue
+\renewcommand{\indexname}{Index of Sequences}
+\renewcommand{\preindexhook}{These are the sequences that have been used in the dissertation. Page numbers like \sequenceIndexPageFont{7} indicate a discussion related to the sequence, whereas page numbers set like \sequenceIndexPageFontSolved{7} indicate a mention that the program ``solved'' it.\par\vskip0.5in}
+\printindex[sequences]
+\renewcommand{\preindexhook}{}
 
+\mainmatter
+%\chapterstyle{companion}
+\pagestyle{Ruled}
 
 \chapter{Some Introduction}
 \myepigraph{All men are born equal, but some are more equal than others.}{Animal Farm}{George Orwell}
 
 What happens on tjr next page?
-\index[sequences]{1 2 3 4 5 6}
+\sequence{1 2 3 4 5 6}
 
 \newpage
 
-\printindex[sequences]
+\cite{Mitchell90} and \citeN[some cmt]{Hofstadter:FCCA}
 
+And more stuff \sequence{1 2 3 4 5 6} and also \sequence{1 2 3 4 5 6 7} and \sequenceSolved{ 1 2 3 4 5 6}
+
+\bibliographystyle{chicago}
+\bibliography{merged}
 \end{document}
