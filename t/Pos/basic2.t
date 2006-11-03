@@ -1,97 +1,56 @@
 use blib;
 use strict;
 use Test::Seqsee;
-BEGIN { plan tests => 18 }
-
+plan tests => 19;
 
 #use MyFilter;
 
 my $mtn = $S::MOUNTAIN;
-my $bo  = $mtn->build( { foot => 3, peak => 5 } );
+my $bo = $mtn->build( { foot => 3, peak => 5 } );
 
-ok UNIVERSAL::isa( "SPos::Absolute",           "SPos" );
-#ok UNIVERSAL::isa( "SPos::Global::Absolute", "SPos::Global" );
-ok UNIVERSAL::isa( "SPos::Named",            "SPos" );
+ok UNIVERSAL::isa( "SPos::Forward",  "SPos" );
+ok UNIVERSAL::isa( "SPos::Backward", "SPos" );
 Absolute: {
-  my @objs;
+    my @objs;
 
-  my $pos_1 = new SPos(1);
-  isa_ok $pos_1, "SPos::Absolute";
-  # isa_ok $pos_1->{finder}, "SPosFinder";
-  @objs = $bo->get_at_position($pos_1);
-  ok( @objs == 1 );
-  cmp_ok $objs[0]->get_structure, 'eq', 3;
+    my $pos_1 = new SPos(1);
+    isa_ok $pos_1, "SPos::Forward";
 
-  my $pos_1_copy = new SPos(1);
-  is $pos_1, $pos_1_copy;
+    # isa_ok $pos_1->{finder}, "SPosFinder";
+    @objs = $bo->get_at_position($pos_1);
+    ok( @objs == 1 );
+    cmp_ok $objs[0]->get_structure, 'eq', 3;
 
+    my $pos_1_copy = new SPos(1);
+    is $pos_1, $pos_1_copy;
 
-  my $pos_m2 = new SPos(-2);
-  isa_ok $pos_m2, "SPos::Absolute";
-  #isa_ok $pos_m2->{finder}, "SPosFinder";
-  @objs = $bo->get_at_position($pos_m2);
-  ok( @objs == 1 );
-  cmp_ok $objs[0]->get_structure, 'eq', 4;
+    my $pos_m2 = new SPos(-2);
+    isa_ok $pos_m2, "SPos::Backward";
 
-  my $pos_m6 = new SPos(-6);
-  isa_ok $pos_m6, "SPos::Absolute";
-  #isa_ok $pos_m6->{finder}, "SPosFinder";
-  throws_ok { @objs = $bo->get_at_position($pos_m6) } "SErr::Pos::OutOfRange";
+    #isa_ok $pos_m2->{finder}, "SPosFinder";
+    @objs = $bo->get_at_position($pos_m2);
+    ok( @objs == 1 );
+    cmp_ok $objs[0]->get_structure, 'eq', 4;
+
+    my $pos_m6 = new SPos(-6);
+    isa_ok $pos_m6, "SPos::Backward";
+
+    #isa_ok $pos_m6->{finder}, "SPosFinder";
+    throws_ok { @objs = $bo->get_at_position($pos_m6) } "SErr::Pos::OutOfRange";
 }
 
-Named: {
-  my @objs;
-  my $pos_peak      = new SPos("peak");
-  my $pos_peak_copy = new SPos("peak");
-  is $pos_peak, $pos_peak_copy;
+is(SPos->new(3), SPos->new(3, 'Forward'), 'Forward not needed for +ve index');
+is(SPos->new(-3), SPos->new(-3, 'Backward'));
+isnt(SPos->new(3), SPos->new(3, 'Backward'));
+isnt(SPos->new(-3), SPos->new(-3, 'Forward'));
+lives_ok { my $x = SPos->new(0, 'Forward') };
+lives_ok { my $x = SPos->new(0, 'Backward') };
+dies_ok { my $x = SPos->new(0) };
 
-  isa_ok $pos_peak, "SPos::Named";
+use Class::Multimethods;
+multimethod 'find_reln';
+multimethod 'apply_reln';
+my $rel = find_reln(SPos->new(2), SPos->new(1));
+my $p = apply_reln($rel, apply_reln($rel, SPos->new(1)));
+is $p, SPos->new(-1, 'Forward');
 
- SKIP: {
-      skip "TODO!", 5;
-  
-
-      my $cat_random = new SCat({});
-      my $cat_arbit = new SCat({});
-      
-      $pos_peak->install_finder(
-          { cat    => $cat_random,
-            finder => new SPosFinder({
-                multi => 0,
-                sub   => sub { return [2] }
-                    }
-                                         )
-                }
-              );
-      
-      $pos_peak->install_finder(
-          {cat    => $cat_arbit,
-           finder => new SPosFinder({
-               multi => 0,
-               sub   => sub { return [3] }
-                   }
-                                        )}
-              );
-      
-      # Next test commented out: its fishing for internal details
-      #isa_ok $pos_peak->{find_by_cat}{$cat_arbit}, "SPosFinder";
-      
-      my $bo_arbit = new SBuiltObj( { items => [ 1, 2, 3, 4 ] } );
-      $bo_arbit->add_cat( $cat_arbit, {} );
-      
-      my $bo_random = new SBuiltObj( { items => [ 1, 2, 3, 4 ] } );
-      $bo_random->add_cat( $cat_random, {} );
-      
-      @objs = $bo_arbit->get_at_position($pos_peak);
-      ok( @objs == 1 );
-      $objs[0]->structure_ok( 4 );
-      
-      @objs = $bo_random->get_at_position($pos_peak);
-      ok( @objs == 1 );
-      $objs[0]->structure_ok( 3 );
-      
-      $bo_arbit->add_cat( $cat_random, {} );
-      throws_ok { @objs = $bo_arbit->get_at_position($pos_peak) }
-          "SErr::Pos::MultipleNamed";
-  }
-}

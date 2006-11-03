@@ -8,61 +8,23 @@
 
 package SPos;
 use strict;
-
-use SPosFinder;
-use SPos::Absolute;
-use SPos::Named;
-use SPos::The;
-
 use Carp;
+use SPos::Forward;
+use SPos::Backward;
 
-my %Memoize;
-my %Memoize_the;
-
-# method: new
-#    -
-#
-#    usage:
-#     new SPos(3)
-#
-#    description:
-#      Creates a new Spos object. When $what is a
-#
-#        positive integer - position from start. 1 is first
-#        negative integer - position from end. -1 is last
-#        string           - a named position (like "peak")
-#
-#    parameter list:
-#        $what - 
-#
-#    return value:
-#      
-#
-#    possible exceptions:
-
-
-sub new {
-    my $package = shift;
-    my $what    = shift;
-    croak "A position must have a number or a string as the first argument ".
-        "to new." unless $what;
-    return $Memoize{$what} if $Memoize{$what};
-    my $self;
-    if ( $what =~ m/^ -? \d+ $/ox ) {
-        $self = new SPos::Absolute( { index => $what } );
+{
+    my %MEMO;
+    sub new {
+        my ($package, $what, $type) = @_;
+        confess unless $what =~ m/^ -? \d+ $/ox;
+        unless ($type) {
+            $type = ($what > 0) ? "Forward" :
+                ($what < 0) ? "Backward" :
+                    confess "SPos->new(0) illegal";
+        }
+        my $key = "$what;$type";
+        return $MEMO{$key} ||= "SPos::$type"->new({index => $what});
     }
-    else {
-        $self = new SPos::Named( { str => $what } );
-    }
-    $self->set_name($what);
-    $Memoize{$what} = $self;
-}
-
-sub new_the {
-    my ( $package, $cat ) = @_;
-    my $self = ( $Memoize_the{$cat} ||= SPos::The->new( { cat => $cat } ) );
-    $self->set_name( "the " . $cat->get_name() );
-    return $self;
 }
 
 1;

@@ -1,11 +1,11 @@
 use blib;
 use Test::Seqsee;
-BEGIN { plan tests => 27; }
+BEGIN { plan tests => 23; }
 
 # use Smart::Comments;
 
 BEGIN {
-  use_ok("SPos");
+    use_ok("SPos");
 }
 
 my $cat_asc = $S::ASCENDING;
@@ -34,100 +34,66 @@ isa_ok( $pos_second, "SPos" );
 my $pos_last_butone = new SPos(-2);
 isa_ok( $pos_last_butone, "SPos" );
 
-my $pos_peak = new SPos "peak";
-isa_ok( $pos_peak, "SPos" );
-
 my $sub_object;
 
 RANGE_GIVEN_POSITION: {
-  my $range;
-  $range = $pos_second->find_range($bo1);
-  cmp_deeply( $range, [1], "second index okay" );
-  $range = $pos_last->find_range($bo1);
-  cmp_deeply( $range, [3], "last index okay" );
- TODO: {
-      local $TODO = "Named position suport needed";
-      $range = $pos_peak->find_range($bo3);
-      cmp_deeply( $range, [3], "last index okay" );
-  }
+    my $range;
+    $range = $pos_second->find_range($bo1);
+    cmp_deeply( $range, [1], "second index okay" );
+    $range = $pos_last->find_range($bo1);
+    cmp_deeply( $range, [3], "last index okay" );
 }
 
 ASCENDING: {
-  my $count = 0;
-  for my $pair (
-    [ $pos_first,       5 ],
-    [ $pos_second,      6 ],
-    [ $pos_last_butone, 7 ],
-    [ $pos_last,        8 ]
-    )
-  {
-    ### $pair->[0]
-    ### $bo1
-    my @sub_objects = $bo1->get_at_position( $pair->[0] );
-    ### [map { $_->get_mag() }@sub_objects ]
-    ### $pair->[1]
-    $count++;
-    cmp_deeply(
-      [ map { $_->get_structure } @sub_objects ],
-      [ $pair->[1] ],
-      "ascending 5 8, subobj test $count"
-    );
-  }
-}
-
-DESCENDING: {
-  my $count = 0;
-  for my $pair (
-    [ $pos_first,       9 ],
-    [ $pos_second,      8 ],
-    [ $pos_last_butone, 2 ],
-    [ $pos_last,        1 ]
-    )
-  {
-    my @sub_objects = $bo2->get_at_position( $pair->[0] );
-    $count++;
-    cmp_deeply(
-      [ map { $_->get_structure } @sub_objects ],
-      [ $pair->[1] ],
-      "descending 9 1, subobj test $count"
-    );
-  }
-}
-
-MOUNTAIN: {
-  my $count = 0;
-  for my $pair (
-    [ $pos_first,       3 ],
-    [ $pos_second,      4 ],
-    [ $pos_last_butone, 4 ],
-    [ $pos_last,        3 ]
-    )
-  {
-    my @sub_objects = $bo3->get_at_position( $pair->[0] );
-    $count++;
-    cmp_deeply(
-      [ map { $_->get_structure } @sub_objects ],
-      [ $pair->[1] ],
-      "mountain 3 6, subobj test $count"
-    );
-  }
-
-  dies_ok { $bo_small->get_at_position($pos_second) };
-
-  dies_ok { $bo_small->get_at_position($pos_last_butone) };
-
-}
-
-PEAK: {
-  TODO: {
-        local $TODO = "named positions again";
-        my $range = $pos_peak->find_range($bo3);
-        cmp_deeply $range, [3];
-        # @sub_objects = $bo3->get_at_position($pos_peak);
-        #cmp_deeply( [ map { $_->get_structure } @sub_objects ],
-        #            [6], "mountain 3 6, subobj peak" );
-        ok( 0, );
-
+    my $count = 0;
+    for my $pair ( [ $pos_first, 5 ], [ $pos_second, 6 ], [ $pos_last_butone, 7 ],
+        [ $pos_last, 8 ] )
+    {
+        ### $pair->[0]
+        ### $bo1
+        my @sub_objects = $bo1->get_at_position( $pair->[0] );
+        ### [map { $_->get_mag() }@sub_objects ]
+        ### $pair->[1]
+        $count++;
+        cmp_deeply(
+            [ map { $_->get_structure } @sub_objects ],
+            [ $pair->[1] ],
+            "ascending 5 8, subobj test $count"
+        );
     }
 }
 
+DESCENDING: {
+    my $count = 0;
+    for my $pair ( [ $pos_first, 9 ], [ $pos_second, 8 ], [ $pos_last_butone, 2 ],
+        [ $pos_last, 1 ] )
+    {
+        my @sub_objects = $bo2->get_at_position( $pair->[0] );
+        $count++;
+        cmp_deeply(
+            [ map { $_->get_structure } @sub_objects ],
+            [ $pair->[1] ],
+            "descending 9 1, subobj test $count"
+        );
+    }
+}
+
+MOUNTAIN: {
+    my $count = 0;
+    for my $pair ( [ $pos_first, 3 ], [ $pos_second, 4 ], [ $pos_last_butone, 4 ],
+        [ $pos_last, 3 ] )
+    {
+        my @sub_objects = $bo3->get_at_position( $pair->[0] );
+        $count++;
+        cmp_deeply(
+            [ map { $_->get_structure } @sub_objects ],
+            [ $pair->[1] ],
+            "mountain 3 6, subobj test $count"
+        );
+    }
+
+    dies_ok { $bo_small->get_at_position($pos_second) };
+
+    dies_ok { $bo_small->get_at_position($pos_last_butone) };
+
+}
