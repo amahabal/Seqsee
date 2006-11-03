@@ -1,10 +1,27 @@
 \documentclass[oldfontcommands]{memoir}
 \usepackage{chicago}
 
-%\renewenvironment{thebibliography}[1]{\bibsection}{}
-\renewenvironment{thebibliography}[1]{%
-  \bibsection
-  \begin{bibitemlist}{xxxxxxxxxx}}{\end{bibitemlist}\postbibhook}
+% The next few lines are needed because Chicago and memoir redine thebibliography environment in
+% conflicting ways. Here I merge the two definitions (so I get chicago like layout and also an
+% entry in the toc
+\makeatletter
+\renewenvironment{thebibliography}[1]{\chapter*{\bibname\@mkboth
+   {\uppercase{\bibname}}{\uppercase{\bibname}}}
+    \phantomsection
+    \addcontentsline{toc}{chapter}{\bibname}\prebibhook
+  \list
+   {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}
+   \leftmargin\labelwidth
+   \advance\leftmargin\labelsep
+   \advance\leftmargin\bibindent
+   \itemindent -\bibindent
+   \listparindent \itemindent
+   \parsep \z@
+   \usecounter{enumi}}
+   \def\newblock{}
+   \sloppy
+   \sfcode`\.=1000\relax}{\endlist\postbibhook}
+\makeatother
 
 \renewcommand{\maketitlehookc}{\begin{center} Some stuff \end{center}}
 \newcommand{\myepigraph}[3]{\epigraph{#1}{\textit{#2}\\ \textsc{#3}}}
