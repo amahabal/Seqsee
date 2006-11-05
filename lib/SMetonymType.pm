@@ -12,21 +12,10 @@ use Carp;
 use Class::Std;
 use base qw{};
 
-# variable: %category_of
-#    Category the metonymy is based on
-my %category_of : ATTR( :get<category> );
-
-# variable: %meto_name_of
-#    Name of metonym
-my %meto_name_of : ATTR( :get<name> );
-
-# variable: %info_loss_of
-#    What information was lost?
-my %info_loss_of : ATTR( :get<info_loss> );
-
-# method: BUILD
-# Builds
-#
+my %category_of : ATTR( :get<category> );    # Category metonym is based on.
+my %meto_name_of : ATTR( :get<name> );       # Name of metonym type.
+my %info_loss_of : ATTR( :get<info_loss> )
+    ;    # Information (bindings) lost going from unstarred to starred.
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -34,6 +23,19 @@ sub BUILD {
     $category_of{$id}  = $opts_ref->{category}  || confess "Need category";
     $meto_name_of{$id} = $opts_ref->{name}      || confess "Need name";
     $info_loss_of{$id} = $opts_ref->{info_loss} || confess "Need info_loss";
+
+    # XXX(Board-it-up): [2006/11/05] Ensure all info lost is "pure" (storable into memory).
+}
+
+{
+    my %METO;
+
+    sub create {
+        my ( $package, $opts_ref ) = @_;
+        my %opts = %$opts_ref;
+        my $key = join( ';', @opts{qw(category name)}, %{ $opts{info_loss} } );
+        return $METO{$key} ||= $package->new($opts_ref);
+    }
 }
 
 # method: blemish
