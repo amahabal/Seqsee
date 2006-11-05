@@ -18,14 +18,9 @@ use List::Util qw(sum);
 multimethod 'apply_reln_direction';
 
 my %str_of : ATTR(:get<text>);
-my %first_of : ATTR(:get<first>);
-my %second_of : ATTR(:get<second>);
-my %type_of : ATTR(:get<type>);
-
-# method: BUILD
-# Builds.
-#
-#    Just needs the text. But maybe should also need the two objects. XXX probably change that!
+my %first_of : ATTR(:get<first>);      # First object in the relation. Not necessarily the left.
+my %second_of : ATTR(:get<second>);    # Second object.
+my %type_of : ATTR(:get<type>);        # Corresponding SRelnType::Simple object.
 
 sub BUILD {
     my ( $self, $id, $arg_ref ) = @_;
@@ -71,22 +66,20 @@ multimethod apply_reln => ( 'SReln::Simple', '#' ) => sub {
     return apply_reln( $type_of{ ident $reln}, $num );
 };
 
-#
-# subsection: SElements
+multimethod apply_reln => qw(SReln::Simple SElement) => sub {
+    ## In apply_reln SReln Simple SElement
+    return apply_reln( $_[0]->get_type(), $_[1] );
+};
 
-# multi: find_reln ( $, $ )
-# Both must be integers, else confesss
-#
+
+
 multimethod find_reln => ( '$', '$' ) => sub {
     my ( $n1, $n2 ) = @_;
-    print
-        "Should Never reach here; If it does, it means that find_reln was called with funny arguments. These, in this case, are:\n\t'$n1'\n\t'$n2'\n";
+    print "Should Never reach here; If it does, it means that find_reln was called with funny",
+        " arguments. These, in this case, are:\n\t'$n1'\n\t'$n2'\n";
     confess "find_reln error";
 };
 
-# multi: _find_reln ( SElement, SElement )
-# merely the relation between their magnitudes
-#
 multimethod _find_reln => qw( SElement SElement ) => sub {
     my ( $e1, $e2 ) = @_;
     my $rel = find_reln( $e1->get_mag(), $e2->get_mag );
@@ -98,19 +91,11 @@ multimethod _find_reln => qw( SElement SElement ) => sub {
     return $rel;
 };
 
-multimethod apply_reln => qw(SReln::Simple SElement) => sub {
-    ## In apply_reln SReln Simple SElement
-    return apply_reln( $_[0]->get_type(), $_[1] );
-};
-
 sub as_text {
     my ($self) = @_;
     return $self->get_text;
 }
 
-# multi: are_relns_compatible ( SReln::Simple, SReln::Simple )
-# yes/no reply. Compatible if they are the same
-#
 multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {
     my ( $r1, $r2 ) = @_;
     return $r1->get_text() eq $r2->get_text();
