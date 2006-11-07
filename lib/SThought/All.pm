@@ -279,14 +279,13 @@ sub BelieveBlemish{
  [package] SThought::SReln_Compound
  [param] core!
  [params] base_cat, base_meto_mode, base_pos_mode
- [params] unchanged_bindings_of, changed_bindings_of
+ [params] changed_bindings_of
  [params] metonymy_reln
 
  <build>
      $base_cat_of{$id} = $core->get_base_category;
      $base_meto_mode_of{$id} = $core->get_base_meto_mode;
      $base_pos_mode_of{$id} = $core->get_base_pos_mode;
-     $unchanged_bindings_of_of{$id} = $core->get_unchanged_bindings_ref;
      $changed_bindings_of_of{$id} = $core->get_changed_bindings_ref;
      $metonymy_reln_of{$id} = $core->get_metonymy_reln;
  </build>

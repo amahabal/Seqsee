@@ -3,21 +3,27 @@
 #    Package: SReln::Compound
 #
 #####################################################
-#   Manages relations between objects.
+#   Manages relations between objects that are more complex than just "successor".
 #
-#   The nature of relations is very stroingly coupled with the nature of SBindings. My current thoughts look like what follows.
+#   The nature of relations is very stroingly coupled with the nature of SBindings.
+# My current thoughts look like what follows.
 #
 #   Base Category:
-#   A relation is based on both objects belonging to a category. For example, the relation between [1 2 3] and [1 2 3 4] is based on the category "ascending". Maybe this is a blunder on my part: While triangle and square are so related (by the category "Polygon"), Bloomington and Indiana do not share such a category directly. Maybe there is a large range of things in Seqsee domain of the Bloomington-Indiana type. When [2 2 2] is seen as a 2, it is an event of this type, perhaps. I am not calling that a relation, but rather a metonym, but maybe that too is a blunder. But Let me carry on with this figment for now.
+#   A relation is based on both objects belonging to a category. For example, the relation between
+# [1 2 3] and [1 2 3 4] is based on the category "ascending". Maybe this is a blunder on my part:
+# While triangle and square are so related (by the category "Polygon"), Bloomington and Indiana do
+# not share such a category directly. Maybe there is a large range of things in Seqsee domain of
+# the Bloomington-Indiana type. When [2 2 2] is seen as a 2, it is an event of this type, perhaps.
+# I am not calling that a relation, but rather a metonym, but maybe that too is a blunder. But Let
+# me carry on with this figment for now.
 #
 #   Base Metonymy Mode:
-#   If two objects are to have a relation, I'd like them to have the same metonymy mode: No blemish, a single blemish or everything blemished.
+#   If two objects are to have a relation, I'd like them to have the same metonymy mode: No
+# blemish, a single blemish or everything blemished (or maybe even "everything upto a point
+# blemished").
 #
 #   Base Position Mode:
 #   They should also share the same way of looking at positions. See SBindings for details.
-#
-#   Unchanged Bindings:
-#   A hashref of what bindings stayed put. Keys are binding keys, values are binding values (e.g., length => 3)
 #
 #   Changed Bindings:
 #   A hashref of what bindings changed, and how. E.g., start => successor
@@ -25,11 +31,6 @@
 #   Position:
 #   Indicates what happened to the position. Could indicate a change or "same"
 #
-#   Unstarred Relation:
-#   If there is a single metonymy involved, this indicates the relation between the unstarred versions.
-#
-#   Starred Relation:
-#   as above. But what happens when the metonymy_mode is "ALL" I do not yet know.
 #####################################################
 
 package SReln::Compound;
@@ -48,10 +49,14 @@ my %type_of : ATTR(:get<type>);          # The SRelnType::Compound object.
 my %first_of : ATTR( :get<first> );      # First object. Not necessarily the left.
 my %second_of : ATTR( :get<second> );    # Second object.
 
-sub get_pure {
-    my ($self) = @_;
-    return $type_of{ ident $self};
-}
+sub get_pure                 { return $type_of{ ident $_[0] } }
+sub get_base_category        { return $type_of{ ident $_[0] }->get_base_category() }
+sub get_base_meto_mode       { return $type_of{ ident $_[0] }->get_base_meto_mode() }
+sub get_base_pos_mode        { return $type_of{ ident $_[0] }->get_base_pos_mode() }
+sub get_changed_bindings_ref { return $type_of{ ident $_[0] }->get_changed_bindings_ref() }
+sub get_position_reln        { return $type_of{ ident $_[0] }->get_position_reln() }
+sub get_metonymy_reln        { return $type_of{ ident $_[0] }->get_metonymy_reln() }
+sub get_direction_reln       { return $type_of{ ident $_[0] }->get_direction_reln() }
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -146,10 +151,10 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
             $unchanged_ref->{$k} = $v1;
             next;
         }
-        my $rel = find_reln( $v1, $v2 )->get_type();
+        my $rel = find_reln( $v1, $v2 );
         ## k, v1, v2, rel: $k, $v1, $v2, $rel
         return unless $rel;
-        $changed_ref->{$k} = $rel;
+        $changed_ref->{$k} = $rel->get_type();
     }
     $opts_ref->{changed_bindings}   = $changed_ref;
     $opts_ref->{unchanged_bindings} = $unchanged_ref;
@@ -159,6 +164,7 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     ## unchanged_bindings found: $unchanged_ref
 
     if ( $meto_mode->is_metonymy_present() ) {
+
         # So other stuff is relevant, too!
         if ( $meto_mode->is_position_relevant() ) {    # Position relevant!
             my $pos_mode = $b1->get_position_mode;
@@ -203,18 +209,6 @@ multimethod find_reln => qw(SObject SObject) => sub {
     _find_reln( $o1, $o2 );
 };
 
-#
-# subsection: Defunct Stuff
-
-# method: get_both
-# Returns both the objects
-
-sub get_both {
-    my $self  = shift;
-    my $ident = ident $self;
-    return ( $first_of{$ident}, $second_of{$ident} );
-}
-
 multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     my ( $reln, $object ) = @_;
 
@@ -223,70 +217,33 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
 
 sub as_insertlist {
     my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
 
-    return new SInsertList( "SReln::Compound", "heading", "\n" );
+    if ( $verbosity == 0 ) {
+        return new SInsertList( "SReln::Compound", "heading", "\n" );
+    }
 
-    #     # Need to move a lot of this to SReln and to SRelnType::Compound
+    if ( $verbosity == 1 ) {
+        my $list = $self->as_insertlist(0);
+        $list->append( "first: ", "first_second", "\n" );
+        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
 
-    #     my $id = ident $self;
+        $list->append( "Second: ", "first_second", "\n" );
+        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
+        $list->append("\n");
+        return $list;
+    }
 
-    #     if ( $verbosity == 0 ) {
-    #         return new SInsertList( "SReln::Compound", "heading", "\n" );
-    #     }
-
-    #     if ( $verbosity == 1 ) {
-    #         my $list = $self->as_insertlist(0);
-    #         $list->append( "first: ", "first_second", "\n" );
-    #         $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
-
-    #         $list->append( "Second: ", "first_second", "\n" );
-    #         $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
-    #         $list->append("\n");
-    #         return $list;
-    #     }
-
-    #     if ( $verbosity == 2 ) {
-    #         my $list = $self->as_insertlist(0);
-    #         $list->append( "first: ", "first_second", "\n" );
-    #         $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
-
-    #         $list->append( "Second: ", "first_second", "\n" );
-    #         $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
-    #         $list->append("\n");
-
-    #         $list->append( "Base Category: ", "heading2", "\n" );
-    #         $list->concat( $base_category_of{$id}->as_insertlist(1)->indent(1) );
-
-    #         $list->append( "Base Meto mode: ", "heading2", "\n" );
-    #         $list->concat( $base_meto_mode_of{$id}->as_insertlist(0)->indent(1) );
-    #         $list->append("\n");
-
-    #         if ( $base_pos_mode_of{$id} ) {
-    #             $list->append( "Base Pos Mode: ", "heading2", "\n" );
-    #             $list->concat( $base_pos_mode_of{$id}->as_insertlist(0)->indent(1) );
-    #             $list->append("\n");
-    #         }
-
-    #         $list->append( "Changed Bindings: ", "heading2", "\n" );
-    #         while ( my ( $k, $v ) = each %{ $changed_bindings_of_of{$id} } ) {
-    #             my $sublist = new SInsertList;
-    #             $sublist->append( $k, "", "\t", "" );
-    #             $sublist->concat( $v->as_insertlist(0)->indent(1) );
-    #             $list->concat( $sublist->indent(1) );
-    #         }
-
-    #         $list->append( "Unchanged Bindings: ", "heading2", "\n" );
-    #         while ( my ( $k, $v ) = each %{ $unchanged_bindings_of_of{$id} } ) {
-    #             $list->concat( SInsertList->new( $k, "", "\t", "", $v, "\n" )->indent(1) );
-    #         }
-
-    #         $list->append( "History: ", 'heading', "\n" );
-    #         for ( @{ $self->get_history } ) {
-    #             $list->append("$_\n");
-    #         }
-
-    #         return $list;
-    #     }
+    if ( $verbosity == 2 ) {
+        my $list = $self->as_insertlist(0);
+        $list->append( "Type: ", "first_second", "\n" );
+        $list->concat( $type_of{$id}->as_insertlist(1)->indent(1) );
+        $list->append( "History: ", 'heading', "\n" );
+        for ( @{ $self->get_history } ) {
+            $list->append("$_\n");
+        }
+        return $list;
+    }
 
     confess "Verbosity $verbosity not implemented for " . ref $self;
 }

@@ -1,4 +1,6 @@
 package SLTM;
+use strict;
+use warnings;
 use Class::Multimethods;
 use File::Slurp;
 use Carp;

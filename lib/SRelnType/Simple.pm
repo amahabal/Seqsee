@@ -52,16 +52,14 @@ sub serialize {
     return $string_of{ ident $self};
 }
 
-sub deserialize{
+sub deserialize {
     my ( $package, $str ) = @_;
     $package->create($str);
 }
 
-
 sub get_memory_dependencies {
     return;
 }
-
 
 multimethod apply_reln => ( 'SRelnType::Simple', '#' ) => sub {
     my ( $reln, $num ) = @_;
@@ -97,6 +95,13 @@ multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
 
     return $ret;
 };
+
+sub as_insertlist {
+    my ( $self, $verbosity ) = @_;
+    my $id = ident $self;
+
+    return new SInsertList( $string_of{$id} );
+}
 
 1;
 
