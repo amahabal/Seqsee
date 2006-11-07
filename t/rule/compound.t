@@ -55,11 +55,11 @@ my $ruleapp1 = $rule1->CreateApplication(
 is_deeply( $ruleapp1->GetItems(), [$WSO_gb], q{Items, ruleapp1} );
 is_deeply( $ruleapp1->GetStates(), [0] );
 
-lives_ok { $ruleapp1->ExtendRight() }, "Extending ruleapp right";
+lives_ok { $ruleapp1->ExtendRight() } "Extending ruleapp right";
 is_deeply( $ruleapp1->GetItems(), [ $WSO_gb, $WSO_gc ], q{Items, ruleapp1} );
 is_deeply( $ruleapp1->GetStates(), [ 0, 0 ] );
 
-lives_ok { $ruleapp1->ExtendLeft() }, "Extending ruleapp left";
+lives_ok { $ruleapp1->ExtendLeft() } "Extending ruleapp left";
 is_deeply( $ruleapp1->GetItems(), [ $WSO_ga, $WSO_gb, $WSO_gc ], q{Items, ruleapp1} );
 is_deeply( $ruleapp1->GetStates(), [ 0, 0, 0 ] );
 

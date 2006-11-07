@@ -64,7 +64,7 @@ $WSO_gb->describe_as($cat);
 $WSO_ra = find_reln($WSO_ga, $WSO_gb);
 $WSO_ra->insert();
  
-my $next = apply_reln( $WSO_ra, $WSO_gb );
+$next = apply_reln( $WSO_ra, $WSO_gb );
 $next->structure_ok( [[1,2,3], 6, 10]);
 instance_of_cat_ok( $next, $cat );
 

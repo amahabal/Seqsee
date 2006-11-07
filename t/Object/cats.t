@@ -5,7 +5,7 @@ plan tests => 8;
 
 my $bo = SObject->create(1,2,3);
 
-dies_ok { $bo->add_category() },  "add_category needs arguments";
+dies_ok { $bo->add_category() }  "add_category needs arguments";
 dies_ok { $bo->add_category("foo") } "add_category first argument must be isa SCat::OfObj";
 my $cat1 = $S::ASCENDING;
 my $cat2 = $S::MOUNTAIN;

@@ -44,81 +44,14 @@ use List::Util qw(sum);
 multimethod 'apply_reln_direction';
 multimethod 'find_dir_reln';
 
-my %type_of : ATTR(:get<type>); # The SRelnType::Compound object.
+my %type_of : ATTR(:get<type>);          # The SRelnType::Compound object.
+my %first_of : ATTR( :get<first> );      # First object. Not necessarily the left.
+my %second_of : ATTR( :get<second> );    # Second object.
+
 sub get_pure {
     my ($self) = @_;
     return $type_of{ ident $self};
 }
-
-# variable: %base_category_of
-#    Category on which this relation is based
-my %base_category_of : ATTR(:get<base_category>);
-
-# variable: %base_meto_mode_of
-#    The meto_mode common to both objects
-my %base_meto_mode_of : ATTR(:get<base_meto_mode>);
-
-# variable: %base_pos_mode_of
-#    The common position mode
-my %base_pos_mode_of : ATTR(:get<base_pos_mode>);
-
-# variable: %unchanged_bindings_of_of
-#    What binding have not changed?
-#
-#    Keys are attributes, values are the common values they have
-my %unchanged_bindings_of_of : ATTR(:get<unchanged_bindings_ref>);
-
-# variable: %changed_bindings_of_of
-#    What bindings have changed?
-#
-#    Keys are attributes, values are relations.
-my %changed_bindings_of_of : ATTR(:get<changed_bindings_ref>);
-
-# variable: %position_reln_of
-#    How has the position changed?
-my %position_reln_of : ATTR(:get<position_reln>);
-
-# variable: #%unstarred_reln_of
-#    Relation between the unstarred parts of the metonyms if metonyms involved
-#my %unstarred_reln_of :ATTR(:get<unstarred_reln>);
-
-# variable: #%starred_reln_of
-#    Same as above, starred
-#my %starred_reln_of :ATTR( :get<starred_reln>);
-
-# variable: %metonymy_reln_of
-#    What is the relationship between the metonymys?
-my %metonymy_reln_of : ATTR( :get<metonymy_reln>);
-
-# variable: #%lost_categories_of
-#    What categories are lost? I may want to add this later.
-
-# variable: #%gained_categories_of
-#    What categories are gained? I may want to add this later.
-
-# variable: %first_of
-#    Ref to the first of the two objects.
-#
-#    Does not necessarily mean the left object.
-my %first_of : ATTR( :get<first> );
-
-# variable: %second_of
-#    Ref to the second
-my %second_of : ATTR( :get<second> );
-
-# method: BUILD
-# Builds the object.
-#
-#     Needs the following:
-#    * base_category
-#    * base_meto_mode
-#    * base_pos_mode
-#    * unchanged_bindings
-#    * changed_bindings
-#    * position_reln
-#    * # unstarred_reln #may not need this
-#    * # starred_reln  #may not need this
-#    * metonymy_reln
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -126,37 +59,10 @@ sub BUILD {
     $first_of{$id}  = $opts_ref->{first};
     $second_of{$id} = $opts_ref->{second};
 
-#     $base_category_of{$id} = $opts_ref->{base_category}
-#         or confess "Need base category";
-
-#     my $meto_mode = $base_meto_mode_of{$id} = $opts_ref->{base_meto_mode};
-#     confess "Need base meto mode" unless defined $meto_mode;
-
-#     $changed_bindings_of_of{$id} = $opts_ref->{changed_bindings}
-#         or confess "Need changed bindings";
-#     $unchanged_bindings_of_of{$id} = $opts_ref->{unchanged_bindings}
-#         or confess "Need unchanged_bindings";
-
-#     if ( $meto_mode ne $METO_MODE::NONE ) {    # that is, metonymy's present!
-#         my $pos_mode = $base_pos_mode_of{$id} = $opts_ref->{base_pos_mode};
-#         confess "Need base pos mode" unless defined($pos_mode);
-
-#         #$unstarred_reln_of{$id} = $opts_ref->{unstarred_reln}
-#         #    or confess "Need unstarred relation";
-#         #$starred_reln_of{$id} = $opts_ref->{starred_reln}
-#         #    or confess "Need starred relation";
-#         $metonymy_reln_of{$id} = $opts_ref->{metonymy_reln};
-
-#         if ( $meto_mode != METO_MODE::ALL() ) {    # So: some, but not all, starred
-#             $position_reln_of{$id} = $opts_ref->{position_reln}
-#                 or confess "Need position reln";
-#         }
-#     }
-
-     my $dir_reln
-         = find_dir_reln( $first_of{$id}->get_direction(), $second_of{$id}->get_direction() );
-     $opts_ref->{dir_reln} = $dir_reln;
+    $opts_ref->{dir_reln}
+        = find_dir_reln( $first_of{$id}->get_direction(), $second_of{$id}->get_direction() );
     $type_of{$id} = SRelnType::Compound->create($opts_ref);
+
     $self->add_history("Created");
 }
 
@@ -187,7 +93,7 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     ## @common_categories
     return unless @common_categories;
 
-    # Without the choosing infra, I'll just choose the first
+    # XXX(Board-it-up): [2006/11/07] change: SLTM::ChooseConceptGivenConcept(\@common_categories)
     my $cat = $common_categories[0];
 
     ## $cat
@@ -252,10 +158,9 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     ## changed_bindings found: $changed_ref
     ## unchanged_bindings found: $unchanged_ref
 
-    if ( $meto_mode ne $METO_MODE::NONE ) {
-
+    if ( $meto_mode->is_metonymy_present() ) {
         # So other stuff is relevant, too!
-        if ( $meto_mode != METO_MODE::ALL() ) {    # Position relevant!
+        if ( $meto_mode->is_position_relevant() ) {    # Position relevant!
             my $pos_mode = $b1->get_position_mode;
             ## $b2->get_position_mode
             return unless $pos_mode == $b2->get_position_mode;
@@ -313,75 +218,75 @@ sub get_both {
 multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     my ( $reln, $object ) = @_;
 
-    return apply_reln($reln->get_type(), $object);
+    return apply_reln( $reln->get_type(), $object );
 };
 
 sub as_insertlist {
     my ( $self, $verbosity ) = @_;
 
-
     return new SInsertList( "SReln::Compound", "heading", "\n" );
-    # Need to move a lot of this to SReln and to SRelnType::Compound
 
-    my $id = ident $self;
+    #     # Need to move a lot of this to SReln and to SRelnType::Compound
 
-    if ( $verbosity == 0 ) {
-        return new SInsertList( "SReln::Compound", "heading", "\n" );
-    }
+    #     my $id = ident $self;
 
-    if ( $verbosity == 1 ) {
-        my $list = $self->as_insertlist(0);
-        $list->append( "first: ", "first_second", "\n" );
-        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
+    #     if ( $verbosity == 0 ) {
+    #         return new SInsertList( "SReln::Compound", "heading", "\n" );
+    #     }
 
-        $list->append( "Second: ", "first_second", "\n" );
-        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
-        $list->append("\n");
-        return $list;
-    }
+    #     if ( $verbosity == 1 ) {
+    #         my $list = $self->as_insertlist(0);
+    #         $list->append( "first: ", "first_second", "\n" );
+    #         $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
 
-    if ( $verbosity == 2 ) {
-        my $list = $self->as_insertlist(0);
-        $list->append( "first: ", "first_second", "\n" );
-        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
+    #         $list->append( "Second: ", "first_second", "\n" );
+    #         $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
+    #         $list->append("\n");
+    #         return $list;
+    #     }
 
-        $list->append( "Second: ", "first_second", "\n" );
-        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
-        $list->append("\n");
+    #     if ( $verbosity == 2 ) {
+    #         my $list = $self->as_insertlist(0);
+    #         $list->append( "first: ", "first_second", "\n" );
+    #         $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
 
-        $list->append( "Base Category: ", "heading2", "\n" );
-        $list->concat( $base_category_of{$id}->as_insertlist(1)->indent(1) );
+    #         $list->append( "Second: ", "first_second", "\n" );
+    #         $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
+    #         $list->append("\n");
 
-        $list->append( "Base Meto mode: ", "heading2", "\n" );
-        $list->concat( $base_meto_mode_of{$id}->as_insertlist(0)->indent(1) );
-        $list->append("\n");
+    #         $list->append( "Base Category: ", "heading2", "\n" );
+    #         $list->concat( $base_category_of{$id}->as_insertlist(1)->indent(1) );
 
-        if ( $base_pos_mode_of{$id} ) {
-            $list->append( "Base Pos Mode: ", "heading2", "\n" );
-            $list->concat( $base_pos_mode_of{$id}->as_insertlist(0)->indent(1) );
-            $list->append("\n");
-        }
+    #         $list->append( "Base Meto mode: ", "heading2", "\n" );
+    #         $list->concat( $base_meto_mode_of{$id}->as_insertlist(0)->indent(1) );
+    #         $list->append("\n");
 
-        $list->append( "Changed Bindings: ", "heading2", "\n" );
-        while ( my ( $k, $v ) = each %{ $changed_bindings_of_of{$id} } ) {
-            my $sublist = new SInsertList;
-            $sublist->append( $k, "", "\t", "" );
-            $sublist->concat( $v->as_insertlist(0)->indent(1) );
-            $list->concat( $sublist->indent(1) );
-        }
+    #         if ( $base_pos_mode_of{$id} ) {
+    #             $list->append( "Base Pos Mode: ", "heading2", "\n" );
+    #             $list->concat( $base_pos_mode_of{$id}->as_insertlist(0)->indent(1) );
+    #             $list->append("\n");
+    #         }
 
-        $list->append( "Unchanged Bindings: ", "heading2", "\n" );
-        while ( my ( $k, $v ) = each %{ $unchanged_bindings_of_of{$id} } ) {
-            $list->concat( SInsertList->new( $k, "", "\t", "", $v, "\n" )->indent(1) );
-        }
+    #         $list->append( "Changed Bindings: ", "heading2", "\n" );
+    #         while ( my ( $k, $v ) = each %{ $changed_bindings_of_of{$id} } ) {
+    #             my $sublist = new SInsertList;
+    #             $sublist->append( $k, "", "\t", "" );
+    #             $sublist->concat( $v->as_insertlist(0)->indent(1) );
+    #             $list->concat( $sublist->indent(1) );
+    #         }
 
-        $list->append( "History: ", 'heading', "\n" );
-        for ( @{ $self->get_history } ) {
-            $list->append("$_\n");
-        }
+    #         $list->append( "Unchanged Bindings: ", "heading2", "\n" );
+    #         while ( my ( $k, $v ) = each %{ $unchanged_bindings_of_of{$id} } ) {
+    #             $list->concat( SInsertList->new( $k, "", "\t", "", $v, "\n" )->indent(1) );
+    #         }
 
-        return $list;
-    }
+    #         $list->append( "History: ", 'heading', "\n" );
+    #         for ( @{ $self->get_history } ) {
+    #             $list->append("$_\n");
+    #         }
+
+    #         return $list;
+    #     }
 
     confess "Verbosity $verbosity not implemented for " . ref $self;
 }
@@ -393,7 +298,7 @@ multimethod are_relns_compatible => qw(SReln::Compound SReln::Compound) => sub {
 
 multimethod are_relns_compatible => qw($ $) => sub {
     my ( $a, $b ) = @_;
-    die "are_relns_compatible called with '$a' and '$b'!";
+    confess "are_relns_compatible called with '$a' and '$b'!";
 };
 
 sub as_text {

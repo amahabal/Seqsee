@@ -10,9 +10,9 @@ multimethod 'apply_reln';
 
 plan tests => 12; 
 
-### STart: time()
+## STart: time()
 
-#### method mini_copycat_test
+## method mini_copycat_test
 # description    :assuming inputs are array_refs intended to be SBuiltObjs, finds the relation between the first two, applies it to the third, and checks that what is obtained is equal to the fourth.
 # argument list  :the four array refs, the third and fourth of which may be undef
 # return type    :none. Calls ok(0) or ok(1) appropriately
@@ -116,4 +116,4 @@ $e2->add_reln($rel);
 # diag "$e1";
 ok( $e1->get_relation($e2));
 ok( $e2->get_relation($e1));
-### End: time()
+## End: time()

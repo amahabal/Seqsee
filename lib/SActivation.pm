@@ -11,7 +11,7 @@ for ( 0 .. 200 ) {
 # Note that new assumes positions mentioned later...
 sub new {
     my $package = shift;
-    bless [ 1, 1, 100, 100, $PRECALCULATED[1], $PRECALCULATED[1] ], $package;
+    bless [ 1, 1, 100, 100, $PRECALCULATED[2] ], $package;
 }
 
 <@:RAW_ACTIVATION 0:@>;
@@ -19,14 +19,13 @@ sub new {
 <@:STABILITY 2:@>;
 <@:TIME_STEPS 3:@>;
 <@:REAL_ACTIVATION 4:@>;
-<@:REAL_SIGNIFICANCE 5:@>;
 
 <@:DECAY_CODE $_->[<@REAL_ACTIVATION@>] = $PRECALCULATED[ --$_->[<@RAW_ACTIVATION@>]
                                                                 + $_->[<@RAW_SIGNIFICANCE@>]
                                                                 ];
 $_->[<@RAW_ACTIVATION@>] ||= 1;
 unless ( --$_->[<@TIME_STEPS@>] ) {
-    $_->[<@REAL_SIGNIFICANCE@>] = $PRECALCULATED[ --$_->[<@RAW_SIGNIFICANCE@>] ];
+    --$_->[<@RAW_SIGNIFICANCE@>];
     $_->[<@RAW_SIGNIFICANCE@>] ||= 1;
     $_->[<@TIME_STEPS@>] = $_->[<@STABILITY@>];
 }

@@ -85,36 +85,6 @@ sub BUILD {
             $position_reln_of{$id}, $metonymy_reln_of{$id}, values %{ $changed_bindings_of_of{$id} }
             );
     }
-
-    sub as_dump {
-        my ($self) = @_;
-        my $id = ident $self;
-        my @set = grep { ref($_) ? GetLTMIndex($_) : $_ }    # To weed out the 'x's
-            (
-            $base_category_of{$id}, $base_meto_mode_of{$id},
-            $pos_mode_of{$id},      $position_reln_of{$id},
-            $metonymy_reln_of{$id}, %{ $changed_bindings_of_of{$id} }
-            );
-        return join( ';', @set );
-    }
-
-    sub resuscicate {
-        my ( $package, $string ) = @_;
-
-        # Assumption: all components already resuscicated.
-        my ( $cat_id, $meto_mode_of, $pos_mode_of, $posn_reln, $meto_reln, %change )
-            = map { $_ =~ /^\d+$/o ? GetAtLTMIndex($_) : $_ } split( ';', $string );
-
-        return $package->create(
-            {   base_category    => $cat_id,
-                base_meto_mode   => $meto_mode_of,
-                base_pos_mode    => $pos_mode_of,
-                metonymy_reln    => $meto_reln,
-                position_reln    => $posn_reln,
-                changed_bindings => \%change,
-            }
-        );
-    }
 }
 
 sub as_text {
@@ -232,8 +202,9 @@ sub deserialize {
     my %opts;
     @opts{
         qw(base_category base_meto_mode base_pos_mode position_reln
-           metonymy_reln dir_reln changed_bindings)
-        } = SLTM::decode($str);
+            metonymy_reln dir_reln changed_bindings)
+        }
+        = SLTM::decode($str);
     return $package->create( \%opts );
 }
 

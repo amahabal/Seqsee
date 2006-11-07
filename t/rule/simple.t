@@ -32,7 +32,7 @@ my $ruleapp1 = $rule1->CreateApplication(
 is_deeply( $ruleapp1->GetItems(), [ $SWorkspace::elements[3] ], q{Items, ruleapp1} );
 is_deeply( $ruleapp1->GetStates(), [0] );
 
-lives_ok { $ruleapp1->ExtendRight() }, "Extending ruleapp right";
+lives_ok { $ruleapp1->ExtendRight() } "Extending ruleapp right";
 is_deeply(
     $ruleapp1->GetItems(),
     [ $SWorkspace::elements[3], $SWorkspace::elements[4] ],
@@ -40,7 +40,7 @@ is_deeply(
 );
 is_deeply( $ruleapp1->GetStates(), [ 0, 0 ] );
 
-lives_ok { $ruleapp1->ExtendLeft() }, "Extending ruleapp left";
+lives_ok { $ruleapp1->ExtendLeft() } "Extending ruleapp left";
 is_deeply(
     $ruleapp1->GetItems(),
     [ $SWorkspace::elements[2], $SWorkspace::elements[3], $SWorkspace::elements[4] ],
