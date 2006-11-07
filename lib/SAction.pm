@@ -4,15 +4,15 @@
 #
 #####################################################
 #Codelets that run "immediately"
-#    
+#
 #Actions are really like codelets---in fact, they share almost all the code
 #---except they never see the coderack. These are actions that get taken
 #immediately, with a certain probability.
-#    
+#
 #For any thought, it is possible to call the function get_actions(). This
 #returns a bunch of codelets (which get scheduled) and a bunch of actions,
 #which may get executed based on their urgencies.
-#    
+#
 #Running an action is just like running a codelet. Every action has a
 #codefamily associated with it.
 #####################################################
@@ -24,23 +24,10 @@ use Class::Std;
 use Scalar::Util qw(blessed);
 use base qw{};
 
+my %family_of : ATTR( :get<family>);       # Family. Without the prefix SCF::.
+my %urgency_of : ATTR( :get<urgency> );    # Probability of running: 0 to 100.
+my %args_of_of : ATTR;                     # Options.
 
-# variable: %family_of
-#    family the codelet belongs to
-my %family_of :ATTR( :get<family>);
-
-# variable: %urgency_of
-#    urgency; likelihood of being executed
-my %urgency_of :ATTR( :get<urgency> );
-
-# variable: %args_of_of
-#    arguments to be passed if it is executed
-my %args_of_of :ATTR;
-
-
-# method: BUILD
-# Builds.
-#
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $family_of{$id}  = $opts_ref->{family}  or confess "Need family";
@@ -50,7 +37,6 @@ sub BUILD {
 
 # method: conditionally_run
 # run with probability equal to urgency.
-#
 sub conditionally_run {
     my ($self) = @_;
     my $id = ident $self;

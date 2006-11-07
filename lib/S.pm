@@ -138,7 +138,7 @@ sub serialize {
 }
 
 sub deserialize {
-    my ($package, $str) = @_;
+    my ( $package, $str ) = @_;
     no strict 'vars';
     return ${$str};
 }
@@ -188,7 +188,7 @@ sub serialize {
 }
 
 sub deserialize {
-    my ($package, $str) = @_;
+    my ( $package, $str ) = @_;
     no strict 'vars';
     return ${$str};
 }

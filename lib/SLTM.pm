@@ -8,11 +8,13 @@ use Smart::Comments;
 
 use SLTM::Platonic;
 
-our %MEMORY;    # Just has the index into @MEMORY.
-our @MEMORY;    # Is 1-based, so that I can say $MEMORY{$x} || ...
-our $NodeCount;
+our %MEMORY;                 # Just has the index into @MEMORY.
+our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
+our $NodeCount;              # Number of nodes.
+our %_PURE_;                 # List of pure classes: those that can be stored in the LTM.
+our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
 
-our %_PURE_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
+%_PURE_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType);
 
 # method Clear( $package:  )
@@ -41,7 +43,7 @@ sub InsertNode {
 
     ## Currently installing: %CurrentlyInstalling, $pure
     confess if $CurrentlyInstalling{$pure}++;
-    for ($pure->get_memory_dependencies()) {
+    for ( $pure->get_memory_dependencies() ) {
         $MEMORY{$_} or InsertNode($_);
     }
 

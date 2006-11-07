@@ -13,29 +13,16 @@ use Class::Std;
 use base qw{SObject};
 
 #use Smart::Comments;
+
 use List::Util qw(min max sum);
 
-# variable: %left_edge_of
-#    left edge
-my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);
-
-# variable: %right_edge_of
-#    right edge
-my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);
-
-# variable: %right_extendibility_of
-#    Could this gp be extended rightward?
-my %right_extendibility_of : ATTR(:set<right_extendibility>);
-
-# variable: %left_extendibility_of
-#    same as above, leftward?
-my %left_extendibility_of : ATTR(:set<left_extendibility>);
+my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);        # Left edge. 0 is leftmost.
+my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);     # Right edge.
+my %right_extendibility_of : ATTR(:set<right_extendibility>);    # Can we extend right?
+my %left_extendibility_of : ATTR(:set<left_extendibility>);      # Can we extend left?
 
 use overload fallback => 1;
 
-# method: BUILD
-#
-#
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
@@ -65,7 +52,7 @@ sub recalculate_edges {
         ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     $left_edge_of{$id}  = $left;
     $right_edge_of{$id} = $right;
-    ### insist: scalar(@keys) == $right + $left - 1 
+    ### insist: scalar(@keys) == $right + $left - 1
 }
 
 # method: set_edges
@@ -90,13 +77,13 @@ sub get_edges {
     my $id = ident $self;
 
     return ( $left_edge_of{$id}, $right_edge_of{$id} );
-
 }
 
 # method: create
 # Creates an anchored object
 #
-#    All of the items should also be anchored. A sanity check ensures that there are no "holes". The edges get set automagically.
+#    All of the items should also be anchored.
+# A sanity check ensures that there are no "holes". The edges get set automagically.
 sub create {
     my ( $package, @items ) = @_;
 
@@ -106,7 +93,7 @@ sub create {
         return $items[0];
     }
 
-    SWorkspace->are_there_holes_here(@items) and  SErr::HolesHere->throw("There are holes here!");
+    SWorkspace->are_there_holes_here(@items) and SErr::HolesHere->throw("Holes here!");
 
     for my $item (@items) {
         my ( $left, $right ) = $item->get_edges();
@@ -134,22 +121,14 @@ sub create {
                 last;
             }
         }
-        if ($same) {
-            $direction = DIR::UNKNOWN();
-        }
-        elsif ( $leftward and not $rightward ) {
-            $direction = DIR::LEFT();
-        }
-        elsif ( $rightward and not $leftward ) {
-            $direction = DIR::RIGHT();
-        }
-        else {
-            $direction = DIR::NEITHER();
-        }
+        $direction =
+              $same ? $DIR::UNKNOWN
+            : ( $leftward  and not $rightward ) ? $DIR::LEFT
+            : ( $rightward and not $leftward )  ? $DIR::RIGHT
+            :                                     $DIR::NEITHER;
     }
 
     if ( $direction eq DIR::NEITHER() or $direction eq DIR::UNKNOWN() ) {
-
         # SErr->throw("Funny object creation attempted");
         return;
     }
@@ -199,20 +178,22 @@ sub as_insertlist {
     if ( $verbosity == 1 or $verbosity == 2 ) {
         my $list = $self->as_insertlist(0);
         $list->concat( $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
-        $list->append( "Extendibility: ", 'heading');
-        my ($le, $re) = ($left_extendibility_of{$id}, $right_extendibility_of{$id});
+        $list->append( "Extendibility: ", 'heading' );
+        my ( $le, $re ) = ( $left_extendibility_of{$id}, $right_extendibility_of{$id} );
         $list->append(
             ( $le ? "$le->{mode}, " : "No, " ),
             "", ( $re ? "$re->{mode}" : "No" ),
             "", "\n"
         );
-        $list->append( "Direction: ", 'heading', $self->get_direction->as_text, "", "\n" );
-        $list->append( "Meto activeness: ", 'heading', $self->get_metonym_activeness(), "", "\n");
-        $list->append( "Self:             ", 'heading', $self, '', "\n");
-        $list->append( "Effective object: ", 'heading', $self->get_effective_object(), '', "\n");
-        $list->append( "Flattened: ", 'heading', join(", ", @{$self->get_flattened()}), '', "\n");
-        $list->append( "Items: ", 'heading', join(", ", @{$self->get_parts_ref}), '', "\n");
+        $list->append( "Direction: ",        'heading', $self->get_direction->as_text,   "", "\n" );
+        $list->append( "Meto activeness: ",  'heading', $self->get_metonym_activeness(), "", "\n" );
+        $list->append( "Self:             ", 'heading', $self,                           '', "\n" );
+        $list->append( "Effective object: ", 'heading', $self->get_effective_object(),   '', "\n" );
+        $list->append( "Flattened: ", 'heading', join( ", ", @{ $self->get_flattened() } ),
+            '', "\n" );
+        $list->append( "Items: ", 'heading', join( ", ", @{ $self->get_parts_ref } ), '', "\n" );
         $list->append( "Fringe: ", 'heading', "\n" );
+
         for ( @{ SThought->create($self)->get_fringe } ) {
             my ( $t, $v ) = @$_;
             $list->append("\t$v\t$t\n");
