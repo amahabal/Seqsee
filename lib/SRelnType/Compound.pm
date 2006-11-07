@@ -130,7 +130,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
 
     # Make sure the object belongs to that category
     my $bindings = $object->describe_as($cat);
-    $bindings->TellDirectedStory($object, $reln->get_base_pos_mode() );
+    $bindings->TellDirectedStory( $object, $reln->get_base_pos_mode() );
     ## $bindings
     ## $cat->as_text
     return unless $bindings;
@@ -203,5 +203,40 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     return $ret_obj;
 
 };
+
+sub get_memory_dependencies {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    return grep { ref($_) } (
+        $base_category_of{$id}, $base_meto_mode_of{$id},
+        $pos_mode_of{$id},      $position_reln_of{$id},
+        $metonymy_reln_of{$id}, $direction_reln_of{$id},
+        values %{ $changed_bindings_of_of{$id} }
+    );
+}
+
+sub serialize {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    return SLTM::encode(
+        $base_category_of{$id}, $base_meto_mode_of{$id}, $pos_mode_of{$id},
+        $position_reln_of{$id}, $metonymy_reln_of{$id},  $direction_reln_of{$id},
+        $changed_bindings_of_of{$id}
+    );
+}
+
+sub deserialize {
+    my ( $package, $str ) = @_;
+    my %opts;
+    @opts{
+        qw(base_category base_meto_mode base_pos_mode position_reln
+           metonymy_reln dir_reln changed_bindings)
+        } = SLTM::decode($str);
+    return $package->create( \%opts );
+}
+
+sub get_type { $_[0] }
 
 1;

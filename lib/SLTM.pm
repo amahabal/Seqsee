@@ -10,6 +10,9 @@ our %MEMORY;    # Just has the index into @MEMORY.
 our @MEMORY;    # Is 1-based, so that I can say $MEMORY{$x} || ...
 our $NodeCount;
 
+our %_PURE_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
+    SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType);
+
 # method Clear( $package:  )
 sub Clear {
     %MEMORY    = ();
@@ -18,97 +21,35 @@ sub Clear {
 }
 
 # method GetNodeCount( $package:  ) returns int
-sub GetNodeCount {
-    return $NodeCount;
+sub GetNodeCount { return $NodeCount; }
+
+# Always call as: SLTM::GetMemoryIndex($x), not SLTM->GetMemoryIndex($x)
+sub GetMemoryIndex {
+    ### ensure: $_[0] ne "SLTM"
+    ## GetMemoryIndex called on: $_[0]
+    my $pure = $_[0]->get_pure();
+    ## pure: $pure
+    return $MEMORY{$pure} ||= InsertNode($pure);
 }
 
-# method InsertNode( $package: SNode $node ) returns SNode
 sub InsertNode {
-    my ( $package, $node ) = @_;
-    $NodeCount++;
-    $MEMORY{ $node->get_core() } = $NodeCount;
-    return $MEMORY[$NodeCount] = $node;
-}
+    ### ensure: $_[0] ne "SLTM"
+    ### ensure: $_[0] and $_PURE_{ref($_[0])}
+    my ($pure) = @_;
 
-# proto method GetExactFromMemory (...) returns SNode
-# multi method GetExactFromMemory( SCat $cat )
-# multi method GetExactFromMemory( SObject )
-# multi method GetExactFromMemory( SReln $rel )
-
-multimethod GetExactFromMemory => qw(SObject) => sub {
-    my ($object) = @_;
-
-    # Maps to the platonic node in memory corresponding to the same structure string
-    my $core = SLTM::Platonic->create( $object->get_structure_string() );
-    my $id   = $MEMORY{$core};
-    return $id ? $MEMORY[$id] : SLTM->InsertNode( SNode->new( { core => $core } ) );
-};
-
-multimethod GetExactId => qw($ SObject) => sub {
-    my ( $package, $object ) = @_;
-    my $core = SLTM::Platonic->create( $object->get_structure_string() );
-    my $id   = $MEMORY{$core};
-    return $id if $id;
-    GetExactFromMemory($object);
-    return $MEMORY{$core};
-};
-
-multimethod GetExactFromMemory => qw(SReln::Simple) => sub {
-    my ($reln) = @_;
-    my $core   = SRelnType::Simple->create($reln);
-    my $id     = $MEMORY{$core};
-    return $id ? $MEMORY[$id] : SLTM->InsertNode( SNode->new( { core => $core } ) );
-};
-
-multimethod GetExactId => qw($ SReln::Simple) => sub {
-    my ( $package, $reln ) = @_;
-    my $core = SRelnType::Simple->create($reln);
-    my $id   = $MEMORY{$core};
-    return $id if $id;
-    GetExactFromMemory($reln);
-    return $MEMORY{$core};
-};
-
-multimethod GetExactFromMemory => qw(SReln::Compound) => sub {
-    my ($reln) = @_;
-
-    # Maps to the platonic relation in memory corresponding to the non end specific part.
-    my $core = SRelnType::Compound->create($reln);
-    my $id   = $MEMORY{$core};
-    return $id ? $MEMORY[$id] : SLTM->InsertNode( SNode->new( { core => $core } ) );
-};
-
-multimethod GetExactId => qw($ SReln::Compound) => sub {
-    my ( $package, $reln ) = @_;
-    my $core = SRelnType::Compound->create($reln);
-    my $id   = $MEMORY{$core};
-    return $id if $id;
-    GetExactFromMemory($reln);
-    return $MEMORY{$cat};
-};
-
-{    # Cases where object is the core...
-    my $exact_sub = sub {
-        my ($object) = @_;
-
-        # The index into memory would be itself; When loading from file, it will be ensured that
-        # all objects map to the right place
-        my $id = $MEMORY{$object};
-        return $id ? $MEMORY[$id] : SLTM->InsertNode( SNode->new( { core => $object } ) );
-    };
-
-    my $exact_id_sub = sub {
-        my ( $package, $object ) = @_;
-        my $id = $MEMORY{$object};
-        return $id if $id;
-        GetExactFromMemory($object);
-        return $MEMORY{$object};
-    };
-
-    for (qw(SCat METO_MODE POS_MODE)) {
-        multimethod GetExactFromMemory => ($_) => $exact_sub;
-        multimethod GetExactId => ( '$', $_ ) => $exact_id_sub;
+    ## Currently installing: %CurrentlyInstalling, $pure
+    confess if $CurrentlyInstalling{$pure}++;
+    for ($pure->get_memory_dependencies()) {
+        $MEMORY{$_} or InsertNode($_);
     }
+
+    $NodeCount++;
+    push @MEMORY, $pure;
+    $MEMORY{$pure} = $NodeCount;
+
+    ## Finished installing: $pure
+    delete $CurrentlyInstalling{$pure};
+    return $NodeCount;
 }
 
 # method Dump( $package: Str $filename )
@@ -129,13 +70,10 @@ sub Dump {
     }
 
     shift @MEMORY;    # Remember, its 1-based
-    for (@MEMORY) {
-        my $core = $_->get_core();
-
-        # print "Will dump $core\n";
-        print $filehandle "=== ", ref($core), "\n", $core->as_dump(), "\n";
+    for my $pure (@MEMORY) {
+        print $filehandle "=== ", ref($pure), "\n", $pure->serialize(), "\n";
     }
-
+    unshift @MEMORY, '!!!';
     close $filehandle;
 }
 
@@ -153,16 +91,61 @@ sub Load {
         next if m#^$#;
         my ( $type, $val ) = split( /\n/, $_, 2 );
         ## type, val: $type, $val
-        my $core = $type->resuscicate($val);
-        ## core: $core
-        confess qq{Could not find core: type='$type', val='$val'} unless defined($core);
-        SLTM->InsertNode( SNode->new( { core => $core } ) );
+        my $pure = $type->deserialize($val);
+        ## pure: $pure
+        confess qq{Could not find pure: type='$type', val='$val'} unless defined($pure);
+        InsertNode($pure);
     }
     ## nodes: @nodes
 
     ## links: $links
 
     # print "Would have loaded the file\n";
+}
+
+{
+    my ( $sep1, $sep2, $char1, $char2 ) = map { chr($_) } ( 129 .. 132 );
+    my $rx1 = qr{^$char1(.*)};
+    my $rx2 = qr{^$char2(.*)};
+
+    sub encode {
+        return join(
+            $sep1,
+            map {
+                my $class = ref($_);
+                $class eq 'HASH' ? encode_hash($_)
+                    : $class ? $char1 . $MEMORY{$_}
+                    : $_
+                } @_
+        );
+    }
+
+    sub encode_hash {
+        my ($hash_ref) = @_;
+        return $char2 . join(
+            $sep2,
+            map {
+                my $class = ref($_);
+                $class eq 'HASH' ? confess('')
+                    : $class ? $char1 . $MEMORY{$_}
+                    : $_
+                } %$hash_ref
+        );
+    }
+
+    sub decode {
+        my ($str) = @_;
+        return map { $_ =~ $rx1 ? $MEMORY[$1] : $_ =~ $rx2 ? { decode_hash($1) } : $_ }
+            split( $sep1, $str );
+    }
+
+    sub decode_hash {
+        my ($str) = @_;
+        ## decode_hash called on: $str
+        $str =~ s#$sep2#$sep1#g;
+        ## string now: $str
+        return decode($str);
+    }
 }
 
 # method GetRelated( $package: SNode $node ) returns @LTMNodes

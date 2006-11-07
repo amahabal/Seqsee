@@ -44,13 +44,13 @@ ok( not($WSO_ga->get_underlying_reln()), );
 $WSO_ga->set_underlying_reln($WSO_ra);
 ok( $WSO_ga->get_underlying_reln() eq $WSO_ra, );
 
-########## applying relations
+## applying relations
 my $WSO_o1 = apply_reln($WSO_ra, $SWorkspace::elements[2]);
 ok( UNIVERSAL::isa($WSO_o1, "SElement") , );
 ok( $WSO_o1->get_mag()==4, );
 
 
-########## check_at_location
+## check_at_location
 ok( SWorkspace->check_at_location({ start => 0,
                                     direction => DIR::RIGHT(),
                                     what => SObject->create(1),
@@ -88,7 +88,7 @@ ok( $WSO_e2 eq $SWorkspace::elements[2], );
 dies_ok { plonk_into_place(2, DIR::RIGHT(), SElement->create(4,0))};
 
 
-#### extendibility
+## extendibility
 my $WSO_gb = SAnchored->create($SWorkspace::elements[1], $SWorkspace::elements[2], );
 SWorkspace->add_group($WSO_gb);
  

@@ -40,15 +40,28 @@ sub BUILD {
 
 }
 
+sub get_type { $_[0] }
+
 sub as_text {
     my ($self) = @_;
     return $string_of{ ident $self};
 }
 
-sub as_dump {
+sub serialize {
     my ($self) = @_;
     return $string_of{ ident $self};
 }
+
+sub deserialize{
+    my ( $package, $str ) = @_;
+    $package->create($str);
+}
+
+
+sub get_memory_dependencies {
+    return;
+}
+
 
 multimethod apply_reln => ( 'SRelnType::Simple', '#' ) => sub {
     my ( $reln, $num ) = @_;

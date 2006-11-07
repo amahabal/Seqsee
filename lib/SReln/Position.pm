@@ -36,6 +36,20 @@ my $Successor   = SReln::Position->create('succ');
 my $Predecessor = SReln::Position->create('pred');
 my $SamePos     = SReln::Position->create('same');
 
+sub get_memory_dependencies { return; }
+
+sub serialize{
+    my ( $self ) = @_;
+    return $text_of{ident $self};
+}
+
+sub deserialize{
+    my ( $package, $str ) = @_;
+    $package->create($str);
+}
+
+
+
 my $relation_finder = sub {
     my ( $p1, $p2 ) = @_;
     my $index1 = $p1->get_index();

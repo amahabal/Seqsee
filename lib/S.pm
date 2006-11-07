@@ -130,6 +130,19 @@ sub as_insertlist {
     return new SInsertList( $self->{mode}, '' );
 }
 
+sub get_memory_dependencies { return; }
+
+sub serialize {
+    my ($self) = @_;
+    return $self->{mode};
+}
+
+sub deserialize {
+    my ($package, $str) = @_;
+    no strict 'vars';
+    return ${$str};
+}
+
 package METO_MODE;
 our $NONE      = bless { mode => 'NONE' },      'METO_MODE';
 our $SINGLE    = bless { mode => 'SINGLE' },    'METO_MODE';
@@ -165,6 +178,19 @@ sub is_position_relevant {
 sub is_metonymy_present {
     my ($self) = @_;
     return ( $self eq $NONE ) ? 0 : 1;
+}
+
+sub get_memory_dependencies { return; }
+
+sub serialize {
+    my ($self) = @_;
+    return $self->{mode};
+}
+
+sub deserialize {
+    my ($package, $str) = @_;
+    no strict 'vars';
+    return ${$str};
 }
 
 package EXTENDIBILE;

@@ -22,6 +22,11 @@ my %first_of : ATTR(:get<first>);      # First object in the relation. Not neces
 my %second_of : ATTR(:get<second>);    # Second object.
 my %type_of : ATTR(:get<type>);        # Corresponding SRelnType::Simple object.
 
+sub get_pure {
+    my ($self) = @_;
+    return $type_of{ ident $self};
+}
+
 sub BUILD {
     my ( $self, $id, $arg_ref ) = @_;
     $str_of{$id} = $arg_ref->{text} or confess "Need text!";
@@ -70,8 +75,6 @@ multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     ## In apply_reln SReln Simple SElement
     return apply_reln( $_[0]->get_type(), $_[1] );
 };
-
-
 
 multimethod find_reln => ( '$', '$' ) => sub {
     my ( $n1, $n2 ) = @_;

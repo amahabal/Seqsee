@@ -14,32 +14,11 @@ use Class::Multimethods;
 use Smart::Comments;
 use base qw{SReln};
 
-# variable: %name_of
-#    name of the slippage
-my %name_of : ATTR( :get<name>);
-
-# variable: %category_of
-#    category slippage based on
-my %category_of : ATTR( :get<category>);
-
-# variable: %change_of_of
-#    How is the info loss changing?
-my %change_of_of : ATTR( :get<change_ref>);
+my %category_of : ATTR( :get<category>);       # Category shared by both ends of relation.
+my %name_of : ATTR( :get<name>);               # Shared name.
+my %change_of_of : ATTR( :get<change_ref>);    # How the info lost is changing: key -> reln
 
 # multi: find_reln ( SMetonymType, SMetonymType )
-# finds relation between metonym types
-#
-#
-#    usage:
-#
-#
-#    parameter list:
-#
-#    return value:
-#
-#
-#    possible exceptions:
-
 multimethod find_reln => qw(SMetonymType SMetonymType) => sub {
     my ( $m1, $m2 ) = @_;
     my $cat1 = $m1->get_category;
@@ -71,14 +50,14 @@ multimethod find_reln => qw(SMetonymType SMetonymType) => sub {
 
 {
     my %MEMO;
-    sub create{
+
+    sub create {
         my ( $package, $opts_ref ) = @_;
-        my $string = join(';', $opts_ref->{category}, $opts_ref->{name},
-                          %{$opts_ref->{change}});
+        my $string
+            = join( ';', $opts_ref->{category}, $opts_ref->{name}, %{ $opts_ref->{change} } );
         ## Attempting Reln Metotype creation: $string
         return $MEMO{$string} ||= $package->new($opts_ref);
     }
-
 
 }
 
@@ -141,6 +120,30 @@ multimethod are_relns_compatible => qw(SReln::MetoType SReln::MetoType) => sub {
     }
     return 1;
 };
+
+sub get_memory_dependencies {
+    my ($self) = @_;
+    my $id = ident $self;
+    return grep { ref($_) } ($category_of{$id}, values %{ $change_of_of{$id} });
+}
+
+sub serialize{
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    return SLTM::encode($category_of{$id}, $name_of{$id}, $change_of_of{$id});
+}
+
+sub deserialize{
+    my ( $package, $str ) = @_;
+    my %opts;
+    @opts{qw(category name change)} = SLTM::decode($str);
+    return $package->create(\%opts);
+}
+
+
+
+
 
 1;
 

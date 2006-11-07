@@ -13,16 +13,21 @@ sub BUILD {
     confess "Recreation_String may not contain newlines" if $str =~ m#\n#;
 }
 
-sub as_dump {
+sub get_pure { return $_[0] }
+
+# XXX(Board-it-up): [2006/11/06] Needs fixing: can have dependencies.
+sub get_memory_dependencies { return; }
+
+sub serialize {
     my ($self) = @_;
-    return $Recreation_String_of{ident $self};
+    return $Recreation_String_of{ ident $self};
 }
 
-sub resuscicate{
+sub deserialize {
     my ( $package, $string ) = @_;
-    # print qq{Will resuscicate '$string'};
-    return eval($string); # Could be optimized, look out!
-}
 
+    # print qq{Will resuscicate '$string'};
+    return eval($string);    # Could be optimized, look out!
+}
 
 1;

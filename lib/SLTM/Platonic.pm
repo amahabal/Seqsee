@@ -12,38 +12,40 @@ use Carp;
 use Class::Std;
 use base qw{};
 
-our %StructureString_of :ATTR();
+our %StructureString_of : ATTR();
 
-sub BUILD{
+sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $StructureString_of{$id} = $opts_ref->{structure};
 }
 
 {
     my %MEMO = ();
-    sub create{
+
+    sub create {
         my ( $package, $structure_string ) = @_;
-        return $MEMO{$structure_string} ||= $package->new( { structure => $structure_string });
+        return $MEMO{$structure_string} ||= $package->new( { structure => $structure_string } );
     }
 }
 
-sub as_text{
-    my ( $self ) = @_;
-    return $StructureString_of{ident $self};
+sub as_text {
+    my ($self) = @_;
+    return $StructureString_of{ ident $self};
 }
 
-sub as_dump{
-    my ( $self ) = @_;
-    return $StructureString_of{ident $self};
+sub get_memory_dependencies {
+    return;
 }
 
-sub resuscicate{
+sub serialize {
+    my ($self) = @_;
+    return $StructureString_of{ ident $self};
+}
+
+sub deserialize {
     my ( $package, $string ) = @_;
-    return $package->create( $string );
+    return $package->create($string);
 }
-
-
 
 1;
-
 

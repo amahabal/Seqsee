@@ -45,6 +45,10 @@ multimethod 'apply_reln_direction';
 multimethod 'find_dir_reln';
 
 my %type_of : ATTR(:get<type>); # The SRelnType::Compound object.
+sub get_pure {
+    my ($self) = @_;
+    return $type_of{ ident $self};
+}
 
 # variable: %base_category_of
 #    Category on which this relation is based
@@ -192,18 +196,6 @@ multimethod _find_reln => qw(SObject SObject) => sub {
 };
 
 # multi: find_reln ( SObject, SObject, SCat::OfObj )
-# find relation based on the category
-#
-#
-#    usage:
-#
-#
-#    parameter list:
-#
-#    return value:
-#
-#
-#    possible exceptions:
 
 multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my ( $o1, $o2, $cat ) = @_;
@@ -248,7 +240,7 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
             $unchanged_ref->{$k} = $v1;
             next;
         }
-        my $rel = find_reln( $v1, $v2 );
+        my $rel = find_reln( $v1, $v2 )->get_type();
         ## k, v1, v2, rel: $k, $v1, $v2, $rel
         return unless $rel;
         $changed_ref->{$k} = $rel;
