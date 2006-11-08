@@ -216,29 +216,6 @@ sub quik_create {
     return $object;
 }
 
-# method: clone_with_cats
-# Makes a clone, maintaining category information
-#
-#    I don't quite know why this would be needed. Cloning without categories is easy: C< SObject->create( $self->get_structure() ) >
-
-sub clone_with_cats {
-    my $self = shift;
-    my $id   = ident $self;
-
-    my $items_ref = $items_of{$id};
-    my @items     = map { ref($_) ? $_->clone_with_cats() : $_ } @{$items_ref};
-    my $group_p   = $group_p_of{$id};
-
-    my $object = SObject->new(
-        {   items   => \@items,
-            group_p => $group_p,
-        }
-    );
-    $object->inherit_categories_from($self);
-
-    return $object;
-}
-
 #
 # SubSection: Annotation
 

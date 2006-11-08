@@ -15,30 +15,12 @@ use Class::Std;
 use Smart::Comments;
 use base qw{};
 
-# variable: %cats_of_of
-#    Remembers category memberships. Keys are categories, values are SBindings objects.
-my %cats_of_of : ATTR( :get<cats_hash> );
+my %cats_of_of : ATTR( :get<cats_hash> );    # Keys categories, values bindings.
+my %non_cats_of_of : ATTR();                 # Non memberships. Keys categories,
+                                             # values $Steps_Finished when decision made.
+my %property_of_of : ATTR();                 # Unused so far.
 
-# variable: %non_cats_of_of
-#    Remembers non memberships. Also the era when it was so seen (as it may be reversed later!)
-my %non_cats_of_of : ATTR();
-
-# variable: %property_of_of
-#    Remembers attributes about objects
-#
-#    Keys are strings, values are whatever
-my %property_of_of : ATTR();
-
-#
-# subsection: Creation
-
-# method: BUILD
-# Builder.
-#
 # Called automatically by new() of derivative classes
-#
-#    Should just set up the variables
-
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $cats_of_of{$id}     = {};
@@ -209,32 +191,6 @@ sub get_binding {
     return $cats_of_of{$id}{$cat};
 }
 
-# method: inherit_categories_from
-# copies category, non-category and property information from another object
-#
-
-sub inherit_categories_from {
-    my ( $self, $other ) = @_;
-    my $self_id  = ident $self;
-    my $other_id = ident $other;
-
-    my $cats_ref = $cats_of_of{$self_id};
-    while ( my ( $k, $v ) = each %{ $cats_of_of{$other_id} } ) {
-        $cats_ref->{$k} = seq_clone($v);
-    }
-
-    my $non_cats_ref = $non_cats_of_of{$self_id};
-    while ( my ( $k, $v ) = each %{ $non_cats_of_of{$other_id} } ) {
-        $non_cats_ref->{$k} = seq_clone($v);
-    }
-
-    my $prop_ref = $property_of_of{$self_id};
-    while ( my ( $k, $v ) = each %{ $property_of_of{$other_id} } ) {
-        $prop_ref->{$k} = seq_clone($v);
-    }
-
-}
-
 #
 # SubSection: Testing Methods
 
@@ -309,7 +265,7 @@ sub categories_as_insertlist {
         my $cat = $S::Str2Cat{$c};
         $list->concat( $cat->as_insertlist(0)->indent(1) );
         if ( $verbosity > 0 ) {
-            $list->concat( $bindings->as_insertlist( $verbosity )->indent(2) );
+            $list->concat( $bindings->as_insertlist($verbosity)->indent(2) );
         }
     }
 

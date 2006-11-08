@@ -6,8 +6,11 @@
 #   Manages the coderack.
 #
 #   TODO:
-#    * I am thinking of limiting $MAX_CODELETS to about 25; In that scenario, the entire bucket system would be a needless overhead.
-#    * When a codelet is created, it would have weakened any references it makes. There should be a function called purge_defunct() that would get rid of codelets whose some argument is undef. Also, a call to get codelet should check for this.
+#    * I am thinking of limiting $MAX_CODELETS to about 25; In that scenario, the entire bucket
+# system would be a needless overhead.
+#    * When a codelet is created, it would have weakened any references it makes. There should
+# be a function called purge_defunct() that would get rid of codelets whose some argument is
+# undef. Also, a call to get codelet should check for this.
 #   * need methods to schedule thoughts, to add several codelets and a method get_runnable()
 #####################################################
 
@@ -31,39 +34,15 @@ my $logger;
     sub LOGGING_INFO()  { $is_info; }
 }
 
-# variable: $MAX_CODELETS
-#    Maximum number of codelets allowed
-my $MAX_CODELETS = 25;
-
-# variable: $CODELET_COUNT
-#    How many codelets are in there currently?
-my $CODELET_COUNT = 0;
-
-# variable: @CODELETS
-#    The actual codelets
-our @CODELETS;
-
-# variable: $URGENCIES_SUM
-#    Sum of all urgencies
-our $URGENCIES_SUM = 0;
-
-# variable: $SCHEDULED_THOUGHT
-#    The though if any scheduled, undef o/w
-our $SCHEDULED_THOUGHT;
-
-# variable: $FORCED_THOUGHT
-#    If set, get next runnable returns this, no matter what
-our $FORCED_THOUGHT;
-
-# variable: $UseScheduledThoughtProb
-#    Likelihood that the current scheduled thought is used
-my $UseScheduledThoughtProb;
-
-# variable: $ScheduledThoughtVanishProb
-#    Probability that scheduled thought is annhilated if not used
-my $ScheduledThoughtVanishProb;
-
-our $LastSelectedRunnable;
+my $MAX_CODELETS  = 25;    # Maximum number of codelets allowed.
+my $CODELET_COUNT = 0;     #    How many codelets are in there currently?
+our @CODELETS;             #    The actual codelets
+our $URGENCIES_SUM = 0;            #    Sum of all urgencies
+our $SCHEDULED_THOUGHT;            #    The though if any scheduled, undef o/w
+our $FORCED_THOUGHT;               #    If set, get next runnable returns this, no matter what
+my $UseScheduledThoughtProb;       #    Likelihood that the current scheduled thought is used
+my $ScheduledThoughtVanishProb;    #    Prob. that scheduled thought is annhilated if unused
+our $LastSelectedRunnable;         # Last selected codelet/thought
 
 clear();
 
