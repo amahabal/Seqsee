@@ -16,33 +16,18 @@ use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SInstance SHistory SFasc};
+use overload fallback => 1;
 
 multimethod 'find_reln';
 
-# variable: %items_of
-#    The items of this object.
-
-#    It is guarenteed that if there is a single object, it will be an SInt: So,
-#  no vacuosly deep groups like [[[3]]]
-my %items_of : ATTR( :get<parts_ref> );
-
-use overload fallback => 1;
-
-# variable: %group_p_of
-#    Is this object a group?
-#
-#    It certainly is if there are several items, but can also be a group with a single item.
-my %group_p_of : ATTR( :get<group_p>);
-
-# variable: %metonym_of
-#    The metonym associated with this object
-my %metonym_of : ATTR( :get<metonym>);
-
-# variable: %metonym_activeness_of
-#    is metonym active?
-my %metonym_activeness_of : ATTR( :get<metonym_activeness>);
-
-my %is_a_metonym_of : ATTR( :get<is_a_metonym> :set<is_a_metonym>);
+my %items_of : ATTR( :get<parts_ref> );    #    The items of this object.
+my %group_p_of : ATTR( :get<group_p>);     #    Is this object a group?
+                                           # Can also be true for a single item.
+my %metonym_of : ATTR( :get<metonym>);     #    The metonym associated with this object
+my %metonym_activeness_of : ATTR( :get<metonym_activeness>);           # Bool: is it active?
+my %is_a_metonym_of : ATTR( :get<is_a_metonym> :set<is_a_metonym>);    #
+my %direction_of : ATTR( :get<direction> :set<direction>  );           # Direction: see S::Dir.
+my %reln_scheme_of : ATTR( :get<reln_scheme> :set<reln_scheme>  );     # See S::Reln_Scheme
 
 # variable: %reln_other_of
 # XXX(Assumption): [2006/09/16] Only a single reln between two objects possible
@@ -52,12 +37,6 @@ my %reln_other_of : ATTR(:get<reln_other_ref>);
 # variable: %underlying_reln_of
 #    is the group based on some relation? undef if not, the relation otherwise
 my %underlying_reln_of : ATTR( :get<underlying_reln>);
-
-# variable: %direction_of
-# Can be DIR::*, *=LEFT, RIGHT, UNKNOWN or NEITHER
-my %direction_of : ATTR( :get<direction> :set<direction>  );
-
-my %reln_scheme_of : ATTR( :get<reln_scheme> :set<reln_scheme>  );
 
 #
 # subsection: Construction
@@ -289,9 +268,6 @@ sub annotate_with_metonym {
 
 # method: maybe_annotate_with_metonym
 #  same as annotate_with_metonym, except does not die
-#
-# XXX: too bad this will trap *all* errors. Should change that.
-
 sub maybe_annotate_with_metonym {
     my ( $self, $cat, $name ) = @_;
     eval { $self->annotate_with_metonym( $cat, $name ) };
