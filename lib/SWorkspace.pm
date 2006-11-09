@@ -8,6 +8,7 @@
 
 package SWorkspace;
 use strict;
+use warnings;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
@@ -232,26 +233,20 @@ sub is_there_a_covering_group {
 
 sub get_all_covering_groups {
     my ( $self, $left, $right ) = @_;
-    my @ret;
 
-    foreach ( values %groups ) {
+    return grep {
         my ( $l, $r ) = $_->get_edges;
-        push( @ret, $_ ) if ( $l <= $left and $r >= $right );
-    }
-
-    return @ret;
+        $l <= $left and $r >= $right
+    } values %groups;
 }
 
 sub get_all_groups_with_exact_span {
     my ( $self, $left, $right ) = @_;
-    my @ret;
 
-    foreach ( values %groups ) {
+    return grep {
         my ( $l, $r ) = $_->get_edges;
-        push( @ret, $_ ) if ( $l == $left and $r == $right );
-    }
-
-    return @ret;
+        $l == $left and $r == $right
+    } values %groups;
 }
 
 sub get_groups_starting_at {
@@ -421,17 +416,17 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     }
 
     for ( @{ $obj->get_categories() } ) {
-        my $bindings = $new_obj->describe_as($_) or confess "Description failed";
+        my $bindings     = $new_obj->describe_as($_) or confess "Description failed";
         my $old_bindings = $obj->describe_as($_);
         my $old_pos_mode = $old_bindings->get_position_mode();
-        if (defined $old_pos_mode) {
-            $bindings->TellDirectedStory($new_obj, $old_pos_mode);
+        if ( defined $old_pos_mode ) {
+            $bindings->TellDirectedStory( $new_obj, $old_pos_mode );
         }
     }
 
-    if (my $metonym = $obj->get_metonym()) {
-        my ($cat, $name) = ($metonym->get_category(), $metonym->get_name());
-        $new_obj->annotate_with_metonym($cat, $name);
+    if ( my $metonym = $obj->get_metonym() ) {
+        my ( $cat, $name ) = ( $metonym->get_category(), $metonym->get_name() );
+        $new_obj->annotate_with_metonym( $cat, $name );
         $new_obj->set_metonym_activeness( $obj->get_metonym_activeness );
     }
     return $new_obj;
