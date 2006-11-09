@@ -1,7 +1,9 @@
 package SUtil;
 use strict;
+use warnings;
 use SPos;
 use Smart::Comments;
+
 #use SCat;
 # use SBlemishType;
 
@@ -30,7 +32,7 @@ sub compare_deep {
         return ( $deep_list1 == $deep_list2 );
     }
     if ( $is_ref1 and $is_ref2 ) {
-        confess unless ($is_ref1 eq 'ARRAY' and $is_ref2 eq 'ARRAY');
+        confess unless ( $is_ref1 eq 'ARRAY' and $is_ref2 eq 'ARRAY' );
         return unless @$deep_list1 == @$deep_list2;
         for ( my $i = 0; $i < @$deep_list1; $i++ ) {
             return
@@ -72,11 +74,11 @@ sub generate_blemished {
 }
 
 sub oddman {
+
     # use Smart::Comments;
     my (@objects) = @_;
     for (@objects) {
-        $_->seek_blemishes(
-            [ $SBlemishType::triple::triple, $SBlemishType::double::double ] );
+        $_->seek_blemishes( [ $SBlemishType::triple::triple, $SBlemishType::double::double ] );
     }
     for my $cat ( $SCat::ascending::ascending, $SCat::mountain::mountain ) {
         my @bindings = map { $cat->is_instance($_) } @objects;
@@ -180,36 +182,37 @@ sub naive_brittle_chunking {
     return @ret;
 }
 
-sub next_available_file_number{
+sub next_available_file_number {
+
     # use Smart::Comments;
     my $dir = shift;
     ## $dir
     my @filelist = glob("$dir/*");
     ## @filelist
-    my @numbers = grep { $_ } map { s/\D//g; $_ } @filelist;
+    my @numbers = grep {$_} map { s/\D//g; $_ } @filelist;
     ## @numbers
     return 1 unless @numbers;
-    return 1 + List::Util::max( @numbers );
+    return 1 + List::Util::max(@numbers);
 }
 
-sub toss{
-    my ( $prob ) = @_;
+sub toss {
+    my ($prob) = @_;
     rand() <= $prob ? 1 : 0;
 }
 
-sub clear_all{
+sub clear_all {
     SWorkspace->clear();
     clear_all_but_workspace();
 }
 
-sub clear_all_but_workspace{
+sub clear_all_but_workspace {
     SStream->clear;
     SCoderack->clear;
 }
 
-sub List::MoreUtils::minmax{
+sub List::MoreUtils::minmax {
     die "undefined!" unless @_;
-    return $_[0] if @_ == 1;
+    return ( $_[0], $_[0] ) if @_ == 1;
     my $min = shift;
     my $max = $min;
     while (@_) {
@@ -217,17 +220,16 @@ sub List::MoreUtils::minmax{
         $min = $x if $min > $x;
         $max = $x if $max < $x;
     }
-    return ($min, $max);
+    return ( $min, $max );
 
 }
 
-sub List::MoreUtils::all (&@){
+sub List::MoreUtils::all (&@) {
     my ( $code, @rest ) = @_;
     for (@rest) {
         return unless $code->($_);
     }
-    return  1;
+    return 1;
 }
-
 
 1;
