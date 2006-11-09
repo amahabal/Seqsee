@@ -13,6 +13,8 @@ our $LogString;                     # Generated log string. See log.cong
 our %PossibleFeatures;              # Possible features, to catch typos in -f option.
 our %Feature;                       # Features turned on from commandline with -f.
 our $Options_ref;                   # Global options, includes defaults, configs and commandline
+our @RealSequence;                  # The sequence in reality. Seqsee maybe unaware of several
+                                    # terms, in test mode.
 
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto);
 $LogString = '';

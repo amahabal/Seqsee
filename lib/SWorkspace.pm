@@ -82,12 +82,12 @@ sub init {
         # print "Inserting '$_'\n";
         _insert_element($_);
     }
-    @main::_real_seq = @seq;
+    @Global::RealSequence = @seq;
 }
 
 sub set_future_terms {
     my ( $package, @terms ) = @_;
-    push @main::_real_seq, @terms;
+    push @Global::RealSequence, @terms;
 }
 
 sub insert_elements {
@@ -130,7 +130,7 @@ multimethod _insert_element => ('SElement') => sub {
     $elt->set_edges( $elements_count, $elements_count );
     push( @elements, $elt );
     $elements_count++;
-    %::EXTENSION_REJECTED_BY_USER = ();
+    %Global::ExtensionRejectedByUser = ();
 };
 
 # method: read_object

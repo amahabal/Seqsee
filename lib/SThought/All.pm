@@ -121,7 +121,7 @@ use Compile::SThought;
                      BelieveDone();
                  } else {
                      main::update_display();
-                     my $rejected = join(", ", keys %::EXTENSION_REJECTED_BY_USER);
+                     my $rejected = join(", ", keys %Global::ExtensionRejectedByUser);
                      my $msg = "I think I am stuck. ";
                      $msg .= "You have already rejected $rejected as possible continuation(s)";
                      main::message($msg);

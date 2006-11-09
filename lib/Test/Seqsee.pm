@@ -329,12 +329,12 @@ NOLOG
                 unless ($ask_terms_count) {
                     die "ask_user_extension called with 0 terms!";
                 }
-                my $known_elements_count = scalar(@main::_real_seq);
+                my $known_elements_count = scalar(@Global::RealSequence);
                 unless ( $ws_count + $ask_terms_count <= $known_elements_count ) {
                     SErr::NotClairvoyant->new()->throw();
                 }
                 for my $i ( 0 .. $ask_terms_count - 1 ) {
-                    unless ( $main::_real_seq[ $ws_count + $i ] == $arr_ref->[$i] ) {
+                    unless ( $Global::RealSequence[ $ws_count + $i ] == $arr_ref->[$i] ) {
                         IncrementFailedRequests();
                         return;
                     }
