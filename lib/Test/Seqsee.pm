@@ -291,8 +291,6 @@ sub INITIALIZE_for_testing {
     $Global::TestingOptionsRef     = Seqsee::_read_config( seq => '0' );    # Random
     $Global::Steps_Finished        = 0;
     $Global::CurrentRunnableString = "";
-    Seqsee->initialize_codefamilies();
-    Seqsee->initialize_thoughttypes();
     Log::Log4perl::init( \<<'NOLOG');
 log4perl.logger                  = FATAL, file
 

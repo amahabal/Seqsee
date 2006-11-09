@@ -378,13 +378,13 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     }
 
     my @to_insert = ( $obj->get_direction() eq DIR::LEFT() ) ? reverse(@$obj) : @$obj;
-    my $loc = $start;
+    my $plonk_cursor = $start;
     my @new_parts;
 
-    for my $so (@to_insert) {
-        my $sspan = $so->get_span;
-        push @new_parts, plonk_into_place( $loc, DIR::RIGHT(), $so );
-        $loc += $sspan;
+    for my $subobject (@to_insert) {
+        my $subobjectspan = $subobject->get_span;
+        push @new_parts, plonk_into_place( $plonk_cursor, DIR::RIGHT(), $subobject );
+        $plonk_cursor += $subobjectspan;
     }
 
     @new_parts = reverse(@new_parts) if ( $obj->get_direction() eq DIR::LEFT() );
