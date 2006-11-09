@@ -7,9 +7,13 @@ use Carp;
 use Smart::Comments;
 
 use SLTM::Platonic;
+use SActivation;    # In order to use constnts defined there.
+
+our @PRECALCULATED = @SActivation::PRECALCULATED;
 
 our %MEMORY;                 # Just has the index into @MEMORY.
 our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
+our @ACTIVATIONS;            # Also 1-based, an array of SActivation objects.
 our $NodeCount;              # Number of nodes.
 our %_PURE_;                 # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
@@ -19,9 +23,10 @@ our %CurrentlyInstalling;    # We are currently installing these. Needed to dete
 
 # method Clear( $package:  )
 sub Clear {
-    %MEMORY    = ();
-    $NodeCount = 0;
-    @MEMORY    = ('!!!');    # Remember, its 1-based
+    %MEMORY      = ();
+    $NodeCount   = 0;
+    @MEMORY      = ('!!!');                   # Remember, its 1-based
+    @ACTIVATIONS = ( SActivation->new() );    # Remember, this, too, is 1-based
 }
 
 # method GetNodeCount( $package:  ) returns int
@@ -48,7 +53,8 @@ sub InsertNode {
     }
 
     $NodeCount++;
-    push @MEMORY, $pure;
+    push @MEMORY,      $pure;
+    push @ACTIVATIONS, SActivation->new();
     $MEMORY{$pure} = $NodeCount;
 
     ## Finished installing: $pure
@@ -73,11 +79,14 @@ sub Dump {
         open $filehandle, ">", $file;
     }
 
-    shift @MEMORY;    # Remember, its 1-based
-    for my $pure (@MEMORY) {
-        print $filehandle "=== ", ref($pure), "\n", $pure->serialize(), "\n";
+    for my $index ( 1 .. $NodeCount ) {
+        my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
+        my ( $significance, $stability )
+            = ( $activation->[SActivation::RAW_SIGNIFICANCE],
+            $activation->[SActivation::STABILITY] );
+        print {$filehandle} "=== ", ref($pure), " $significance $stability\n", $pure->serialize(),
+            "\n";
     }
-    unshift @MEMORY, '!!!';
     close $filehandle;
 }
 
@@ -93,12 +102,14 @@ sub Load {
         s#^\s*##;
         s#\s*$##;
         next if m#^$#;
-        my ( $type, $val ) = split( /\n/, $_, 2 );
+        my ( $type_and_sig, $val ) = split( /\n/, $_, 2 );
+        my ( $type, $significance, $stability ) = split( /\s/, $type_and_sig, 3 );
         ## type, val: $type, $val
         my $pure = $type->deserialize($val);
         ## pure: $pure
         confess qq{Could not find pure: type='$type', val='$val'} unless defined($pure);
-        InsertNode($pure);
+        my $index = InsertNode($pure);
+        SetSignificanceAndStabilityForIndex( $index, $significance, $stability );
     }
     ## nodes: @nodes
 
@@ -150,6 +161,51 @@ sub Load {
         ## string now: $str
         return decode($str);
     }
+}
+
+sub SetSignificanceAndStabilityForIndex {
+    my ( $index, $significance, $stability ) = @_;
+    my $activation_object = $ACTIVATIONS[$index];
+    $activation_object->[SActivation::RAW_SIGNIFICANCE] = $significance;
+    $activation_object->[SActivation::STABILITY]        = $stability;
+}
+
+sub SetRawActivationForIndex {
+    my ( $index, $activation ) = @_;
+    $ACTIVATIONS[$index]->[SActivation::RAW_ACTIVATION] = $activation;
+}
+
+*DecayAll = eval qq{
+    sub {
+        for ( \@ACTIVATIONS ) {
+            $SActivation::DECAY_CODE;
+        }
+    }
+};
+
+sub GetRawActivationsForIndices {
+    my ($index_ref) = @_;
+    return [ map { $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION] } @$index_ref ];
+}
+
+sub ChooseIndexGivenIndex {
+    my ($index_ref) = @_;
+    return SChoose->choose(
+        [ map { $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION] } @$index_ref ], $index_ref );
+}
+
+sub ChooseConceptGivenIndex {
+    return $MEMORY[ ChooseIndexGivenIndex( $_[0] ) ];
+}
+
+sub ChooseIndexGivenConcept {
+    my ($concept_ref) = @_;
+    my @indices = map { $MEMORY{$_} } @$concept_ref;
+    return ChooseIndexGivenIndex( \@indices );
+}
+
+sub ChooseConceptGivenConcept {
+    return $MEMORY[ ChooseIndexGivenConcept( $_[0] ) ];
 }
 
 # method GetRelated( $package: SNode $node ) returns @LTMNodes

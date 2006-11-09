@@ -9,6 +9,12 @@ use constant STABILITY        => 2;
 use constant TIME_STEPS       => 3;
 use constant REAL_ACTIVATION  => 4;
 
+my $RAW_ACTIVATION   = RAW_ACTIVATION();
+my $RAW_SIGNIFICANCE = RAW_SIGNIFICANCE();
+my $STABILITY        = STABILITY();
+my $TIME_STEPS       = TIME_STEPS();
+my $REAL_ACTIVATION  = REAL_ACTIVATION();
+
 sub GetRawActivation               { return $_[0]->[RAW_ACTIVATION]; }
 sub GetRawSignificance             { return $_[0]->[RAW_SIGNIFICANCE]; }
 sub GetStability                   { return $_[0]->[STABILITY]; }
@@ -25,24 +31,24 @@ sub new {
     bless [ 1, 1, 100, 100, $PRECALCULATED[2] ], $package;
 }
 
-our $DECAY_CODE = q{
-$_->[REAL_ACTIVATION] = $PRECALCULATED[ --$_->[RAW_ACTIVATION] + $_->[RAW_SIGNIFICANCE] ];
-$_->[RAW_ACTIVATION] ||= 1;
-unless ( --$_->[TIME_STEPS] ) {
-    --$_->[RAW_SIGNIFICANCE];
-    $_->[RAW_SIGNIFICANCE] ||= 1;
-    $_->[TIME_STEPS] = $_->[STABILITY];
+our $DECAY_CODE = qq{
+\$_->[$REAL_ACTIVATION] = \$PRECALCULATED[ --\$_->[$RAW_ACTIVATION] + \$_->[$RAW_SIGNIFICANCE] ];
+\$_->[$RAW_ACTIVATION] ||= 1;
+unless ( --\$_->[$TIME_STEPS] ) {
+    --\$_->[$RAW_SIGNIFICANCE];
+    \$_->[$RAW_SIGNIFICANCE] ||= 1;
+    \$_->[$TIME_STEPS] = \$_->[$STABILITY];
 }
 };
 
-our $SPIKE_CODE = q{
-$_->[RAW_ACTIVATION] += $spike;
-if ( $_->[RAW_ACTIVATION] > 100 ) {
-    $_->[RAW_ACTIVATION] = 100;
-    $_->[RAW_SIGNIFICANCE]++;
-    if ( $_->[RAW_SIGNIFICANCE] > 100 ) {
-        $_->[RAW_SIGNIFICANCE] = 100;
-        $_->[STABILITY]++;
+our $SPIKE_CODE = qq{
+\$_->[$RAW_ACTIVATION] += \$spike;
+if ( \$_->[$RAW_ACTIVATION] > 100 ) {
+    \$_->[$RAW_ACTIVATION] = 100;
+    \$_->[$RAW_SIGNIFICANCE]++;
+    if ( \$_->[$RAW_SIGNIFICANCE] > 100 ) {
+        \$_->[$RAW_SIGNIFICANCE] = 100;
+        \$_->[$STABILITY]++;
     }
 }
 };
