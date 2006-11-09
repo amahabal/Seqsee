@@ -1,7 +1,18 @@
-use Compile::ExpandVars;
-
 package SActivation;
+use strict;
+use warnings;
 use Carp;
+
+use constant RAW_ACTIVATION   => 0;
+use constant RAW_SIGNIFICANCE => 1;
+use constant STABILITY        => 2;
+use constant TIME_STEPS       => 3;
+use constant REAL_ACTIVATION  => 4;
+
+sub GetRawActivation               { return $_[0]->[RAW_ACTIVATION]; }
+sub GetRawSignificance             { return $_[0]->[RAW_SIGNIFICANCE]; }
+sub GetStability                   { return $_[0]->[STABILITY]; }
+sub GetTimeToDecrementSignificance { return $_[0]->[TIME_STEPS]; }
 
 my @PRECALCULATED;
 for ( 0 .. 200 ) {
@@ -14,57 +25,47 @@ sub new {
     bless [ 1, 1, 100, 100, $PRECALCULATED[2] ], $package;
 }
 
-<@:RAW_ACTIVATION 0:@>;
-<@:RAW_SIGNIFICANCE 1:@>;
-<@:STABILITY 2:@>;
-<@:TIME_STEPS 3:@>;
-<@:REAL_ACTIVATION 4:@>;
-
-<@:DECAY_CODE $_->[<@REAL_ACTIVATION@>] = $PRECALCULATED[ --$_->[<@RAW_ACTIVATION@>]
-                                                                + $_->[<@RAW_SIGNIFICANCE@>]
-                                                                ];
-$_->[<@RAW_ACTIVATION@>] ||= 1;
-unless ( --$_->[<@TIME_STEPS@>] ) {
-    --$_->[<@RAW_SIGNIFICANCE@>];
-    $_->[<@RAW_SIGNIFICANCE@>] ||= 1;
-    $_->[<@TIME_STEPS@>] = $_->[<@STABILITY@>];
+our $DECAY_CODE = q{
+$_->[REAL_ACTIVATION] = $PRECALCULATED[ --$_->[RAW_ACTIVATION] + $_->[RAW_SIGNIFICANCE] ];
+$_->[RAW_ACTIVATION] ||= 1;
+unless ( --$_->[TIME_STEPS] ) {
+    --$_->[RAW_SIGNIFICANCE];
+    $_->[RAW_SIGNIFICANCE] ||= 1;
+    $_->[TIME_STEPS] = $_->[STABILITY];
 }
-:@>;
+};
 
-<@:SPIKE_CODE $_->[<@RAW_ACTIVATION@>] += $spike;
-if ( $_->[<@RAW_ACTIVATION@>] > 100 ) {
-    $_->[<@RAW_ACTIVATION@>] = 100;
-    $_->[<@RAW_SIGNIFICANCE@>]++;
-    if ( $_->[<@RAW_SIGNIFICANCE@>] > 100 ) {
-        $_->[<@RAW_SIGNIFICANCE@>] = 100;
-        $_->[<@STABILITY@>]++;
+our $SPIKE_CODE = q{
+$_->[RAW_ACTIVATION] += $spike;
+if ( $_->[RAW_ACTIVATION] > 100 ) {
+    $_->[RAW_ACTIVATION] = 100;
+    $_->[RAW_SIGNIFICANCE]++;
+    if ( $_->[RAW_SIGNIFICANCE] > 100 ) {
+        $_->[RAW_SIGNIFICANCE] = 100;
+        $_->[STABILITY]++;
     }
 }
-:@>;
+};
 
-sub GetRawActivation               { return $_[0]->[<@RAW_ACTIVATION@>]; }
-sub GetRawSignificance             { return $_[0]->[<@RAW_SIGNIFICANCE@>]; }
-sub GetStability                   { return $_[0]->[<@STABILITY@>]; }
-sub GetTimeToDecrementSignificance { return $_[0]->[<@TIME_STEPS@>]; }
+*Decay = eval qq{sub {\$_ = \$_[0]; $DECAY_CODE }};
 
-sub Decay {
-    $_ = $_[0];
-    <@DECAY_CODE@>;
-}
-
-sub DecayMany {
-    @_ == 2 or confess "DecayMany needs 2 args";
-    my ( $arr_ref, $cnt ) = @_;
-    for my $i ( 1 .. $cnt ) {
-        $_ = $arr_ref->[$i];
-        <@DECAY_CODE@>;
+*DecayMany = eval qq{
+sub {
+    \@_ == 2 or confess "DecayMany needs 2 args";
+    my ( \$arr_ref, \$cnt ) = \@_;
+    for my \$i ( 1 .. \$cnt ) {
+        \$_ = \$arr_ref->[ \$i ];
+        $DECAY_CODE;
     }
-}
+    }
+};
 
-sub Spike {
-    my $spike;
-    ( $_, $spike ) = @_;
-    <@SPIKE_CODE@>;
+*Spike = eval qq{
+sub {
+    my \$spike;
+    ( \$_, \$spike ) = \@_;
+    $SPIKE_CODE
 }
+};
 
 1;
