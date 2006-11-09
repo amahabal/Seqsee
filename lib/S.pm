@@ -1,4 +1,6 @@
 package S;
+use strict;
+use warnings;
 
 use Global;
 
@@ -57,6 +59,7 @@ use SReln::Simple;
 use SReln::Compound;
 use SReln::Position;
 use SReln::MetoType;
+use SReln::Dir;
 use SRelnType::Compound;
 use SRelnType::Simple;
 use SThought;
@@ -85,9 +88,10 @@ our $DOUBLE = SMetonymType->new(
     }
 );
 
-our $cats_and_blemish_ref = [ $ascending, $descending, $mountain ];
-
 package DIR;
+use strict;
+use warnings;
+
 our $LEFT    = bless { text => 'left' },    'DIR';
 our $RIGHT   = bless { text => 'right' },   'DIR';
 our $UNKNOWN = bless { text => 'unknown' }, 'DIR';
@@ -139,11 +143,14 @@ sub serialize {
 
 sub deserialize {
     my ( $package, $str ) = @_;
-    no strict 'vars';
+    no strict 'refs';
     return ${$str};
 }
 
 package METO_MODE;
+use strict;
+use warnings;
+
 our $NONE      = bless { mode => 'NONE' },      'METO_MODE';
 our $SINGLE    = bless { mode => 'SINGLE' },    'METO_MODE';
 our $ALLBUTONE = bless { mode => 'ALLBUTONE' }, 'METO_MODE';
@@ -189,11 +196,13 @@ sub serialize {
 
 sub deserialize {
     my ( $package, $str ) = @_;
-    no strict 'vars';
+    no strict 'refs';
     return ${$str};
 }
 
 package EXTENDIBILE;
+use strict;
+use warnings;
 our $NO      = 0;
 our $PERHAPS = bless { mode => 'PERHAPS' }, 'EXTENDIBILE';
 our $UNKNOWN = bless { mode => 'UNKNOWN' }, 'EXTENDIBILE';
@@ -207,6 +216,8 @@ sub as_insertlist {
 }
 
 package RELN_SCHEME;
+use strict;
+use warnings;
 our $NONE = 0;
 our $CHAIN = bless { type => 'CHAIN' }, 'RELN_SCHEME';
 sub NONE  {$NONE}

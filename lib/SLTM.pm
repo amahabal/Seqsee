@@ -15,7 +15,7 @@ our %_PURE_;                 # List of pure classes: those that can be stored in
 our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
 
 %_PURE_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
-    SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType);
+    SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
 
 # method Clear( $package:  )
 sub Clear {

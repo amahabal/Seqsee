@@ -42,9 +42,6 @@ use base qw{SReln SInstance };
 use Smart::Comments;
 use List::Util qw(sum);
 
-multimethod 'apply_reln_direction';
-multimethod 'find_dir_reln';
-
 my %type_of : ATTR(:get<type>);          # The SRelnType::Compound object.
 my %first_of : ATTR( :get<first> );      # First object. Not necessarily the left.
 my %second_of : ATTR( :get<second> );    # Second object.
@@ -65,7 +62,7 @@ sub BUILD {
     $second_of{$id} = $opts_ref->{second};
 
     $opts_ref->{dir_reln}
-        = find_dir_reln( $first_of{$id}->get_direction(), $second_of{$id}->get_direction() );
+        = find_reln( $first_of{$id}->get_direction(), $second_of{$id}->get_direction() );
     $type_of{$id} = SRelnType::Compound->create($opts_ref);
 
     $self->add_history("Created");

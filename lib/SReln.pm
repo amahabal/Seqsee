@@ -32,7 +32,7 @@ sub BUILD{
     my ($f, $s) = ($opts_ref->{first}, $opts_ref->{second});
     if (ref($f) and ref($s)) {
         ## $opts_ref->{first}
-        $direction_reln_of{$id} = find_dir_reln( $f->get_direction, $s->get_direction());
+        $direction_reln_of{$id} = find_reln( $f->get_direction, $s->get_direction());
     } else {
         $direction_reln_of{$id} = "unknown";
     }
@@ -98,35 +98,5 @@ sub get_span{
     my ($la, $ra, $lb, $rb) = map { $_->get_edges() } $self->get_ends;
     return List::Util::max($ra, $rb) - List::Util::min($la, $lb) + 1;
 }
-
-multimethod find_dir_reln => ('DIR', 'DIR') => sub {
-    my ( $da, $db ) = @_;
-    if ($da eq DIR::RIGHT()) {
-        return ( $db eq DIR::RIGHT()) ? "same" :
-            ( $db eq DIR::LEFT()) ? "different" : "unknown";
-    } elsif ($da eq DIR::LEFT()) {
-        return ( $db eq DIR::RIGHT()) ? "different" :
-            ( $db eq DIR::LEFT()) ? "same" : "unknown";
-    } else {
-        return "unknown";
-    }
-};
-
-multimethod apply_reln_direction => ('$', 'DIR') => sub {
-    my ( $rel_dir, $dir ) = @_;
-    if ( $rel_dir eq 'unknown') {
-        return DIR::UNKNOWN();
-    }
-    if ($rel_dir eq 'same') {
-        return $dir;
-    }
-    if ($rel_dir eq 'different') {
-        return ($dir eq DIR::RIGHT()) ? DIR::LEFT() :
-            ( $dir eq DIR::LEFT()) ? DIR::RIGHT():
-                DIR::UNKNOWN();
-    }
-};
-
-
 
 1;

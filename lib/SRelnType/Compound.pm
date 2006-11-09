@@ -15,7 +15,7 @@ use Smart::Comments;
 use base qw{SRelnType};
 
 use Class::Multimethods;
-for (qw{apply_reln_direction}) {
+for (qw{apply_reln}) {
     multimethod $_;
 }
 
@@ -167,7 +167,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
 
     my $rel_dir = $reln->get_direction_reln;
     my $obj_dir = $object->get_direction;
-    my $new_dir = apply_reln_direction( $rel_dir, $obj_dir );
+    my $new_dir = apply_reln( $rel_dir, $obj_dir );
 
     $ret_obj->set_direction($new_dir);
     return $ret_obj;
