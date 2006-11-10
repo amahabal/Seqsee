@@ -22,18 +22,18 @@ sub create {
     my ( $map_closure, $grep_closure );
 
     my $map_fn = $opts_ref->{map};
-    if (defined $map_fn) {
+    if ( defined $map_fn ) {
         $map_needed = 1;
-        if ( UNIVERSAL::isa($map_fn, 'CODE') ) {
+        if ( UNIVERSAL::isa( $map_fn, 'CODE' ) ) {
             $map_closure = $map_fn;
             $map_fn      = q{$map_closure->($_)};
         }
     }
 
     my $grep_fn = $opts_ref->{grep};
-    if (defined $grep_fn) {
+    if ( defined $grep_fn ) {
         $grep_needed = 1;
-        if ( UNIVERSAL::isa($grep_fn, 'CODE') ) {
+        if ( UNIVERSAL::isa( $grep_fn, 'CODE' ) ) {
             $grep_closure = $grep_fn;
             $grep_fn      = q{$grep_closure->($_)};
         }
@@ -43,10 +43,10 @@ sub create {
 
     my $choosing_sub = q{ sub {
         my ( $objects_ref ) = @_;
-        return unless $objects_ref;
+        return unless @$objects_ref;
 
         my $likelihood;
-        my ( @likelihood_parial_sums, $likelihood_sum );
+        my ( $likelihood_sum, @likelihood_parial_sums) = (0);
 
         CHANGEABLE_PART;
 
@@ -65,7 +65,7 @@ sub create {
         }
     }; };
 
-    my $GREP_PREAMBLE  = q{ my(@grep_pass_array, $grep_pass_count); };
+    my $GREP_PREAMBLE  = q{ my($grep_pass_count, @grep_pass_array) = (0); };
     my $GREP_POSTAMBLE = q{
     if ( $grep_pass_count and not $likelihood_sum ) {
         my $random = rand() * $grep_pass_count;
@@ -96,14 +96,16 @@ sub create {
             push @likelihood_parial_sums, $likelihood_sum;
         }
       } . $GREP_POSTAMBLE;
-    } elsif ($map_needed and not $grep_needed) {
+    }
+    elsif ( $map_needed and not $grep_needed ) {
         $CHANGEABLE_PART = q{
          for (@$objects_ref) {
             $likelihood = MAP_CODE;
             $likelihood_sum += $likelihood;
             push @likelihood_parial_sums, $likelihood_sum;
         }};
-    } elsif ($grep_needed and not $map_needed) {
+    }
+    elsif ( $grep_needed and not $map_needed ) {
         $CHANGEABLE_PART = $GREP_PREAMBLE . q{
           for (@$objects_ref) {
             $likelihood = $_;
@@ -118,8 +120,9 @@ sub create {
             $likelihood_sum += $likelihood;
             push @likelihood_parial_sums, $likelihood_sum;
         }
-      } . $GREP_POSTAMBLE;        
-    } else { # neither map nor grep
+      } . $GREP_POSTAMBLE;
+    }
+    else {    # neither map nor grep
         $CHANGEABLE_PART = q{
          for (@$objects_ref) {
             $likelihood = $_;
@@ -145,89 +148,6 @@ sub create {
         confess $EVAL_ERROR;
     }
     return $ret;
-}
-
-# method: create
-# Creates a chooser, returns a sub ref
-#
-sub create_ {
-    my ( $package, $opts_ref ) = @_;
-    {
-        my $map_fn = $opts_ref->{map};
-        my $map_needed = $map_fn ? 1 : 0;
-
-        my $grep_fn = $opts_ref->{grep};
-        my $grep_needed = $grep_fn ? 1 : 0;
-
-        my $grep_count = $grep_needed ? 0 : 1;
-
-        return sub {
-            my ($objects_ref) = @_;
-            return unless @$objects_ref;
-
-            my ( @likelihood_sums, $likelihood_partial_sum );
-
-            if ($map_needed) {
-                for my $obj (@$objects_ref) {
-                    my $likelihood;
-                    if ( $grep_needed and !( $grep_fn->($obj) ) ) {
-                        $likelihood = 0;
-                    }
-                    else {
-                        $likelihood = $map_fn->($obj);
-                        $grep_count++;
-                    }
-                    $likelihood_partial_sum += $likelihood;
-                    push @likelihood_sums, $likelihood_partial_sum;
-                }
-            }
-            else {
-
-                # no map needed, could still need grep.
-                if ($grep_needed) {
-                    for my $obj (@$objects_ref) {
-                        my $likelihood;
-                        if ( $grep_fn->($obj) ) {
-                            $likelihood = $obj;
-                            $grep_count++;
-                        }
-                        else {
-                            $likelihood = 0;
-                        }
-                        $likelihood_partial_sum += $likelihood;
-                        push @likelihood_sums, $likelihood_partial_sum;
-                    }
-                }
-                else {
-
-                    # neither map, nor grep needed!
-                    for my $obj (@$objects_ref) {
-                        my $likelihood = $obj;
-                        $likelihood_partial_sum += $likelihood;
-                        push @likelihood_sums, $likelihood_partial_sum;
-                    }
-                }
-            }
-
-            unless ($grep_count) {    # nothing passed the grep!
-                return;
-            }
-
-            my $idx;
-            if ($likelihood_partial_sum) {
-                my $random = rand() * $likelihood_partial_sum;
-                $idx = -1;
-                for (@likelihood_sums) {
-                    $idx++;
-                    last if $_ >= $random;
-                }
-            }
-            else {
-                $idx = int( rand() * scalar(@likelihood_sums) );
-            }
-            return $objects_ref->[$idx];
-        };
-    }
 }
 
 # method: choose

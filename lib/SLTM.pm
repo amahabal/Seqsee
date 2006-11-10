@@ -188,24 +188,27 @@ sub GetRawActivationsForIndices {
     return [ map { $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION] } @$index_ref ];
 }
 
-sub ChooseIndexGivenIndex {
-    my ($index_ref) = @_;
-    return SChoose->choose(
-        [ map { $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION] } @$index_ref ], $index_ref );
-}
+{
+    my $chooser_given_indices
+        = SChoose->create( { map => q{$SLTM::ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION]} } );
+    my $chooser_given_concepts = SChoose->create(
+        { map => q{$SLTM::ACTIVATIONS[$SLTM::MEMORY{$_}]->[SActivation::REAL_ACTIVATION]} } );
 
-sub ChooseConceptGivenIndex {
-    return $MEMORY[ ChooseIndexGivenIndex( $_[0] ) ];
-}
+    sub ChooseIndexGivenIndex {
+        return $chooser_given_indices->( $_[0] );
+    }
 
-sub ChooseIndexGivenConcept {
-    my ($concept_ref) = @_;
-    my @indices = map { $MEMORY{$_} } @$concept_ref;
-    return ChooseIndexGivenIndex( \@indices );
-}
+    sub ChooseConceptGivenIndex {
+        return $MEMORY[ $chooser_given_indices->( $_[0] ) ];
+    }
 
-sub ChooseConceptGivenConcept {
-    return $MEMORY[ ChooseIndexGivenConcept( $_[0] ) ];
+    sub ChooseIndexGivenConcept {
+        return $MEMORY{ $chooser_given_concepts->( $_[0] ) };
+    }
+
+    sub ChooseConceptGivenConcept {
+        return $chooser_given_concepts->( $_[0] );
+    }
 }
 
 # method GetRelated( $package: SNode $node ) returns @LTMNodes
