@@ -156,7 +156,7 @@ sub init_display{
         "Tk"->require() or confess "Failed require Tk";
         "SGUI"->require() or confess "Failed require SGUI";
         import Tk;
-        SGUI::setup();
+        SGUI::setup($OPTIONS_ref);
         SGUI::Update();
         my $update_display_sub = sub { SGUI::Update(); };
         my $default_error_handler = sub {

@@ -177,8 +177,10 @@ sub _read_commandline{
                 "interactive!",
                 "max_steps=i", "n=i", # same option!
                 'f=s',
+                'gui_config=s', 'gui=s', # same option!
                     );
     $options{max_steps} ||= $options{n} if exists $options{n};
+    $options{gui_config} ||= $options{gui} if exists $options{gui};
     return %options;
 }
 
@@ -201,6 +203,8 @@ sub _read_config{
 
             UseScheduledThoughtProb ScheduledThoughtVanishProb
             DecayRate
+
+            gui_config
         }) {
         my $val 
             = exists($options{$_})        ? $options{$_} :

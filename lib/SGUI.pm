@@ -19,25 +19,13 @@ our $Workspace;
 our $Info;
 
 sub setup {
-    read_config 'config/GUI_classic.conf' => my %config;
+    my ($options_ref) = @_;
+    my $gui_config_name = $options_ref->{gui_config} or confess;
+    my $config_filename = "config/${gui_config_name}.conf";
+    read_config $config_filename => my %config;
     CreateWidgets( \%config );
     SetupButtons( \%config );
     SetupBindings( \%config );
-}
-
-sub Update {
-    $Coderack->Update();
-    $Stream->Update();
-    $Components->Update();
-    $Workspace->Update();
-    if ($SCoderack::LastSelectedRunnable) {
-        $SCoderack::LastSelectedRunnable->display_self($Info);
-        $Info->insert( '0.0', "Last Run Runnable:", "heading", "\n\n" );
-    }
-
-    #XXX why does this fail?
-    $Info->insert_autoTagged( 'end', $Global::LogString );
-    $MW->update();
 }
 
 sub tags_to_aref {
@@ -69,25 +57,6 @@ sub ask_seq {
         }
     );
 
-}
-
-sub CreateWidgets {
-    my ($config_ref) = @_;
-    $MW = new MainWindow();
-
-    my $frames_string = $config_ref->{frames}{frames} or confess;
-    my @lines = split qq{\n}, $frames_string;
-    for my $line (@lines) {
-        $line =~ s#^\s*##;
-        $line =~ s#\s*$##;
-        my ( $name, $parent, $widget_type, $position, @rest ) = split( /\s+/, $line );
-        ## In CreateWidgets: $name, $parent, $widget_type, $position, @rest
-        no strict;
-        my $widget
-            = ${$parent}->$widget_type( GetWidgetOptions( $widget_type, $config_ref, @rest ) )
-            ->pack( -side => $position );
-        ${$name} = $widget unless $name eq '_';
-    }
 }
 
 sub SetupButtons {
@@ -125,6 +94,33 @@ sub SetupBindings {
 
 {
     my %SeqseeWidgets = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace);
+    my %Updatable     = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace);
+    my @to_Update = ();
+
+    sub CreateWidgets {
+        my ($config_ref) = @_;
+
+        my $MW_options = $config_ref->{MainWindow} || {};
+        $MW = new MainWindow(%$MW_options);
+
+        my $frames_string = $config_ref->{frames}{frames} or confess;
+        my @lines = split qq{\n}, $frames_string;
+        for my $line (@lines) {
+            $line =~ s#^\s*##;
+            $line =~ s#\s*$##;
+            my ( $name, $parent, $widget_type, $position, @rest ) = split( /\s+/, $line );
+            ## In CreateWidgets: $name, $parent, $widget_type, $position, @rest
+            no strict;
+            my $widget
+                = ${$parent}->$widget_type( GetWidgetOptions( $widget_type, $config_ref, @rest ) );
+            $widget->pack( -side => $position ) unless $widget_type eq 'Toplevel';
+            ${$name} = $widget unless $name eq '_';
+
+            if ($Updatable{$widget_type}) {
+                push @to_Update, $widget;
+            }
+        }
+    }
 
     sub GetWidgetOptions {
         my ( $type, $config_ref, @rest ) = @_;
@@ -143,6 +139,22 @@ sub SetupBindings {
             return ( %extra_config, @rest );
         }
     }
+
+    sub Update {
+        for (@to_Update) {
+            $_->Update();
+        }
+
+        if ($SCoderack::LastSelectedRunnable) {
+            $SCoderack::LastSelectedRunnable->display_self($Info);
+            $Info->insert( '0.0', "Last Run Runnable:", "heading", "\n\n" );
+        }
+
+        #XXX why does this fail?
+        $Info->insert_autoTagged( 'end', $Global::LogString );
+        $MW->update();
+    }
+
 }
 
 1;
