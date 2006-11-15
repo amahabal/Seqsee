@@ -310,7 +310,6 @@ sub BelieveBlemish{
     }
 
     {
-        last;
         last unless $Global::Feature{interlaced};
         last unless $holey;
         my ( $l1, $r1, $l2, $r2 )
@@ -318,15 +317,22 @@ sub BelieveBlemish{
         my @gap                 = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
         my @intervening_objects = SWorkspace->get_intervening_objects(@gap);
         my $distance            = scalar(@intervening_objects);
+        last unless $distance;
 
-        if ( $distance == 1 ) {    # Cheat? create an ad hoc gp...
+        my $possible_ad_hoc_cat =  $S::AD_HOC->build( { parts_count => $distance + 1 } );
+        #main::message(Scalar::Util::refaddr($possible_ad_hoc_cat));
+        SLTM::InsertUnlessPresent($possible_ad_hoc_cat);
+        my $ad_hoc_activation = SLTM::SpikeBy(5/$distance, $possible_ad_hoc_cat);
+        #main::message("ad_hoc(dis => $distance) activation: $ad_hoc_activation");
+
+        if ( SUtil::toss($ad_hoc_activation) ) {
             my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
             my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
             if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
                 return;
             }
             SWorkspace->add_group($new_obj);
-            $new_obj->describe_as( $S::AD_HOC->build( { parts_count => 2 } ) );
+            $new_obj->describe_as( $possible_ad_hoc_cat );
 
             #main::message("The relation has a gap: @gap; distance = $distance");
 
@@ -378,15 +384,22 @@ sub BelieveBlemish{
         my @gap                 = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
         my @intervening_objects = SWorkspace->get_intervening_objects(@gap);
         my $distance            = scalar(@intervening_objects);
+        last unless $distance;
 
-        if ( $distance == 1 ) {    # Cheat? create an ad hoc gp...
+        my $possible_ad_hoc_cat =  $S::AD_HOC->build( { parts_count => $distance + 1 } );
+        #main::message(Scalar::Util::refaddr($possible_ad_hoc_cat));
+        SLTM::InsertUnlessPresent($possible_ad_hoc_cat);
+        my $ad_hoc_activation = SLTM::SpikeBy(5/$distance, $possible_ad_hoc_cat);
+        #main::message("ad_hoc(dis => $distance) activation: $ad_hoc_activation");
+
+        if ( SUtil::toss($ad_hoc_activation) ) {
             my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
             my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
             if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
                 return;
             }
             SWorkspace->add_group($new_obj);
-            $new_obj->describe_as( $S::AD_HOC->build( { parts_count => 2 } ) );
+            $new_obj->describe_as( $possible_ad_hoc_cat );
 
             #main::message("The relation has a gap: @gap; distance = $distance");
 

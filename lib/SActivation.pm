@@ -51,6 +51,7 @@ if ( \$_->[$RAW_ACTIVATION] > 100 ) {
         \$_->[$STABILITY]++;
     }
 }
+\$_->[$REAL_ACTIVATION] = \$PRECALCULATED[\$_->[$RAW_ACTIVATION] + \$_->[$RAW_SIGNIFICANCE]];
 };
 
 *Decay = eval qq{sub {\$_ = \$_[0]; $DECAY_CODE }};
@@ -70,7 +71,8 @@ sub {
 sub {
     my \$spike;
     ( \$_, \$spike ) = \@_;
-    $SPIKE_CODE
+    $SPIKE_CODE;
+    return \$_->[REAL_ACTIVATION];
 }
 };
 

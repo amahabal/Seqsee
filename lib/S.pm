@@ -69,6 +69,9 @@ use SWorkspace;
 use SCF::All;
 use SThought::All;
 
+use SActivation;
+use SLTM;
+
 # use SUtil;
 
 our $ASCENDING  = $SCat::ascending::ascending;

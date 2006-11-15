@@ -58,11 +58,13 @@ sub get_direction_reln       { return $type_of{ ident $_[0] }->get_direction_rel
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
 
-    $first_of{$id}  = $opts_ref->{first};
-    $second_of{$id} = $opts_ref->{second};
+    my $first  = $first_of{$id}  = $opts_ref->{first};
+    my $second = $second_of{$id} = $opts_ref->{second};
+    confess unless $first->isa('SObject');
+    confess unless $second->isa('SObject');
 
     $opts_ref->{dir_reln}
-        = find_reln( $first_of{$id}->get_direction(), $second_of{$id}->get_direction() );
+        = find_reln( $first->get_direction(), $second->get_direction() );
     $type_of{$id} = SRelnType::Compound->create($opts_ref);
 
     $self->add_history("Created");

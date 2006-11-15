@@ -21,6 +21,8 @@ our %CurrentlyInstalling;    # We are currently installing these. Needed to dete
 %_PURE_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
 
+Clear();
+
 # method Clear( $package:  )
 sub Clear {
     %MEMORY      = ();
@@ -41,6 +43,8 @@ sub GetMemoryIndex {
     return $MEMORY{$pure} ||= InsertNode($pure);
 }
 
+*InsertUnlessPresent = *GetMemoryIndex;
+
 sub InsertNode {
     ### ensure: $_[0] ne "SLTM"
     ### ensure: $_[0] and $_PURE_{ref($_[0])}
@@ -54,7 +58,9 @@ sub InsertNode {
 
     $NodeCount++;
     push @MEMORY,      $pure;
+    ## ACTIVATIONS: @ACTIVATIONS
     push @ACTIVATIONS, SActivation->new();
+    ## ACTIVATIONS NOW: @ACTIVATIONS
     $MEMORY{$pure} = $NodeCount;
 
     ## Finished installing: $pure
@@ -174,6 +180,14 @@ sub SetRawActivationForIndex {
     my ( $index, $activation ) = @_;
     $ACTIVATIONS[$index]->[SActivation::RAW_ACTIVATION] = $activation;
 }
+
+sub SpikeBy{
+    my ( $amount, $concept) = @_;
+    ## Mem index: GetMemoryIndex($concept)
+    ## @ACTIVATIONS: @ACTIVATIONS
+    $ACTIVATIONS[ GetMemoryIndex($concept) ]->Spike(int($amount));
+}
+
 
 *DecayAll = eval qq{
     sub {
