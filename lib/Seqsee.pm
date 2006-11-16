@@ -1,4 +1,5 @@
 package Seqsee;
+use strict;
 use S;
 use version; our $VERSION = version->new( "0.0.3" );
 
@@ -24,7 +25,7 @@ sub do_background_activity{
     SCoderack->add_codelet( SCodelet->new( "Reader",
                                            50, {}
                                                ));
-
+    SLTM::DecayAll() unless $Global::Steps_Finished % 10;
 }
 sub already_rejected_by_user{
     my ( $aref ) = @_;

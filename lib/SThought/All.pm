@@ -325,8 +325,10 @@ sub BelieveBlemish{
         my $ad_hoc_activation = SLTM::SpikeBy(5/$distance, $possible_ad_hoc_cat);
         #main::message("ad_hoc(dis => $distance) activation: $ad_hoc_activation");
 
-        if ( SUtil::toss($ad_hoc_activation) ) {
-            my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
+        if ( SUtil::significant($ad_hoc_activation) and SUtil::toss($ad_hoc_activation) ) {
+            my @ends = sort { $a->get_left_edge() <=> $b->get_left_edge()} ($core->get_ends());
+            # XXX(Board-it-up): [2006/11/16] Mysteriously, the next line fails.
+            #            my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
             my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
             if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
                 return;
@@ -392,7 +394,7 @@ sub BelieveBlemish{
         my $ad_hoc_activation = SLTM::SpikeBy(5/$distance, $possible_ad_hoc_cat);
         #main::message("ad_hoc(dis => $distance) activation: $ad_hoc_activation");
 
-        if ( SUtil::toss($ad_hoc_activation) ) {
+        if ( SUtil::significant($ad_hoc_activation) and SUtil::toss($ad_hoc_activation) ) {
             my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
             my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
             if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {

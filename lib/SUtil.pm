@@ -232,4 +232,11 @@ sub List::MoreUtils::all (&@) {
     return 1;
 }
 
+sub significant {
+    my ($x) = @_;
+
+    # XXX(Board-it-up): [2006/11/16] should be configurable
+    return ( $x > 0.7 ) ? 1 : 0;
+}
+
 1;

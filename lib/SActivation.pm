@@ -20,7 +20,7 @@ sub GetRawSignificance             { return $_[0]->[RAW_SIGNIFICANCE]; }
 sub GetStability                   { return $_[0]->[STABILITY]; }
 sub GetTimeToDecrementSignificance { return $_[0]->[TIME_STEPS]; }
 
-my @PRECALCULATED;
+our @PRECALCULATED;
 for ( 0 .. 200 ) {
     $PRECALCULATED[$_] = 0.4815 + 0.342 * atan2( 12 * ( $_ / 100 - 0.5 ), 1 );    # change!
 }

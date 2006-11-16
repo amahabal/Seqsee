@@ -188,13 +188,15 @@ sub SpikeBy {
     $ACTIVATIONS[ GetMemoryIndex($concept) ]->Spike( int($amount) );
 }
 
-*DecayAll = eval qq{
+my $DecayString = qq{
     sub {
         for ( \@ACTIVATIONS ) {
             $SActivation::DECAY_CODE;
         }
     }
 };
+
+*DecayAll = eval $DecayString;
 
 sub GetRawActivationsForIndices {
     my ($index_ref) = @_;
