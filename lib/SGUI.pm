@@ -9,6 +9,7 @@ use Tk::SStream;
 use Tk::SComponents;
 use Tk::SInfo;
 use Tk::SWorkspace;
+use Tk::SActivation;
 use Smart::Comments;
 
 our $MW;
@@ -17,6 +18,7 @@ our $Stream;
 our $Components;
 our $Workspace;
 our $Info;
+our $Activations;
 
 sub setup {
     my ($options_ref) = @_;
@@ -65,6 +67,7 @@ sub SetupButtons {
     my $parent_name = $config_ref->{frames}{buttons_widget} or confess;
     my $parent;
     { no strict; $parent = ${$parent_name}; }
+    ## parent: $parent_name, $parent
 
     my $button_order = $config_ref->{frames}{button_order} or confess;
     my @buttons_names = map { s#^\s*##; s#\s*$##; s#\s+# #g; $_ } split( qq{\n}, $button_order );
@@ -93,8 +96,9 @@ sub SetupBindings {
 }
 
 {
-    my %SeqseeWidgets = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace);
-    my %Updatable     = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace);
+    my %SeqseeWidgets
+        = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace SActivation);
+    my %Updatable = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace SActivation);
     my @to_Update = ();
 
     sub CreateWidgets {
@@ -116,7 +120,7 @@ sub SetupBindings {
             $widget->pack( -side => $position ) unless $widget_type eq 'Toplevel';
             ${$name} = $widget unless $name eq '_';
 
-            if ($Updatable{$widget_type}) {
+            if ( $Updatable{$widget_type} ) {
                 push @to_Update, $widget;
             }
         }
@@ -125,7 +129,8 @@ sub SetupBindings {
     sub GetWidgetOptions {
         my ( $type, $config_ref, @rest ) = @_;
         if ( exists $SeqseeWidgets{$type} ) {
-            my %ret = %{ $config_ref->{$type} } or confess;
+            exists( $config_ref->{$type} ) or confess "Missing config for $type";
+            my %ret         = %{ $config_ref->{$type} };
             my $tags_config = $config_ref->{ $type . '_tags' };
             if ( defined $tags_config ) {
                 $ret{'-tags_provided'} = tags_to_aref($tags_config);

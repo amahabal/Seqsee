@@ -57,7 +57,7 @@ sub InsertNode {
     }
 
     $NodeCount++;
-    push @MEMORY,      $pure;
+    push @MEMORY, $pure;
     ## ACTIVATIONS: @ACTIVATIONS
     push @ACTIVATIONS, SActivation->new();
     ## ACTIVATIONS NOW: @ACTIVATIONS
@@ -181,13 +181,12 @@ sub SetRawActivationForIndex {
     $ACTIVATIONS[$index]->[SActivation::RAW_ACTIVATION] = $activation;
 }
 
-sub SpikeBy{
-    my ( $amount, $concept) = @_;
+sub SpikeBy {
+    my ( $amount, $concept ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    $ACTIVATIONS[ GetMemoryIndex($concept) ]->Spike(int($amount));
+    $ACTIVATIONS[ GetMemoryIndex($concept) ]->Spike( int($amount) );
 }
-
 
 *DecayAll = eval qq{
     sub {
@@ -232,5 +231,13 @@ sub GetRawActivationsForIndices {
 # multi method GetMemoryActions( SElement $e )
 # multi method GetMemoryActions( SAnchored $o )
 # multi method GetMemoryActions( SReln $r )
+
+# XXX(Board-it-up): [2006/11/15] dummy function
+sub GetTopConcepts {
+    my ($N) = @_;
+    return
+        map { [ $MEMORY[$_], $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION] ] }
+        ( 1 .. $NodeCount );
+}
 
 1;

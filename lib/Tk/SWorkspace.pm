@@ -1,5 +1,7 @@
 package Tk::SWorkspace;
 use strict;
+use warnings;
+use Carp;
 use Config::Std;
 use Smart::Comments;
 use Tk::widgets qw{Canvas};
@@ -37,12 +39,15 @@ Construct Tk::Widget 'SWorkspace';
 
 sub Populate{
     my ( $self, $args ) = @_;
+    ### $args: $args
     my $element_choices = delete $args->{-element_choices};
     $canvas = $self;
-    $Height = $canvas->cget('height');
-    $Width  = $canvas->cget('width');
+    $Height = $args->{'-height'} or confess;
+    $Width  = $args->{'-width'} or confess;
 
+    #    $self->SUPER::Populate($args);
     $eff_width  = $Width - 2 * $Margin;
+    ### eff_width: $eff_width
     $eff_height = $Height - 2 * $Margin;
     $group_space_offset = $Margin + 0.2 * $eff_height;
     $group_space_height = $eff_height * 0.8;
@@ -85,7 +90,7 @@ sub Update{
 
 sub draw_elements{
     my $elements_count = $SWorkspace::elements_count;
-    $space_per_elem = $eff_width / ( $elements_count + 2);
+    $space_per_elem = $eff_width / ( $elements_count + 1);
     ## $space_per_elem
     ## $Margin
     
