@@ -129,6 +129,7 @@ sub create {
     }
 
     if ( $direction eq DIR::NEITHER() or $direction eq DIR::UNKNOWN() ) {
+
         # SErr->throw("Funny object creation attempted");
         return;
     }

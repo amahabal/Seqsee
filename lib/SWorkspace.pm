@@ -35,7 +35,7 @@ our $ReadHead = 0;
 
 # variable: %relations
 our %relations;
-our %relations_by_ends; # keys: end1;end2 value:1 if a relation present.
+our %relations_by_ends;    # keys: end1;end2 value:1 if a relation present.
 
 #XXX needs to be filled
 our %POLICY = (
@@ -208,21 +208,21 @@ sub _saccade {
 #
 sub add_reln {
     my ( $package, $reln ) = @_;
-    my ($f, $s) = $reln->get_ends();
-    my $key = join(';', $f, $s);
+    my ( $f,       $s )    = $reln->get_ends();
+    my $key = join( ';', $f, $s );
     return if exists $relations_by_ends{$key};
 
     #my $key_r = join(';', $s, $f);
     #confess 'reverse relation exists!' if exists $relations_by_ends{$key_r};
 
     $relations_by_ends{$key} = 1;
-    $relations{$reln} = $reln;
+    $relations{$reln}        = $reln;
 }
 
 sub remove_reln {
     my ( $package, $reln ) = @_;
 
-    my $key = join(';', $reln->get_ends());
+    my $key = join( ';', $reln->get_ends() );
     delete $relations_by_ends{$key};
 
     delete $relations{$reln};
@@ -246,6 +246,15 @@ sub get_all_covering_groups {
     return grep {
         my ( $l, $r ) = $_->get_edges;
         $l <= $left and $r >= $right
+    } values %groups;
+}
+
+sub get_all_groups_within {
+    my ( $self, $left, $right ) = @_;
+
+    return grep {
+        my ( $l, $r ) = $_->get_edges;
+        $left <= $l and $r <= $right
     } values %groups;
 }
 
@@ -282,6 +291,34 @@ sub get_longest_non_adhoc_object_starting_at {
     # Getting here means no group. Return the element.
     return $elements[$left];
 }
+
+sub AreGroupsInConflict {
+    my ( $package, $A, $B ) = @_;
+    return 0 if $A eq $B;
+
+    # The only way they can be consistent is if $smaller is part of $bigger, immediately or otherwise.
+    my ($smaller, $bigger) = sort { $a->get_span() <=> $b->get_span() } ($A, $B);
+
+    return 0 unless $bigger->spans($smaller); # obvious case.
+    my ($smaller_left_edge, $smaller_right_edge) = $smaller->get_edges();
+    for my $piece_of_bigger (@$bigger) {
+        my ($piece_left_edge, $piece_right_edge) = $piece_of_bigger->get_edges();
+        next if $piece_right_edge < $smaller_left_edge; # piece too early within bigger. Look ahead.
+        # If we are here, the current piece must be $smaller, or have $smaller as part.
+        return $package->AreGroupsInConflict($smaller, $piece_of_bigger);
+    }
+    confess "Why am I here?";
+}
+
+sub FindGroupsConflictingWith{
+    my ( $package, $object ) = @_;
+    my ( $l, $r ) = $object->get_edges();
+    return grep { SWorkspace->AreGroupsInConflict( $object, $_ ) } (
+        SWorkspace->get_all_covering_groups( $l, $r ),
+        SWorkspace->get_all_groups_within( $l, $r )
+    );
+}
+
 
 # XXX(Board-it-up): [2006/09/27] Need tests. Really.
 sub get_intervening_objects {
