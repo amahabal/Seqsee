@@ -263,17 +263,40 @@ use Compile::SCF;
     if ($reln = $a->get_relation($b)) {
         # No need to create another.
         # But you may care to think about it some more
+        spike_reln_type($reln);
         ContinueWith(SThought->create($reln));
     }
 
     ## Running FindIfRelated: $a, $b
     $reln = find_reln( $a, $b ) or return;
+
+    my $type_activation = spike_reln_type($reln);
+    return unless (SUtil::toss($type_activation));
+
     $reln->add_history("Found relation!");
 
     # So a relation has been found
     $reln->insert;
     ContinueWith(SThought->create($reln));
 </run>
+
+sub spike_reln_type{
+    my ( $reln ) = @_;
+    return 1 unless $Global::Feature{relnact};
+    my $reln_type = $reln->get_type();
+    SLTM::InsertUnlessPresent($reln_type);
+
+    my ( $l1, $r1, $l2, $r2 )
+            = map { $_->get_edges() } ( $reln->get_first(), $reln->get_second() );
+    #print "$l1, $r1, $l2, $r2\n";
+    my $gap_size =  List::Util::max( $l1, $l2 ) - List::Util::min( $r1, $r2 );
+    #print "Gapsize: $gap_size\n";
+    return if $gap_size <=0; # Bacuase overlapping relation, anyway
+    my $extra_boost = ($reln->isa('SReln::Compound')) ? 10 : 3;
+    my $type_activation = SLTM::SpikeBy($extra_boost + int(10/$gap_size), $reln_type);
+    return $type_activation;
+}
+
 
 no Compile::SCF;
 #####################################

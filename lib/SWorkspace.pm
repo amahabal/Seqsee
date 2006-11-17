@@ -212,8 +212,8 @@ sub add_reln {
     my $key = join(';', $f, $s);
     return if exists $relations_by_ends{$key};
 
-    my $key_r = join(';', $s, $f);
-    confess 'reverse relation exists!' if exists $relations_by_ends{$key_r};
+    #my $key_r = join(';', $s, $f);
+    #confess 'reverse relation exists!' if exists $relations_by_ends{$key_r};
 
     $relations_by_ends{$key} = 1;
     $relations{$reln} = $reln;

@@ -32,7 +32,7 @@ my %reln_scheme_of : ATTR( :get<reln_scheme> :set<reln_scheme>  );     # See S::
 # variable: %reln_other_of
 # XXX(Assumption): [2006/09/16] Only a single reln between two objects possible
 # this way.
-my %reln_other_of : ATTR(:get<reln_other_ref>);
+my %reln_other_of : ATTR();
 
 # variable: %underlying_reln_of
 #    is the group based on some relation? undef if not, the relation otherwise
@@ -722,14 +722,12 @@ sub _get_other_end_of_reln {
 #
 #
 sub add_reln {
-    my ( $self, $reln, $force ) = @_;
+    my ( $self, $reln ) = @_;
     my $id    = ident $self;
     my $other = $self->_get_other_end_of_reln($reln);
 
-    if ( exists( $reln_other_of{$id}{$other} ) and not($force) ) {
+    if ( exists( $reln_other_of{$id}{$other} ) ) {
         SErr->throw("duplicate reln being added");
-
-        #return;
     }
     $self->add_history( "added reln to " . $other->get_bounds_string );
     $reln_other_of{$id}{$other} = $reln;

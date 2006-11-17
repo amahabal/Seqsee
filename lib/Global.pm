@@ -16,7 +16,7 @@ our $Options_ref;                   # Global options, includes defaults, configs
 our @RealSequence;                  # The sequence in reality. Seqsee maybe unaware of several
                                     # terms, in test mode.
 
-%PossibleFeatures = map { $_ => 1 } qw(interlaced meto);
+%PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact);
 $LogString = '';
 
 sub clear {

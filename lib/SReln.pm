@@ -10,6 +10,7 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{SHistory SFasc};
+use English qw(-no_match_vars);
 
 use Class::Std;
 my %direction_reln_of : ATTR( :get<direction_reln> :set<direction_reln>  );
@@ -64,7 +65,14 @@ sub insert{
     my $reln = $f->get_relation($s);
     $reln->uninsert() if $reln;
 
-    if (SWorkspace->add_reln($self)) {
+    my $add_success = eval { SWorkspace->add_reln($self) };
+    if ($EVAL_ERROR) {
+        print $EVAL_ERROR, "\n";
+        ### f, s, $reln: $f, $s, $reln
+        exit;
+    }
+
+    if ($add_success) {
         for ($f, $s) {
             $_->add_reln($self);
         }

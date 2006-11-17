@@ -247,6 +247,11 @@ sub as_insertlist {
     confess "Verbosity $verbosity not implemented for " . ref $self;
 }
 
+multimethod are_relns_compatible => qw(SReln SReln) => sub {
+    return; #we are here if one is simple, the other compound.
+};
+
+
 multimethod are_relns_compatible => qw(SReln::Compound SReln::Compound) => sub {
     my ( $a, $b ) = @_;
     return $a->get_type() eq $b->get_type();

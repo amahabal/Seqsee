@@ -78,5 +78,10 @@ sub deserialize {
     return ${$str};
 }
 
+sub as_text {
+    my ($self) = @_;
+    return "Dir " . $string_of{ident $self};
+}
+
 1;
 
