@@ -35,6 +35,7 @@ our $ReadHead = 0;
 
 # variable: %relations
 our %relations;
+our %relations_by_ends; # keys: end1;end2 value:1 if a relation present.
 
 #XXX needs to be filled
 our %POLICY = (
@@ -207,15 +208,23 @@ sub _saccade {
 #
 sub add_reln {
     my ( $package, $reln ) = @_;
-    SErr->throw("policy violation in reln add")
-        unless _check_policy( 'rel_add', $reln );
+    my ($f, $s) = $reln->get_ends();
+    my $key = join(';', $f, $s);
+    return if exists $relations_by_ends{$key};
+
+    my $key_r = join(';', $s, $f);
+    confess 'reverse relation exists!' if exists $relations_by_ends{$key_r};
+
+    $relations_by_ends{$key} = 1;
     $relations{$reln} = $reln;
 }
 
 sub remove_reln {
     my ( $package, $reln ) = @_;
-    SErr->throw("policy violation in rel_rem")
-        unless _check_policy( 'rel_rem', $reln );
+
+    my $key = join(';', $reln->get_ends());
+    delete $relations_by_ends{$key};
+
     delete $relations{$reln};
 }
 

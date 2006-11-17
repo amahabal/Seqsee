@@ -64,9 +64,10 @@ sub insert{
     my $reln = $f->get_relation($s);
     $reln->uninsert() if $reln;
 
-    SWorkspace->add_reln($self);
-    for ($self->get_ends) {
-        $_->add_reln($self);
+    if (SWorkspace->add_reln($self)) {
+        for ($f, $s) {
+            $_->add_reln($self);
+        }
     }
 
     $self->UpdateStrength();
