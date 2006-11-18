@@ -100,7 +100,7 @@ ok( $WSO_gb->get_right_extendibility() == EXTENDIBILE::NO(), );
 
 # More plonk_into_place stuff
 SUtil::clear_all();
-SWorkspace->init({seq => [qw( 1 1 1 7 8 9 1 1 )]});
+SWorkspace->init({seq => [qw( 1 1 1 7 8 9 1 1 7 8 9)]});
 $WSO_o1 = $S::ASCENDING->build({ start => 7, end => 9});
 
 my $plonked = plonk_into_place( 3, DIR::RIGHT(), $WSO_o1 );
@@ -111,12 +111,12 @@ ok( $SWorkspace::elements[3]->get_relation($SWorkspace::elements[4]), );
 my $WSO_o2 = $S::DESCENDING->build({ start => 9, end => 7});
 $WSO_o2->set_direction(DIR::LEFT());
 
-my $plonked2 = plonk_into_place( 5, DIR::LEFT(), $WSO_o2 );
+my $plonked2 = plonk_into_place( 10, DIR::LEFT(), $WSO_o2 );
 isa_ok( $plonked2, "SAnchored");
 $plonked2->structure_ok([9,8,7]);
 
 ok( $plonked eq plonk_into_place(5, DIR::LEFT(), $WSO_o1), );
-ok( $plonked2 eq plonk_into_place(3, DIR::RIGHT(), $WSO_o2), );
+ok( $plonked2 eq plonk_into_place(8, DIR::RIGHT(), $WSO_o2), );
 
 SUtil::clear_all();
 SWorkspace->init({seq => [qw( 7 1 1 2 2 3 3 7)]});

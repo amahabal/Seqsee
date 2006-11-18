@@ -13,6 +13,7 @@ use Class::Std;
 use Class::Multimethods;
 use base qw{};
 use Smart::Comments;
+use English qw(-no_match_vars);
 
 our %StateCount_of : ATTR;                   # How many states?
 our %TransitionFunction_of : ATTR;           # state->state
@@ -152,7 +153,13 @@ sub AttemptApplication {
         my $ruleapp = $self->CreateApplication( { start => $start, state => $start_state } );
         return $ruleapp if ($terms == 1);
         ## ruleapp: $ruleapp
-        if ( $ruleapp->ExtendRight( $terms - 1 ) ) {
+        my $extension_works = eval { $ruleapp->ExtendRight( $terms - 1) };
+        if (my $e = $EVAL_ERROR) {
+            die $e unless UNIVERSAL::isa($e, 'SErr::ConflictingGroups');
+            # XXX(Board-it-up): [2006/11/17] I should use this info!
+            $extension_works = 0;
+        }
+        if ( $extension_works ) {
             return $ruleapp;
         }
     }

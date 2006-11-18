@@ -134,6 +134,7 @@ $ruleapp5 = $rule4->AttemptApplication(
 is_deeply( $ruleapp5->GetItems(), [ @groups[ 0 .. 4 ] ], q{Items, ruleapp5} );
 is_deeply( $ruleapp5->GetStates(), [ 0, 1, 0, 1, 0 ] );
 
+
 my $ruleapp6 = $rule4->AttemptApplication(
     {   start => $groups[1],
         terms => 5,

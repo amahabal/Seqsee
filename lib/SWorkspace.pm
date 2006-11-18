@@ -292,33 +292,43 @@ sub get_longest_non_adhoc_object_starting_at {
     return $elements[$left];
 }
 
-sub AreGroupsInConflict {
+sub AreGroupsInConflict{
     my ( $package, $A, $B ) = @_;
     return 0 if $A eq $B;
 
-    # The only way they can be consistent is if $smaller is part of $bigger, immediately or otherwise.
-    my ($smaller, $bigger) = sort { $a->get_span() <=> $b->get_span() } ($A, $B);
+    my ( $smaller, $bigger ) = sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
+    return 0 unless $bigger->spans($smaller);    # obvious case.
+    return $package->AreGroupsInConflict_helper($smaller, $bigger);
+}
 
-    return 0 unless $bigger->spans($smaller); # obvious case.
-    my ($smaller_left_edge, $smaller_right_edge) = $smaller->get_edges();
+
+sub AreGroupsInConflict_helper {
+    my ( $package, $smaller, $bigger ) = @_;
+    return 0 if $smaller eq $bigger;
+    return 1 unless $bigger->spans($smaller);
+
+    my ( $smaller_left_edge, $smaller_right_edge ) = $smaller->get_edges();
     for my $piece_of_bigger (@$bigger) {
-        my ($piece_left_edge, $piece_right_edge) = $piece_of_bigger->get_edges();
+        my ( $piece_left_edge, $piece_right_edge ) = $piece_of_bigger->get_edges();
         next if $piece_right_edge < $smaller_left_edge; # piece too early within bigger. Look ahead.
-        # If we are here, the current piece must be $smaller, or have $smaller as part.
-        return $package->AreGroupsInConflict($smaller, $piece_of_bigger);
+        ## If we are here, the current piece must be $smaller, or have $smaller as part.
+        return $package->AreGroupsInConflict_helper( $smaller, $piece_of_bigger );
     }
     confess "Why am I here?";
 }
 
-sub FindGroupsConflictingWith{
+sub FindGroupsConflictingWith {
     my ( $package, $object ) = @_;
-    my ( $l, $r ) = $object->get_edges();
-    return grep { SWorkspace->AreGroupsInConflict( $object, $_ ) } (
+    my ( $l,       $r )      = $object->get_edges();
+    my @conflicting = grep { 
+        ## Conflict check: ident($object), $object->get_bounds_string(), ident($_), $_->get_bounds_string()
+        SWorkspace->AreGroupsInConflict( $object, $_ ) } (
         SWorkspace->get_all_covering_groups( $l, $r ),
         SWorkspace->get_all_groups_within( $l, $r )
     );
+    ## @conflicting: @conflicting
+    return @conflicting;
 }
-
 
 # XXX(Board-it-up): [2006/09/27] Need tests. Really.
 sub get_intervening_objects {
@@ -339,9 +349,8 @@ sub get_intervening_objects {
 
 sub add_group {
     my ( $self, $gp ) = @_;
-    SErr->throw("policy violation in gp add")
-        unless _check_policy( 'gp_add', $gp );
-    ## $gp
+    my @conflicting = SWorkspace->FindGroupsConflictingWith($gp);
+    SErr::ConflictingGroups->throw(conflicts => \@conflicting) if @conflicting;
     $groups{$gp} = $gp;
 }
 
@@ -441,7 +450,8 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     my $old_obj;
     ## $new_obj_structure_string
     for my $spanning_obj ( SWorkspace->get_all_covering_groups( $start, $start + $span - 1 ) ) {
-        ## $spanning_obj
+        ## $spanning_obj: $spanning_obj->get_structure_string()
+        ## new_obj_structure_string: $new_obj_structure_string
         if ( $spanning_obj->get_structure_string() eq $new_obj_structure_string ) {
             $old_obj = $spanning_obj;
             ## $old_obj

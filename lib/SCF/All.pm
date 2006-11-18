@@ -183,16 +183,18 @@ use Compile::SCF;
 
 
         if ($type eq "object") {
-            my $core_object_ref = $core->get_parts_ref();
+            #my $core_object_ref = $core->get_parts_ref();
             if ($direction eq $direction_of_core) {
-                push @$core_object_ref, $wso;
+                #push @$core_object_ref, $wso;
+                $core->Extend($wso, 1);
             } else {
-                unshift @$core_object_ref, $wso;
+                $core->Extend($wso, 0);
+                #unshift @$core_object_ref, $wso;
             }
-            $core->recalculate_edges();
-            $core->recalculate_categories();
-            $core->recalculate_relations();
-            $core->UpdateStrength();
+            #$core->recalculate_edges();
+            #$core->recalculate_categories();
+            #$core->recalculate_relations();
+            #$core->UpdateStrength();
             ## HERE
             ContinueWith( SThought::AreWeDone->new({group => $core}) );
         }

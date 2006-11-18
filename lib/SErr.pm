@@ -8,6 +8,8 @@ use Exception::Class (
     'SErr::Att::Missing'       => { fields => ['what'] },
     'SErr::Att::Extra'         => { fields => ['what'] },
 
+    'SErr::ConflictingGroups' => { fields => ['conflicts']},
+
     'SErr::Code' => {},
 
     'SErr::ProgOver' => {},
