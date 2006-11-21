@@ -1,27 +1,7 @@
-\documentclass[oldfontcommands]{memoir}
-\usepackage{chicago}
+\documentclass{memoir}
+\makeindex[sequences]
+\usepackage{natbib}
 
-% The next few lines are needed because Chicago and memoir redine thebibliography environment in
-% conflicting ways. Here I merge the two definitions (so I get chicago like layout and also an
-% entry in the toc
-\makeatletter
-\renewenvironment{thebibliography}[1]{\chapter*{\bibname\@mkboth
-   {\uppercase{\bibname}}{\uppercase{\bibname}}}
-    \phantomsection
-    \addcontentsline{toc}{chapter}{\bibname}\prebibhook
-  \list
-   {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}
-   \leftmargin\labelwidth
-   \advance\leftmargin\labelsep
-   \advance\leftmargin\bibindent
-   \itemindent -\bibindent
-   \listparindent \itemindent
-   \parsep \z@
-   \usecounter{enumi}}
-   \def\newblock{}
-   \sloppy
-   \sfcode`\.=1000\relax}{\endlist\postbibhook}
-\makeatother
 
 \renewcommand{\maketitlehookc}{\begin{center} Some stuff \end{center}}
 \newcommand{\myepigraph}[3]{\epigraph{#1}{\textit{#2}\\ \textsc{#3}}}
@@ -30,9 +10,6 @@
 \newcommand{\sequenceIndexPageFont}[1]{{\textit #1}}
 \newcommand{\sequence}[1]{{\ensuremath #1\ldots}\index[sequences]{#1@{\ensuremath #1\ldots}|sequenceIndexPageFont}}
 \newcommand{\sequenceSolved}[1]{{\ensuremath #1\ldots}\index[sequences]{#1@{\ensuremath #1\ldots}|sequenceIndexPageFont}}
-
-
-\makeindex[sequences]
 
 \begin{document}
 
@@ -65,10 +42,10 @@ What happens on tjr next page?
 
 \newpage
 
-\cite{Mitchell90} and \citeN[some cmt]{Hofstadter:FCCA}
+\citet{Mitchell90} and \citet[some cmt]{Hofstadter:FCCA}
 
 And more stuff \sequence{1 2 3 4 5 6} and also \sequence{1 2 3 4 5 6 7} and \sequenceSolved{ 1 2 3 4 5 6}
-
+\sequence{5 3 1 6 7}
 \bibliographystyle{chicago}
 \bibliography{merged}
 \end{document}
