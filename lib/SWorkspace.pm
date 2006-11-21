@@ -37,27 +37,6 @@ our $ReadHead = 0;
 our %relations;
 our %relations_by_ends;    # keys: end1;end2 value:1 if a relation present.
 
-#XXX needs to be filled
-our %POLICY = (
-    gp_add => sub {
-        my ($gp) = @_;
-        1;
-    },
-    gp_rem => sub {
-        my ($gp) = @_;
-        1;
-    },
-    rel_add => sub {
-        my ($rel) = @_;
-        1;
-    },
-    rel_rem => => sub {
-        my ($rel) = @_;
-        1;
-    },
-
-);
-
 # method: clear
 #  starts workspace off as new
 
@@ -292,15 +271,37 @@ sub get_longest_non_adhoc_object_starting_at {
     return $elements[$left];
 }
 
-sub AreGroupsInConflict{
+sub AreGroupsInConflict {
     my ( $package, $A, $B ) = @_;
-    return 0 if $A eq $B;
+    return 1 if $A eq $B;
 
     my ( $smaller, $bigger ) = sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
-    return 0 unless $bigger->spans($smaller);    # obvious case.
-    return $package->AreGroupsInConflict_helper($smaller, $bigger);
-}
 
+    return 0 if $smaller->isa('SElement');    # Never conflicts!
+    return 0 unless $bigger->spans($smaller); # obvious case.
+
+    my ( $smaller_left_edge, $smaller_right_edge ) = $smaller->get_edges();
+    ## smaller_edges: $smaller_left_edge, $smaller_right_edge
+
+    my $current_position = -1;
+    for my $biggers_piece (@$bigger) {
+        $current_position++;
+        next if $biggers_piece->get_right_edge() < $smaller_left_edge;
+
+        # No "backtracking" beyond here. If @$smaller is a subset of @$bigger,
+        # it must start here! So no "next" here on.
+        ## $current_position: $current_position
+
+        for my $smallers_piece (@$smaller) {
+            return 0 unless $smallers_piece eq $bigger->[$current_position];
+            $current_position++;
+        }
+
+        # No mismatch detected!
+        return 1;    # Conflicts!
+    }
+    confess "Why am I here?";    # if bigger spans smaller, no business being here!
+}
 
 sub AreGroupsInConflict_helper {
     my ( $package, $smaller, $bigger ) = @_;
@@ -320,14 +321,28 @@ sub AreGroupsInConflict_helper {
 sub FindGroupsConflictingWith {
     my ( $package, $object ) = @_;
     my ( $l,       $r )      = $object->get_edges();
-    my @conflicting = grep { 
+    my $exact_conflict;
+
+    my @exact_span = SWorkspace->get_all_groups_with_exact_span( $l, $r );
+    my $structure_string = $object->get_structure_string();
+    my @exact_span_same_structure
+        = grep { $_->get_structure_string() eq $structure_string } @exact_span;
+
+    if (@exact_span_same_structure) {
+        $exact_conflict = $exact_span_same_structure[0];    # Can only ever be one.
+    }
+
+    my @conflicting = grep {
         ## Conflict check: ident($object), $object->get_bounds_string(), ident($_), $_->get_bounds_string()
-        SWorkspace->AreGroupsInConflict( $object, $_ ) } (
+        SWorkspace->AreGroupsInConflict( $object, $_ );
+        } (
         SWorkspace->get_all_covering_groups( $l, $r ),
         SWorkspace->get_all_groups_within( $l, $r )
-    );
+        );
     ## @conflicting: @conflicting
-    return @conflicting;
+
+    # @conflicting will also contain $exact_conflict, but that is fine.
+    return ( $exact_conflict, @conflicting );
 }
 
 # XXX(Board-it-up): [2006/09/27] Need tests. Really.
@@ -349,15 +364,37 @@ sub get_intervening_objects {
 
 sub add_group {
     my ( $self, $gp ) = @_;
-    my @conflicting = SWorkspace->FindGroupsConflictingWith($gp);
-    SErr::ConflictingGroups->throw(conflicts => \@conflicting) if @conflicting;
+    my ( $exact_conflict, @subset_conflicts ) = SWorkspace->FindGroupsConflictingWith($gp);
+    ## $exact_conflict, @subset_conflicts: $exact_conflict, @subset_conflicts
+    return 0 if $exact_conflict;
+
+    if (@subset_conflicts) {
+        my $one_conflict = shift(@subset_conflicts);
+        ## $one_conflict: ident($one_conflict)
+        if (SWorkspace->FightUntoDeath(
+                {   challenger => $gp,
+                    incumbent  => $one_conflict
+                }
+            )
+            )
+        {
+
+            ## So the incumbent was defeated!
+            # Now pretend that the other group never existed...
+            return SWorkspace->add_group($gp);
+        } else {
+            ## Incumbent lives!
+            return 0;
+        }
+    }
+
     $groups{$gp} = $gp;
+    return 1;
 }
 
 sub remove_gp {
     my ( $self, $gp ) = @_;
-    SErr->throw("policy violation in gp add")
-        unless _check_policy( 'gp_rem', $gp );
+    ## Removing group: ident($gp)
     delete $groups{$gp};
 }
 
@@ -489,15 +526,6 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
 
 };
 
-# method: _check_policy
-#
-#
-sub _check_policy {
-    my ( $name, @args ) = @_;
-    my $code = $POLICY{$name} || SErr->throw("unknown policy");
-    return $code->(@args);
-}
-
 sub rapid_create_gp {
     my ( $self, $cats, @items ) = @_;
     @items = map {
@@ -552,5 +580,21 @@ sub are_there_holes_here {
     }
     return 0;
 }
+
+sub FightUntoDeath{
+    my ( $package, $opts_ref ) = @_;
+    my ($challenger, $incumbent) = ($opts_ref->{challenger}, $opts_ref->{incumbent});
+    my (@strengths) = map { $_->get_strength() } ($challenger, $incumbent);
+    confess "Both strengths 0" unless $strengths[0] + $strengths[1];
+    if (SUtil::toss($strengths[0] / ($strengths[0] + 1.5 * $strengths[1]))) {
+        # challenger won!
+        SWorkspace->remove_gp($incumbent);
+        return 1;
+    } else {
+        # incumbent won!
+        return 0;
+    }
+}
+
 
 1;

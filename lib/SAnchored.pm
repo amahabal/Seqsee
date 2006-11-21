@@ -280,36 +280,55 @@ sub UpdateStrength {
     $self->set_strength($strength);
 }
 
-sub Extend{
+sub Extend {
     scalar(@_) == 3 or confess "Need 3 arguments";
     my ( $self, $to_insert, $insert_at_end_p ) = @_;
+
     # $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
-    
-    my $id = ident $self;
-    my $parts_ref = $self->get_parts_ref(); # It's in SObject...
-    
+
+    my $id        = ident $self;
+    my $parts_ref = $self->get_parts_ref();    # It's in SObject...
+
+    my @parts_of_new_group;
     if ($insert_at_end_p) {
-        push @$parts_ref, $to_insert;
-    } else {
-        unshift @$parts_ref, $to_insert;
+        @parts_of_new_group = ( @$parts_ref, $to_insert );
     }
+    else {
+        @parts_of_new_group = ( $to_insert, @$parts_ref );
+    }
+
+    my $potential_new_group = SAnchored->create(@parts_of_new_group);
+    my ( $exact_conflict, @subset_conflicts )
+        = SWorkspace->FindGroupsConflictingWith($potential_new_group);
+
+    if ($exact_conflict) {
+        SWorkspace->FightUntoDeath({challenger => $potential_new_group,
+                                    incumbent => $exact_conflict})
+            or return;
+    }
+
+    for my $some_conflict (@subset_conflicts) {
+        # Would of course conflict with the unextended $self!
+        next if $some_conflict eq $self;
+
+        # Could already have been deleted!
+        next unless exists($SWorkspace::groups{$some_conflict});
+
+        SWorkspace->FightUntoDeath({challenger => $potential_new_group,
+                                    incumbent => $some_conflict})
+            or return;
+    }
+
+    # If we get here, all conflicting incumbents are dead.
+    @$parts_ref = @parts_of_new_group;
 
     $self->recalculate_edges();
     $self->recalculate_categories();
     $self->recalculate_relations();
     $self->UpdateStrength();
 
-    $self->add_history("Extended to become " . $self->get_bounds_string());
-
-    my @conflicting = SWorkspace->FindGroupsConflictingWith($self);
-    if (@conflicting) {
-        # XXX turned off for now...
-        #main::message("A newly extended group $self is conflicting with these groups: @conflicting.".
-         #                 "Some action called for!");
-    }
-    return @conflicting;
-
+    $self->add_history( "Extended to become " . $self->get_bounds_string() );
+    return 1;
 }
-
 
 1;

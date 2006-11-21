@@ -155,7 +155,7 @@ sub AttemptApplication {
         ## ruleapp: $ruleapp
         my $extension_works = eval { $ruleapp->ExtendRight( $terms - 1) };
         if (my $e = $EVAL_ERROR) {
-            die $e unless UNIVERSAL::isa($e, 'SErr::ConflictingGroups');
+            $e->throw() unless UNIVERSAL::isa($e, 'SErr::ConflictingGroups');
             # XXX(Board-it-up): [2006/11/17] I should use this info!
             $extension_works = 0;
         }

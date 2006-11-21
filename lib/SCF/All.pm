@@ -371,7 +371,7 @@ use Compile::SCF;
 
     return unless $bindings;
     if ($object->isa("SAnchored")) {
-        SWorkspace->add_group($object);
+        SWorkspace->add_group($object) or return;
     }
 
     SCodelet->new("FindIfMetonyable", 50)->schedule();

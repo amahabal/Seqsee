@@ -74,8 +74,11 @@ use Compile::SThought;
      if (my $e = $EVAL_ERROR) {
          if (UNIVERSAL::isa($e, "SErr::HolesHere")) {
              return;
-         } 
-         die $e;
+         } elsif (UNIVERSAL::isa($e, 'SErr::ConflictingGroups')) {
+             return;
+         }
+         print "HERE IN SThought::AreTheseGroupable, error is $e of type ", ref($e), "\n";
+         confess $e;
      }
 
      # confess "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
@@ -333,11 +336,9 @@ sub BelieveBlemish{
             if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
                 return;
             }
-            SWorkspace->add_group($new_obj);
+
+            SWorkspace->add_group($new_obj) or return;
             $new_obj->describe_as( $possible_ad_hoc_cat );
-
-            #main::message("The relation has a gap: @gap; distance = $distance");
-
         }
 
     }
@@ -400,11 +401,9 @@ sub BelieveBlemish{
             if ( SWorkspace->get_all_groups_with_exact_span( $new_obj->get_edges() ) ) {
                 return;
             }
+
             SWorkspace->add_group($new_obj);
             $new_obj->describe_as( $possible_ad_hoc_cat );
-
-            #main::message("The relation has a gap: @gap; distance = $distance");
-
         }
 
     }

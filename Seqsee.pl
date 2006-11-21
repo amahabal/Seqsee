@@ -162,7 +162,11 @@ sub init_display{
         my $default_error_handler = sub {
             my  ($err) = @_;
             $Tk::Carp::MainWindow = $SGUI::MW;
-            tkdie($err);
+            my $msg = UNIVERSAL::isa($err, 'Exception::Class') ? $err->as_string() : $err;
+            if ($msg !~ m#\S#) {
+                $msg .= "<EMPTY MESSAGE>";
+            }
+            tkdie($msg);
         };
         my $msg_displayer = sub {
             my ( $msg ) = @_;

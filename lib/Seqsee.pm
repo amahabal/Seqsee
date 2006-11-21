@@ -91,6 +91,8 @@ sub Seqsee_Step{
             $err->payload()->schedule();
             return;
         }
+        # main::message("About to call default_error_handler with '$err'");
+        # confess "Empty error message" if $err eq q{};
         main::default_error_handler($err);        
     }
     return;
