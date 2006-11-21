@@ -1,0 +1,22 @@
+\documentclass{memoir}
+\usepackage{natbib}
+\begin{document}
+\bibliographystyle{chicago}
+
+\title{Order of Biblio entries for Index cards}
+\maketitle
+
+\newcommand{\mycite}[1]{#1 $\Rightarrow$ \citet{#1}}
+
+\begin{enumerate}
+\item \mycite{Anderson:LandM}
+\item \mycite{Mitchell90} 
+\item \mycite{Marshall}
+\item \mycite{Hofstadter:GEB}
+\item \mycite{Bishop}
+\item \mycite{Hofstadter:FCCA}
+\end{enumerate}
+
+
+\bibliography{merged}
+\end{document}
