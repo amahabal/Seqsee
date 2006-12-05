@@ -19,6 +19,7 @@ Getopt::Long
 List::Util
 Log::Log4perl
 Memoize
+Module::Compile
 POSIX
 Perl6::Export
 Perl6::Form
@@ -35,6 +36,7 @@ Test::More
 Test::Stochastic
 Text::Balanced
 Time::HiRes
+Tk::Carp
 UNIVERSAL::require
 XSLoader
 enum

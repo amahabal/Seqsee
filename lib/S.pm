@@ -7,7 +7,6 @@ use Global;
 use List::Util;
 use Scalar::Util;
 
-use SNode;
 use SHistory;
 
 use SLog;
@@ -28,7 +27,6 @@ use SCoderack;
 
 use SMetonym;
 use SMetonymType;
-use SMulti;
 
 use SCat;
 use SCat::OfObj;
