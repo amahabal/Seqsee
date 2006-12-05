@@ -1,0 +1,9 @@
+\newcommand{\myepigraph}[3]{\epigraph{#1}{\textit{#2}\\ \textsc{#3}}}
+
+
+\newcommand{\sequenceIndexPageFontSolved}[1]{\textbf #1*}
+\newcommand{\sequenceIndexPageFont}[1]{\textit #1}
+\newcommand{\seqtypeset}[1]{{\spaceskip=0.6em#1}}
+\newcommand{\sequenceAny}[2]{{``\seqtypeset{#1}{\ensuremath\ldots}''}\index[sequences]{#1@{\seqtypeset{#1}}|#2}}
+\newcommand{\sequence}[1]{\sequenceAny{#1}{sequenceIndexPageFont}}
+\newcommand{\sequenceSolved}[1]{\sequenceAny{#1}{sequenceIndexPageFontSolved}}
