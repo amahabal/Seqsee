@@ -4,8 +4,11 @@ my @indices  = qw{sequences};
 
 system qq{pdflatex $filename};
 for (@indices) {
-    system qq{makeindex $_};
+    system qq{makeindex -s sequences.ist -c $_};
 }
 system qq{bibtex $filename};
 
 system qq{pdflatex $filename} for 1..3;
+system qq{C:\Program Files\Adobe\Acrobat 7.0\Reader\AcroRd32.exe $filename};
+system qq{copy $filename.pdf D:\\$filename.pdf};
+system qq{"C:\\Program Files\\Adobe\\Acrobat 7.0\\Reader\\AcroRd32.exe" "D:\\$filename.pdf"};
