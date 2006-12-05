@@ -2,33 +2,13 @@
 \makeindex[sequences]
 \usepackage{natbib}
 
-
-\renewcommand{\maketitlehookc}{\begin{center} Some stuff \end{center}}
-\newcommand{\myepigraph}[3]{\epigraph{#1}{\textit{#2}\\ \textsc{#3}}}
-
-\newcommand{\sequenceIndexPageFontSolved}[1]{{\textbf #1}}
-\newcommand{\sequenceIndexPageFont}[1]{{\textit #1}}
-\newcommand{\sequence}[1]{{\ensuremath #1\ldots}\index[sequences]{#1@{\ensuremath #1\ldots}|sequenceIndexPageFont}}
-\newcommand{\sequenceSolved}[1]{{\ensuremath #1\ldots}\index[sequences]{#1@{\ensuremath #1\ldots}|sequenceIndexPageFont}}
+\input{mycommands}
+\input{titlepage}
 
 \begin{document}
 
-\frontmatter
+\input{frontmatter}
 
-\title{Seqsee: \\ A cognitive architecture}
-\author{Abhijit A. Mahabal}
-\date{Mar 2008}
-%\thispagestyle{empty}
-\maketitle
-
-\clearpage
-\tableofcontents
-
-\onecolindextrue
-\renewcommand{\indexname}{Index of Sequences}
-\renewcommand{\preindexhook}{These are the sequences that have been used in the dissertation. Page numbers like \sequenceIndexPageFont{7} indicate a discussion related to the sequence, whereas page numbers set like \sequenceIndexPageFontSolved{7} indicate a mention that the program ``solved'' it.\par\vskip0.5in}
-\printindex[sequences]
-\renewcommand{\preindexhook}{}
 
 \mainmatter
 %\chapterstyle{companion}
@@ -38,13 +18,13 @@
 \myepigraph{All men are born equal, but some are more equal than others.}{Animal Farm}{George Orwell}
 
 What happens on tjr next page?
-\sequence{1 2 3 4 5 6}
+\sequence{1 2 3 4 5 6} and \sequence{11 2 13 4}
 
 \newpage
 
 \citet{Mitchell90} and \citet[some cmt]{Hofstadter:FCCA}
 
-And more stuff \sequence{1 2 3 4 5 6} and also \sequence{1 2 3 4 5 6 7} and \sequenceSolved{ 1 2 3 4 5 6}
+And more stuff \sequence{1 2 3 4 5 6} and also \sequence{1 2 3 4 5 6 7} and \sequenceSolved{1 2 3 4 5 6}
 \sequence{5 3 1 6 7}
 \bibliographystyle{chicago}
 \bibliography{merged}
