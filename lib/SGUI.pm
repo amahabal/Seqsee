@@ -107,6 +107,10 @@ sub SetupBindings {
         my $MW_options = $config_ref->{MainWindow} || {};
         $MW = new MainWindow(%$MW_options);
 
+        if (exists $config_ref->{frames}{geometry}) {
+            $MW->geometry($config_ref->{frames}{geometry});
+        }
+
         my $frames_string = $config_ref->{frames}{frames} or confess;
         my @lines = split qq{\n}, $frames_string;
         for my $line (@lines) {
@@ -115,9 +119,31 @@ sub SetupBindings {
             my ( $name, $parent, $widget_type, $position, @rest ) = split( /\s+/, $line );
             ## In CreateWidgets: $name, $parent, $widget_type, $position, @rest
             no strict;
-            my $widget
-                = ${$parent}->$widget_type( GetWidgetOptions( $widget_type, $config_ref, @rest ) );
-            $widget->pack( -side => $position ) unless $widget_type eq 'Toplevel';
+            my $widget;
+            if (${$parent}->isa('Tk::DynaTabFrame')) {
+                my $frame = ${$parent}->add(-label => $widget_type,
+                                            -caption => $widget_type,
+                                                );
+                ## frame: $frame
+                if ($widget_type eq 'Frame') {
+                    $widget = $frame;
+                } else {
+                    $widget = $frame->$widget_type(GetWidgetOptions( $widget_type, $config_ref, @rest ) ); 
+                }
+            } else {
+                $widget
+                = ${$parent}->$widget_type( GetWidgetOptions( $widget_type, $config_ref, @rest ) ); 
+            }
+            if ($widget_type eq 'Toplevel') {
+                
+            } elsif ($widget_type eq 'DynaTabFrame') {
+                $widget->pack(-side => $position, 
+                              -fill => 'both', 
+                              -expand => 1);
+            } else {
+                $widget->pack( -side => $position );                
+            }
+
             ${$name} = $widget unless $name eq '_';
 
             if ( $Updatable{$widget_type} ) {
