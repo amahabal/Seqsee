@@ -10,6 +10,7 @@ use Tk::SComponents;
 use Tk::SInfo;
 use Tk::SWorkspace;
 use Tk::SActivation;
+use Tk::SStream2;
 use Smart::Comments;
 
 our $MW;
@@ -145,6 +146,8 @@ sub SetupBindings {
             }
 
             ${$name} = $widget unless $name eq '_';
+
+            $Updatable{$widget_type} ||= ${'Tk::' . $widget_type. '::UPDATABLE'};
 
             if ( $Updatable{$widget_type} ) {
                 push @to_Update, $widget;
