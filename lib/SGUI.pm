@@ -12,6 +12,7 @@ use Tk::SWorkspace;
 use Tk::SActivation;
 use Tk::SStream2;
 use Tk::SCodeletCount;
+use Tk::SCoderack2;
 use Smart::Comments;
 
 our $MW;
