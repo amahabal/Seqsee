@@ -11,6 +11,7 @@ use Tk::SInfo;
 use Tk::SWorkspace;
 use Tk::SActivation;
 use Tk::SStream2;
+use Tk::SCodeletCount;
 use Smart::Comments;
 
 our $MW;

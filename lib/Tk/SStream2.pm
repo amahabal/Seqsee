@@ -3,7 +3,10 @@ use Tk::widgets qw{Frame MListbox};
 use base qw/Tk::Derived Tk::Frame/;
 use Smart::Comments;
 
-our $list;
+my $list;
+my $mb;
+my $mb_no_fringe;
+
 our $UPDATABLE = 1;
 Construct Tk::Widget 'SStream2';
 
@@ -17,7 +20,10 @@ sub Populate{
     my $tags_ref = delete $args->{-tags_provided};
     $self->SUPER::Populate( );
 
-    $list = $self;
+    my $column_specs_for_no_fringe =
+        [[-text => 'Age', -comparecommand => $NumericSort, -textwidth => 5],
+         [-text => 'Thought', -textwidth => 40]];
+    $mb_no_fringe = $self->MListbox(-height => 10, -bg => 'white', -columns => $column_specs_for_no_fringe)->pack(-side => 'top');
     my $column_specs = [[-text => 'Age', -comparecommand => $NumericSort,
                          -textwidth => 5, -background => 'red', -fg => 'white'],
                         [-text => 'Thought', -textwidth => 40],
@@ -25,25 +31,31 @@ sub Populate{
                         [-text => 'Strength', -textwidth => 8,
                              -comparecommand => $NumericSort]];
 
-
-    my $mb = $self->MListbox(%$args, -bg => 'white', -columns => $column_specs)->pack(-side => 'top');
-    $self->Delegates(DEFAULT => $mb);
+    $list = $self;
+    $mb = $self->MListbox(%$args, -bg => 'white', -columns => $column_specs)->pack(-side => 'top');
+    # $self->Delegates(DEFAULT => $mb);
     $mb->columnConfigure(0, -bg => 'red', -foreground => '#ff0000');
 }
 
 sub clear{
-    $list->delete('0.0', 'end');
+    $mb->delete('0.0', 'end');
+    $mb_no_fringe->delete('0.0', 'end');
 }
 
 sub Update{
-    $list->delete('0.0', 'end');
+    $mb->delete('0.0', 'end');
+    $mb_no_fringe->delete('0.0', 'end');
     my $counter = 0;
     for my $tht (@SStream::OlderThoughts) {
         $counter++;
         my $tht_as_text = $tht->as_text();
         my $fringe = $tht->get_stored_fringe();
-        for my $fringe_component (@$fringe) {
-            $list->insert('end', [$counter, $tht_as_text, @$fringe_component]);
+        if (@$fringe) {
+            for my $fringe_component (@$fringe) {
+                $mb->insert('end', [$counter, $tht_as_text, @$fringe_component]);
+            }
+        } else {
+            $mb_no_fringe->insert('end', [ $counter, $tht_as_text]);
         }
     }
 }
