@@ -1,6 +1,8 @@
 #!c:/Perl/bin/perl
+use English;
 my $filename = $ARGV[0];
 my $latex_run_count;
+
 
 sub RunLatex{
     my ($times) = @_;
