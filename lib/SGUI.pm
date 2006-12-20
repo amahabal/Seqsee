@@ -14,6 +14,8 @@ use Tk::SStream2;
 use Tk::SCodeletCount;
 use Tk::SCoderack2;
 use Tk::SActivation2;
+use Tk::SCategory2;
+use Tk::Strength2;
 use Smart::Comments;
 
 our $MW;

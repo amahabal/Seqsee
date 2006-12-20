@@ -52,7 +52,10 @@ sub Update{
         my $fringe = $tht->get_stored_fringe();
         if (@$fringe) {
             for my $fringe_component (@$fringe) {
-                $mb->insert('end', [$counter, $tht_as_text, @$fringe_component]);
+                my ($component, $activation) = @$fringe_component;
+                $component = $component->as_text() 
+                    if UNIVERSAL::can($component, 'as_text');
+                $mb->insert('end', [$counter, $tht_as_text, $component, $activation]);
             }
         } else {
             $mb_no_fringe->insert('end', [ $counter, $tht_as_text]);
