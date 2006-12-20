@@ -16,6 +16,7 @@ use base qw{};
 
 use Perl6::Form;
 use Smart::Comments;
+use English qw(-no_match_vars);
 
 use Sort::Key qw{rikeysort};
 
@@ -153,8 +154,8 @@ sub read_object {
     sub _get_some_object_at {
         my ($idx) = @_;
         my @matching_objects =
-            grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
-            ( @elements, values %groups );
+          grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
+          ( @elements, values %groups );
 
         return $strength_chooser->( \@matching_objects );
     }
@@ -167,9 +168,9 @@ sub read_object {
 sub display_as_text {
     my ($package) = @_;
     print form "======================================================",
-        " Elements:  {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-        join( ", ", map { $_->get_mag() } @elements ),
-        "======================================================";
+      " Elements:  {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+      join( ", ", map { $_->get_mag() } @elements ),
+      "======================================================";
 
 }
 
@@ -259,8 +260,9 @@ sub get_groups_starting_at {
 
 sub get_longest_non_adhoc_object_starting_at {
     my ( $self, $left ) = @_;
-    for my $gp ( $self->get_groups_starting_at($left) ) {    # That gives us longest first.
-    INNER: for my $cat ( @{ $gp->get_categories() } ) {
+    for my $gp ( $self->get_groups_starting_at($left) )
+    {    # That gives us longest first.
+      INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
                 return $gp;
             }
@@ -275,7 +277,8 @@ sub AreGroupsInConflict {
     my ( $package, $A, $B ) = @_;
     return 1 if $A eq $B;
 
-    my ( $smaller, $bigger ) = sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
+    my ( $smaller, $bigger ) =
+      sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
 
     return 0 if $smaller->isa('SElement');    # Never conflicts!
     return 0 unless $bigger->spans($smaller); # obvious case.
@@ -300,7 +303,7 @@ sub AreGroupsInConflict {
         # No mismatch detected!
         return 1;    # Conflicts!
     }
-    confess "Why am I here?";    # if bigger spans smaller, no business being here!
+    confess "Why am I here?"; # if bigger spans smaller, no business being here!
 }
 
 sub AreGroupsInConflict_helper {
@@ -310,10 +313,14 @@ sub AreGroupsInConflict_helper {
 
     my ( $smaller_left_edge, $smaller_right_edge ) = $smaller->get_edges();
     for my $piece_of_bigger (@$bigger) {
-        my ( $piece_left_edge, $piece_right_edge ) = $piece_of_bigger->get_edges();
-        next if $piece_right_edge < $smaller_left_edge; # piece too early within bigger. Look ahead.
+        my ( $piece_left_edge, $piece_right_edge ) =
+          $piece_of_bigger->get_edges();
+        next
+          if $piece_right_edge <
+          $smaller_left_edge;    # piece too early within bigger. Look ahead.
         ## If we are here, the current piece must be $smaller, or have $smaller as part.
-        return $package->AreGroupsInConflict_helper( $smaller, $piece_of_bigger );
+        return $package->AreGroupsInConflict_helper( $smaller,
+            $piece_of_bigger );
     }
     confess "Why am I here?";
 }
@@ -325,20 +332,20 @@ sub FindGroupsConflictingWith {
 
     my @exact_span = SWorkspace->get_all_groups_with_exact_span( $l, $r );
     my $structure_string = $object->get_structure_string();
-    my @exact_span_same_structure
-        = grep { $_->get_structure_string() eq $structure_string } @exact_span;
+    my @exact_span_same_structure =
+      grep { $_->get_structure_string() eq $structure_string } @exact_span;
 
     if (@exact_span_same_structure) {
-        $exact_conflict = $exact_span_same_structure[0];    # Can only ever be one.
+        $exact_conflict = $exact_span_same_structure[0]; # Can only ever be one.
     }
 
     my @conflicting = grep {
         ## Conflict check: ident($object), $object->get_bounds_string(), ident($_), $_->get_bounds_string()
         SWorkspace->AreGroupsInConflict( $object, $_ );
-        } (
+      } (
         SWorkspace->get_all_covering_groups( $l, $r ),
         SWorkspace->get_all_groups_within( $l, $r )
-        );
+      );
     ## @conflicting: @conflicting
 
     # @conflicting will also contain $exact_conflict, but that is fine.
@@ -364,25 +371,29 @@ sub get_intervening_objects {
 
 sub add_group {
     my ( $self, $gp ) = @_;
-    my ( $exact_conflict, @subset_conflicts ) = SWorkspace->FindGroupsConflictingWith($gp);
+    my ( $exact_conflict, @subset_conflicts ) =
+      SWorkspace->FindGroupsConflictingWith($gp);
     ## $exact_conflict, @subset_conflicts: $exact_conflict, @subset_conflicts
     return 0 if $exact_conflict;
 
     if (@subset_conflicts) {
         my $one_conflict = shift(@subset_conflicts);
         ## $one_conflict: ident($one_conflict)
-        if (SWorkspace->FightUntoDeath(
-                {   challenger => $gp,
+        if (
+            SWorkspace->FightUntoDeath(
+                {
+                    challenger => $gp,
                     incumbent  => $one_conflict
                 }
             )
-            )
+          )
         {
 
             ## So the incumbent was defeated!
             # Now pretend that the other group never existed...
             return SWorkspace->add_group($gp);
-        } else {
+        }
+        else {
             ## Incumbent lives!
             return 0;
         }
@@ -446,7 +457,9 @@ sub check_at_location {
         }
         for my $p ( 0 .. $span - 1 ) {
             ## $span, $start, $p, $start-$span+$p+1
-            return unless $elements[ $start - $span + $p + 1 ]->get_mag() == $flattened[$p];
+            return
+              unless $elements[ $start - $span + $p + 1 ]->get_mag() ==
+              $flattened[$p];
         }
         return 1;
     }
@@ -469,27 +482,34 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
         return plonk_into_place( $start - $span + 1, DIR::RIGHT(), $obj );
     }
 
-    my @to_insert = ( $obj->get_direction() eq DIR::LEFT() ) ? reverse(@$obj) : @$obj;
+    my @to_insert =
+      ( $obj->get_direction() eq DIR::LEFT() ) ? reverse(@$obj) : @$obj;
     my $plonk_cursor = $start;
     my @new_parts;
 
     for my $subobject (@to_insert) {
         my $subobjectspan = $subobject->get_span;
-        push @new_parts, plonk_into_place( $plonk_cursor, DIR::RIGHT(), $subobject );
+        push @new_parts,
+          plonk_into_place( $plonk_cursor, DIR::RIGHT(), $subobject );
         $plonk_cursor += $subobjectspan;
     }
 
-    @new_parts = reverse(@new_parts) if ( $obj->get_direction() eq DIR::LEFT() );
+    @new_parts = reverse(@new_parts)
+      if ( $obj->get_direction() eq DIR::LEFT() );
 
     my $new_obj                  = SAnchored->create(@new_parts);
     my $new_obj_structure_string = $new_obj->get_structure_string;
 
     my $old_obj;
     ## $new_obj_structure_string
-    for my $spanning_obj ( SWorkspace->get_all_covering_groups( $start, $start + $span - 1 ) ) {
+    for my $spanning_obj (
+        SWorkspace->get_all_covering_groups( $start, $start + $span - 1 ) )
+    {
         ## $spanning_obj: $spanning_obj->get_structure_string()
         ## new_obj_structure_string: $new_obj_structure_string
-        if ( $spanning_obj->get_structure_string() eq $new_obj_structure_string ) {
+        if (
+            $spanning_obj->get_structure_string() eq $new_obj_structure_string )
+        {
             $old_obj = $spanning_obj;
             ## $old_obj
             last;
@@ -509,7 +529,8 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     }
 
     for ( @{ $obj->get_categories() } ) {
-        my $bindings     = $new_obj->describe_as($_) or confess "Description failed";
+        my $bindings = $new_obj->describe_as($_)
+          or confess "Description failed";
         my $old_bindings = $obj->describe_as($_);
         my $old_pos_mode = $old_bindings->get_position_mode();
         if ( defined $old_pos_mode ) {
@@ -562,16 +583,16 @@ sub are_there_holes_here {
     my %slots_taken;
     for my $item (@items) {
         SErr->throw("SAnchored->create called with a non anchored object")
-            unless UNIVERSAL::isa( $item, "SAnchored" );
+          unless UNIVERSAL::isa( $item, "SAnchored" );
         my ( $left, $right ) = $item->get_edges();
         @slots_taken{ $left .. $right } = ( $left .. $right );
     }
 
     my @keys = values %slots_taken;
     ## @keys
-    my ( $left, $right )
-        = List::MoreUtils::minmax( $keys[0], @keys )
-        ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+    my ( $left, $right ) =
+      List::MoreUtils::minmax( $keys[0], @keys )
+      ; #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     ## $left, $right
     my $span = $right - $left + 1;
 
@@ -581,20 +602,74 @@ sub are_there_holes_here {
     return 0;
 }
 
-sub FightUntoDeath{
+sub FightUntoDeath {
     my ( $package, $opts_ref ) = @_;
-    my ($challenger, $incumbent) = ($opts_ref->{challenger}, $opts_ref->{incumbent});
-    my (@strengths) = map { $_->get_strength() } ($challenger, $incumbent);
+    my ( $challenger, $incumbent ) =
+      ( $opts_ref->{challenger}, $opts_ref->{incumbent} );
+    my (@strengths) = map { $_->get_strength() } ( $challenger, $incumbent );
     confess "Both strengths 0" unless $strengths[0] + $strengths[1];
-    if (SUtil::toss($strengths[0] / ($strengths[0] + 1.5 * $strengths[1]))) {
+    if (
+        SUtil::toss( $strengths[0] / ( $strengths[0] + 1.5 * $strengths[1] ) ) )
+    {
+
         # challenger won!
         SWorkspace->remove_gp($incumbent);
         return 1;
-    } else {
+    }
+    else {
+
         # incumbent won!
         return 0;
     }
 }
 
+sub GetSomethingLike {
+    my ( $package, $opts_ref ) = @_;
+    my $object    = $opts_ref->{object} or confess;
+    my $start_pos = $opts_ref->{start};
+    my $direction = $opts_ref->{direction} or confess;
+    defined($start_pos) or confess;
+
+    my @objects_at_that_location;
+    if ( $direction eq $DIR::RIGHT ) {
+        @objects_at_that_location =
+          grep { $_->get_left_edge() eq $start_pos }
+          ( @elements, values %groups );
+    }
+    elsif ( $direction eq $DIR::LEFT ) {
+        @objects_at_that_location =
+          grep { $_->get_right_edge() eq $start_pos }
+          ( @elements, values %groups );
+    }
+
+    my $expected_structure_string = $object->get_structure_string();
+
+    my ( @matching_objects, @potentially_matching_objects );
+    for (@objects_at_that_location) {
+        if ( $_->get_effective_object()->get_structure_string() eq
+            $expected_structure_string )
+        {
+            push @matching_objects, $_;
+        }
+        else {
+            push @potentially_matching_objects, $_;
+        }
+    }
+
+    my $is_object_literally_present = eval {
+        SWorkspace->check_at_location(
+            { direction => $direction, start => $start_pos, what => $object } );
+    };
+
+    if (my $e = $EVAL_ERROR) {
+        if (UNIVERSAL::isa($e, 'SErr::AskUser')) {
+            # XXX(Board-it-up): [2006/12/18] 
+
+        } else {
+            die $e;
+        }
+    }
+
+}
 
 1;

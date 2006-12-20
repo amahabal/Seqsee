@@ -16,10 +16,13 @@ use base qw{SObject};
 
 use List::Util qw(min max sum);
 
-my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);        # Left edge. 0 is leftmost.
-my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);     # Right edge.
-my %right_extendibility_of : ATTR(:set<right_extendibility>);    # Can we extend right?
-my %left_extendibility_of : ATTR(:set<left_extendibility>);      # Can we extend left?
+my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>)
+  ;    # Left edge. 0 is leftmost.
+my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
+my %right_extendibility_of : ATTR(:set<right_extendibility>)
+  ;    # Can we extend right?
+my %left_extendibility_of : ATTR(:set<left_extendibility>)
+  ;    # Can we extend left?
 
 use overload fallback => 1;
 
@@ -40,16 +43,16 @@ sub recalculate_edges {
     my %slots_taken;
     for my $item ( @{ $self->get_parts_ref } ) {
         SErr->throw("SAnchored->create called with a non anchored object")
-            unless UNIVERSAL::isa( $item, "SAnchored" );
+          unless UNIVERSAL::isa( $item, "SAnchored" );
         my ( $left, $right ) = $item->get_edges();
         @slots_taken{ $left .. $right } = ( $left .. $right );
     }
 
     my @keys = values %slots_taken;
     ## @keys
-    my ( $left, $right )
-        = List::MoreUtils::minmax( $keys[0], @keys )
-        ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+    my ( $left, $right ) =
+      List::MoreUtils::minmax( $keys[0], @keys )
+      ; #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     $left_edge_of{$id}  = $left;
     $right_edge_of{$id} = $right;
     ### insist: scalar(@keys) == $right + $left - 1
@@ -93,7 +96,8 @@ sub create {
         return $items[0];
     }
 
-    SWorkspace->are_there_holes_here(@items) and SErr::HolesHere->throw("Holes here!");
+    SWorkspace->are_there_holes_here(@items)
+      and SErr::HolesHere->throw("Holes here!");
 
     for my $item (@items) {
         my ( $left, $right ) = $item->get_edges();
@@ -122,10 +126,10 @@ sub create {
             }
         }
         $direction =
-              $same ? $DIR::UNKNOWN
-            : ( $leftward  and not $rightward ) ? $DIR::LEFT
-            : ( $rightward and not $leftward )  ? $DIR::RIGHT
-            :                                     $DIR::NEITHER;
+            $same ? $DIR::UNKNOWN
+          : ( $leftward  and not $rightward ) ? $DIR::LEFT
+          : ( $rightward and not $leftward )  ? $DIR::RIGHT
+          :                                     $DIR::NEITHER;
     }
 
     if ( $direction eq DIR::NEITHER() or $direction eq DIR::UNKNOWN() ) {
@@ -135,7 +139,8 @@ sub create {
     }
 
     my $object = $package->new(
-        {   items      => [@items],
+        {
+            items      => [@items],
             group_p    => 1,
             left_edge  => $left,
             right_edge => $right,
@@ -173,26 +178,41 @@ sub as_insertlist {
     my ( $l, $r ) = $self->get_edges;
 
     if ( $verbosity == 0 ) {
-        return new SInsertList( "SAnchored", "heading", "[$l, $r] ", "range", "\n" );
+        return new SInsertList( "SAnchored", "heading", "[$l, $r] ", "range",
+            "\n" );
     }
 
     if ( $verbosity == 1 or $verbosity == 2 ) {
         my $list = $self->as_insertlist(0);
-        $list->concat( $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
+        $list->concat(
+            $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
         $list->append( "Extendibility: ", 'heading' );
-        my ( $le, $re ) = ( $left_extendibility_of{$id}, $right_extendibility_of{$id} );
+        my ( $le, $re ) =
+          ( $left_extendibility_of{$id}, $right_extendibility_of{$id} );
         $list->append(
             ( $le ? "$le->{mode}, " : "No, " ),
             "", ( $re ? "$re->{mode}" : "No" ),
             "", "\n"
         );
-        $list->append( "Direction: ",        'heading', $self->get_direction->as_text,   "", "\n" );
-        $list->append( "Meto activeness: ",  'heading', $self->get_metonym_activeness(), "", "\n" );
-        $list->append( "Self:             ", 'heading', $self,                           '', "\n" );
-        $list->append( "Effective object: ", 'heading', $self->get_effective_object(),   '', "\n" );
-        $list->append( "Flattened: ", 'heading', join( ", ", @{ $self->get_flattened() } ),
+        $list->append( "Direction: ", 'heading', $self->get_direction->as_text,
+            "", "\n" );
+        $list->append(
+            "Meto activeness: ",
+            'heading', $self->get_metonym_activeness(),
+            "", "\n"
+        );
+        $list->append( "Self:             ", 'heading', $self, '', "\n" );
+        $list->append(
+            "Effective object: ",
+            'heading', $self->get_effective_object(),
+            '', "\n"
+        );
+        $list->append( "Flattened: ", 'heading',
+            join( ", ", @{ $self->get_flattened() } ),
             '', "\n" );
-        $list->append( "Items: ", 'heading', join( ", ", @{ $self->get_parts_ref } ), '', "\n" );
+        $list->append( "Items: ", 'heading',
+            join( ", ", @{ $self->get_parts_ref } ),
+            '', "\n" );
         $list->append( "Fringe: ", 'heading', "\n" );
 
         for ( @{ SThought->create($self)->get_fringe } ) {
@@ -275,7 +295,8 @@ sub overlaps {
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength = 40 + 0.1 * sum( map { $_->get_strength() } @{ $self->get_parts_ref() } );
+    my $strength =
+      40 + 0.1 * sum( map { $_->get_strength() } @{ $self->get_parts_ref() } );
     $strength = 100 if $strength > 100;
     $self->set_strength($strength);
 }
@@ -284,7 +305,7 @@ sub Extend {
     scalar(@_) == 3 or confess "Need 3 arguments";
     my ( $self, $to_insert, $insert_at_end_p ) = @_;
 
-    # $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
+# $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
 
     my $id        = ident $self;
     my $parts_ref = $self->get_parts_ref();    # It's in SObject...
@@ -298,25 +319,32 @@ sub Extend {
     }
 
     my $potential_new_group = SAnchored->create(@parts_of_new_group);
-    my ( $exact_conflict, @subset_conflicts )
-        = SWorkspace->FindGroupsConflictingWith($potential_new_group);
+    my ( $exact_conflict, @subset_conflicts ) =
+      SWorkspace->FindGroupsConflictingWith($potential_new_group);
 
     if ($exact_conflict) {
-        SWorkspace->FightUntoDeath({challenger => $potential_new_group,
-                                    incumbent => $exact_conflict})
-            or return;
+        SWorkspace->FightUntoDeath(
+            {
+                challenger => $potential_new_group,
+                incumbent  => $exact_conflict
+            }
+        ) or return;
     }
 
     for my $some_conflict (@subset_conflicts) {
+
         # Would of course conflict with the unextended $self!
         next if $some_conflict eq $self;
 
         # Could already have been deleted!
-        next unless exists($SWorkspace::groups{$some_conflict});
+        next unless exists( $SWorkspace::groups{$some_conflict} );
 
-        SWorkspace->FightUntoDeath({challenger => $potential_new_group,
-                                    incumbent => $some_conflict})
-            or return;
+        SWorkspace->FightUntoDeath(
+            {
+                challenger => $potential_new_group,
+                incumbent  => $some_conflict
+            }
+        ) or return;
     }
 
     # If we get here, all conflicting incumbents are dead.
@@ -329,6 +357,39 @@ sub Extend {
 
     $self->add_history( "Extended to become " . $self->get_bounds_string() );
     return 1;
+}
+
+sub FindExtension {
+    my ( $self, $direction_to_extend_in ) = @_;
+    my $direction_of_self = $self->get_direction();
+    return unless $direction_of_self->PotentiallyExtendible();
+
+    my ( $reln, $end_object );
+    if ( $direction_of_self eq $direction_to_extend_in ) {
+        $reln = $self->get_underlying_reln() or return;
+        $end_object = $self->[-1];
+    }
+    else {
+        $reln = $self->get_underlying_reln()->FlippedVersion() or return;
+        $end_object = $self->[0];
+    }
+
+    my $next_position =
+      $end_object->get_next_pos_in_dir($direction_to_extend_in);
+    return unless defined $next_position;
+
+    my $expected_next_object =
+      apply_reln( $reln, $end_object->get_effective_object() )
+      or return;
+
+    return SWorkspace->GetSomethingLike(
+        {
+            object    => $expected_next_object,
+            start     => $next_position,
+            direction => $direction_to_extend_in
+        }
+    );
+
 }
 
 1;
