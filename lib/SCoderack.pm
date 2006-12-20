@@ -44,6 +44,8 @@ my $UseScheduledThoughtProb;       #    Likelihood that the current scheduled th
 my $ScheduledThoughtVanishProb;    #    Prob. that scheduled thought is annhilated if unused
 our $LastSelectedRunnable;         # Last selected codelet/thought
 
+our %HistoryOfRunnable;
+
 clear();
 
 # method: clear
@@ -55,6 +57,7 @@ sub clear {
     @CODELETS          = ();
     $SCHEDULED_THOUGHT = undef;
     $FORCED_THOUGHT    = undef;
+    %HistoryOfRunnable = ();
 }
 
 # method: init
@@ -151,6 +154,7 @@ sub get_next_runnable {
     if ($FORCED_THOUGHT) {
         my $to_return = $FORCED_THOUGHT;
         $FORCED_THOUGHT = undef;
+        $HistoryOfRunnable{ref($to_return)}++;
         return $LastSelectedRunnable = $to_return;
     }
 
@@ -164,6 +168,7 @@ sub get_next_runnable {
             my $to_return = $SCHEDULED_THOUGHT;
             $SCHEDULED_THOUGHT = undef;
             ## $SCHEDULED_THOUGHT
+            $HistoryOfRunnable{ref($to_return)}++;
             return $LastSelectedRunnable = $to_return;
 
         }
@@ -179,6 +184,7 @@ sub get_next_runnable {
 
     my $idx = _choose_codelet();
     my $to_return = splice( @CODELETS, $idx, 1 );
+    $HistoryOfRunnable{'SCF::' . $to_return->[0]}++;
     $URGENCIES_SUM -= $to_return->[1];
     $CODELET_COUNT--;
     return $LastSelectedRunnable = $to_return;
