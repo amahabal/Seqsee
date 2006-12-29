@@ -5,7 +5,8 @@ use Smart::Comments;
 
 my $list;
 
-our $UPDATABLE = 1;
+our $UPDATABLE = 'OnRaise';
+our $LAST_UPDATE = -1;
 Construct Tk::Widget 'SCategory2';
 
 my $NumericSort = sub {

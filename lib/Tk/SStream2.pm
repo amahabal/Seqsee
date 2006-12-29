@@ -7,7 +7,8 @@ my $list;
 my $mb;
 my $mb_no_fringe;
 
-our $UPDATABLE = 1;
+our $UPDATABLE = 'OnRaise';
+our $LAST_UPDATE = -1;
 Construct Tk::Widget 'SStream2';
 
 my $NumericSort = sub {

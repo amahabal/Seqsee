@@ -3,7 +3,8 @@ use Tk::widgets qw{Frame MListbox};
 use base qw/Tk::Derived Tk::Frame/;
 use Smart::Comments;
 
-our $UPDATABLE = 1;
+our $UPDATABLE = 'OnRaise';
+our $LAST_UPDATE = -1;
 Construct Tk::Widget 'SCoderack2';
 
 our $list;
