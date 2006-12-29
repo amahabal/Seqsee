@@ -175,13 +175,13 @@ sub init_display{
             $Global::Break_Loop = 1;
         };
         my $ask_user_extension_displayer = sub {
-            my ( $arr_ref ) = @_;
+            my ( $arr_ref, $msg_suffix ) = @_;
 
             return if Seqsee::already_rejected_by_user($arr_ref);
 
             my $cnt = scalar(@$arr_ref);
             my $msg = ($cnt == 1) ? "Is the next term @$arr_ref? " : "Are the next terms: @$arr_ref?";
-            my $mb = $SGUI::MW->Dialog(-text    => $msg,
+            my $mb = $SGUI::MW->Dialog(-text    => $msg . $msg_suffix,
                                        -bitmap  => 'question',
                                        -title   => 'Seqsee',
                                        -buttons => [qw/Yes No/],

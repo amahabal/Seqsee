@@ -38,6 +38,8 @@ our $ReadHead = 0;
 our %relations;
 our %relations_by_ends;    # keys: end1;end2 value:1 if a relation present.
 
+my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
+
 # method: clear
 #  starts workspace off as new
 
@@ -140,7 +142,6 @@ sub read_object {
 }
 
 {
-    my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
 
     sub read_relation {
         my ($ws) = @_;
@@ -661,15 +662,81 @@ sub GetSomethingLike {
             { direction => $direction, start => $start_pos, what => $object } );
     };
 
-    if (my $e = $EVAL_ERROR) {
-        if (UNIVERSAL::isa($e, 'SErr::AskUser')) {
-            # XXX(Board-it-up): [2006/12/18] 
+    if ( my $e = $EVAL_ERROR ) {
+        if ( UNIVERSAL::isa( $e, 'SErr::AskUser' ) ) {
 
-        } else {
+            # XXX(Board-it-up): [2006/12/18]
+            if ( $e->WorthAsking($object) ) {
+                if ( $e->Ask() ) {
+                    SWorkspace->insert_elements( @{ $e->next_elements() } );
+                    $Global::Break_Loop = 1;
+                }
+                else {
+                    my $seq = join( ', ', @{ $e->next_elements() } );
+                    $Global::ExtensionRejectedByUser{$seq} = 1;
+                }
+            }
+        }
+        else {
             die $e;
         }
     }
 
+    if ($is_object_literally_present) {
+        my $present_object =
+          plonk_into_place( $start_pos, $direction, $object );
+        if ( SUtil::toss(0.5) ) {
+            return $present_object;
+        }
+        else {
+            push @matching_objects, $present_object;
+        }
+    }
+
+    for (@potentially_matching_objects) {
+        SCoderack->add_codelet(
+            SCodelet->new(
+                'TryToSquint',
+                50,
+                {
+                    actual   => $_,
+                    intended => $object,
+                }
+            )
+        );
+    }
+
+    return $strength_chooser->( \@matching_objects );
+}
+
+sub SErr::AskUser::WorthAsking {
+    my ( $self, $object ) = @_;
+    my $already_matched = $self->already_matched();
+    my $next_elements   = $self->next_elements();
+
+    my $strength        = $object->get_strength();
+    my $span            = $object->get_span();
+    my $total_ws_length = $SWorkspace::elements_count;
+
+    my $span_fraction =
+      ( $span + scalar( @{$already_matched} ) ) / $total_ws_length;
+    return 1
+      if ( SUtil::toss($span_fraction) or SUtil::toss( $strength / 100 ) );
+    return 0;
+}
+
+sub SErr::AskUser::Ask {
+    my ( $self, $object ) = @_;
+    my $already_matched = $self->already_matched();
+    my $next_elements   = $self->next_elements();
+
+    my $msg = "I was trying to extend " . $object->get_structure_string() . '.';
+    if (@$already_matched) {
+        $msg .=
+          "I also found the expected terms " . join( ', ', @$already_matched );
+    }
+
+    return main::ask_user_extension( $next_elements, $msg );
 }
 
 1;
