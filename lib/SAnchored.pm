@@ -15,6 +15,8 @@ use base qw{SObject};
 #use Smart::Comments;
 
 use List::Util qw(min max sum);
+use Class::Multimethods;
+multimethod 'apply_reln';
 
 my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>)
   ;    # Left edge. 0 is leftmost.
@@ -42,7 +44,7 @@ sub recalculate_edges {
 
     my %slots_taken;
     for my $item ( @{ $self->get_parts_ref } ) {
-        SErr->throw("SAnchored->create called with a non anchored object")
+        confess "SAnchored->create called with a non anchored object"
           unless UNIVERSAL::isa( $item, "SAnchored" );
         my ( $left, $right ) = $item->get_edges();
         @slots_taken{ $left .. $right } = ( $left .. $right );
@@ -386,10 +388,43 @@ sub FindExtension {
         {
             object    => $expected_next_object,
             start     => $next_position,
-            direction => $direction_to_extend_in
+            direction => $direction_to_extend_in,
+            trust_level => 50,
+            reason => 'Attempting to extend ' . $self->get_structure_string(),
         }
     );
 
+}
+
+sub CheckSquintability {
+    my ( $self, $intended ) = @_;
+    my $intended_structure_string = $intended->get_structure_string();
+    return map {
+        $self->CheckSquintabilityForCategory( $intended_structure_string, $_ )
+    } @{$self->get_categories()};
+}
+
+sub CheckSquintabilityForCategory {
+    my ( $self, $intended_structure_string, $category ) = @_;
+    if ( my $squintability_checker = $category->get_squintability_checker() ) {
+        return $squintability_checker->( $self, $intended_structure_string );
+    }
+
+    my $bindings = $self->get_cat_bindings($category)
+      or confess
+"CheckSquintabilityForCategory called on object not an instance of the category";
+
+    my @meto_types = $category->get_meto_types();
+    my @return;
+    for my $name (@meto_types) {
+        my $finder = $category->get_meto_finder($name);
+        my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
+        next
+          unless $squinted->get_starred()->get_structure_string() eq
+          $intended_structure_string;
+        push @return, [ $category, $name ];
+    }
+    return @return;
 }
 
 1;

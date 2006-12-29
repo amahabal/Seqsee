@@ -192,14 +192,22 @@ sub BelieveBlemish{
 
      # extendibility checking...
      if ($core->get_right_extendibility()) {
-         CODELET 100, AttemptExtension,
-             { core => $core,
+         #CODELET 100, AttemptExtension,
+         #    { core => $core,
+         #      direction => DIR::RIGHT(),
+         #  };
+         CODELET 100, AttemptExtension2,
+             { object => $core,
                direction => DIR::RIGHT(),
            };
      }
      if ($core->get_left_extendibility()) {
-         CODELET 100, AttemptExtension,
-             { core => $core,
+         #CODELET 100, AttemptExtension,
+         #    { core => $core,
+         #      direction => DIR::LEFT(),
+         #  };
+         CODELET 100, AttemptExtension2,
+             { object => $core,
                direction => DIR::LEFT(),
            };
      }

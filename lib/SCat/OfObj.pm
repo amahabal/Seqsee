@@ -417,4 +417,9 @@ sub as_insertlist{
     die "Verbosity $verbosity not implemented for ". ref $self;
 }
 
+sub get_squintability_checker{
+    my ( $self ) = @_;
+    # XXX(Board-it-up): [2006/12/29] Currently just returns No. Should be different for some categories.
+    return;
+}
 

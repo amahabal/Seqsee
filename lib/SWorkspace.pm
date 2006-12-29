@@ -629,6 +629,8 @@ sub GetSomethingLike {
     my $object    = $opts_ref->{object} or confess;
     my $start_pos = $opts_ref->{start};
     my $direction = $opts_ref->{direction} or confess;
+    my $reason    = $opts_ref->{reason} || ''; # used for message for ask_user
+    my $trust_level = $opts_ref->{trust_level} or confess; # used if ask_user
     defined($start_pos) or confess;
 
     my @objects_at_that_location;
@@ -666,8 +668,8 @@ sub GetSomethingLike {
         if ( UNIVERSAL::isa( $e, 'SErr::AskUser' ) ) {
 
             # XXX(Board-it-up): [2006/12/18]
-            if ( $e->WorthAsking($object) ) {
-                if ( $e->Ask() ) {
+            if ( $e->WorthAsking($trust_level) ) {
+                if ( $e->Ask($reason) ) {
                     SWorkspace->insert_elements( @{ $e->next_elements() } );
                     $Global::Break_Loop = 1;
                 }
@@ -710,27 +712,19 @@ sub GetSomethingLike {
 }
 
 sub SErr::AskUser::WorthAsking {
-    my ( $self, $object ) = @_;
-    my $already_matched = $self->already_matched();
-    my $next_elements   = $self->next_elements();
-
-    my $strength        = $object->get_strength();
-    my $span            = $object->get_span();
-    my $total_ws_length = $SWorkspace::elements_count;
-
-    my $span_fraction =
-      ( $span + scalar( @{$already_matched} ) ) / $total_ws_length;
-    return 1
-      if ( SUtil::toss($span_fraction) or SUtil::toss( $strength / 100 ) );
-    return 0;
+    my ( $self, $trust_level ) = @_;
+    my ($match_size, $ask_size) = (scalar(@{$self->already_matched()}),
+                                   scalar(@{$self->next_elements()}));
+    my $fraction_already_matched = $match_size / ($match_size + $ask_size);
+    $trust_level += (1 - $trust_level) * $fraction_already_matched; 
+    return SUtil::toss($trust_level) ? 1 : 0;
 }
 
 sub SErr::AskUser::Ask {
-    my ( $self, $object ) = @_;
+    my ( $self, $msg ) = @_;
     my $already_matched = $self->already_matched();
     my $next_elements   = $self->next_elements();
 
-    my $msg = "I was trying to extend " . $object->get_structure_string() . '.';
     if (@$already_matched) {
         $msg .=
           "I also found the expected terms " . join( ', ', @$already_matched );

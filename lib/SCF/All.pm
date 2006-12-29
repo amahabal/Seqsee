@@ -424,5 +424,36 @@ use Compile::SCF;
         SErr::NeedMoreData->new(payload=> $tht)->throw();
     }
 </run>
+no Compile::SCF;
+#############################################
+use Compile::SCF;
+[package] SCF::AttemptExtension2
+[param] object!
+[param] direction!
 
+<run>
+    #main::message("Starting SCF::AttemptExtension2");
+    my $extension = $object->FindExtension($direction) or return;
+    #main::message("Found extension: $extension; " . $extension->get_structure_string());
+    my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
+    $object->Extend( $extension, $add_to_end_p );
+    #main::message("Extended!");
+</run>
+no Compile::SCF;
+##############################################
+use Compile::SCF;
+[package] SCF::TryToSquint
+[param] actual!
+[param] intended!
+
+<run>
+#main::message("Wonder if I can see " . $actual->as_text() . " as a " . $intended->get_structure_string());
+# XXX(Board-it-up): [2006/12/29] Clearly suboptimal, and also brute-forcey...
+my @potential_squints = $actual->CheckSquintability($intended) or return;
+# XXX(Board-it-up): [2006/12/29] choose wisely!
+my ($cat, $name) = @{$potential_squints[0]};
+main::message("Squinting: $cat/$name");
+$actual->annotate_with_metonym($cat, $name);
+$actual->set_metonym_activeness(1);
+</run>
 1;
