@@ -72,6 +72,7 @@ sub BUILD {
         );
 
         ## attempted creation: $string
+        $opts{string} = $string;
         return $MEMO{$string} ||= $package->new( \%opts );
     }
 

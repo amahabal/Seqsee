@@ -284,7 +284,7 @@ use Compile::SCF;
 
 sub spike_reln_type{
     my ( $reln ) = @_;
-    return 1 unless $Global::Feature{relnact};
+    return 1 unless ($Global::Feature{relnact} or $Global::Feature{rules});
     my $reln_type = $reln->get_type();
     SLTM::InsertUnlessPresent($reln_type);
 
@@ -296,6 +296,8 @@ sub spike_reln_type{
     return if $gap_size <=0; # Bacuase overlapping relation, anyway
     my $extra_boost = ($reln->isa('SReln::Compound')) ? 10 : 3;
     my $type_activation = SLTM::SpikeBy($extra_boost + int(10/$gap_size), $reln_type);
+    return 1 unless $Global::Feature{relnact};
+
     return $type_activation;
 }
 

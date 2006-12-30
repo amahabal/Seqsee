@@ -14,7 +14,8 @@ sub Populate{
     $self->SUPER::Populate();
 
     my $column_specs = 
-        [[-text => 'Concept', -textwidth => 40],
+        [[-text => 'Concept Type', -textwidth => 20],
+         [-text => 'Concept', -textwidth => 40],
          [-text => 'Activation', -textwidth => 10],
              ];
     $list = $self->MListbox(-height => 30, -columns => $column_specs)
@@ -28,7 +29,8 @@ sub Update{
   for (@concepts_with_activation) {
       my ($concept, $activation) = @{$_};
       $activation = sprintf('%6.4f', $activation);
-      $list->insert('end', [$concept->as_text(), $activation]);
+      my $concept_type = ref($concept);
+      $list->insert('end', [$concept_type, $concept->as_text(), $activation]);
   }
 }
 
