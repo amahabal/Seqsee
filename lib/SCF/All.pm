@@ -456,4 +456,45 @@ main::message("Squinting: $cat/$name");
 $actual->annotate_with_metonym($cat, $name);
 $actual->set_metonym_activeness(1);
 </run>
+
+no Compile::SCF;
+####################
+use Compile::SCF;
+[package] SCF::ConvulseEnd
+[param] object!
+[param] direction!
+
+<run>
+    #main::message("SCF::ConvulseEnd: " . $object->as_text());
+    my $change_at_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
+    my $ejected_object;
+    if ($change_at_end_p) {
+        $ejected_object = pop(@$object);
+    }
+    else {
+        $ejected_object = shift(@$object);
+    }
+
+    $object->recalculate_edges();
+
+    my $new_extension = $object->FindExtension($direction);
+    if ( $new_extension and $new_extension ne $ejected_object ) {
+        main::message( "New extension! Instead of "
+              . $ejected_object->as_text()
+              . " I can use "
+              . $new_extension->as_text() );
+        $object->Extend( $new_extension, $change_at_end_p );
+    }
+    else {
+        if ($change_at_end_p) {
+            push @$object, $ejected_object;
+        }
+        else {
+            unshift @$object, $ejected_object;
+        }
+        $object->recalculate_edges();
+    }
+
+</run>
+
 1;

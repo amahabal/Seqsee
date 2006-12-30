@@ -212,6 +212,24 @@ sub BelieveBlemish{
            };
      }
 
+     if (scalar(@$core) > 1 and SUtil::toss(0.2)) {
+         if (SUtil::toss(0.5)) {
+             #main::message("Will launch ConvulseEnd");
+             CODELET 100, ConvulseEnd,
+                 {
+                     object => $core,
+                     direction => $DIR::RIGHT,
+                         };
+         } else {
+             #main::message("Will launch ConvulseEnd");
+             CODELET 100, ConvulseEnd,
+                 {
+                     object => $core,
+                     direction => $DIR::LEFT,
+                         };
+         }
+     }
+
      my $poss_cat;
      $poss_cat = $core->get_underlying_reln()->suggest_cat() 
          if $core->get_underlying_reln;
