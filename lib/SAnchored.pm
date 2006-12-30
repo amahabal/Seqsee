@@ -372,7 +372,8 @@ sub FindExtension {
         $end_object = $self->[-1];
     }
     else {
-        $reln = $self->get_underlying_reln()->FlippedVersion() or return;
+        my $underlying_reln = $self->get_underlying_reln() or return;
+        $reln = $underlying_reln->FlippedVersion() or return;
         $end_object = $self->[0];
     }
 
