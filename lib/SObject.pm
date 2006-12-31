@@ -879,7 +879,7 @@ sub recalculate_relations {
         }
         else {
             $v->uninsert;
-            main::message("A relation no longer valid, removing!");
+            #main::message("A relation no longer valid, removing!");
         }
     }
 }

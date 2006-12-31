@@ -454,7 +454,7 @@ use Compile::SCF;
 my @potential_squints = $actual->CheckSquintability($intended) or return;
 # XXX(Board-it-up): [2006/12/29] choose wisely!
 my ($cat, $name) = @{$potential_squints[0]};
-main::message("Squinting: $cat/$name");
+#main::message("Squinting: $cat/$name");
 $actual->annotate_with_metonym($cat, $name);
 $actual->set_metonym_activeness(1);
 </run>
@@ -481,10 +481,10 @@ use Compile::SCF;
 
     my $new_extension = $object->FindExtension($direction);
     if ( $new_extension and $new_extension ne $ejected_object ) {
-        main::message( "New extension! Instead of "
-              . $ejected_object->as_text()
-              . " I can use "
-              . $new_extension->as_text() );
+        #main::message( "New extension! Instead of "
+        #      . $ejected_object->as_text()
+        #      . " I can use "
+        #      . $new_extension->as_text() );
         $object->Extend( $new_extension, $change_at_end_p );
     }
     else {

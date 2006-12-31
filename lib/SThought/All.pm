@@ -251,6 +251,21 @@ sub BelieveBlemish{
                };
           }
      }
+
+     my $possible_category_for_ends = $core->get_underlying_reln()->suggest_cat_for_ends() 
+    if $core->get_underlying_reln;
+    if ($possible_category_for_ends) {
+        for ($core->get_underlying_reln()->get_ends()) {
+            my $is_inst = $_->is_of_category_p($possible_category_for_ends)->[0];
+            unless ($is_inst) {
+                CODELET 100, CheckIfInstance,
+                 {
+                     obj => $_,
+                     cat => $possible_category_for_ends
+                         }; 
+            }
+        }
+    }
  </actions>
 
 ##########################################

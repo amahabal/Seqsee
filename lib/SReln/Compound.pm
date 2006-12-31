@@ -272,6 +272,12 @@ sub suggest_cat {
     return;
 }
 
+sub suggest_cat_for_ends{
+    my ( $self ) = @_;
+    return $type_of{ident $self}->suggest_cat_for_ends();
+}
+
+
 sub UpdateStrength {
     my ($self) = @_;
     my $strength = 20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );

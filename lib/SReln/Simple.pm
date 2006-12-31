@@ -124,6 +124,12 @@ sub suggest_cat {
 
 }
 
+sub suggest_cat_for_ends{
+    my ( $self ) = @_;
+    return;
+}
+
+
 sub as_insertlist {
     my ( $self, $verbosity ) = @_;
     my $id = ident $self;

@@ -90,7 +90,17 @@ sub BUILD {
 
 sub as_text {
     my ($self) = @_;
-    return $string_representation_of{ ident $self};
+    my $id = ident $self;
+
+    my $basecat = $base_category_of{$id}->as_text();
+    my $changed_bindings = $changed_bindings_of_of{$id};
+    my $changed_bindings_string;
+    while (my($k, $v) = each %$changed_bindings) {
+        $changed_bindings_string .= "$k => " . $v->as_text() . ";";
+    }
+    chop($changed_bindings_string);
+    my $metonymy_presence = $base_meto_mode_of{$id}->is_metonymy_present() ? '*' : '';
+    return "[$basecat$metonymy_presence] $changed_bindings_string";
 }
 
 multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
@@ -247,5 +257,18 @@ sub as_insertlist {
 
     confess "Verbosity $verbosity not implemented for " . ref $self;
 }
+
+sub suggest_cat_for_ends{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $base_meto_mode = $base_meto_mode_of{$id};
+    my $is_metonymy_present = $base_meto_mode->is_metonymy_present();
+
+    my $base_category = $base_category_of{$id};
+    # XXX(Board-it-up): [2006/12/31] I should also take into account unchanged bindings as a basis for more specific categories...
+    return unless $is_metonymy_present;
+    return; # blemished version of $base_category: I don't know how to express that...
+}
+
 
 1;
