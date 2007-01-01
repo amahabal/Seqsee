@@ -65,8 +65,6 @@ sub BUILD {
     multimethod createRule => qw(SReln) => sub {
         my ($reln) = @_;
 
-        # XXX(Board-it-up): [2006/10/29] I need relation type; I aready have such code along
-        # the ltm branch; Use it after merge.
         return $MEMO{ $reln->get_type() } ||= SRule->new(
             {   state_count   => 1,
                 transition_fn => [0],
@@ -81,8 +79,6 @@ sub BUILD {
     multimethod createRule => qw(SReln SReln) => sub {
         my ( $reln1, $reln2 ) = @_;
 
-        # XXX(Board-it-up): [2006/10/29] I need relation type; I aready have such code along
-        # the ltm branch; Use it after merge.
         my $key = join( ';', $reln1->get_type(), $reln2->get_type() );
         return $MEMO{$key} ||= SRule->new(
             {   state_count   => 2,

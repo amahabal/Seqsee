@@ -46,19 +46,22 @@ sub ExtendInDirection {
     my $next_pos = $object_at_end->get_next_pos_in_dir($direction);
     ## next_pos: $next_pos
     return unless defined $next_pos;
-    my $next_object = eval { apply_reln( $relation, $object_at_end->get_effective_object() ) };
+    my $next_object = apply_reln( $relation, $object_at_end->get_effective_object() );
     ## next_object: $next_object, $next_object->get_structure_string()
 
-    if ( my $e = $EVAL_ERROR ) {
-        confess qq{Errors in extension are currently not being handled: $e};
-    }
-
-    my $is_this_what_is_present = SWorkspace->check_at_location(
+    my $is_this_what_is_present = eval { SWorkspace->check_at_location(
         {   start     => $next_pos,
             direction => $direction,
             what      => $next_object
         }
-    );
+    )};
+    if (my $e = $EVAL_ERROR) {
+        die $e unless UNIVERSAL::isa($e, 'SErr::AskUser');
+        # XXX(Board-it-up): [2007/01/01] Trust level clearly should not be 1..
+        if ($e->WorthAsking(1)) {
+            $is_this_what_is_present = $e->Ask('(while extending rule)');
+        }
+    }
     ## is_this_what_is_present: $is_this_what_is_present
 
     if ($is_this_what_is_present) {
