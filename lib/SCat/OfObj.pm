@@ -66,6 +66,8 @@ my %meto_unfinder_of_of :ATTR;
 #    The type of attribute (e.g., "int")
 my %att_type_of_of :ATTR;
 
+
+my %IS_BLEMISHED_VERSION_OF;
 #
 # subsection: The public interface
 
@@ -423,3 +425,29 @@ sub get_squintability_checker{
     return;
 }
 
+sub derive_blemished{
+    my ( $category ) = @_;
+    if (exists $IS_BLEMISHED_VERSION_OF{$category}) {
+        return $category;
+    }
+    my $builder = sub {
+        my ( $self, $opts_ref ) = @_;
+        my $object = $category->build($opts_ref);
+        # XXX(Board-it-up): [2006/12/31] Needs work...
+        return $object;
+    };
+    my $instancer = sub {
+        my ( $me, $object ) = @_;
+        my $bindings = $category->is_instance( $object ) or return;
+        return unless $bindings->get_metonymy_mode()->is_metonymy_present();
+        return $bindings;
+    };
+    my $name = 'blemished ' . $category->get_name();
+    my $derived_cat = SCat::OfObj->new({builder => $builder,
+                                    name => $name,
+                                    instancer => $instancer,
+                                    to_recreate => 'Recreation Not yet implemented',
+                                    });
+    $IS_BLEMISHED_VERSION_OF{$derived_cat} = $category;
+    return $derived_cat;
+}

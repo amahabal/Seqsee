@@ -267,7 +267,7 @@ sub suggest_cat_for_ends{
     my $base_category = $base_category_of{$id};
     # XXX(Board-it-up): [2006/12/31] I should also take into account unchanged bindings as a basis for more specific categories...
     return unless $is_metonymy_present;
-    return; # blemished version of $base_category: I don't know how to express that...
+    return $base_category->derive_blemished(); 
 }
 
 
