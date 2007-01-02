@@ -128,15 +128,10 @@ use Compile::SCF;
             #main::message("already_matched @$already_matched; span = $core_span");
             if (worth_asking($already_matched, $ask_if_what, $core_span)) {
                 # main::message("We may ask the user if the next elements are: @$ask_if_what");
-                my $ans = main::ask_user_extension($ask_if_what);
+                my $ans = $err->Ask('(Extending relation)'); 
                 if ($ans) {
                     $is_this_what_is_present = 1;
-                    SWorkspace->insert_elements( @$ask_if_what );
-                    $Global::Break_Loop = 1;
                 } else {
-                    my $seq = join(", ", @$ask_if_what);
-                    ## setting for rejection: $seq
-                    $Global::ExtensionRejectedByUser{ $seq } = 1;
                     $core->set_right_extendibility( EXTENDIBILE::NO());
                 }
             } else {
@@ -498,5 +493,33 @@ use Compile::SCF;
     }
 
 </run>
+no Compile::SCF;
+#################################
+use Compile::SCF;
+[package] SCF::TryRule
+[param] rule!
+[param] reln!
 
+<run>
+   #main::message("Will try rule $rule");
+   my $direction = $reln->get_direction();
+
+   # XXX(Board-it-up): [2007/01/01] for now...
+   return unless $direction eq $DIR::RIGHT;
+
+   my $application = $rule->AttemptApplication({start => $reln->get_first(),
+                                                terms => 10,
+                                                   });
+   if ($application) {
+       main::message("Application of rule succeded! " . $rule->as_text());
+       my $tht = new SThought::AreTheseGroupable
+           ( { items => [@{$application->get_items()}],
+               reln  => $reln,
+                   });
+       #ContinueWith( $tht, 1 );
+       $tht->force_to_be_next_runnable();
+   } else {
+       #main::message("Application of rule failed: " . $rule->as_text());
+   }
+</run>
 1;

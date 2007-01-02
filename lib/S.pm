@@ -70,6 +70,8 @@ use SThought::All;
 use SActivation;
 use SLTM;
 
+use SRule;
+use SRuleApp;
 # use SUtil;
 
 our $ASCENDING  = $SCat::ascending::ascending;

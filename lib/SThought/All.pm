@@ -61,8 +61,7 @@ use Compile::SThought;
 
      my $new_group;
      eval { 
-         my @unstarred_items = map { my $unstarred = $_->get_is_a_metonym();
-                                     $unstarred ? $unstarred : $_ } @$items;         
+         my @unstarred_items = map { $_->get_effective_object() } @$items;
          $new_group = SAnchored->create(@unstarred_items);
          if ($new_group){
                 $new_group->set_underlying_reln($reln);
@@ -325,6 +324,7 @@ sub BelieveBlemish{
  [params] base_cat, base_meto_mode, base_pos_mode
  [params] changed_bindings_of
  [params] metonymy_reln
+ [multi] createRule
 
  <build>
      $base_cat_of{$id} = $core->get_base_category;
@@ -351,6 +351,23 @@ sub BelieveBlemish{
         if ( $core->get_left_extendibility() eq $EXTENDIBILE::PERHAPS ) {
             ACTION 80, AttemptExtension, { core => $core, direction => $DIR::LEFT };
         }
+    }
+
+    {
+        my $relntype = $core->get_type();
+        my $activation = SLTM::SpikeBy(5, $relntype);
+        if (SUtil::toss($activation)) {
+            # XXX(Board-it-up): [2007/01/01] should check if rule rejected...
+            my $rule = createRule($core);
+            my $has_been_rejected = $rule->has_been_rejected();
+            if (!$has_been_rejected or SUtil::toss(1 - 10/$has_been_rejected)) {
+                ACTION 100, TryRule,
+                    { rule => $rule,
+                      reln => $core, 
+                            };
+            }
+        }
+
     }
 
     {
@@ -393,6 +410,7 @@ sub BelieveBlemish{
   [package] SThought::SReln_Simple
   [param] core!
   [param] str
+  [multi] createRule
   [build] $str_of{$id} = $core->get_text();
   <fringe>
     FRINGE 100, $str;
@@ -418,6 +436,23 @@ sub BelieveBlemish{
             core      => $core,
             direction => DIR::RIGHT()
             };
+    }
+
+    {
+        my $relntype = $core->get_type();
+        my $activation = SLTM::SpikeBy(5, $relntype);
+        if (SUtil::toss($activation)) {
+            # XXX(Board-it-up): [2007/01/01] should check if rule rejected...
+            my $rule = createRule($core);
+            my $has_been_rejected = $rule->has_been_rejected();
+            if (!$has_been_rejected or SUtil::toss(1 - 10/$has_been_rejected)) {
+                ACTION 100, TryRule,
+                    { rule => $rule,
+                      reln => $core, 
+                            };
+            }
+        }
+
     }
 
     {

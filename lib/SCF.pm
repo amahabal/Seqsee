@@ -14,8 +14,8 @@ use base qw{Exporter};
 our @EXPORT = qw( ContinueWith NeedMoreData );
 
 sub ContinueWith {
-    my ($runnable) = @_;
-    SErr::ContinueWith->new( payload => $runnable )->throw;
+    my ($runnable, $forced) = @_;
+    SErr::ContinueWith->new( payload => $runnable, forced => $forced )->throw;
 }
 
 sub NeedMoreData {

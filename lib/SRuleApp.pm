@@ -15,12 +15,12 @@ use base qw{};
 use Smart::Comments;
 
 use Class::Multimethods;
-for (qw{apply_reln plonk_into_place}) {
+for (qw{apply_reln plonk_into_place find_reln}) {
     multimethod $_;
 }
 
 my %Rule_of : ATTR;      # The underlying rule.
-my %Items_of : ATTR;     # Objects to which the rule has been applied.
+my %Items_of : ATTR(:get<items>);     # Objects to which the rule has been applied.
 my %States_of : ATTR;    # The states corresponding to the types.
 
 sub BUILD {
@@ -78,6 +78,8 @@ sub ExtendInDirection {
             confess "Huh?";
         }
 
+        my $relation = find_reln($object_at_end, $next_object);
+        $relation->insert();
         return 1;
     }
     else {

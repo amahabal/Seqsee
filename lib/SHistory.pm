@@ -12,6 +12,7 @@ use Class::Std;
 use base qw{};
 
 my %messages_of : ATTR( :get<history>);
+my %message_count_of : ATTR();
 
 $Global::Steps_Finished        ||= '';
 $Global::CurrentRunnableString ||= '';
@@ -28,7 +29,15 @@ sub history_string {
 
 sub add_history {
     my ( $self, $msg ) = @_;
-    push @{ $messages_of{ ident $self} }, history_string($msg);
+    my $id = ident $self;
+    push @{ $messages_of{$id} }, history_string($msg);
+    $message_count_of{$id}++;
+}
+
+sub search_history {
+    my ( $self, $re ) = @_;
+    return map { m/^ \[ (\d+) \]/o; $1 } (grep $re,
+      @{ $messages_of{ ident $self} });
 }
 
 1;

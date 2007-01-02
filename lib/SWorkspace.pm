@@ -669,14 +669,7 @@ sub GetSomethingLike {
 
             # XXX(Board-it-up): [2006/12/18]
             if ( $e->WorthAsking($trust_level) ) {
-                if ( $e->Ask($reason) ) {
-                    SWorkspace->insert_elements( @{ $e->next_elements() } );
-                    $Global::Break_Loop = 1;
-                }
-                else {
-                    my $seq = join( ', ', @{ $e->next_elements() } );
-                    $Global::ExtensionRejectedByUser{$seq} = 1;
-                }
+                $e->Ask($reason);
             }
         }
         else {
@@ -730,7 +723,16 @@ sub SErr::AskUser::Ask {
           "I also found the expected terms " . join( ', ', @$already_matched );
     }
 
-    return main::ask_user_extension( $next_elements, $msg );
+    my $answer =  main::ask_user_extension( $next_elements, $msg );
+    if ($answer) {
+        SWorkspace->insert_elements( @$next_elements );
+        main::update_display();
+        $Global::Break_Loop = 1;
+    } else {
+        my $seq = join(', ', @$next_elements);
+        $Global::ExtensionRejectedByUser{ $seq } = 1;
+    }
+    return $answer;
 }
 
 1;

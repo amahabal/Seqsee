@@ -22,6 +22,8 @@ our %FlippedRelations_of : ATTR;             # Fliped versions, if needed.
 our %InverseTransitionFunction_of : ATTR;    # To move left. state->[state]
 our %ReverseRelations_of : ATTR;             # To move left. state->reln.
 
+our %Rejects_of :ATTR; # When has this rule been rejected?
+
 # Either provide SRelns in :relations and NOT provide flipped_relations, in which case the
 # SRelnTypes of both relations and inverses are inferred.
 # -- OR --
@@ -162,5 +164,24 @@ sub AttemptApplication {
 
     return;                                       # Failed!
 }
+
+sub has_been_rejected {
+    my ($self)       = @_;
+    my $id           = ident $self;
+    my @reject_times = @{ $Rejects_of{$id} ||= [] };
+    return unless @reject_times;
+    return 1 + ( $Global::Steps_Finished - $reject_times[0] );
+}
+
+sub Reject {
+    my ($self) = @_;
+    unshift @{ $Rejects_of{ ident $self} }, $Global::Steps_Finished;
+}
+
+sub as_text{
+    my ( $self ) = @_;
+    return "Rule: {" . join('}; {', map { $_->as_text() } @{$Relations_of{ident $self}}) . '}'
+}
+
 
 1;

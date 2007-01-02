@@ -17,8 +17,8 @@ use Exception::Class (
     'SErr::NotOfCat'            => {},
     'SErr::MetonymNotAppicable' => {},
 
-    'SErr::NeedMoreData' => { fields => ['payload'] },
-    'SErr::ContinueWith' => { fields => ['payload'] },
+    'SErr::NeedMoreData' => { fields => ['payload', 'forced'] },
+    'SErr::ContinueWith' => { fields => ['payload', 'forced'] },
 
     'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
