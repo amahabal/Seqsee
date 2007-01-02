@@ -506,20 +506,18 @@ use Compile::SCF;
 
    # XXX(Board-it-up): [2007/01/01] for now...
    return unless $direction eq $DIR::RIGHT;
+   return unless SUtil::toss($rule->suitability());
 
    my $application = $rule->AttemptApplication({start => $reln->get_first(),
                                                 terms => 10,
                                                    });
    if ($application) {
        main::message("Application of rule succeded! " . $rule->as_text());
-       my $tht = new SThought::AreTheseGroupable
-           ( { items => [@{$application->get_items()}],
-               reln  => $reln,
-                   });
-       #ContinueWith( $tht, 1 );
-       $tht->force_to_be_next_runnable();
+       my $new_group = SAnchored->create(@{$application->get_items()});
+       SWorkspace->add_group($new_group);
    } else {
        #main::message("Application of rule failed: " . $rule->as_text());
+       $rule->Reject();
    }
 </run>
 1;

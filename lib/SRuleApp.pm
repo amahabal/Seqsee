@@ -78,7 +78,7 @@ sub ExtendInDirection {
             confess "Huh?";
         }
 
-        my $relation = find_reln($object_at_end, $next_object);
+        my $relation = find_reln($object_at_end, $wso);
         $relation->insert();
         return 1;
     }

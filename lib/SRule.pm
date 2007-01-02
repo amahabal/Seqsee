@@ -173,6 +173,15 @@ sub has_been_rejected {
     return 1 + ( $Global::Steps_Finished - $reject_times[0] );
 }
 
+sub suitability{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my @reject_times = @{ $Rejects_of{$id} ||= [] };
+    my $epoch = $Global::Steps_Finished;
+    return 1 - List::Util::sum(map { 20 / (1 + $epoch - $_) } @reject_times);
+}
+
+
 sub Reject {
     my ($self) = @_;
     unshift @{ $Rejects_of{ ident $self} }, $Global::Steps_Finished;
