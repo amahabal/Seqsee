@@ -37,6 +37,7 @@ Test::Stochastic
 Text::Balanced
 Time::HiRes
 Tk::Carp
+Tk::MListbox
 UNIVERSAL::require
 XSLoader
 enum

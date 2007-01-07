@@ -1,4 +1,10 @@
-#!c:/Perl/bin/perl
+use English qw(-no_match_vars);
+my $IS_WINDOWS = ($OSNAME =~ /^MSWin/) ? 1 : 0;
+
+if ($IS_WINDOWS) {
+    die "Running under windows!\n";
+}
+
 my $filename = 'dis';
 my @indices  = qw{sequences};
 

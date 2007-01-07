@@ -30,7 +30,9 @@ sub setup {
     my ($options_ref) = @_;
     my $gui_config_name = $options_ref->{gui_config} or confess;
     my $config_filename = "config/${gui_config_name}.conf";
+    ### Here
     read_config $config_filename => my %config;
+    ### and here
     CreateWidgets( \%config );
     SetupButtons( \%config );
     SetupBindings( \%config );
