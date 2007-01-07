@@ -238,7 +238,9 @@ sub GetRawActivationsForIndices {
 sub GetTopConcepts {
     my ($N) = @_;
     return
-        map { [ $MEMORY[$_], $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION] ] }
+        map { [ $MEMORY[$_], $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION],
+                    $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION],
+                    $ACTIVATIONS[$_]->[SActivation::RAW_SIGNIFICANCE]] }
         ( 1 .. $NodeCount );
 }
 

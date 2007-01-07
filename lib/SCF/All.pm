@@ -34,7 +34,7 @@ use Compile::SCF;
 [param] obj!
 [param] cat!
 <run>
-    $obj->describe_as($cat);
+    $obj->describe_as($cat) and SLTM::SpikeBy( 10, $cat );
 </run>
 
 no Compile::SCF;

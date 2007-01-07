@@ -68,7 +68,8 @@ use Compile::SThought;
         $new_group = SAnchored->create(@unstarred_items);
         if ($new_group) {
             $new_group->set_underlying_reln($reln);
-            return unless $new_group->describe_as($S::RELN_BASED);
+            # next line commented on 07/1/06. Do I need reln_based?
+            #return unless $new_group->describe_as($S::RELN_BASED);
             SWorkspace->add_group($new_group);
         }
 
@@ -194,9 +195,10 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         FRINGE 50, $rel;
     }
 
-    for ( @{ $core->get_cats() } ) {
-        next if $_ eq $S::RELN_BASED;
-        FRINGE 100, $_;
+    for my $category ( @{ $core->get_cats() } ) {
+        next if $category eq $S::RELN_BASED;
+        SLTM::SpikeBy( 5, $category );
+        FRINGE 100, $category;
     }
 
     return \@ret;
