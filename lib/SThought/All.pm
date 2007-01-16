@@ -105,7 +105,9 @@ use Compile::SThought;
     my $gp          = $group;
     my $span        = $gp->get_span;
     my $total_count = $SWorkspace::elements_count;
+    my $right_extendibility = $gp->get_right_extendibility();
     ### $span, $total_count
+    main::message( $right_extendibility);
 
     if ( $Global::AtLeastOneUserVerification
         and ( $span / $total_count ) > 0.8 )
@@ -130,9 +132,9 @@ use Compile::SThought;
 
             # so flush left
             if ( $span == $total_count ) {
-
                 #Bingo!
-                if ( $gp->get_right_extendibility() ne EXTENDIBILE::NO() ) {
+                # XXX(Board-it-up): [2007/01/15] Some problem with get_right_extendibility, hence next line funny
+                if ( 1 or $gp->get_right_extendibility() ne EXTENDIBILE::NO() ) {
 
                     #great.
                     main::update_display();
@@ -144,7 +146,7 @@ use Compile::SThought;
                       join( ", ", keys %Global::ExtensionRejectedByUser );
                     my $msg = "I think I am stuck. ";
                     $msg .=
-"You have already rejected $rejected as possible continuation(s)";
+"You have already rejected {$rejected} as possible continuation(s)";
                     main::message($msg);
                 }
             }

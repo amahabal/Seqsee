@@ -434,6 +434,8 @@ use Compile::SCF;
     #main::message("Found extension: $extension; " . $extension->get_structure_string());
     my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
     $object->Extend( $extension, $add_to_end_p );
+    ContinueWith( SThought::AreWeDone->new({group => $object}) ) 
+       if SUtil::toss($object->get_strength() / 100); 
     #main::message("Extended!");
 </run>
 no Compile::SCF;
@@ -509,12 +511,15 @@ use Compile::SCF;
    return unless SUtil::toss($rule->suitability());
 
    my $application = $rule->AttemptApplication({start => $reln->get_first(),
-                                                terms => 10,
+                                                terms => 4,
                                                    });
    if ($application) {
        main::message("Application of rule succeded! " . $rule->as_text());
+       $application->ExtendLeftMaximally();
        my $new_group = SAnchored->create(@{$application->get_items()});
-       SWorkspace->add_group($new_group);
+       $new_group->set_right_extendibility($EXTENDIBILE::PERHAPS);
+       SWorkspace->add_group($new_group) or return;
+       ContinueWith( SThought::AreWeDone->new({group => $new_group}) );
    } else {
        #main::message("Application of rule failed: " . $rule->as_text());
        $rule->Reject();

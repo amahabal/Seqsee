@@ -19,9 +19,9 @@ for (qw{apply_reln plonk_into_place find_reln}) {
     multimethod $_;
 }
 
-my %Rule_of : ATTR;      # The underlying rule.
-my %Items_of : ATTR(:get<items>);     # Objects to which the rule has been applied.
-my %States_of : ATTR;    # The states corresponding to the types.
+my %Rule_of : ATTR;                # The underlying rule.
+my %Items_of : ATTR(:get<items>);  # Objects to which the rule has been applied.
+my %States_of : ATTR;              # The states corresponding to the types.
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -46,19 +46,24 @@ sub ExtendInDirection {
     my $next_pos = $object_at_end->get_next_pos_in_dir($direction);
     ## next_pos: $next_pos
     return unless defined $next_pos;
-    my $next_object = apply_reln( $relation, $object_at_end->get_effective_object() );
+    my $next_object =
+      apply_reln( $relation, $object_at_end->get_effective_object() );
     ## next_object: $next_object, $next_object->get_structure_string()
 
-    my $is_this_what_is_present = eval { SWorkspace->check_at_location(
-        {   start     => $next_pos,
-            direction => $direction,
-            what      => $next_object
-        }
-    )};
-    if (my $e = $EVAL_ERROR) {
-        die $e unless UNIVERSAL::isa($e, 'SErr::AskUser');
+    my $is_this_what_is_present = eval {
+        SWorkspace->check_at_location(
+            {
+                start     => $next_pos,
+                direction => $direction,
+                what      => $next_object
+            }
+        );
+    };
+    if ( my $e = $EVAL_ERROR ) {
+        die $e unless UNIVERSAL::isa( $e, 'SErr::AskUser' );
+
         # XXX(Board-it-up): [2007/01/01] Trust level clearly should not be 1..
-        if ($e->WorthAsking(1)) {
+        if ( $e->WorthAsking(1) ) {
             $is_this_what_is_present = $e->Ask('(while extending rule)');
         }
     }
@@ -78,7 +83,8 @@ sub ExtendInDirection {
             confess "Huh?";
         }
 
-        my $relation = find_reln($object_at_end, $wso) or confess "relation should have been found!";
+        my $relation = find_reln( $object_at_end, $wso )
+          or confess "relation should have been found!";
         $relation->insert();
         return 1;
     }
@@ -102,12 +108,14 @@ sub ExtendRight {
         ## Extending step: $_
         my $current_rightmost = $items_ref->[-1];
         my $rightmost_state   = $states_ref->[-1];
-        my ( $relation, $next_state ) = $rule->GetRelationAndTransition($rightmost_state);
+        my ( $relation, $next_state ) =
+          $rule->GetRelationAndTransition($rightmost_state);
         ## relation, next_state: ident $relation, $next_state
-        my $result = $self->ExtendInDirection( $id, $DIR::RIGHT, $current_rightmost, $relation,
-            $next_state );
+        my $result =
+          $self->ExtendInDirection( $id, $DIR::RIGHT, $current_rightmost,
+            $relation, $next_state );
         ## result of extending: $result
-        unless ($result) {                    # Could not extend as many steps as desired!
+        unless ($result) {    # Could not extend as many steps as desired!
             splice( @$items_ref,  $count );
             splice( @$states_ref, $count );
             return;
@@ -129,16 +137,48 @@ sub ExtendLeft {
     for my $step ( 1 .. $steps ) {
         my $current_leftmost = $items_ref->[0];
         my $leftmost_state   = $states_ref->[0];
-        my ( $relation, $next_state ) = $rule->GetReverseRelationAndTransition($leftmost_state);
-        my $result = $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost, $relation,
-            $next_state );
-        unless ($result) {                    # Could not extend as many steps as desired!
+        my ( $relation, $next_state ) =
+          $rule->GetReverseRelationAndTransition($leftmost_state);
+        my $result =
+          $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost,
+            $relation, $next_state );
+        unless ($result) {    # Could not extend as many steps as desired!
             splice( @$items_ref,  0, $step - 1 );
             splice( @$states_ref, 0, $step - 1 );
             return;
         }
     }
     return 1;
+}
+
+sub ExtendLeftMaximally {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    my $items_ref  = $Items_of{$id};
+    my $states_ref = $States_of{$id};
+    my $count      = scalar(@$states_ref);    # Useful for undo
+    my $rule       = $Rule_of{$id};
+
+    my $current_leftmost  = $items_ref->[0];
+    my $leftmost_state    = $states_ref->[0];
+    my $current_left_edge = $current_leftmost->get_left_edge();
+
+    while ( $current_left_edge > 0 ) {
+        my ( $relation, $next_state ) =
+          $rule->GetReverseRelationAndTransition($leftmost_state);
+        my $result =
+          $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost,
+            $relation, $next_state );
+
+        if ($result) {
+            $current_leftmost = $items_ref->[0];
+            $leftmost_state   = $states_ref->[0];
+            $current_left_edge = $current_leftmost->get_left_edge();
+        } else {
+            return;
+        }
+    }
 }
 
 1;
