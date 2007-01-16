@@ -17,8 +17,8 @@ sub Populate {
         [ -text => 'Concept Type', -textwidth => 20 ],
         [ -text => 'Concept',      -textwidth => 40 ],
         [ -text => 'Activation',   -textwidth => 10 ],
-        [-text => 'Raw Actvn', -textwidth => 10],
-        [-text => 'Raw Signif.', -textwidth => 10],
+        [ -text => 'Raw Actvn',    -textwidth => 10 ],
+        [ -text => 'Raw Signif.',  -textwidth => 10 ],
     ];
     $list =
       $self->MListbox( -height => 30, -columns => $column_specs )

@@ -203,6 +203,16 @@ sub GetRawActivationsForIndices {
     return [ map { $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION] } @$index_ref ];
 }
 
+sub GetRealActivationsForIndices {
+    my ($index_ref) = @_;
+    return [ map { $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION] } @$index_ref ];
+}
+
+sub GetRealActivationsForConcepts {
+    my ($index_ref) = @_;
+    return [ map { $ACTIVATIONS[GetMemoryIndex($_)]->[SActivation::REAL_ACTIVATION] } @$index_ref ];
+}
+
 {
     my $chooser_given_indices
         = SChoose->create( { map => q{$SLTM::ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION]} } );

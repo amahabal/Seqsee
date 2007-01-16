@@ -12,7 +12,7 @@ use Carp;
 use Class::Std;
 use base qw{SObject};
 
-#use Smart::Comments;
+# use Smart::Comments;
 
 use List::Util qw(min max sum);
 use Class::Multimethods;
@@ -57,7 +57,7 @@ sub recalculate_edges {
       ; #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     $left_edge_of{$id}  = $left;
     $right_edge_of{$id} = $right;
-    ### insist: scalar(@keys) == $right + $left - 1
+    ### insist: scalar(@keys) == $right - $left + 1
 }
 
 # method: set_edges
@@ -297,9 +297,13 @@ sub overlaps {
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength =
-      40 + 0.1 * sum( map { $_->get_strength() } @{ $self->get_parts_ref() } );
+    my $strength_from_parts =
+      20 + 0.2 * sum( map { $_->get_strength() } @{ $self->get_parts_ref() } );
+    my $strength_from_categories =
+        30 * sum( @{SLTM::GetRealActivationsForIndices($self->get_categories())});
+    my $strength = $strength_from_parts + $strength_from_categories;
     $strength = 100 if $strength > 100;
+    ### p, c, t: $strength_from_parts, $strength_from_categories, $strength
     $self->set_strength($strength);
 }
 
