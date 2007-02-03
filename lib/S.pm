@@ -94,6 +94,7 @@ our $DOUBLE = SMetonymType->new(
 package DIR;
 use strict;
 use warnings;
+use Carp;
 
 our $LEFT    = bless { text => 'left' },    'DIR';
 our $RIGHT   = bless { text => 'right' },   'DIR';
@@ -104,6 +105,13 @@ sub LEFT    {$LEFT}
 sub RIGHT   {$RIGHT}
 sub UNKNOWN {$UNKNOWN}
 sub NEITHER {$NEITHER}
+
+sub Flip{
+    my ( $self ) = @_;
+    return $LEFT if $self eq $RIGHT;
+    return $RIGHT if $self eq $LEFT;
+    confess "Flip called on weird direction";
+}
 
 sub PotentiallyExtendible {
     my ($self) = @_;

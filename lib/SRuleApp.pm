@@ -22,12 +22,14 @@ for (qw{apply_reln plonk_into_place find_reln}) {
 my %Rule_of : ATTR;                # The underlying rule.
 my %Items_of : ATTR(:get<items>);  # Objects to which the rule has been applied.
 my %States_of : ATTR;              # The states corresponding to the types.
+my %Direction_of : ATTR;           # Direction of application (Right/Left).
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
-    $Rule_of{$id}   = $opts_ref->{rule}   or confess;
-    $Items_of{$id}  = $opts_ref->{items}  or confess;
-    $States_of{$id} = $opts_ref->{states} or confess;
+    $Rule_of{$id}      = $opts_ref->{rule}      or confess;
+    $Items_of{$id}     = $opts_ref->{items}     or confess;
+    $States_of{$id}    = $opts_ref->{states}    or confess;
+    $Direction_of{$id} = $opts_ref->{direction} or confess;
 }
 
 # method GetItems( $self:  ) returns [@SObjects]
@@ -42,7 +44,15 @@ sub GetStates {
 }
 
 sub ExtendInDirection {
-    my ( $self, $id, $direction, $object_at_end, $relation, $next_state ) = @_;
+    my (
+        $self, $id,
+        $direction,        # Direction to extend in (Right/Left)
+        $object_at_end,    # First/Last object, depending on direction
+        $relation,         # Relation to use for extension
+        $next_state,       # Resulting state
+        $start_or_end      # a string 'start' or 'end': where to add.
+    ) = @_;
+
     my $next_pos = $object_at_end->get_next_pos_in_dir($direction);
     ## next_pos: $next_pos
     return unless defined $next_pos;
@@ -71,21 +81,23 @@ sub ExtendInDirection {
 
     if ($is_this_what_is_present) {
         my $wso = plonk_into_place( $next_pos, $direction, $next_object );
-        if ( $direction eq $DIR::RIGHT ) {
+        my $reln;
+        if ( $start_or_end eq 'end' ) {
             push @{ $Items_of{$id} },  $wso;
             push @{ $States_of{$id} }, $next_state;
+            $reln = find_reln($object_at_end, $wso);
         }
-        elsif ( $direction eq $DIR::LEFT ) {
+        elsif ( $start_or_end eq 'start' ) {
             unshift @{ $Items_of{$id} },  $wso;
             unshift @{ $States_of{$id} }, $next_state;
+            $reln = find_reln($wso, $object_at_end);
         }
         else {
             confess "Huh?";
         }
 
-        my $relation = find_reln( $object_at_end, $wso )
-          or confess "relation should have been found!";
-        $relation->insert();
+        $reln or confess "Relation should have been found!";
+        $reln->insert();
         return 1;
     }
     else {
@@ -93,11 +105,12 @@ sub ExtendInDirection {
     }
 }
 
-# method ExtendRight( $self:  )
-sub ExtendRight {
+sub ExtendForward {
     my ( $self, $steps ) = @_;
     $steps ||= 1;
     my $id = ident $self;
+
+    my $direction_to_extend_in = $Direction_of{$id};
 
     my $items_ref  = $Items_of{$id};
     my $states_ref = $States_of{$id};
@@ -112,8 +125,13 @@ sub ExtendRight {
           $rule->GetRelationAndTransition($rightmost_state);
         ## relation, next_state: ident $relation, $next_state
         my $result =
-          $self->ExtendInDirection( $id, $DIR::RIGHT, $current_rightmost,
-            $relation, $next_state );
+          $self->ExtendInDirection( $id, 
+                                    $direction_to_extend_in,
+                                    $current_rightmost,
+                                    $relation, 
+                                    $next_state,
+                                    'end',
+                                        );
         ## result of extending: $result
         unless ($result) {    # Could not extend as many steps as desired!
             splice( @$items_ref,  $count );
@@ -124,10 +142,12 @@ sub ExtendRight {
     return 1;
 }
 
-sub ExtendLeft {
+sub ExtendBackward {
     my ( $self, $steps ) = @_;
     $steps ||= 1;
     my $id = ident $self;
+
+    my $direction_to_extend_in = $Direction_of{$id}->Flip();
 
     my $items_ref  = $Items_of{$id};
     my $states_ref = $States_of{$id};
@@ -140,8 +160,13 @@ sub ExtendLeft {
         my ( $relation, $next_state ) =
           $rule->GetReverseRelationAndTransition($leftmost_state);
         my $result =
-          $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost,
-            $relation, $next_state );
+          $self->ExtendInDirection( $id,
+                                    $direction_to_extend_in, 
+                                    $current_leftmost,
+                                    $relation, 
+                                    $next_state,
+                                    'start'
+                                        );
         unless ($result) {    # Could not extend as many steps as desired!
             splice( @$items_ref,  0, $step - 1 );
             splice( @$states_ref, 0, $step - 1 );
@@ -149,6 +174,30 @@ sub ExtendLeft {
         }
     }
     return 1;
+}
+
+sub ExtendRight{
+    my ( $self, $steps ) = @_;
+    my $direction = $Direction_of{ident $self};
+    if ($direction eq $DIR::RIGHT) {
+        $self->ExtendForward($steps);
+    } elsif ($direction eq $DIR::LEFT) {
+        $self->ExtendBackward($steps);
+    } else {
+        confess "Huh?";
+    }
+}
+
+sub ExtendLeft{
+    my ( $self, $steps ) = @_;
+    my $direction = $Direction_of{ident $self};
+    if ($direction eq $DIR::LEFT) {
+        $self->ExtendForward($steps);
+    } elsif ($direction eq $DIR::RIGHT) {
+        $self->ExtendBackward($steps);
+    } else {
+        confess "Huh?";
+    }
 }
 
 sub ExtendLeftMaximally {
@@ -167,9 +216,11 @@ sub ExtendLeftMaximally {
     while ( $current_left_edge > 0 ) {
         my ( $relation, $next_state ) =
           $rule->GetReverseRelationAndTransition($leftmost_state);
+        my $direction_of_self = $Direction_of{$id};
+        my $start_or_end = ($direction_of_self eq $DIR::RIGHT) ? 'start' : 'end';
         my $result =
           $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost,
-            $relation, $next_state );
+            $relation, $next_state, $start_or_end );
 
         if ($result) {
             $current_leftmost = $items_ref->[0];

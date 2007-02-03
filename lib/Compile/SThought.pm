@@ -147,7 +147,7 @@ sub process_codelet{
             $type = $1 or die "missing type";
         }
         {
-            print "Looking at: ", substr($str, pos($str) -1, 10), "\n";
+            print "Looking at: ", substr($str, pos($str) -1, 100), "\n";
             ($option_hash) = extract_codeblock($str);
             die "Missing option_hash" unless $option_hash;
         }

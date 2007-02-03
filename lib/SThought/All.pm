@@ -599,7 +599,6 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         #okay, so we *may* switch... lets go ahead for now
         ACTION 100, flipReln, { reln => $reln };
     }
-
-  </actions>
+</actions>
  
 1;

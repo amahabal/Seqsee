@@ -512,6 +512,7 @@ use Compile::SCF;
 
    my $application = $rule->AttemptApplication({start => $reln->get_first(),
                                                 terms => 4,
+                                                direction => $DIR::RIGHT,
                                                    });
    if ($application) {
        main::message("Application of rule succeded! " . $rule->as_text());

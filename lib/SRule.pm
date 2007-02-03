@@ -94,11 +94,19 @@ sub BUILD {
 # method CreateApplication( $self: SObject +$start, Int +$state ) returns SRuleApp
 sub CreateApplication {
     my ( $self, $opts_ref ) = @_;
-    my $start = $opts_ref->{start} or confess;
-    my $state = $opts_ref->{state};
+    my $start     = $opts_ref->{start}     or confess;
+    my $direction = $opts_ref->{direction} or confess;
+    my $state     = $opts_ref->{state};
     confess unless defined $state;
 
-    return SRuleApp->new( { rule => $self, items => [$start], states => [$state] } );
+    return SRuleApp->new(
+        {
+            rule      => $self,
+            items     => [$start],
+            states    => [$state],
+            direction => $direction
+        }
+    );
 }
 
 # method GetRelationAndTransition( $self: Int $state ) returns (SReln, Int)
@@ -139,25 +147,31 @@ sub AttemptApplication {
     my ( $self, $opts_ref ) = @_;
     my $id = ident $self;
 
-    my $start = $opts_ref->{start} or confess;
-    my $terms = $opts_ref->{terms} or confess;
-    my $from_state  = $opts_ref->{from_state};    # If undefined, try all states.
+    my $start     = $opts_ref->{start}     or confess;
+    my $terms     = $opts_ref->{terms}     or confess;
+    my $direction = $opts_ref->{direction} or confess;
+    my $from_state  = $opts_ref->{from_state};   # If undefined, try all states.
     my $state_count = $StateCount_of{$id};
 
-    my @states_to_check_from = ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
+    my @states_to_check_from =
+      ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
 
     for my $start_state (@states_to_check_from) {
         ## Checking state: $start_state
-        my $ruleapp = $self->CreateApplication( { start => $start, state => $start_state } );
-        return $ruleapp if ($terms == 1);
+        my $ruleapp =
+          $self->CreateApplication(
+            { start => $start, state => $start_state, direction => $direction }
+          );
+        return $ruleapp if ( $terms == 1 );
         ## ruleapp: $ruleapp
-        my $extension_works = eval { $ruleapp->ExtendRight( $terms - 1) };
-        if (my $e = $EVAL_ERROR) {
-            $e->throw() unless UNIVERSAL::isa($e, 'SErr::ConflictingGroups');
+        my $extension_works = eval { $ruleapp->ExtendForward( $terms - 1 ) };
+        if ( my $e = $EVAL_ERROR ) {
+            $e->throw() unless UNIVERSAL::isa( $e, 'SErr::ConflictingGroups' );
+
             # XXX(Board-it-up): [2006/11/17] I should use this info!
             $extension_works = 0;
         }
-        if ( $extension_works ) {
+        if ($extension_works) {
             return $ruleapp;
         }
     }
