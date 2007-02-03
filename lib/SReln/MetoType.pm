@@ -141,6 +141,10 @@ sub deserialize{
     return $package->create(\%opts);
 }
 
+sub as_text{
+    my ( $self ) = @_;
+    return 'SReln::MetoType ' . $self;
+}
 
 
 

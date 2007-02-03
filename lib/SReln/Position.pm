@@ -61,6 +61,11 @@ my $relation_finder = sub {
         :               return;
 };
 
+sub as_text{
+    my ( $self ) = @_;
+    return "SReln::Position " . $text_of{ident $self};
+}
+
 multimethod find_reln => qw(SPos::Forward SPos::Forward)   => $relation_finder;
 multimethod find_reln => qw(SPos::Backward SPos::Backward) => $relation_finder;
 multimethod find_reln => qw(SPos SPos)                     => sub {

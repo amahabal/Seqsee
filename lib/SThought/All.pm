@@ -64,7 +64,15 @@ use Compile::SThought;
 
     my $new_group;
     eval {
-        my @unstarred_items = map { $_->get_effective_object() } @$items;
+        # I do not see why I had the next line! Effective object are starred!
+        #my @unstarred_items = map { $_->get_effective_object() } @$items;
+        my @unstarred_items = @$items;
+        for (@unstarred_items) {
+            if (my $unstarred = $_->get_is_a_metonym()) {
+                main::message("AreTheseGroupable: Got a metonym'd object as arg; fixing...");
+                $_ = $unstarred;
+            }
+        }
         $new_group = SAnchored->create(@unstarred_items);
         if ($new_group) {
             $new_group->set_underlying_reln($reln);
@@ -201,6 +209,13 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         next if $category eq $S::RELN_BASED;
         SLTM::SpikeBy( 5, $category );
         FRINGE 100, $category;
+
+        my $bindings = $core->get_binding( $category );
+        my $meto_mode = $bindings->get_metonymy_mode();
+        if ($meto_mode ne $METO_MODE::NONE) {
+            FRINGE 100, $meto_mode;
+            FRINGE 100, $bindings->get_metonymy_type();
+        }
     }
 
     return \@ret;

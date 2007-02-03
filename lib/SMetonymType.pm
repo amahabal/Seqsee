@@ -57,4 +57,10 @@ sub blemish {
     return $obj;
 }
 
+sub as_text{
+    my ( $self ) = @_;
+    return "Metotype: $self";
+}
+
+
 1;
