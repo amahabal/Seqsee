@@ -49,12 +49,12 @@ is $rule1, $rule2, "Memoized!";
 my $ruleapp1 = $rule1->CreateApplication(
     {   start => $WSO_gb,
         state => 0,
+        direction => $DIR::RIGHT,
     }
 );
 
 is_deeply( $ruleapp1->GetItems(), [$WSO_gb], q{Items, ruleapp1} );
 is_deeply( $ruleapp1->GetStates(), [0] );
-
 lives_ok { $ruleapp1->ExtendRight() } "Extending ruleapp right";
 is_deeply( $ruleapp1->GetItems(), [ $WSO_gb, $WSO_gc ], q{Items, ruleapp1} );
 is_deeply( $ruleapp1->GetStates(), [ 0, 0 ] );
@@ -65,7 +65,8 @@ is_deeply( $ruleapp1->GetStates(), [ 0, 0, 0 ] );
 
 my $ruleapp2 = $rule1->AttemptApplication(
     {   start => $WSO_ga,
-        terms => 4
+        terms => 4,
+        direction => $DIR::RIGHT,
     }
 );
 ok( $ruleapp2, );
@@ -79,6 +80,7 @@ is_deeply( $ruleapp2->GetStates(), [ 0, 0, 0, 0 ] );
 my $ruleapp3 = $rule1->AttemptApplication(
     {   start => $WSO_ga,
         terms => 1,
+        direction  => $DIR::RIGHT
     }
 );
 ## Items: $ruleapp3->GetItems()
@@ -111,10 +113,10 @@ $WSO_rd->insert();
 my $rule3 = createRule($WSO_rd);
 my $rule4 = createRule( $WSO_rc, $WSO_rd );
 
-my $ruleapp4 = $rule3->AttemptApplication( { start => $groups[1], terms => 3 } );
+my $ruleapp4 = $rule3->AttemptApplication( { start => $groups[1], terms => 3, direction => $DIR::RIGHT } );
 ok( not($ruleapp4), );
 
-$ruleapp4 = $rule3->AttemptApplication( { start => $groups[1], terms => 2 } );
+$ruleapp4 = $rule3->AttemptApplication( { start => $groups[1], terms => 2, direction => $DIR::RIGHT } );
 is_deeply( $ruleapp4->GetItems(), [ @groups[ 1, 2 ] ], q{Items, ruleapp4} );
 is_deeply( $ruleapp4->GetStates(), [ 0, 0 ] );
 
@@ -122,6 +124,7 @@ my $ruleapp5 = $rule4->AttemptApplication(
     {   start      => $groups[0],
         terms      => 5,
         from_state => 1,
+        direction  => $DIR::RIGHT
     }
 );
 ok( not($ruleapp5), );
@@ -129,6 +132,7 @@ $ruleapp5 = $rule4->AttemptApplication(
     {   start      => $groups[0],
         terms      => 5,
         from_state => 0,
+        direction  => $DIR::RIGHT
     }
 );
 is_deeply( $ruleapp5->GetItems(), [ @groups[ 0 .. 4 ] ], q{Items, ruleapp5} );
@@ -138,6 +142,7 @@ is_deeply( $ruleapp5->GetStates(), [ 0, 1, 0, 1, 0 ] );
 my $ruleapp6 = $rule4->AttemptApplication(
     {   start => $groups[1],
         terms => 5,
+        direction  => $DIR::RIGHT
     }
 );
 is_deeply( $ruleapp6->GetItems(), [ @groups[ 1 .. 5 ] ], q{Correct start state chosen} );

@@ -24,12 +24,18 @@ isa_ok $rule1, "SRule";
 is $rule1, $rule2, "Memoized!";
 
 my $ruleapp1 = $rule1->CreateApplication(
-    {   start => $SWorkspace::elements[3],
-        state => 0,
+    {
+        start     => $SWorkspace::elements[3],
+        state     => 0,
+        direction => $DIR::RIGHT,
     }
 );
 
-is_deeply( $ruleapp1->GetItems(), [ $SWorkspace::elements[3] ], q{Items, ruleapp1} );
+is_deeply(
+    $ruleapp1->GetItems(),
+    [ $SWorkspace::elements[3] ],
+    q{Items, ruleapp1}
+);
 is_deeply( $ruleapp1->GetStates(), [0] );
 
 lives_ok { $ruleapp1->ExtendRight() } "Extending ruleapp right";
@@ -43,33 +49,60 @@ is_deeply( $ruleapp1->GetStates(), [ 0, 0 ] );
 lives_ok { $ruleapp1->ExtendLeft() } "Extending ruleapp left";
 is_deeply(
     $ruleapp1->GetItems(),
-    [ $SWorkspace::elements[2], $SWorkspace::elements[3], $SWorkspace::elements[4] ],
+    [
+        $SWorkspace::elements[2], $SWorkspace::elements[3],
+        $SWorkspace::elements[4]
+    ],
     q{Items, ruleapp1}
 );
 is_deeply( $ruleapp1->GetStates(), [ 0, 0, 0 ] );
 
 my $ruleapp2 = $rule1->AttemptApplication(
-    {   start => $SWorkspace::elements[0],
-        terms => 4
+    {
+        start     => $SWorkspace::elements[0],
+        terms     => 4,
+        direction => $DIR::RIGHT,
     }
 );
-is_deeply( $ruleapp2->GetItems(), [ @SWorkspace::elements[ 0, 1, 2, 3 ] ], q{Items, ruleapp2} );
+is_deeply(
+    $ruleapp2->GetItems(),
+    [ @SWorkspace::elements[ 0, 1, 2, 3 ] ],
+    q{Items, ruleapp2}
+);
 is_deeply( $ruleapp2->GetStates(), [ 0, 0, 0, 0 ] );
 ok( $ruleapp2->ExtendRight(3), );
-is_deeply( $ruleapp2->GetItems(), [ @SWorkspace::elements[ 0 .. 6 ] ], q{Items, ruleapp2} );
+is_deeply(
+    $ruleapp2->GetItems(),
+    [ @SWorkspace::elements[ 0 .. 6 ] ],
+    q{Items, ruleapp2}
+);
 is_deeply( $ruleapp2->GetStates(), [ (0) x 7 ] );
 ok( not( $ruleapp2->ExtendLeft() ), );
-is_deeply( $ruleapp2->GetItems(), [ @SWorkspace::elements[ 0 .. 6 ] ], q{Items, ruleapp2} );
+is_deeply(
+    $ruleapp2->GetItems(),
+    [ @SWorkspace::elements[ 0 .. 6 ] ],
+    q{Items, ruleapp2}
+);
 is_deeply( $ruleapp2->GetStates(), [ (0) x 7 ] );
 
 my $ruleapp3 = $rule1->AttemptApplication(
-    {   start => $SWorkspace::elements[2],
-        terms => 3
+    {
+        start     => $SWorkspace::elements[2],
+        terms     => 3,
+        direction => $DIR::RIGHT,
     }
 );
-is_deeply( $ruleapp3->GetItems(), [ @SWorkspace::elements[ 2, 3, 4 ] ], q{Items, ruleapp3} );
+is_deeply(
+    $ruleapp3->GetItems(),
+    [ @SWorkspace::elements[ 2, 3, 4 ] ],
+    q{Items, ruleapp3}
+);
 ok( not( $ruleapp3->ExtendLeft(4) ), );
-is_deeply( $ruleapp3->GetItems(), [ @SWorkspace::elements[ 2, 3, 4 ] ], q{Unrolled fine!} );
+is_deeply(
+    $ruleapp3->GetItems(),
+    [ @SWorkspace::elements[ 2, 3, 4 ] ],
+    q{Unrolled fine!}
+);
 
 SWorkspace->init( { seq => [qw( 1 2 1 2 1 2 1 2 1 2 1 2)] } );
 
@@ -80,35 +113,53 @@ my $WSO_rd = find_reln( $SWorkspace::elements[1], $SWorkspace::elements[2] );
 $WSO_rd->insert();
 
 my $rule3 = createRule($WSO_rd);
-my $rule4 = createRule( $WSO_rc, $WSO_rd);
+my $rule4 = createRule( $WSO_rc, $WSO_rd );
 
-my $ruleapp4 = $rule3->AttemptApplication( { start => $SWorkspace::elements[1], terms => 3 } );
+my $ruleapp4 =
+  $rule3->AttemptApplication(
+    { start => $SWorkspace::elements[1], terms => 3, direction => $DIR::RIGHT }
+  );
 ok( not($ruleapp4), );
 
-$ruleapp4 = $rule3->AttemptApplication( { start => $SWorkspace::elements[1], terms => 2 } );
-is_deeply( $ruleapp4->GetItems(), [ @SWorkspace::elements[ 1, 2 ] ], q{Items, ruleapp4} );
+$ruleapp4 =
+  $rule3->AttemptApplication(
+    { start => $SWorkspace::elements[1], terms => 2, direction => $DIR::RIGHT } );
+is_deeply(
+    $ruleapp4->GetItems(),
+    [ @SWorkspace::elements[ 1, 2 ] ],
+    q{Items, ruleapp4}
+);
 is_deeply( $ruleapp4->GetStates(), [ 0, 0 ] );
 
 my $ruleapp5 = $rule4->AttemptApplication(
-    {   start      => $SWorkspace::elements[0],
+    {
+        start      => $SWorkspace::elements[0],
         terms      => 5,
         from_state => 1,
+        direction  => $DIR::RIGHT,
     }
 );
 ok( not($ruleapp5), );
 $ruleapp5 = $rule4->AttemptApplication(
-    {   start      => $SWorkspace::elements[0],
+    {
+        start      => $SWorkspace::elements[0],
         terms      => 5,
         from_state => 0,
+        direction  => $DIR::RIGHT,
     }
 );
-is_deeply( $ruleapp5->GetItems(), [ @SWorkspace::elements[ 0 .. 4 ] ], q{Items, ruleapp5} );
+is_deeply(
+    $ruleapp5->GetItems(),
+    [ @SWorkspace::elements[ 0 .. 4 ] ],
+    q{Items, ruleapp5}
+);
 is_deeply( $ruleapp5->GetStates(), [ 0, 1, 0, 1, 0 ] );
 
-
 my $ruleapp6 = $rule4->AttemptApplication(
-    {   start => $SWorkspace::elements[1],
+    {
+        start => $SWorkspace::elements[1],
         terms => 5,
+        direction => $DIR::RIGHT,
     }
 );
 is_deeply(
