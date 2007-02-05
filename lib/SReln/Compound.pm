@@ -267,6 +267,7 @@ sub as_text {
     return "SReln::Compound";
 }
 
+# XXX(Board-it-up): [2007/02/03] should the next two methods be removed?
 sub suggest_cat {
     my ($self) = @_;
     return;

@@ -324,7 +324,8 @@ sub Extend {
         @parts_of_new_group = ( $to_insert, @$parts_ref );
     }
 
-    my $potential_new_group = SAnchored->create(@parts_of_new_group);
+    my $potential_new_group = SAnchored->create(@parts_of_new_group) 
+        or confess "Problem in group creation: @parts_of_new_group";
     my ( $exact_conflict, @subset_conflicts ) =
       SWorkspace->FindGroupsConflictingWith($potential_new_group);
 
@@ -360,12 +361,16 @@ sub Extend {
     $self->recalculate_categories();
     $self->recalculate_relations();
     $self->UpdateStrength();
+    if (my $underlying_reln = $self->get_underlying_reln()) {
+        $self->set_underlying_reln( $underlying_reln->get_rule());
+    }
 
     $self->add_history( "Extended to become " . $self->get_bounds_string() );
     return 1;
 }
 
-sub FindExtension {
+# XXX(Board-it-up): [2007/02/03] used to be FindExtension. Major change ahead...
+sub FindExtension_old {
     my ( $self, $direction_to_extend_in ) = @_;
     my $direction_of_self = $self->get_direction();
     return unless $direction_of_self->PotentiallyExtendible();
@@ -400,6 +405,18 @@ sub FindExtension {
     );
 
 }
+
+sub FindExtension{
+    @_ == 3 or confess "FindExtension for an object requires 3 args";
+    my ( $self, $direction_to_extend_in, $skip ) = @_;
+    my $direction_of_self = $self->get_direction();
+    return unless $direction_of_self->PotentiallyExtendible();
+
+    my $underlying_ruleapp = $self->get_underlying_reln() or return;
+    return $underlying_ruleapp->FindExtension($direction_to_extend_in, 
+                                                  { skip => $skip });
+}
+
 
 sub CheckSquintability {
     my ( $self, $intended ) = @_;

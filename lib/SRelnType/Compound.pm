@@ -175,7 +175,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     }
 
     $ret_obj->describe_as($cat);
-
+    $ret_obj->TellDirectedStory( $cat, $reln->get_base_pos_mode() );
     my $rel_dir = $reln->get_direction_reln;
     my $obj_dir = $object->get_direction;
     my $new_dir = apply_reln( $rel_dir, $obj_dir );
@@ -269,6 +269,12 @@ sub suggest_cat_for_ends{
     return unless $is_metonymy_present;
     return $base_category->derive_blemished(); 
 }
+
+sub suggest_cat{
+    return;
+}
+
+
 
 
 1;

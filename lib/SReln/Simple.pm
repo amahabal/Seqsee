@@ -104,6 +104,7 @@ multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {
     return $r1->get_text() eq $r2->get_text();
 };
 
+# XXX(Board-it-up): [2007/02/03] Should the next two methods be removed?
 # method: suggest_cat
 # suggests a cat type based on reln
 #

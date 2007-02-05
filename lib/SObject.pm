@@ -517,6 +517,15 @@ sub tell_backward_story {
     $bindings->tell_backward_story($self);
 }
 
+sub TellDirectedStory{
+    my ( $self, $cat, $position_mode ) = @_;
+    my $bindings = $self->get_binding($cat);
+    confess "Object $self does not belong to category $cat!"
+        unless $bindings;
+    $bindings->TellDirectedStory($self, $position_mode);
+}
+
+
 #
 # subsection: Positions and ranges
 #
@@ -754,12 +763,34 @@ sub get_relation {
     return;
 }
 
+# XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
 sub set_underlying_reln : CUMULATIVE {
     my ( $self, $reln ) = @_;
     $reln or confess "Cannot set underlying relation to be an undefined value!";
     my $id = ident $self;
-    $self->add_history("Underlying relation set: ");
-    $underlying_reln_of{$id} = $reln;
+
+    if (UNIVERSAL::isa($reln, "SReln")) {
+        $reln = SRule->create( $reln );
+    }
+    my $ruleapp;
+    if (UNIVERSAL::isa($reln, "SRule")) {
+        $ruleapp = $reln->CheckApplicability({
+            objects => [@$self],
+            direction => $self->get_direction(),
+        });
+        unless ($ruleapp) {
+            my $msg_string = "Object: " . $self->get_structure_string() . "\n";
+            $msg_string .= "in direction " . $self->get_direction()->as_text();
+            $msg_string .= "\n" . $reln->as_text();
+            confess "unable to apply underlying relation! $msg_string";
+        }
+
+    } else {
+        confess "Funny argument $reln to set_underlying_reln!";
+    }
+
+    $self->add_history("Underlying relation set: $ruleapp ");
+    $underlying_reln_of{$id} = $ruleapp;
 }
 
 sub set_metonym {

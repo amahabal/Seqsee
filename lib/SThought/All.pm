@@ -69,7 +69,7 @@ use Compile::SThought;
         my @unstarred_items = @$items;
         for (@unstarred_items) {
             if (my $unstarred = $_->get_is_a_metonym()) {
-                main::message("AreTheseGroupable: Got a metonym'd object as arg; fixing...");
+                #main::message("AreTheseGroupable: Got a metonym'd object as arg; fixing...");
                 $_ = $unstarred;
             }
         }
@@ -115,7 +115,7 @@ use Compile::SThought;
     my $total_count = $SWorkspace::elements_count;
     my $right_extendibility = $gp->get_right_extendibility();
     ### $span, $total_count
-    main::message( $right_extendibility);
+    #main::message( $right_extendibility);
 
     if ( $Global::AtLeastOneUserVerification
         and ( $span / $total_count ) > 0.8 )
@@ -525,11 +525,13 @@ multimethod get_fringe_for => ('SAnchored') => sub {
             if ( !$has_been_rejected
                 or SUtil::toss( 1 - 10 / $has_been_rejected ) )
             {
-                ACTION 100, TryRule,
-                  {
-                    rule => $rule,
-                    reln => $core,
-                  };
+                # XXX(Board-it-up): [2007/02/04] buggy TryRule... don't use without fixing
+                # creates objects using starred versions...
+                #ACTION 100, TryRule,
+                #  {
+                #    rule => $rule,
+                #    reln => $core,
+                #  };
             }
         }
 

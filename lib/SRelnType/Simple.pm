@@ -101,5 +101,31 @@ sub as_insertlist {
     return new SInsertList( $string_of{$id} );
 }
 
+# method: suggest_cat
+# suggests a cat type based on reln
+#
+sub suggest_cat {
+    my ($self) = @_;
+    my $id     = ident $self;
+    my $str    = $string_of{$id};
+
+    if ( $str eq "same" ) {
+        return $S::SAMENESS;
+    }
+    elsif ( $str eq "succ" ) {
+        return $S::ASCENDING;
+    }
+    elsif ( $str eq "pred" ) {
+        return $S::DESCENDING;
+    }
+
+}
+
+sub suggest_cat_for_ends{
+    my ( $self ) = @_;
+    return;
+}
+
+
 1;
 

@@ -19,7 +19,7 @@ for (qw{apply_reln plonk_into_place find_reln}) {
     multimethod $_;
 }
 
-my %Rule_of : ATTR;                # The underlying rule.
+my %Rule_of : ATTR(:get<rule>);    # The underlying rule.
 my %Items_of : ATTR(:get<items>);  # Objects to which the rule has been applied.
 my %States_of : ATTR;              # The states corresponding to the types.
 my %Direction_of : ATTR;           # Direction of application (Right/Left).
@@ -104,6 +104,42 @@ sub ExtendInDirection {
         return 0;
     }
 }
+
+sub FindExtension{
+    my ( $self, $direction_to_extend_in, $opts_ref ) = @_;
+    my $id = ident $self;
+    my $items_ref  = $Items_of{$id};
+    my $states_ref = $States_of{$id};
+    my $skip = $opts_ref->{skip} || 0;
+    my $count      = scalar(@$states_ref);    # Useful for undo
+    my $rule       = $Rule_of{$id};
+    my $direction_of_self = $Direction_of{$id};
+
+    my ($last_object, $relation, $next_state);
+    if ($direction_of_self eq $direction_to_extend_in) {
+        $last_object = $items_ref->[-1 - $skip];
+        my $last_state  = $states_ref->[-1 - $skip];
+        ($relation, $next_state) = $rule->GetRelationAndTransition($last_state);
+    } else {
+        $last_object = $items_ref->[$skip];
+        my $last_state = $states_ref->[$skip];
+        ($relation, $next_state) = $rule->GetReverseRelationAndTransition($last_state);
+    }
+
+    my $next_pos = $last_object->get_next_pos_in_dir($direction_to_extend_in);
+    return unless defined $next_pos;
+
+    my $expected_next_object = apply_reln( $relation, $last_object->get_effective_object()) or return;
+
+    return SWorkspace->GetSomethingLike({
+        object => $expected_next_object,
+        start  => $next_pos,
+        direction => $direction_to_extend_in,
+        trust_level => 50, # !!
+        reason => 'Extension attempted for: ',
+    });
+}
+
 
 sub ExtendForward {
     my ( $self, $steps ) = @_;
@@ -231,5 +267,33 @@ sub ExtendLeftMaximally {
         }
     }
 }
+
+sub as_text{
+    my ( $self ) = @_;
+    return "SRuleApp $self";
+}
+
+sub suggest_cat{
+    my ( $self ) = @_;
+    my $relations_ref = $Rule_of{ident $self}->get_relations();
+    if (scalar(@$relations_ref) == 1) {
+        return $relations_ref->[0]->suggest_cat();
+    } else {
+        return;
+    }
+}
+
+sub suggest_cat_for_ends{
+    my ( $self ) = @_;
+    my $relations_ref = $Rule_of{ident $self}->get_relations();
+    if (scalar(@$relations_ref) == 1) {
+        return $relations_ref->[0]->suggest_cat_for_ends();
+    } else {
+        return;
+    }
+}
+
+
+
 
 1;

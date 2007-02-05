@@ -17,12 +17,14 @@ use English qw(-no_match_vars);
 
 our %StateCount_of : ATTR;                   # How many states?
 our %TransitionFunction_of : ATTR;           # state->state
-our %Relations_of : ATTR;                    # state->reln
+our %Relations_of : ATTR(:get<relations>);   # state->reln
 our %FlippedRelations_of : ATTR;             # Fliped versions, if needed.
 our %InverseTransitionFunction_of : ATTR;    # To move left. state->[state]
 our %ReverseRelations_of : ATTR;             # To move left. state->reln.
 
 our %Rejects_of :ATTR; # When has this rule been rejected?
+
+multimethod 'apply_reln';
 
 # Either provide SRelns in :relations and NOT provide flipped_relations, in which case the
 # SRelnTypes of both relations and inverses are inferred.
@@ -91,6 +93,12 @@ sub BUILD {
     };
 }
 
+sub create{
+    my ( $package ) = shift;
+    createRule(@_);
+}
+
+
 # method CreateApplication( $self: SObject +$start, Int +$state ) returns SRuleApp
 sub CreateApplication {
     my ( $self, $opts_ref ) = @_;
@@ -142,6 +150,51 @@ sub GetReverseRelationAndTransition {
 
     return ( $rev_reln, $prev_state );
 }
+
+sub CheckApplicability{
+    my ( $self, $opts_ref ) = @_;
+    my $id = ident $self;
+
+    my $objects_ref = $opts_ref->{objects} or confess;
+    my $direction = $opts_ref->{direction} or confess;
+    my $from_state  = $opts_ref->{from_state};   # If undefined, try all states.
+    my $state_count = $StateCount_of{$id};
+
+    my @states_to_check_from =
+      ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
+
+    LOOP: for my $start_state (@states_to_check_from) {
+        my @objects_to_account_for = @$objects_ref;
+        my @accounted_for = shift(@objects_to_account_for);
+        my @states = ($start_state);
+
+        my ($last_object, $last_state) = ($accounted_for[0]->get_effective_object(), $states[0]);
+        while (@objects_to_account_for) {
+            my ($reln, $next_state) = 
+                $self->GetRelationAndTransition($last_state);
+            my $expected_next = apply_reln($reln, $last_object);
+            my $actual_next = shift(@objects_to_account_for);
+            if ($expected_next->get_structure_string() eq
+                    $actual_next->get_effective_object()->get_structure_string())
+                {
+                    push @accounted_for, $actual_next;
+                    push @states, $next_state;
+                    ($last_object, $last_state) = ($actual_next->get_effective_object(), $next_state);
+                } else {
+                    next LOOP;
+                }
+        }
+        return SRuleApp->new({
+            rule => $self,
+            items => \@accounted_for,
+            states => \@states,
+            direction => $direction,
+                });
+    }
+
+    return;
+}
+
 
 sub AttemptApplication {
     my ( $self, $opts_ref ) = @_;

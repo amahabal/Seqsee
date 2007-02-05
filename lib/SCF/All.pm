@@ -430,7 +430,7 @@ use Compile::SCF;
 
 <run>
     #main::message("Starting SCF::AttemptExtension2");
-    my $extension = $object->FindExtension($direction) or return;
+    my $extension = $object->FindExtension($direction, 0) or return;
     #main::message("Found extension: $extension; " . $extension->get_structure_string());
     my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
     $object->Extend( $extension, $add_to_end_p );
@@ -464,36 +464,37 @@ use Compile::SCF;
 [param] direction!
 
 <run>
-    #main::message("SCF::ConvulseEnd: " . $object->as_text());
+    # main::message("SCF::ConvulseEnd: " . $object->as_text());
     my $change_at_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
+    my @object_parts = @$object;
     my $ejected_object;
     if ($change_at_end_p) {
-        $ejected_object = pop(@$object);
+        $ejected_object = pop(@object_parts);
     }
     else {
-        $ejected_object = shift(@$object);
+        $ejected_object = shift(@object_parts);
     }
 
-    $object->recalculate_edges();
-
-    my $new_extension = $object->FindExtension($direction);
+    my $new_extension = $object->FindExtension($direction, 1) or return;
+    if (my $unstarred = $new_extension->get_is_a_metonym()) {
+        main::message("new_extension was metonym! fixing...");
+        $new_extension = $unstarred;
+    }
     if ( $new_extension and $new_extension ne $ejected_object ) {
+        if ($change_at_end_p) {
+            $ejected_object = pop(@$object);
+        }
+        else {
+            $ejected_object = shift(@$object);
+        }
+        $object->recalculate_edges();
+        
         #main::message( "New extension! Instead of "
         #      . $ejected_object->as_text()
         #      . " I can use "
         #      . $new_extension->as_text() );
         $object->Extend( $new_extension, $change_at_end_p );
     }
-    else {
-        if ($change_at_end_p) {
-            push @$object, $ejected_object;
-        }
-        else {
-            unshift @$object, $ejected_object;
-        }
-        $object->recalculate_edges();
-    }
-
 </run>
 no Compile::SCF;
 #################################
@@ -515,7 +516,7 @@ use Compile::SCF;
                                                 direction => $DIR::RIGHT,
                                                    });
    if ($application) {
-       main::message("Application of rule succeded! " . $rule->as_text());
+       #main::message("Application of rule succeded! " . $rule->as_text());
        $application->ExtendLeftMaximally();
        my $new_group = SAnchored->create(@{$application->get_items()});
        $new_group->set_right_extendibility($EXTENDIBILE::PERHAPS);
