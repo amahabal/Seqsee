@@ -38,7 +38,7 @@
 
 (global-set-key "\`" 'dabbrev-expand)
 
-(global-set-key [f2] 'ffap)
+(global-set-key [f2] 'seqsee-replace)
 (global-set-key [f3] 'exit-pvs)
 (global-set-key [f4] 'restart-emacs)
 (global-set-key [f5] 'prove-pvs-file)
@@ -275,5 +275,21 @@
 
 (setq skeleton-end-hook nil)
 
-
+(defun seqsee-replace (what-to-replace replace-with)
+  (interactive (list (read-string "Replace what? " nil)
+                     (read-string "Replace with: " nil)))
+  (find-file "d:/Seqsee/lib/")
+  (setq case-fold-search nil)
+  (setq default-case-fold-search nil)
+  (dired-mark-files-regexp "\\.pm$")
+  (dired-mark-files-regexp "\\.pl$")
+  (dired-do-query-replace-regexp what-to-replace replace-with)
+  (find-file "d:/Seqsee/t/")
+  (setq case-fold-search nil)
+  (dired-mark-files-regexp "\\.pm$")
+  (dired-mark-files-regexp "\\.t$")
+  (dired-do-query-replace-regexp what-to-replace replace-with)
+  (setq default-case-fold-search t)
+  )
+  
 
