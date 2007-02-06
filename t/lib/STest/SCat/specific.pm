@@ -37,7 +37,7 @@ sub ascending_is_instance :Test(5){
         [[1,1], [2,2], [3,3]],
             );
     for (@test_objects) {
-        my $object = SObject->quik_create($_);
+        my $object = SObject->QuickCreate($_);
         ok( $cat->is_instance($object));
     }
 
@@ -72,7 +72,7 @@ sub descending_is_instance :Test(5){
         [[3,3], [2,2], [1,1]],
             );
     for (@test_objects) {
-        my $object = SObject->quik_create($_);
+        my $object = SObject->QuickCreate($_);
         ok( $cat->is_instance($object));
     }
 
@@ -107,7 +107,7 @@ sub mountain_is_instance :Test(5){
         [[1,1], [2,2], [3,3], [2,2], [1,1]],
             );
     for (@test_objects) {
-        my $object = SObject->quik_create($_);
+        my $object = SObject->QuickCreate($_);
         ok( $cat->is_instance($object));
     }
 
@@ -140,7 +140,7 @@ sub sameness_is_instance :Test(4){
         [1, [1,1]],
             );
     for (@test_objects) {
-        my $object = SObject->quik_create($_);
+        my $object = SObject->QuickCreate($_);
         ok( $cat->is_instance($object));
     }
 

@@ -62,12 +62,12 @@ is( SLTM->GetNodeCount(), 4, "SElement recalls the correct platonic" );
 # Connecting it to objects in workspace.
 SWorkspace->init( { seq => [qw( 1 1 2 3 1 2 2 3 4 1 2 3 3 4 5)] } );
 my @groups = (
-    plonk_into_place( 0, $DIR::RIGHT, SObject->quik_create( [ [ 1, 1 ], 2, 3 ], $S::ASCENDING ) ),
+    plonk_into_place( 0, $DIR::RIGHT, SObject->QuickCreate( [ [ 1, 1 ], 2, 3 ], $S::ASCENDING ) ),
     plonk_into_place(
-        4, $DIR::RIGHT, SObject->quik_create( [ 1, [ 2, 2 ], 3, 4 ], $S::ASCENDING )
+        4, $DIR::RIGHT, SObject->QuickCreate( [ 1, [ 2, 2 ], 3, 4 ], $S::ASCENDING )
     ),
     plonk_into_place(
-        9, $DIR::RIGHT, SObject->quik_create( [ 1, 2, [ 3, 3 ], 4, 5 ], $S::ASCENDING )
+        9, $DIR::RIGHT, SObject->QuickCreate( [ 1, 2, [ 3, 3 ], 4, 5 ], $S::ASCENDING )
     ),
 );
 

@@ -10,26 +10,26 @@ use Smart::Comments;
 multimethod find_reln;
 multimethod apply_reln;
 
-my $o123  = SObject->quik_create([1,2,3], $S::ASCENDING);
-my $o123b = SObject->quik_create([1,2,3], $S::ASCENDING);
-my $o1234  = SObject->quik_create([1,2,3,4], $S::ASCENDING);
-my $o23  = SObject->quik_create([2,3], $S::ASCENDING);
-my $o234  = SObject->quik_create([2,3,4], $S::ASCENDING);
+my $o123  = SObject->QuickCreate([1,2,3], $S::ASCENDING);
+my $o123b = SObject->QuickCreate([1,2,3], $S::ASCENDING);
+my $o1234  = SObject->QuickCreate([1,2,3,4], $S::ASCENDING);
+my $o23  = SObject->QuickCreate([2,3], $S::ASCENDING);
+my $o234  = SObject->QuickCreate([2,3,4], $S::ASCENDING);
 
-my $o1123f  = SObject->quik_create([[1,1], 2,3], $S::ASCENDING);
+my $o1123f  = SObject->QuickCreate([[1,1], 2,3], $S::ASCENDING);
 $o1123f->tell_forward_story($S::ASCENDING);
-my $o1223f  = SObject->quik_create([1,[2,2],3], $S::ASCENDING);
+my $o1223f  = SObject->QuickCreate([1,[2,2],3], $S::ASCENDING);
 $o1223f->tell_forward_story($S::ASCENDING);
-my $o12223f  = SObject->quik_create([1,[2,2,2],3], $S::ASCENDING);
+my $o12223f  = SObject->QuickCreate([1,[2,2,2],3], $S::ASCENDING);
 $o12223f->tell_forward_story($S::ASCENDING);
-my $o122234f  = SObject->quik_create([1,[2,2,2],3,4], $S::ASCENDING);
+my $o122234f  = SObject->QuickCreate([1,[2,2,2],3,4], $S::ASCENDING);
 $o122234f->tell_forward_story($S::ASCENDING);
 
-my $o1123b  = SObject->quik_create([[1,1], 2,3], $S::ASCENDING);
+my $o1123b  = SObject->QuickCreate([[1,1], 2,3], $S::ASCENDING);
 $o1123b->tell_backward_story($S::ASCENDING);
-my $o1223b  = SObject->quik_create([1,[2,2],3], $S::ASCENDING);
+my $o1223b  = SObject->QuickCreate([1,[2,2],3], $S::ASCENDING);
 $o1223b->tell_backward_story($S::ASCENDING);
-my $o12223b  = SObject->quik_create([1,[2,2,2],3], $S::ASCENDING);
+my $o12223b  = SObject->QuickCreate([1,[2,2,2],3], $S::ASCENDING);
 $o12223b->tell_backward_story($S::ASCENDING);
 
 

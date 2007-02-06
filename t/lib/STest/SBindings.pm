@@ -9,7 +9,7 @@ sub ascending1 :Test(6){
     my $cat = $S::ASCENDING;
     my ($object, $bindings);
 
-    $object = SObject->quik_create([1, 2, 3]);
+    $object = SObject->QuickCreate([1, 2, 3]);
     $bindings = $cat->is_instance($object);
 
     ok($bindings);
@@ -31,7 +31,7 @@ sub ascending2 :Test(9){
     my $cat = $S::ASCENDING;
     my ($object, $bindings);
 
-    $object = SObject->quik_create([1, [2,2], 3]);
+    $object = SObject->QuickCreate([1, [2,2], 3]);
     $bindings = $cat->is_instance($object);
 
     ok($bindings);
@@ -56,7 +56,7 @@ sub ascending3 :Test(9){
     my $cat = $S::ASCENDING;
     my ($object, $bindings);
 
-    $object = SObject->quik_create([[1,1], [2,2], [3,3]]);
+    $object = SObject->QuickCreate([[1,1], [2,2], [3,3]]);
     $bindings = $cat->is_instance($object);
 
     ok($bindings);

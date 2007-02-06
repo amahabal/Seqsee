@@ -365,7 +365,7 @@ sub Extend {
         $self->set_underlying_reln( $underlying_reln->get_rule());
     }
 
-    $self->add_history( "Extended to become " . $self->get_bounds_string() );
+    $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
     return 1;
 }
 

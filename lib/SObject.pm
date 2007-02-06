@@ -146,12 +146,12 @@ sub _create_or_int {
     }
 }
 
-# method: quik_create
+# method: QuickCreate
 # Creates the object, adding metonyms as needed
 #
 #    For any subobject, if all of its elements are the same, adds the category-annotation for sameness group, and adds a metonymy
 
-sub quik_create {
+sub QuickCreate {
     my ( $package, $array_ref, @potential_cats ) = @_;
     my $object = $package->create(@$array_ref);
     my $id     = ident $object;
@@ -261,7 +261,7 @@ sub annotate_with_metonym {
     my $meto = $cat->find_metonym( $self, $name );
     SErr::MetonymNotAppicable->throw() unless $meto;
 
-    $self->add_history( "Added metonym \"$name\" for cat " . $cat->get_name );
+    $self->AddHistory( "Added metonym \"$name\" for cat " . $cat->get_name );
     $self->set_metonym($meto);
     $meto->get_starred()->set_is_a_metonym($self);
 }
@@ -500,7 +500,7 @@ sub tell_forward_story {
     my $bindings = $self->get_binding($cat);
     confess "Object $self does not belong to category " . $cat->get_name()
         unless $bindings;
-    $self->add_history( "Forward story telling for " . $cat->get_name );
+    $self->AddHistory( "Forward story telling for " . $cat->get_name );
     $bindings->tell_forward_story($self);
 }
 
@@ -513,7 +513,7 @@ sub tell_backward_story {
     my $bindings = $self->get_binding($cat);
     confess "Object $self does not belong to category $cat!"
         unless $bindings;
-    $self->add_history( "Backward story telling for " . $cat->get_name );
+    $self->AddHistory( "Backward story telling for " . $cat->get_name );
     $bindings->tell_backward_story($self);
 }
 
@@ -701,11 +701,11 @@ sub redescribe_as {
     my $bindings = $cat->is_instance($self);
     if ($bindings) {
         ## describe_as succeeded!
-        $self->add_history( "redescribe as instance of category " . $cat->get_name . " succeded" );
+        $self->AddHistory( "redescribe as instance of category " . $cat->get_name . " succeded" );
         $self->add_category( $cat, $bindings );
     }
     else {
-        $self->add_history( "redescribe as instance of category " . $cat->get_name . " failed" );
+        $self->AddHistory( "redescribe as instance of category " . $cat->get_name . " failed" );
         $self->remove_category($cat);
     }
 
@@ -738,7 +738,7 @@ sub add_reln {
     if ( exists( $reln_other_of{$id}{$other} ) ) {
         SErr->throw("duplicate reln being added");
     }
-    $self->add_history( "added reln to " . $other->get_bounds_string );
+    $self->AddHistory( "added reln to " . $other->get_bounds_string );
     $reln_other_of{$id}{$other} = $reln;
 }
 
@@ -750,7 +750,7 @@ sub remove_reln {
     my $id = ident $self;
 
     my $other = $self->_get_other_end_of_reln($reln);
-    $self->add_history( "removed reln to " . $other->get_bounds_string );
+    $self->AddHistory( "removed reln to " . $other->get_bounds_string );
     delete $reln_other_of{$id}{$other};
 }
 
@@ -789,7 +789,7 @@ sub set_underlying_reln : CUMULATIVE {
         confess "Funny argument $reln to set_underlying_reln!";
     }
 
-    $self->add_history("Underlying relation set: $ruleapp ");
+    $self->AddHistory("Underlying relation set: $ruleapp ");
     $underlying_reln_of{$id} = $ruleapp;
 }
 
@@ -812,11 +812,11 @@ sub set_metonym_activeness {
         unless ( $metonym_of{$id} ) {
             SErr->throw("Cannot set_metonym_activeness without a metonym");
         }
-        $self->add_history("Metonym activeness turned on");
+        $self->AddHistory("Metonym activeness turned on");
         $metonym_activeness_of{$id} = 1;
     }
     else {
-        $self->add_history("Metonym activeness turned off");
+        $self->AddHistory("Metonym activeness turned off");
         $metonym_activeness_of{$id} = 0;
     }
 
@@ -869,7 +869,7 @@ sub apply_reln_scheme {
             my $rel = find_reln( $a, $b );
             $rel->insert() if $rel;
         }
-        $self->add_history("Relation scheme \"chain\" applied");
+        $self->AddHistory("Relation scheme \"chain\" applied");
 
     }
     else {

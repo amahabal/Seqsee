@@ -270,7 +270,7 @@ use Compile::SCF;
     my $type_activation = spike_reln_type($reln);
     return unless (SUtil::toss($type_activation));
 
-    $reln->add_history("Found relation!");
+    $reln->AddHistory("Found relation!");
 
     # So a relation has been found
     $reln->insert;

@@ -67,7 +67,7 @@ sub BUILD {
         = find_reln( $first->get_direction(), $second->get_direction() );
     $type_of{$id} = SRelnType::Compound->create($opts_ref);
 
-    $self->add_history("Created");
+    $self->AddHistory("Created");
 }
 
 #

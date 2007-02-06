@@ -27,7 +27,7 @@ sub history_string {
     return "[$Global::Steps_Finished]$Global::CurrentRunnableString\t$msg";
 }
 
-sub add_history {
+sub AddHistory {
     my ( $self, $msg ) = @_;
     my $id = ident $self;
     push @{ $messages_of{$id} }, history_string($msg);

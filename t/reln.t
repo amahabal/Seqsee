@@ -24,8 +24,8 @@ sub mini_copycat_test{
 
     my $common_category = $opts_ref->{common_category} || $S::ASCENDING;
 
-    $o1 = SObject->quik_create( $o1, $common_category );
-    $o2 = SObject->quik_create( $o2, $common_category );
+    $o1 = SObject->QuickCreate( $o1, $common_category );
+    $o2 = SObject->QuickCreate( $o2, $common_category );
 
     $o1->tell_forward_story($common_category);
     $o2->tell_forward_story($common_category);
@@ -55,7 +55,7 @@ sub mini_copycat_test{
     } 
     ## $reln
     eval {
-        $o3 = SObject->quik_create( $o3, $common_category);
+        $o3 = SObject->QuickCreate( $o3, $common_category);
         $o3->tell_forward_story($common_category);
         };
 

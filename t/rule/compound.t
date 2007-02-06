@@ -15,13 +15,13 @@ multimethod q{plonk_into_place};
 SWorkspace->init( { seq => [qw( 1 1 2 3 1 2 2 3 4 1 2 3 3 4 5 1 2 3 4 4 5 6)] } );
 
 my $WSO_ga
-    = plonk_into_place( 0, $DIR::RIGHT, SObject->quik_create( [ [ 1, 1 ], 2, 3 ], $S::ASCENDING ) );
+    = plonk_into_place( 0, $DIR::RIGHT, SObject->QuickCreate( [ [ 1, 1 ], 2, 3 ], $S::ASCENDING ) );
 my $WSO_gb = plonk_into_place( 4, $DIR::RIGHT,
-    SObject->quik_create( [ 1, [ 2, 2 ], 3, 4 ], $S::ASCENDING ) );
+    SObject->QuickCreate( [ 1, [ 2, 2 ], 3, 4 ], $S::ASCENDING ) );
 my $WSO_gc = plonk_into_place( 9, $DIR::RIGHT,
-    SObject->quik_create( [ 1, 2, [ 3, 3 ], 4, 5 ], $S::ASCENDING ) );
+    SObject->QuickCreate( [ 1, 2, [ 3, 3 ], 4, 5 ], $S::ASCENDING ) );
 my $WSO_gd = plonk_into_place( 15, $DIR::RIGHT,
-    SObject->quik_create( [ 1, 2, 3, [ 4, 4 ], 5, 6 ], $S::ASCENDING ) );
+    SObject->QuickCreate( [ 1, 2, 3, [ 4, 4 ], 5, 6 ], $S::ASCENDING ) );
 
 my $WSO_ra = find_reln( $WSO_ga, $WSO_gb );
 $WSO_ra->insert();
@@ -92,12 +92,12 @@ is_deeply( $ruleapp3->GetItems(), [ $WSO_ga, $WSO_gb, $WSO_gc ], q{Items, ruleap
 
 SWorkspace->init( { seq => [qw( 1 1 2 2 3 3 3 4 4 4 5 5 5 5 6 6 6 6)] } );
 my @groups = (
-    plonk_into_place( 0, $DIR::RIGHT, SObject->quik_create( [ 1, 1 ], $S::SAMENESS ) ),
-    plonk_into_place( 2, $DIR::RIGHT, SObject->quik_create( [ 2, 2 ], $S::SAMENESS ) ),
-    plonk_into_place( 4, $DIR::RIGHT, SObject->quik_create( [ 3, 3, 3 ], $S::SAMENESS ) ),
-    plonk_into_place( 7, $DIR::RIGHT, SObject->quik_create( [ 4, 4, 4 ], $S::SAMENESS ) ),
-    plonk_into_place( 10, $DIR::RIGHT, SObject->quik_create( [ 5, 5, 5, 5 ], $S::SAMENESS ) ),
-    plonk_into_place( 14, $DIR::RIGHT, SObject->quik_create( [ 6, 6, 6, 6 ], $S::SAMENESS ) ),
+    plonk_into_place( 0, $DIR::RIGHT, SObject->QuickCreate( [ 1, 1 ], $S::SAMENESS ) ),
+    plonk_into_place( 2, $DIR::RIGHT, SObject->QuickCreate( [ 2, 2 ], $S::SAMENESS ) ),
+    plonk_into_place( 4, $DIR::RIGHT, SObject->QuickCreate( [ 3, 3, 3 ], $S::SAMENESS ) ),
+    plonk_into_place( 7, $DIR::RIGHT, SObject->QuickCreate( [ 4, 4, 4 ], $S::SAMENESS ) ),
+    plonk_into_place( 10, $DIR::RIGHT, SObject->QuickCreate( [ 5, 5, 5, 5 ], $S::SAMENESS ) ),
+    plonk_into_place( 14, $DIR::RIGHT, SObject->QuickCreate( [ 6, 6, 6, 6 ], $S::SAMENESS ) ),
 );
 
 ok( $groups[2], "groups defined");

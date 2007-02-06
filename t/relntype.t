@@ -22,15 +22,15 @@ isa_ok $type, q{SRelnType::Simple};
 is $WSO_rb->get_type(), $type, "Memoized!";
 
 ## Now to more complex relations.
-my $o1 = SObject->quik_create( [ [ 1, 1 ], 2, 3 ], $S::ASCENDING );
+my $o1 = SObject->QuickCreate( [ [ 1, 1 ], 2, 3 ], $S::ASCENDING );
 my $o_plonked = plonk_into_place( 5, $DIR::RIGHT, $o1 );
 ok( $o_plonked, );
 instance_of_cat_ok( $o_plonked, $S::ASCENDING );
 instance_of_cat_ok( $o_plonked->[0], $S::SAMENESS );
 my $o_plonked2
-    = plonk_into_place( 9, $DIR::RIGHT, SObject->quik_create( [ 1, [ 2, 2 ], 3, 4 ], $S::ASCENDING ) );
+    = plonk_into_place( 9, $DIR::RIGHT, SObject->QuickCreate( [ 1, [ 2, 2 ], 3, 4 ], $S::ASCENDING ) );
 my $o_plonked3 = plonk_into_place( 14, $DIR::RIGHT,
-    SObject->quik_create( [ 1, 2, [ 3, 3 ], 4, 5 ], $S::ASCENDING ) );
+    SObject->QuickCreate( [ 1, 2, [ 3, 3 ], 4, 5 ], $S::ASCENDING ) );
 instance_of_cat_ok( $o_plonked2, $S::ASCENDING );
 instance_of_cat_ok( $o_plonked2->[1], $S::SAMENESS );
 instance_of_cat_ok( $o_plonked3, $S::ASCENDING );

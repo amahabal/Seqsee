@@ -20,7 +20,7 @@ my $descending = $S::DESCENDING;
 }
 
 {
-  my $bo = SObject->quik_create([1, [2,2], 3]);
+  my $bo = SObject->QuickCreate([1, [2,2], 3]);
   my $bindings = $bo->describe_as($ascending);
   ok $bindings;
 

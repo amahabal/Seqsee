@@ -40,7 +40,7 @@ sub derived_assuming_is_instance :Test(9){
         [[1,1], [2,2], [3,3]],
             );
     for (@test_objects) {
-        my $object = SObject->quik_create($_);
+        my $object = SObject->QuickCreate($_);
         ok( $cat->is_instance($object));
     }
 
@@ -49,7 +49,7 @@ sub derived_assuming_is_instance :Test(9){
                      [[2,2],3],
                          );
     for (@test_objects) {
-        my $object = SObject->quik_create($_);
+        my $object = SObject->QuickCreate($_);
         my $bindings = $cat->is_instance($object);
         ok( !$bindings);
         if ($bindings) {

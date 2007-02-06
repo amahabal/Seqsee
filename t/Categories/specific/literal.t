@@ -20,7 +20,7 @@ IS_INSTANCE: {
   my $bindings = $cat_123->is_instance($bo);
   ok $bindings;
 
-  $bo = SObject->quik_create([1, [2, 2], 3]);
+  $bo = SObject->QuickCreate([1, [2, 2], 3]);
   ## $bo
   ## $bo->get_structure
   $bindings = $cat_123->is_instance($bo);
