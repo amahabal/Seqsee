@@ -8,7 +8,7 @@ use Tk::SCoderack;
 use Tk::SStream;
 use Tk::SComponents;
 use Tk::SInfo;
-use Tk::SWorkspace;
+#use Tk::SWorkspace;
 use Tk::SActivation;
 use Tk::SStream2;
 use Tk::SCodeletCount;
@@ -106,7 +106,7 @@ sub SetupBindings {
 {
     my %SeqseeWidgets
         = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace SActivation);
-    my %Updatable = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace SActivation);
+    my %Updatable = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace SActivation SWorkspace2);
     my @to_Update = ();
 
     sub CreateWidgets {
