@@ -184,10 +184,10 @@ sub _saccade {
     $ReadHead = $random_pos;
 }
 
-# method: add_reln
+# method: AddRelation
 #
 #
-sub add_reln {
+sub AddRelation {
     my ( $package, $reln ) = @_;
     my ( $f,       $s )    = $reln->get_ends();
     my $key = join( ';', $f, $s );
@@ -200,7 +200,7 @@ sub add_reln {
     $relations{$reln}        = $reln;
 }
 
-sub remove_reln {
+sub RemoveRelation {
     my ( $package, $reln ) = @_;
 
     my $key = join( ';', $reln->get_ends() );

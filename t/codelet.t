@@ -5,16 +5,11 @@ BEGIN { plan tests => 10; }
 
 # use MyFilter;
 use Test::MockObject;
+use lib 't/lib';
+use TestSCF;
 
 BEGIN {
-  Test::MockObject->fake_module('SCF::family_foo');
   Test::MockObject->fake_module('SCF::family_malformed');
-
-  sub SCF::family_foo::run {
-    my $codelet = shift;
-    my $args_ref = $codelet->[3];
-    97 + $args_ref->{a};
-  }
 }
 
 $Global::Steps_Finished = 20;

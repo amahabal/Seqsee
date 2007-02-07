@@ -30,7 +30,7 @@ ok( $WSO_ma->get_name() eq "each", );
 ok( UNIVERSAL::isa($WSO_ma->get_starred(), "SObject"), "isa SObject");
 ok( UNIVERSAL::isa($WSO_ma->get_starred(), "SElement"), "isa SElement");
 SUtil::compare_deep( $WSO_ma->get_starred()->get_structure, 1);
-ok( $WSO_ma->GetUnstarred() eq $WSO_ga, );
+ok( $WSO_ma->get_unstarred() eq $WSO_ga, );
 ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[0]), "starred is brand new" );
 ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[1]), "starred is brand new");
 

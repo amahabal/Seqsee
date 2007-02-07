@@ -107,7 +107,7 @@ sub create {
     }
 
     # Finally, convert all arrays to objects, too!
-    @arguments = map { _create_or_int($_) } @arguments;
+    @arguments = map { CreateObjectFromStructure($_) } @arguments;
 
     my $group_p = ( @arguments == 1 ) ? 0 : 1;
 
@@ -119,12 +119,12 @@ sub create {
 
 }
 
-# method: _create_or_int
+# method: CreateObjectFromStructure
 # creates the object, or just returns int
 #
 # clearly just a helper
 
-sub _create_or_int {
+sub CreateObjectFromStructure {
     my $object = shift;
 
     if ( ref $object ) {
@@ -135,7 +135,7 @@ sub _create_or_int {
         }
         my @objects = @$object;
         if ( @objects == 1 ) {
-            return _create_or_int( $objects[0] );
+            return CreateObjectFromStructure( $objects[0] );
         }
         else {
             return SObject->create(@objects);
@@ -692,49 +692,14 @@ sub redescribe_as {
 # method: _get_other_end_of_reln
 #
 #
-sub _get_other_end_of_reln {
-    my ( $self, $reln ) = @_;
-    my ( $f,    $s )    = $reln->get_ends();
-    return $s if $f eq $self;
-    return $f if $s eq $self;
-    SErr->throw("relation error: not an end");
-}
 
-# method: add_reln
+# method: AddRelation
 #
 #
-sub add_reln {
-    my ( $self, $reln ) = @_;
-    my $id    = ident $self;
-    my $other = $self->_get_other_end_of_reln($reln);
 
-    if ( exists( $reln_other_of{$id}{$other} ) ) {
-        SErr->throw("duplicate reln being added");
-    }
-    $self->AddHistory( "added reln to " . $other->get_bounds_string );
-    $reln_other_of{$id}{$other} = $reln;
-}
-
-# method: remove_reln
+# method: RemoveRelation
 #
 #
-sub remove_reln {
-    my ( $self, $reln ) = @_;
-    my $id = ident $self;
-
-    my $other = $self->_get_other_end_of_reln($reln);
-    $self->AddHistory( "removed reln to " . $other->get_bounds_string );
-    delete $reln_other_of{$id}{$other};
-}
-
-sub get_relation {
-    my ( $self, $other ) = @_;
-    my $id = ident $self;
-
-    return $reln_other_of{$id}{$other}
-        if exists $reln_other_of{$id}{$other};
-    return;
-}
 
 # XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
 sub set_underlying_reln : CUMULATIVE {
@@ -827,30 +792,6 @@ sub recalculate_categories {
 
 }
 
-sub recalculate_relations {
-    my ($self) = @_;
-    my $hashref = $reln_other_of{ ident $self};
-    while ( my ( $k, $v ) = each %$hashref ) {
-        my $new_rel;
-        if ( $v->isa("SReln::Simple") ) {
-            $new_rel = find_reln( $v->get_ends );
-        }
-        else {
-            my $cat = $v->get_base_category();
-            $new_rel = find_reln( $v->get_ends(), $cat );
-        }
-
-        if ($new_rel) {
-            $v->uninsert;
-            $new_rel->insert;
-        }
-        else {
-            $v->uninsert;
-            #main::message("A relation no longer valid, removing!");
-        }
-    }
-}
-
 sub get_pure {
     my ($self) = @_;
     return SLTM::Platonic->create( $self->get_structure_string() );
@@ -936,6 +877,74 @@ sub MaybeAnnotateWithMetonym {
 
     if ( my $o = $EVAL_ERROR ) {
         confess $o unless ( UNIVERSAL::isa( $o, 'SErr::MetonymNotAppicable' ) );
+    }
+}
+
+
+##################################
+# RELATION MANAGEMENT
+# Relevant variables:
+# %reln_other_of
+
+sub AddRelation {
+    my ( $self, $reln ) = @_;
+    my $id    = ident $self;
+    my $other = $self->_get_other_end_of_reln($reln);
+
+    if ( exists( $reln_other_of{$id}{$other} ) ) {
+        SErr->throw("duplicate reln being added");
+    }
+    $self->AddHistory( "added reln to " . $other->get_bounds_string() );
+    $reln_other_of{$id}{$other} = $reln; # The other direction is handled by whoever calls this.
+}
+
+sub RemoveRelation {
+    my ( $self, $reln ) = @_;
+    my $id = ident $self;
+
+    my $other = $self->_get_other_end_of_reln($reln);
+    $self->AddHistory( "removed reln to " . $other->get_bounds_string() );
+    delete $reln_other_of{$id}{$other};
+}
+
+sub get_relation {
+    my ( $self, $other ) = @_;
+    my $id = ident $self;
+
+    return $reln_other_of{$id}{$other}
+        if exists $reln_other_of{$id}{$other};
+    return;
+}
+
+sub _get_other_end_of_reln {
+    my ( $self, $reln ) = @_;
+    my ( $f,    $s )    = $reln->get_ends();
+    return $s if $f eq $self;
+    return $f if $s eq $self;
+    SErr->throw("relation error: not an end");
+}
+
+sub recalculate_relations {
+    my ($self) = @_;
+    my %hash = %{$reln_other_of{ ident $self}};
+    while ( my ( $k, $v ) = each %hash ) {
+        my $new_rel;
+        if ( $v->isa("SReln::Simple") ) {
+            $new_rel = find_reln( $v->get_ends );
+        }
+        else {
+            my $cat = $v->get_base_category();
+            $new_rel = find_reln( $v->get_ends(), $cat );
+        }
+
+        if ($new_rel) {
+            $v->uninsert;
+            $new_rel->insert;
+        }
+        else {
+            $v->uninsert;
+            #main::message("A relation no longer valid, removing!");
+        }
     }
 }
 

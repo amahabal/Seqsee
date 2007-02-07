@@ -65,7 +65,7 @@ sub insert{
     my $reln = $f->get_relation($s);
     $reln->uninsert() if $reln;
 
-    my $add_success = eval { SWorkspace->add_reln($self) };
+    my $add_success = eval { SWorkspace->AddRelation($self) };
     if ($EVAL_ERROR) {
         print $EVAL_ERROR, "\n";
         ### f, s, $reln: $f, $s, $reln
@@ -74,7 +74,7 @@ sub insert{
 
     if ($add_success) {
         for ($f, $s) {
-            $_->add_reln($self);
+            $_->AddRelation($self);
         }
     }
 
@@ -83,9 +83,9 @@ sub insert{
 
 sub uninsert{
     my ( $self ) = @_;
-    SWorkspace->remove_reln($self);
+    SWorkspace->RemoveRelation($self);
     for ($self->get_ends) {
-        $_->remove_reln($self);
+        $_->RemoveRelation($self);
     }
 }
 

@@ -1,20 +1,12 @@
 use strict;
+#use Test::MockObject;
 use blib;
 use Test::Seqsee;
 BEGIN { plan tests => 5; }
 
+use lib "t/lib";
+use TestSCF;
 #use MyFilter;
-use Test::MockObject;
-
-BEGIN {
-  Test::MockObject->fake_module('SCF::test');
-
-  sub SCF::test::run {
-    my $args = shift;
-    return $args->{foo};
-  }
-}
-
 
 my $cl_def  = new SCodelet( "test", 10 );
 my $cl_def2 = new SCodelet( "test", 15, foo => 1 );

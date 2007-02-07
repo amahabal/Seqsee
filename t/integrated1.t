@@ -42,7 +42,7 @@ ok( exists $SWorkspace::groups{$WSO_ga}, );
 ok( not($WSO_ga->get_underlying_reln()), );
 
 $WSO_ga->set_underlying_reln($WSO_ra);
-ok( $WSO_ga->get_underlying_reln() eq $WSO_ra, );
+isa_ok( $WSO_ga->get_underlying_reln(), "SRuleApp" );
 
 ## applying relations
 my $WSO_o1 = apply_reln($WSO_ra, $SWorkspace::elements[2]);
