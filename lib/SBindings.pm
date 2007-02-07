@@ -248,10 +248,16 @@ sub _describe_position {
     # XXX: Will only be fwd or backward, currently
     # XXX(Board-it-up): [2006/10/14] Should be more biased...
     unless ( defined $position_mode ) {
-        $position_mode =
-              SUtil::toss(0.5)
-            ? POS_MODE::FORWARD()
-            : POS_MODE::BACKWARD();
+        if ($Global::PossibleFeatures{onlyfwd}) {
+            $position_mode = POS_MODE::FORWARD();
+            # main::message("Position mode is $position_mode");
+        } else {
+            $position_mode =
+                SUtil::toss(0.5)
+                      ? POS_MODE::FORWARD()
+                          : POS_MODE::BACKWARD();
+            
+        }
     }
 
     $position_mode_of{$id} = $position_mode;
