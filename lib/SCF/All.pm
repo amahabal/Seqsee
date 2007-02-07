@@ -77,23 +77,17 @@ use Compile::SCF;
     return unless $direction_of_core->PotentiallyExtendible(); # i.e., is LEFT or RIGHT
     my $type = $core->isa('SObject') ? "object" : "reln";
 
+    if ($type eq "object") {
+        confess "The functionality of extending objects now done by AttemptExtension2.";
+    }
+
     ## $direction, $direction_of_core, $type
 
     my ( $reln, $obj1, $obj2, $next_pos, $what_next );
     if ($direction eq $direction_of_core) {
-        if ($type eq "reln") {
-            ($reln, $obj1, $obj2 ) = ($core, $core->get_ends );
-        } else {
-            $reln = $core->get_underlying_reln() or return;
-            $obj2 = $core->[-1];
-        }
+        ($reln, $obj1, $obj2 ) = ($core, $core->get_ends );
     } else {
-        if ($type eq "reln") {
-            ($reln, $obj2, $obj1 ) = ($core->FlippedVersion(), $core->get_ends );
-        } else {
-            $reln = $core->get_underlying_reln()->FlippedVersion() or return;
-            $obj2 = $core->[0];
-        }
+        ($reln, $obj2, $obj1 ) = ($core->FlippedVersion(), $core->get_ends );
     }
 
     $next_pos = $obj2->get_next_pos_in_dir( $direction );
@@ -175,25 +169,6 @@ use Compile::SCF;
             # constituents are not correctly typed
             #   main::message("No relation found to insert!");
         }
-
-
-        if ($type eq "object") {
-            #my $core_object_ref = $core->get_parts_ref();
-            if ($direction eq $direction_of_core) {
-                #push @$core_object_ref, $wso;
-                $core->Extend($wso, 1);
-            } else {
-                $core->Extend($wso, 0);
-                #unshift @$core_object_ref, $wso;
-            }
-            #$core->recalculate_edges();
-            #$core->recalculate_categories();
-            #$core->recalculate_relations();
-            #$core->UpdateStrength();
-            ## HERE
-            ContinueWith( SThought::AreWeDone->new({group => $core}) );
-        }
-        # main::message("Okay, extended");
     } else {
         # maybe attempt extension
         if ($direction eq DIR::RIGHT()) {
@@ -204,15 +179,11 @@ use Compile::SCF;
         if (SUtil::toss(0.5)) {
             return;
         } else {
-            if ($type eq 'object') {
-                # ???
-            } else {
-                my $tht = new SThought::AreTheseGroupable
-                    ( { items => [$obj1, $obj2],
-                        reln  => $core
-                    });
-                ContinueWith( $tht );
-            }
+            my $tht = new SThought::AreTheseGroupable
+                ( { items => [$core->get_ends()],
+                    reln  => $core
+                        });
+            ContinueWith( $tht );
         }
     }
 </run>

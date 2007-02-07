@@ -933,5 +933,12 @@ sub get_pure {
 #     return q{<object>};
 # }
 
+sub get_unstarred{
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return $is_a_metonym_of{$id} || $self;
+}
+
+
 1;
 

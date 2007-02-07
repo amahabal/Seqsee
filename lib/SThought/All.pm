@@ -66,13 +66,7 @@ use Compile::SThought;
     eval {
         # I do not see why I had the next line! Effective object are starred!
         #my @unstarred_items = map { $_->get_effective_object() } @$items;
-        my @unstarred_items = @$items;
-        for (@unstarred_items) {
-            if (my $unstarred = $_->get_is_a_metonym()) {
-                #main::message("AreTheseGroupable: Got a metonym'd object as arg; fixing...");
-                $_ = $unstarred;
-            }
-        }
+        my @unstarred_items = map { $_->get_unstarred() } @$items;
         $new_group = SAnchored->create(@unstarred_items);
         if ($new_group) {
             $new_group->set_underlying_reln($reln);
@@ -124,9 +118,9 @@ use Compile::SThought;
         # This very well may be it!
         if ( $gp->get_left_edge() != 0 ) {
             if ( $gp->get_left_extendibility() ne EXTENDIBILE::NO() ) {
-                ACTION 80, AttemptExtension,
+                ACTION 80, AttemptExtension2,
                   {
-                    core      => $gp,
+                    object    => $gp,
                     direction => DIR::LEFT()
                   };
             }
@@ -159,9 +153,9 @@ use Compile::SThought;
                 }
             }
             else {
-                ACTION 80, AttemptExtension,
+                ACTION 80, AttemptExtension2,
                   {
-                    core      => $gp,
+                    object    => $gp,
                     direction => DIR::RIGHT()
                   };
             }
