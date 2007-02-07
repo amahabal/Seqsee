@@ -17,7 +17,7 @@ my $WSO_ga = SAnchored->create($SWorkspace::elements[0], $SWorkspace::elements[1
 SWorkspace->add_group($WSO_ga);
 
 $WSO_ga->describe_as($S::SAMENESS);
-$WSO_ga->annotate_with_metonym($S::SAMENESS, 'each');
+$WSO_ga->AnnotateWithMetonym($S::SAMENESS, 'each');
 
 my $WSO_gb = SAnchored->create($WSO_ga, $SWorkspace::elements[2], $SWorkspace::elements[3], );
 SWorkspace->add_group($WSO_gb);
@@ -37,7 +37,7 @@ my $literal_1123 = $S::LITERAL->build( { structure => [[1,1],2,3]});
 ## $literal_1123, ident $literal_1123
 $WSO_gb->is_of_category_ok($literal_1123);
 
-$WSO_ga->set_metonym_activeness(1);
+$WSO_ga->SetMetonymActiveness(1);
 throws_no_thought_ok($cl1);
 throws_no_thought_ok($cl2);
 

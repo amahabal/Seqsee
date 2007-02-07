@@ -26,7 +26,7 @@ my $instancer = sub {
     ## underlying_reln: $reln
     return unless $reln;
 
-    my @parts = map { $_->get_effective_object } @{ $object->get_parts_ref };
+    my @parts = map { $_->GetEffectiveObject } @{ $object->get_parts_ref };
     my $parts_count = scalar(@parts);
 
     for my $i (0 .. ($parts_count - 2)) {

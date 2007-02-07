@@ -168,18 +168,18 @@ sub CheckApplicability{
         my @accounted_for = shift(@objects_to_account_for);
         my @states = ($start_state);
 
-        my ($last_object, $last_state) = ($accounted_for[0]->get_effective_object(), $states[0]);
+        my ($last_object, $last_state) = ($accounted_for[0]->GetEffectiveObject(), $states[0]);
         while (@objects_to_account_for) {
             my ($reln, $next_state) = 
                 $self->GetRelationAndTransition($last_state);
             my $expected_next = apply_reln($reln, $last_object);
             my $actual_next = shift(@objects_to_account_for);
             if ($expected_next->get_structure_string() eq
-                    $actual_next->get_effective_object()->get_structure_string())
+                    $actual_next->GetEffectiveObject()->get_structure_string())
                 {
                     push @accounted_for, $actual_next;
                     push @states, $next_state;
-                    ($last_object, $last_state) = ($actual_next->get_effective_object(), $next_state);
+                    ($last_object, $last_state) = ($actual_next->GetEffectiveObject(), $next_state);
                 } else {
                     next LOOP;
                 }

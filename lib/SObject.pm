@@ -182,8 +182,8 @@ sub QuickCreate {
             ## inst:  $S::SAMENESS->is_instance($subobject)
             $subobject->annotate_with_cat($S::SAMENESS);
             ## inst: $S::SAMENESS->is_instance($subobject)
-            $subobject->annotate_with_metonym( $S::SAMENESS, "each" );
-            $subobject->set_metonym_activeness(1);
+            $subobject->AnnotateWithMetonym( $S::SAMENESS, "each" );
+            $subobject->SetMetonymActiveness(1);
         }
     }
 
@@ -231,13 +231,13 @@ sub annotate_with_cat {
 
 *SObject::maybe_annotate_with_cat = *SObject::describe_as;
 
-# method: annotate_with_metonym
+# method: AnnotateWithMetonym
 # Adds a metonym from the given category to the object
 #
 #    Dies if metonym application not possible.
 #
 #    usage:
-#     $object->annotate_with_metonym( $cat, $name )
+#     $object->AnnotateWithMetonym( $cat, $name )
 #
 #    parameter list:
 #        $self - The object
@@ -250,37 +250,10 @@ sub annotate_with_cat {
 #    possible exceptions:
 #        SErr::MetonymNotAppicable
 
-sub annotate_with_metonym {
-    my ( $self, $cat, $name ) = @_;
-    my $is_of_cat_ref = $self->is_of_category_p($cat);
 
-    unless ( $is_of_cat_ref->[0] ) {
-        $self->annotate_with_cat($cat);
-    }
+# method: MaybeAnnotateWithMetonym
+#  same as AnnotateWithMetonym, except does not die
 
-    my $meto = $cat->find_metonym( $self, $name );
-    SErr::MetonymNotAppicable->throw() unless $meto;
-
-    $self->AddHistory( "Added metonym \"$name\" for cat " . $cat->get_name );
-    $self->set_metonym($meto);
-    $meto->get_starred()->set_is_a_metonym($self);
-}
-
-# method: maybe_annotate_with_metonym
-#  same as annotate_with_metonym, except does not die
-sub maybe_annotate_with_metonym {
-    my ( $self, $cat, $name ) = @_;
-    eval { $self->annotate_with_metonym( $cat, $name ) };
-
-    if ( my $o = $EVAL_ERROR ) {
-        if ( UNIVERSAL::isa( $o, 'SErr::MetonymNotAppicable' ) ) {
-
-        }
-        else {
-            confess $o;
-        }
-    }
-}
 
 #
 # SubSection: Structure related methods
@@ -615,9 +588,9 @@ sub apply_blemish_at {
     for my $index (@indices) {
         my $metonym = shift(@metonyms);
         $ret->[$index]->describe_as($meto_cat);
-        $ret->[$index]->set_metonym($metonym);
+        $ret->[$index]->SetMetonym($metonym);
         $metonym->get_starred()->set_is_a_metonym( $ret->[$index] );
-        $ret->[$index]->set_metonym_activeness(1);
+        $ret->[$index]->SetMetonymActiveness(1);
     }
     return $ret;
 
@@ -793,43 +766,6 @@ sub set_underlying_reln : CUMULATIVE {
     $underlying_reln_of{$id} = $ruleapp;
 }
 
-sub set_metonym {
-    my ( $self, $meto ) = @_;
-    my $id = ident $self;
-
-    SErr->throw( "Metonym must be an SObject! Got: " . $meto->get_starred )
-        unless UNIVERSAL::isa( $meto->get_starred, "SObject" );
-    $is_a_metonym_of{ ident( $meto->get_starred() ) } = $self;
-    $metonym_of{$id} = $meto;
-}
-
-sub set_metonym_activeness {
-    my ( $self, $value ) = @_;
-    my $id = ident $self;
-
-    if ($value) {
-        return if $metonym_activeness_of{$id};
-        unless ( $metonym_of{$id} ) {
-            SErr->throw("Cannot set_metonym_activeness without a metonym");
-        }
-        $self->AddHistory("Metonym activeness turned on");
-        $metonym_activeness_of{$id} = 1;
-    }
-    else {
-        $self->AddHistory("Metonym activeness turned off");
-        $metonym_activeness_of{$id} = 0;
-    }
-
-}
-
-sub get_effective_object {
-    my ($self) = @_;
-    my $id = ident $self;
-
-    return $self unless $metonym_activeness_of{$id};
-    return $metonym_of{$id}->get_starred;
-}
-
 sub get_structure_string {
     my ($self) = @_;
     my $struct = $self->get_structure;
@@ -933,11 +869,76 @@ sub get_pure {
 #     return q{<object>};
 # }
 
-sub get_unstarred{
+####################################################################
+# VERSION POST REFACTORING
+
+# METONYM MANAGEMENT
+sub SetMetonym {
+    my ( $self, $meto ) = @_;
+    my $id      = ident $self;
+    my $starred = $meto->get_starred();
+    SErr->throw("Metonym must be an SObject! Got: $starred")
+      unless UNIVERSAL::isa( $starred, "SObject" );
+    $is_a_metonym_of{ ident($starred) } = $self;
+    $metonym_of{$id} = $meto;
+}
+
+sub SetMetonymActiveness {
+    my ( $self, $value ) = @_;
+    my $id = ident $self;
+
+    if ($value) {
+        return if $metonym_activeness_of{$id};
+        unless ( $metonym_of{$id} ) {
+            SErr->throw("Cannot SetMetonymActiveness without a metonym");
+        }
+        $self->AddHistory("Metonym activeness turned on");
+        $metonym_activeness_of{$id} = 1;
+    }
+    else {
+        $self->AddHistory("Metonym activeness turned off");
+        $metonym_activeness_of{$id} = 0;
+    }
+}
+
+sub GetEffectiveObject {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    return $self unless $metonym_activeness_of{$id};
+    return $metonym_of{$id}->get_starred();
+}
+
+sub GetUnstarred{
     my ( $self ) = @_;
     my $id = ident $self;
     return $is_a_metonym_of{$id} || $self;
 }
+
+sub AnnotateWithMetonym {
+    my ( $self, $cat, $name ) = @_;
+    my $is_of_cat_ref = $self->is_of_category_p($cat);
+
+    unless ( $is_of_cat_ref->[0] ) {
+        $self->annotate_with_cat($cat);
+    }
+
+    my $meto = $cat->find_metonym( $self, $name );
+    SErr::MetonymNotAppicable->throw() unless $meto;
+
+    $self->AddHistory( "Added metonym \"$name\" for cat " . $cat->get_name() );
+    $self->SetMetonym($meto);
+}
+
+sub MaybeAnnotateWithMetonym {
+    my ( $self, $cat, $name ) = @_;
+    eval { $self->AnnotateWithMetonym( $cat, $name ) };
+
+    if ( my $o = $EVAL_ERROR ) {
+        confess $o unless ( UNIVERSAL::isa( $o, 'SErr::MetonymNotAppicable' ) );
+    }
+}
+
 
 
 1;

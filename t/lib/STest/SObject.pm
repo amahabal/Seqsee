@@ -74,7 +74,7 @@ sub QuickCreate :Test(16) {
     cmp_ok( $metonym->get_category(), 'eq', $S::SAMENESS);
     cmp_ok( $metonym->get_name(), 'eq', "each");
     cmp_ok( $metonym->get_starred()->get_structure, 'eq', 4);
-    $metonym->get_unstarred()->structure_ok( [4, 4]);
+    $metonym->GetUnstarred()->structure_ok( [4, 4]);
 
     my $object2 = SObject->QuickCreate([2,3,[4,4],5]);
     ok( $object2->can_be_seen_as(SObject->create(2,3,4,5)), );

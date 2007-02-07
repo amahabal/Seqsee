@@ -25,10 +25,10 @@ my $lit_1 = $S::LITERAL->build({ structure => 1});
 
 fringe_contains( $tht, always => [ $lit_11, $S::SAMENESS ]);
 
-$WSO_ga->annotate_with_metonym( $S::SAMENESS, "each");
+$WSO_ga->AnnotateWithMetonym( $S::SAMENESS, "each");
 
 
-$WSO_ga->set_metonym_activeness(1);
+$WSO_ga->SetMetonymActiveness(1);
 fringe_contains( $tht, always => [ $lit_1 ]);
 
  

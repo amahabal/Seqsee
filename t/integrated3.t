@@ -19,9 +19,9 @@ SWorkspace->add_group($WSO_ga);
  
 $WSO_ga->describe_as($S::SAMENESS);
 
-dies_ok { $WSO_ga->set_metonym_activeness(1);};
+dies_ok { $WSO_ga->SetMetonymActiveness(1);};
 
-$WSO_ga->annotate_with_metonym( $S::SAMENESS, "each");
+$WSO_ga->AnnotateWithMetonym( $S::SAMENESS, "each");
 my $WSO_ma = $WSO_ga->get_metonym();
 ## $WSO_ma
 isa_ok( $WSO_ma, "SMetonym");
@@ -30,7 +30,7 @@ ok( $WSO_ma->get_name() eq "each", );
 ok( UNIVERSAL::isa($WSO_ma->get_starred(), "SObject"), "isa SObject");
 ok( UNIVERSAL::isa($WSO_ma->get_starred(), "SElement"), "isa SElement");
 SUtil::compare_deep( $WSO_ma->get_starred()->get_structure, 1);
-ok( $WSO_ma->get_unstarred() eq $WSO_ga, );
+ok( $WSO_ma->GetUnstarred() eq $WSO_ga, );
 ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[0]), "starred is brand new" );
 ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[1]), "starred is brand new");
 
@@ -38,7 +38,7 @@ ok( not($WSO_ma->get_starred() eq $SWorkspace::elements[1]), "starred is brand n
 ok( not($WSO_ga->get_metonym_activeness()), );
 ok( not(find_reln($WSO_ga, $SWorkspace::elements[2])), );
 
-lives_ok { $WSO_ga->set_metonym_activeness(1);};
+lives_ok { $WSO_ga->SetMetonymActiveness(1);};
 
 my $WSO_rb = find_reln($WSO_ga, $SWorkspace::elements[2]);
 $WSO_rb->insert();
@@ -71,8 +71,8 @@ isa_ok( $meto_type, "SMetonymType");
 my $WSO_gd = SAnchored->create($SWorkspace::elements[5], $SWorkspace::elements[6], );
 SWorkspace->add_group($WSO_gd);
 $WSO_gd->describe_as($S::SAMENESS);
-$WSO_gd->annotate_with_metonym($S::SAMENESS, "each");
-$WSO_gd->set_metonym_activeness(1);
+$WSO_gd->AnnotateWithMetonym($S::SAMENESS, "each");
+$WSO_gd->SetMetonymActiveness(1);
 
 my $WSO_ge = SAnchored->create($SWorkspace::elements[4], $WSO_gd, $SWorkspace::elements[7], );
 SWorkspace->add_group($WSO_ge);

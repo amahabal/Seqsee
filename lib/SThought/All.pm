@@ -65,8 +65,8 @@ use Compile::SThought;
     my $new_group;
     eval {
         # I do not see why I had the next line! Effective object are starred!
-        #my @unstarred_items = map { $_->get_effective_object() } @$items;
-        my @unstarred_items = map { $_->get_unstarred() } @$items;
+        #my @unstarred_items = map { $_->GetEffectiveObject() } @$items;
+        my @unstarred_items = map { $_->GetUnstarred() } @$items;
         $new_group = SAnchored->create(@unstarred_items);
         if ($new_group) {
             $new_group->set_underlying_reln($reln);
@@ -216,7 +216,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
 };
 
  <fringe>
-     return get_fringe_for($core->get_effective_object());
+     return get_fringe_for($core->GetEffectiveObject());
  </fringe>
 
  <actions>

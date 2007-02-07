@@ -206,7 +206,7 @@ sub as_insertlist {
         $list->append( "Self:             ", 'heading', $self, '', "\n" );
         $list->append(
             "Effective object: ",
-            'heading', $self->get_effective_object(),
+            'heading', $self->GetEffectiveObject(),
             '', "\n"
         );
         $list->append( "Flattened: ", 'heading',
@@ -391,7 +391,7 @@ sub FindExtension_old {
     return unless defined $next_position;
 
     my $expected_next_object =
-      apply_reln( $reln, $end_object->get_effective_object() )
+      apply_reln( $reln, $end_object->GetEffectiveObject() )
       or return;
 
     return SWorkspace->GetSomethingLike(

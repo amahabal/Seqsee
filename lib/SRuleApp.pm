@@ -57,7 +57,7 @@ sub ExtendInDirection {
     ## next_pos: $next_pos
     return unless defined $next_pos;
     my $next_object =
-      apply_reln( $relation, $object_at_end->get_effective_object() );
+      apply_reln( $relation, $object_at_end->GetEffectiveObject() );
     ## next_object: $next_object, $next_object->get_structure_string()
 
     my $is_this_what_is_present = eval {
@@ -129,7 +129,7 @@ sub FindExtension{
     my $next_pos = $last_object->get_next_pos_in_dir($direction_to_extend_in);
     return unless defined $next_pos;
 
-    my $expected_next_object = apply_reln( $relation, $last_object->get_effective_object()) or return;
+    my $expected_next_object = apply_reln( $relation, $last_object->GetEffectiveObject()) or return;
 
     return SWorkspace->GetSomethingLike({
         object => $expected_next_object,

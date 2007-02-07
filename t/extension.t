@@ -53,8 +53,8 @@ my $meto = SMetonym->new({starred => SObject->create(5),
                           name      => "some_name",
                           info_loss => {},
                       });
-$WSO_unstarred->set_metonym($meto);
-$WSO_unstarred->set_metonym_activeness(1);
+$WSO_unstarred->SetMetonym($meto);
+$WSO_unstarred->SetMetonymActiveness(1);
 
 cmp_ok($WSO_ga->FindExtension($DIR::RIGHT, 0), 'eq', $WSO_unstarred);
 $WSO_ga->Extend($WSO_unstarred, 1);

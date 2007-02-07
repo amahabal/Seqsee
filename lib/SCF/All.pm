@@ -50,7 +50,7 @@ use Compile::SCF;
     } else {
         @structure = 
             map { $_->get_structure }
-                map { $_->get_effective_object } 
+                map { $_->GetEffectiveObject } 
                     @{$object->get_parts_ref};
         ## @structure
     }
@@ -93,7 +93,7 @@ use Compile::SCF;
     $next_pos = $obj2->get_next_pos_in_dir( $direction );
     return unless defined($next_pos);
 
-    eval { $what_next = apply_reln( $reln, $obj2->get_effective_object() )} or return;
+    eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() )} or return;
     if ($EVAL_ERROR) {
         ### eval error in apply reln!
         ### $reln
@@ -279,8 +279,8 @@ use Compile::SCF;
     my @meto_types = $category->get_meto_types;
     # XXX(Board-it-up): [2006/10/14] Choose biased!
     my $meto_type = $meto_types[0];
-    $object->annotate_with_metonym($category, $meto_type);
-    $object->set_metonym_activeness(1);
+    $object->AnnotateWithMetonym($category, $meto_type);
+    $object->SetMetonymActiveness(1);
 </run>
 
 no Compile::SCF;
@@ -423,8 +423,8 @@ my @potential_squints = $actual->CheckSquintability($intended) or return;
 # XXX(Board-it-up): [2006/12/29] choose wisely!
 my ($cat, $name) = @{$potential_squints[0]};
 #main::message("Squinting: $cat/$name");
-$actual->annotate_with_metonym($cat, $name);
-$actual->set_metonym_activeness(1);
+$actual->AnnotateWithMetonym($cat, $name);
+$actual->SetMetonymActiveness(1);
 </run>
 
 no Compile::SCF;

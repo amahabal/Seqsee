@@ -541,8 +541,8 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
 
     if ( my $metonym = $obj->get_metonym() ) {
         my ( $cat, $name ) = ( $metonym->get_category(), $metonym->get_name() );
-        $new_obj->annotate_with_metonym( $cat, $name );
-        $new_obj->set_metonym_activeness( $obj->get_metonym_activeness );
+        $new_obj->AnnotateWithMetonym( $cat, $name );
+        $new_obj->SetMetonymActiveness( $obj->get_metonym_activeness );
     }
     return $new_obj;
 
@@ -569,8 +569,8 @@ sub rapid_create_gp {
             my $cat  = shift(@$cats);
             my $name = shift(@$cats);
             $object->describe_as($cat);
-            $object->annotate_with_metonym( $cat, $name );
-            $object->set_metonym_activeness(1);
+            $object->AnnotateWithMetonym( $cat, $name );
+            $object->SetMetonymActiveness(1);
         }
         else {
             $object->describe_as($next);
@@ -649,7 +649,7 @@ sub GetSomethingLike {
 
     my ( @matching_objects, @potentially_matching_objects );
     for (@objects_at_that_location) {
-        if ( $_->get_effective_object()->get_structure_string() eq
+        if ( $_->GetEffectiveObject()->get_structure_string() eq
             $expected_structure_string )
         {
             push @matching_objects, $_;
