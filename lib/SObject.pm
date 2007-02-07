@@ -810,7 +810,7 @@ sub get_pure {
 #     return q{<object>};
 # }
 
-####################################################################
+# ###################################################################
 # VERSION POST REFACTORING
 
 # METONYM MANAGEMENT
@@ -881,7 +881,7 @@ sub MaybeAnnotateWithMetonym {
 }
 
 
-##################################
+# #################################
 # RELATION MANAGEMENT
 # Relevant variables:
 # %reln_other_of
