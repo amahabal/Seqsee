@@ -64,7 +64,7 @@ no Compile::SCF;
 #####################################
 #####################################
 use Compile::SCF;
-[package] SCF::AttemptExtension
+[package] SCF::AttemptExtensionOfRelation
 [multi] find_reln
 [multi] apply_reln
 [multi] plonk_into_place
@@ -78,7 +78,7 @@ use Compile::SCF;
     my $type = $core->isa('SObject') ? "object" : "reln";
 
     if ($type eq "object") {
-        confess "The functionality of extending objects now done by AttemptExtension2.";
+        confess "The functionality of extending objects now done by AttemptExtensionOfGroup.";
     }
 
     ## $direction, $direction_of_core, $type
@@ -395,12 +395,12 @@ use Compile::SCF;
 no Compile::SCF;
 #############################################
 use Compile::SCF;
-[package] SCF::AttemptExtension2
+[package] SCF::AttemptExtensionOfGroup
 [param] object!
 [param] direction!
 
 <run>
-    #main::message("Starting SCF::AttemptExtension2");
+    #main::message("Starting SCF::AttemptExtensionOfGroup");
     my $extension = $object->FindExtension($direction, 0) or return;
     #main::message("Found extension: $extension; " . $extension->get_structure_string());
     my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;

@@ -38,8 +38,8 @@
 
 (global-set-key "\`" 'dabbrev-expand)
 
-(global-set-key [f2] 'seqsee-replace)
-(global-set-key [f3] 'exit-pvs)
+(global-set-key [f2] 'seqsee-replace-lib)
+(global-set-key [f3] 'seqsee-replace-t)
 (global-set-key [f4] 'restart-emacs)
 (global-set-key [f5] 'prove-pvs-file)
 
@@ -280,6 +280,18 @@
                      (read-string "Replace with: " nil)))
   (replace-in-files-in-directory "d:/Seqsee/t/" what-to-replace replace-with)
   (replace-in-files-in-directory "d:/Seqsee/lib/" what-to-replace replace-with)
+  )
+
+(defun seqsee-replace-lib (what-to-replace replace-with)
+  (interactive (list (read-string "Replace what? " nil)
+                     (read-string "Replace with: " nil)))
+  (replace-in-files-in-directory "d:/Seqsee/lib/" what-to-replace replace-with)
+  )
+
+(defun seqsee-replace-t (what-to-replace replace-with)
+  (interactive (list (read-string "Replace what? " nil)
+                     (read-string "Replace with: " nil)))
+  (replace-in-files-in-directory "d:/Seqsee/t/" what-to-replace replace-with)
   )
   
 (defun replace-in-files-in-directory (dir what-to-replace replace-with)

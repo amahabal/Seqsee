@@ -118,7 +118,7 @@ use Compile::SThought;
         # This very well may be it!
         if ( $gp->get_left_edge() != 0 ) {
             if ( $gp->get_left_extendibility() ne EXTENDIBILE::NO() ) {
-                ACTION 80, AttemptExtension2,
+                ACTION 80, AttemptExtensionOfGroup,
                   {
                     object    => $gp,
                     direction => DIR::LEFT()
@@ -153,7 +153,7 @@ use Compile::SThought;
                 }
             }
             else {
-                ACTION 80, AttemptExtension2,
+                ACTION 80, AttemptExtensionOfGroup,
                   {
                     object    => $gp,
                     direction => DIR::RIGHT()
@@ -230,7 +230,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         #    { core => $core,
         #      direction => DIR::RIGHT(),
         #  };
-        CODELET 100, AttemptExtension2,
+        CODELET 100, AttemptExtensionOfGroup,
           {
             object    => $core,
             direction => DIR::RIGHT(),
@@ -242,7 +242,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         #    { core => $core,
         #      direction => DIR::LEFT(),
         #  };
-        CODELET 100, AttemptExtension2,
+        CODELET 100, AttemptExtensionOfGroup,
           {
             object    => $core,
             direction => DIR::LEFT(),
@@ -395,11 +395,11 @@ multimethod get_fringe_for => ('SAnchored') => sub {
 
     if ( not $holey ) {
         if ( $core->get_right_extendibility() eq $EXTENDIBILE::PERHAPS ) {
-            ACTION 80, AttemptExtension,
+            ACTION 80, AttemptExtensionOfRelation,
               { core => $core, direction => $DIR::RIGHT };
         }
         if ( $core->get_left_extendibility() eq $EXTENDIBILE::PERHAPS ) {
-            ACTION 80, AttemptExtension,
+            ACTION 80, AttemptExtensionOfRelation,
               { core => $core, direction => $DIR::LEFT };
         }
     }
@@ -501,7 +501,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
 
     {
         last if $holey;
-        CODELET 100, AttemptExtension,
+        CODELET 100, AttemptExtensionOfRelation,
           {
             core      => $core,
             direction => DIR::RIGHT()
