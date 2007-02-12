@@ -915,6 +915,15 @@ sub RemoveRelation {
     delete $reln_other_of{$id}{$other};
 }
 
+sub RemoveAllRelations{
+    my ( $self ) = @_;
+    my @relations = values %{$reln_other_of{ident $self}};
+    for (@relations) {
+        $_->uninsert();
+    }
+}
+
+
 sub get_relation {
     my ( $self, $other ) = @_;
     my $id = ident $self;

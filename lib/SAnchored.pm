@@ -10,6 +10,7 @@ package SAnchored;
 use strict;
 use Carp;
 use Class::Std;
+use English qw(-no_match_vars);
 use base qw{SObject};
 
 # use Smart::Comments;
@@ -369,7 +370,10 @@ sub Update{
     $self->recalculate_relations();
     $self->UpdateStrength();
     if (my $underlying_reln = $self->get_underlying_reln()) {
-        $self->set_underlying_reln( $underlying_reln->get_rule());
+        eval { $self->set_underlying_reln( $underlying_reln->get_rule()) };
+        if ($EVAL_ERROR) {
+            SWorkspace->remove_gp($self);
+        }
     }
     SWorkspace::UpdateGroupsContaining($self);
 }

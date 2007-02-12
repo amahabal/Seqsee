@@ -406,9 +406,18 @@ sub add_group {
 
 sub remove_gp {
     my ( $self, $gp ) = @_;
-    ## Removing group: ident($gp)
-    delete $groups{$gp};
+    DeleteGroupsContaining($gp);
 }
+
+sub DeleteGroupsContaining{
+    my ( $member_object ) = @_;
+    for my $gp (values %groups) {
+        $gp->DeleteGroupsContaining() if $gp->HasAsItem($member_object);
+    }
+    $member_object->RemoveAllRelations();
+    delete $groups{$member_object};
+}
+
 
 sub UpdateGroupsContaining{
     my ( $member_object ) = @_;
