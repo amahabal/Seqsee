@@ -249,7 +249,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
           };
     }
 
-    if ( scalar(@$core) > 1 and SUtil::toss(0.2) ) {
+    if ( scalar(@$core) > 1 and SUtil::toss(0.8) ) {
         if ( SUtil::toss(0.5) ) {
 
             #main::message("Will launch ConvulseEnd");
@@ -302,6 +302,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
       if $core->get_underlying_reln;
     if ($possible_category_for_ends) {
         for ( { $core->get_underlying_reln()->get_items() } ) {
+            confess "$_ is not anchored!" unless UNIVERSAL::isa($_, isa("SAnchored"));
             my $is_inst =
               $_->is_of_category_p($possible_category_for_ends)->[0];
             unless ($is_inst) {
