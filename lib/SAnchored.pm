@@ -357,6 +357,13 @@ sub Extend {
     # If we get here, all conflicting incumbents are dead.
     @$parts_ref = @parts_of_new_group;
 
+    $self->Update();
+    $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
+    return 1;
+}
+
+sub Update{
+    my ( $self ) = @_;
     $self->recalculate_edges();
     $self->recalculate_categories();
     $self->recalculate_relations();
@@ -364,9 +371,7 @@ sub Extend {
     if (my $underlying_reln = $self->get_underlying_reln()) {
         $self->set_underlying_reln( $underlying_reln->get_rule());
     }
-
-    $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
-    return 1;
+    SWorkspace::UpdateGroupsContaining($self);
 }
 
 # XXX(Board-it-up): [2007/02/03] used to be FindExtension. Major change ahead...

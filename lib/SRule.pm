@@ -172,7 +172,7 @@ sub CheckApplicability{
         while (@objects_to_account_for) {
             my ($reln, $next_state) = 
                 $self->GetRelationAndTransition($last_state);
-            my $expected_next = apply_reln($reln, $last_object);
+            my $expected_next = apply_reln($reln, $last_object) or confess('Apply relation failed');
             my $actual_next = shift(@objects_to_account_for);
             if ($expected_next->get_structure_string() eq
                     $actual_next->GetEffectiveObject()->get_structure_string())

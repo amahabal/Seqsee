@@ -810,6 +810,14 @@ sub get_pure {
 #     return q{<object>};
 # }
 
+sub HasAsItem{
+    my ( $self, $item ) = @_;
+    for (@$self) {
+        return 1 if $_ eq $item;
+    }
+    return 0;
+}
+
 # ###################################################################
 # VERSION POST REFACTORING
 

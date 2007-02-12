@@ -410,6 +410,14 @@ sub remove_gp {
     delete $groups{$gp};
 }
 
+sub UpdateGroupsContaining{
+    my ( $member_object ) = @_;
+    for my $gp (values %groups) {
+        $gp->Update() if $gp->HasAsItem($member_object);
+    }
+}
+
+
 # method: check_at_location
 # checks if this is the object present at a location
 #

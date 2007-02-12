@@ -302,7 +302,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
       if $core->get_underlying_reln;
     if ($possible_category_for_ends) {
         for ( { $core->get_underlying_reln()->get_items() } ) {
-            confess "$_ is not anchored!" unless UNIVERSAL::isa($_, isa("SAnchored"));
+            confess "$_ is not anchored!" unless UNIVERSAL::isa($_, "SAnchored");
             my $is_inst =
               $_->is_of_category_p($possible_category_for_ends)->[0];
             unless ($is_inst) {
