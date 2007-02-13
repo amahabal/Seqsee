@@ -42,7 +42,7 @@ sub BUILD {
     }
     else {    # So: only relations provided. Calculate SRelnTypes
         $flipped_relations = $FlippedRelations_of{$id}
-            = [ map { $_->FlippedVersion()->get_type() } @$relations ];
+            = [ map { FindTypeOfFlippedRelation($_) } @$relations ];
         $relations = $Relations_of{$id} = [ map { $_->get_type() } @$relations ];
     }
 
@@ -63,6 +63,20 @@ sub BUILD {
     $ReverseRelations_of{$id} = \@rev_reln;
 
 }
+
+sub FindTypeOfFlippedRelation{
+    my ( $reln ) = @_;
+    my $flipped_version = $reln->FlippedVersion();
+    unless ($flipped_version) {
+        ### Unable to flip relation!
+        ### Relation: $reln->as_text()
+        ### End 1: ($reln->get_ends())[0]->get_structure_string()
+        ### End 2: ($reln->get_ends())[1]->get_structure_string()
+        confess "Unable to flip relation!";
+    }
+    return $flipped_version->get_type();
+}
+
 
 {
     my %MEMO = ();

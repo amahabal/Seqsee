@@ -100,8 +100,8 @@ sub create {
     }
 
     SWorkspace->are_there_holes_here(@items)
-      and SErr::HolesHere->throw("Holes here!");
-
+        and SErr::HolesHere->throw("Holes here!");
+      #  and confess "Holes here!";
     for my $item (@items) {
         my ( $left, $right ) = $item->get_edges();
         push @left_edges,  $left;
@@ -326,7 +326,7 @@ sub Extend {
     }
 
     my $potential_new_group = SAnchored->create(@parts_of_new_group) 
-        or confess "Problem in group creation: @parts_of_new_group";
+        or SErr::CouldNotCreateExtendedGroup->throw();
     my ( $exact_conflict, @subset_conflicts ) =
       SWorkspace->FindGroupsConflictingWith($potential_new_group);
 

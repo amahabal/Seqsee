@@ -464,7 +464,15 @@ use Compile::SCF;
         #      . $ejected_object->as_text()
         #      . " I can use "
         #      . $new_extension->as_text() );
-        $object->Extend( $new_extension, $change_at_end_p );
+        eval { $object->Extend( $new_extension, $change_at_end_p ) };
+        if (my $e = $EVAL_ERROR) {
+            if (UNIVERSAL::isa($e, "SErr::CouldNotCreateExtendedGroup")) {
+                print STDERR "Extending group: ", $object->get_structure_string(), "\n";
+                print STDERR "Ejected object: ", $ejected_object->get_structure_string(), "\n";
+                print STDERR "New object: ", $new_extension->get_structure_string(), "\n";
+                confess "Unable to extend group!";
+            }
+        }
     }
 </run>
 no Compile::SCF;

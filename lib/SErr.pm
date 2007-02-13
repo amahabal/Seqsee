@@ -27,6 +27,9 @@ use Exception::Class (
     'SErr::FinishedTest' => { fields => [qw( got_it)] },
     'SErr::FinishedTestBlemished' => {},
     'SErr::NotClairvoyant' => {},
+
+    'SErr::CouldNotCreateExtendedGroup' => {},
 );
+SErr::HolesHere->Trace(1);
 1;
 

@@ -40,7 +40,7 @@ sub CreateSheetForSequence{
     my $chart_object = $workbook->ActiveSheet->ChartObjects()->Add(240, 30, 230, 160);
     my $chart = $chart_object->{"Chart"};
     $chart->SetSourceData($sheet->Range('D4:D' . ($row_count + 3)));
-    $chart->{ChartType} = 4; # Line
+    $chart->{ChartType} = 65; # Line
     $chart->{ChartStyle} = 4;
     my $serieses = $chart->SeriesCollection();
     $serieses->Item(1)->{Name} = "Avg #codelets (when successful)";
@@ -113,8 +113,8 @@ sub process_single_seq {
         my @result_subset = (@result[0, 1, 5, 6],
                                              );
         ## XXX(Board-it-up): [2007/02/13] Until the program starts getting it more often, I'll
-        # count extending as good enough.
-        $result_subset[1] += $result[3];
+        # count extending as good enough, and also blemished got it.
+        $result_subset[1] += $result[3] + $result[2];
 
         unshift @list, \@result_subset;
     }
