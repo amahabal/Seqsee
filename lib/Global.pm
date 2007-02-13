@@ -18,6 +18,7 @@ our @RealSequence;                  # The sequence in reality. Seqsee maybe unaw
 
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact rules onlyfwd);
 $LogString = '';
+$Feature{interlaced} = 1; # On by default!
 
 sub clear {
     $Steps_Finished             = 0;
