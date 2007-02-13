@@ -9,14 +9,14 @@ use Win32::OLE::Const 'Microsoft.Excel';    # wd  constants
 use Win32::OLE::Const 'Microsoft Office';  # mso constants
 
 sub CreateSheetForSequence{
-    my ( $workbook, $sequence, $data ) = @_;
+    my ( $workbook, $name, $sequence, $data ) = @_;
     $workbook->Sheets()->Add();
     my $sheet = $workbook->ActiveSheet();
 
     my $row_count = scalar(@$data);
     my $data_range = 'A3:D' . ($row_count + 2);
 
-    $sheet->{'Name'} = $sequence;
+    $sheet->{'Name'} = $name;
     $sheet->Range($data_range)->{'Value'} = $data;
     my $table = $sheet->{ListObjects}->Add(1, #xlsrcrange
                                            $sheet->Range($data_range),
@@ -28,7 +28,7 @@ sub CreateSheetForSequence{
     $label_range->{Font}->{Size} = 20;
     $label_range->{Font}->{Bold} = 1;
     $label_range->{Font}->{ColorIndex} = 3;
-    $label_range->{Value} = $sequence;
+    $label_range->{Value} = "$name: $sequence";
 
 
     my $chart_object = $workbook->ActiveSheet->ChartObjects()->Add(240, 20, 230, 160);
@@ -95,15 +95,15 @@ sub process_single_seq {
             10 * ($opts{NotEvenExtended} ||= 0)
         );
         push @result, 100 - sum(@result);
+        push @result, $opts{avgcc} || undef;
         unshift @result, timestring($time);
         # Now @result has: $time, $GotIt $BlemishedGotIt $Extended $NotEvenExtended $Died
-        my @result_subset = (@result[0, 1, 5],
-                             0, # of codelets; don't yet have data
-                                 );
+        my @result_subset = (@result[0, 1, 5, 6],
+                                             );
         push @list, \@result_subset;
     }
     $seq_name =~ s#_# #g;
-    CreateSheetForSequence($workbook, $seq, \@list);
+    CreateSheetForSequence($workbook, $seq_name, $seq, \@list);
 }
 
 sub timestring{

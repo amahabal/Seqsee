@@ -186,6 +186,7 @@ NOLOG
     "main"->install_sub(
         {   ask_user_extension => sub {
                 my ($arr_ref)       = @_;
+                return if Seqsee::already_rejected_by_user($arr_ref);
                 my $ws_count        = $SWorkspace::elements_count;
                 my $ask_terms_count = scalar(@$arr_ref);
                 unless ($ask_terms_count) {
@@ -424,6 +425,8 @@ sub RegTestHelper {
     $SWorkspace::ReadHead = 0;
     Global->clear();
 
+    print STDERR "\n****** BEGIN ANOTHER RUN: ";
+
     eval {
         while (
             !Seqsee::Interaction_step_n(
@@ -437,31 +440,42 @@ sub RegTestHelper {
 
             # Just do Interaction_step_n until finished...
         }
-        ## Finished run, with steps: $Global::Steps_Finished
-        ## Workspace has this many elements: $SWorkspace::elements_count
     };
+    my $err = $EVAL_ERROR;
+    my $with_error = $err ? (" (With Exception Thrown " . ref($err) . ")"): "";
+    print STDERR "Done$with_error.\n";
+    ### Finished run, with steps: $Global::Steps_Finished
+    ### Workspace has this many elements: $SWorkspace::elements_count
+
 
     my $failed_requests = GetFailedRequests();
     if ( $failed_requests > $max_false_continuations ) {
-        return "TooManyFalseQueries";
+        print STDERR "+TOO MANY FAILED QUERIES ($failed_requests > $max_false_continuations)!\n";
+        print STDERR join('; ', keys %Global::ExtensionRejectedByUser), "\n";
+        return ("TooManyFalseQueries", 0);
     }
 
-    if ( my $err = $EVAL_ERROR ) {
+    if ( $err ) {
         if ( UNIVERSAL::isa( $err, "SErr::FinishedTest" ) ) {
             if ( $err->got_it() ) {
-                return "GotIt";
+                print STDERR "+GOT IT\n";
+                return ("GotIt", $Global::Steps_Finished);
             }
             else {
                 confess "A SErr::FinishedTest thrown without getting it. Bad.";
             }
         }
         elsif ( UNIVERSAL::isa( $err, "SErr::NotClairvoyant" ) ) {
-            return "Extended";
+            print STDERR "+EXTENDED (NO MORE KNOWN TERMS)\n";
+            return ("Extended", $Global::Steps_Finished);
         }
         elsif ( UNIVERSAL::isa( $err, 'SErr::FinishedTestBlemished' ) ) {
-            return "BlemishedGotIt";
+            print STDERR "+BLEMISHED GOT IT\n";
+            return ("BlemishedGotIt", $Global::Steps_Finished);
         }
         else {
+            # print STDERR "Caught error $err";
+            print STDERR "ERROR WAS: $err\n";
             die $err;
         }
     }
@@ -469,12 +483,14 @@ sub RegTestHelper {
 
         # Natural end?
         if ( $SWorkspace::elements_count - scalar(@$seq) > $min_extension ) {
-            return "ExtendedWithoutGettingIt";
+            print STDERR "+EXTENDED A BIT\n";
+            return ("ExtendedWithoutGettingIt", $Global::Steps_Finished);
         }
         else {
 
             # print "Steps finished : $Global::Steps_Finished\n";
-            return "NotEvenExtended";
+            print STDERR "+NOT EVEN EXTENDED ONCE\n";
+            return ("NotEvenExtended", $Global::Steps_Finished);
         }
     }
 }
@@ -491,9 +507,14 @@ sub RegTestHelper {
         ## $opts_ref
         my %outputs;
         my %errors;
-        for ( 1 .. 10 ) {    ### Trials===[%]      Done
+        my @successful_codelet_count;
+        for ( 1 .. 10 ) {    ## Trials===[%]      Done
             my $out;
-            eval { $out = RegTestHelper($opts_ref); };
+            my $step_count;
+            eval { ($out, $step_count) = RegTestHelper($opts_ref); };
+            if ($out eq "GotIt" or $out eq "Extended") {
+                push @successful_codelet_count, $step_count;
+            }
             if ($EVAL_ERROR) {
                 $errors{$EVAL_ERROR}++;
                 $outputs{UnnaturalDeath}++;
@@ -503,6 +524,7 @@ sub RegTestHelper {
             if ( $out =~ m/^UnnaturalDeath:\s*(.*)$/ ) {
                 $errors{$1}++;
                 $outputs{UnnaturalDeath}++;
+                print STDERR "\nERROR:\n$1\n=================\n";
                 next;
             }
 
@@ -519,6 +541,10 @@ sub RegTestHelper {
         while ( my ( $k, $v ) = each %outputs ) {
             $k = substr( $k, 0, 50 );
             print "$v\t times: $k\n";
+        }
+
+        if (@successful_codelet_count) {
+            $outputs{avgcc} = List::Util::sum(@successful_codelet_count) / scalar(@successful_codelet_count);
         }
         use Data::Dumper;
         open OUT, ">", $tmp_file;
@@ -586,7 +612,8 @@ sub RegHarness {
         $opts{min_extension} ||= 2;
         my $start_time = time();
         my $output     = RegStatShell( \%opts );
-        return unless sum( values %$output ) == 10;
+        $output->{avgcc} ||= 0;
+        return unless sum( values %$output ) == 10 + $output->{avgcc};
         my $total_time = time() - $start_time;
         print "Processing time: $total_time\n";
         my $current_GotIt = $output->{GotIt} ||= 0;

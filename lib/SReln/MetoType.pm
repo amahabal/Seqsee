@@ -36,7 +36,7 @@ multimethod find_reln => qw(SMetonymType SMetonymType) => sub {
     while ( my ( $k, $v ) = each %$info_loss1 ) {
         return unless exists $info_loss2->{$k};
         my $v2 = $info_loss2->{$k};
-        my $rel = find_reln( $v, $v2 );
+        my $rel = find_reln( $v, $v2 ) or return;
         $change_ref->{$k} = $rel->get_type();
     }
     return SReln::MetoType->create(
