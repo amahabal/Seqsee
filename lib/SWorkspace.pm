@@ -412,7 +412,7 @@ sub remove_gp {
 sub DeleteGroupsContaining{
     my ( $member_object ) = @_;
     for my $gp (values %groups) {
-        $gp->DeleteGroupsContaining() if $gp->HasAsItem($member_object);
+        DeleteGroupsContaining($gp) if $gp->HasAsItem($member_object);
     }
     $member_object->RemoveAllRelations();
     delete $groups{$member_object};

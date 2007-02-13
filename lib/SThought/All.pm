@@ -301,11 +301,13 @@ multimethod get_fringe_for => ('SAnchored') => sub {
       $core->get_underlying_reln()->suggest_cat_for_ends()
       if $core->get_underlying_reln;
     if ($possible_category_for_ends) {
-        for ( { $core->get_underlying_reln()->get_items() } ) {
+        for ( @{ $core->get_underlying_reln()->get_items() } ) {
             unless (UNIVERSAL::isa($_, "SAnchored")) {
                 print "An item of an SAnchored object($core) is not anchored!\n";
                 print "The anchored object is ", $core->get_structure_string(), "\n";
                 print "Its items are: ", join("; ", @$core);
+                print "Items of the underlying ruleapp are: ",
+                    join("; ", @{$core->get_underlying_reln()->get_items()});
                 confess "$_ is not anchored!" 
             }
             my $is_inst =
