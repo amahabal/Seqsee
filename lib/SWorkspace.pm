@@ -443,46 +443,52 @@ sub check_at_location {
     ## $direction, $start, $what
     ## @flattened
     if ( $direction eq DIR::RIGHT() ) {    # rightward
-        my $current_pos = $start - 1;
-        my @already_validated;
-        while (@flattened) {
-            $current_pos++;
-            if ( $current_pos >= $elements_count ) {
-
-                # already out of range!
-                my $err = SErr::AskUser->new(
-                    already_matched => [@already_validated],
-                    next_elements   => [@flattened],
-                );
-                $err->throw();
-            }
-            else {
-                ## expecting: $flattened[0]
-                ## got: $elements[$current_pos]->get_mag()
-                if ( $elements[$current_pos]->get_mag() == $flattened[0] ) {
-                    push @already_validated, shift(@flattened);
-                }
-                else {
-                    return;
-                }
-            }
-        }
-        return 1;
-    }
-    else {
-        if ( $span > $start + 1 ) {
+        CheckElementsRightwardFromLocation( $start, \@flattened);
+    } elsif ($direction eq $DIR::LEFT) {
+        
+        if ( $span > $start + 1 ) { # would extend beyond left edge
             return;
         }
-        for my $p ( 0 .. $span - 1 ) {
-            ## $span, $start, $p, $start-$span+$p+1
-            return
-              unless $elements[ $start - $span + $p + 1 ]->get_mag() ==
-              $flattened[$p];
-        }
-        return 1;
+
+        my $left_end_of_potential_match = $start - $span + 1;
+        return CheckElementsRightwardFromLocation($left_end_of_potential_match,
+                                                  [ reverse(@flattened) ] 
+                                                      );
+    } else {
+        confess "Huh?";
     }
 
 }
+
+sub CheckElementsRightwardFromLocation{
+    my ( $start, $elements_ref ) = @_;
+    my @flattened = @$elements_ref;
+    my $current_pos = $start - 1;
+    my @already_validated;
+    while (@flattened) {
+        $current_pos++;
+        if ( $current_pos >= $elements_count ) {
+            # already out of range!
+            my $err = SErr::AskUser->new(
+                already_matched => [@already_validated],
+                next_elements   => [@flattened],
+                    );
+            $err->throw();
+        }
+        else {
+            ## expecting: $flattened[0]
+            ## got: $elements[$current_pos]->get_mag()
+            if ( $elements[$current_pos]->get_mag() == $flattened[0] ) {
+                push @already_validated, shift(@flattened);
+            }
+            else {
+                return;
+            }
+        }
+    }
+    return 1;     
+}
+
 
 multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
     my ( $start, $direction, $el ) = @_;

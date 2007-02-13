@@ -239,4 +239,16 @@ sub significant {
     return ( $x > 0.7 ) ? 1 : 0;
 }
 
+sub StructureToString {
+    my ($structure) = @_;
+    if ( ref $structure ) {
+        return '['
+          . join( ', ', map { StructureToString($_) } @$structure ) . ']';
+    }
+    else {
+        return $structure;
+    }
+}
+
+
 1;

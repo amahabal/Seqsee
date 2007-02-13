@@ -177,35 +177,54 @@ sub CheckApplicability{
     my @states_to_check_from =
       ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
 
-    LOOP: for my $start_state (@states_to_check_from) {
+LOOP_INITIAL_OBJECT:
+for my $first_object ( $objects_ref->[0]->GetEffectiveObject(),
+    $objects_ref->[0] )
+{
+  LOOP: for my $start_state (@states_to_check_from) {
         my @objects_to_account_for = @$objects_ref;
-        my @accounted_for = shift(@objects_to_account_for);
-        my @states = ($start_state);
+        my @accounted_for          = shift(@objects_to_account_for);
+        my @states                 = ($start_state);
 
-        my ($last_object, $last_state) = ($accounted_for[0]->GetEffectiveObject(), $states[0]);
+        my ( $last_object, $last_state ) =
+          ( $first_object, $states[0] );
         while (@objects_to_account_for) {
-            my ($reln, $next_state) = 
-                $self->GetRelationAndTransition($last_state);
-            my $expected_next = apply_reln($reln, $last_object) or confess('Apply relation failed');
+            my ( $reln, $next_state ) =
+              $self->GetRelationAndTransition($last_state);
+            my $expected_next = apply_reln( $reln, $last_object )
+              or confess('Apply relation failed');
             my $actual_next = shift(@objects_to_account_for);
-            if ($expected_next->get_structure_string() eq
-                    $actual_next->GetEffectiveObject()->get_structure_string())
-                {
-                    push @accounted_for, $actual_next;
-                    push @states, $next_state;
-                    ($last_object, $last_state) = ($actual_next->GetEffectiveObject(), $next_state);
-                } else {
-                    next LOOP;
-                }
+            if ( $expected_next->get_structure_string() eq
+                $actual_next->GetEffectiveObject()->get_structure_string() )
+            {
+                push @accounted_for, $actual_next;
+                push @states,        $next_state;
+                ( $last_object, $last_state ) =
+                  ( $actual_next->GetEffectiveObject(), $next_state );
+            }
+            elsif ( $expected_next->get_structure_string() eq
+                $actual_next->get_structure_string() )
+            {
+                push @accounted_for, $actual_next;
+                push @states,        $next_state;
+                ( $last_object, $last_state ) = ( $actual_next, $next_state );
+                ## XXX(Board-it-up): [2007/02/13] I hope this is good...
+                $actual_next->SetMetonymActiveness(0);
+            }
+            else {
+                next LOOP;
+            }
         }
-        return SRuleApp->new({
-            rule => $self,
-            items => \@accounted_for,
-            states => \@states,
-            direction => $direction,
-                });
+        return SRuleApp->new(
+            {
+                rule      => $self,
+                items     => \@accounted_for,
+                states    => \@states,
+                direction => $direction,
+            }
+        );
     }
-
+}
     return;
 }
 

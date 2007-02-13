@@ -468,8 +468,11 @@ use Compile::SCF;
         if (my $e = $EVAL_ERROR) {
             if (UNIVERSAL::isa($e, "SErr::CouldNotCreateExtendedGroup")) {
                 print STDERR "Extending group: ", $object->get_structure_string(), "\n";
+                print STDERR "(But effectively): ", $object->GetEffectiveStructureString();
                 print STDERR "Ejected object: ", $ejected_object->get_structure_string(), "\n";
+                print STDERR "(But effectively): ", $ejected_object->GetEffectiveStructureString();
                 print STDERR "New object: ", $new_extension->get_structure_string(), "\n";
+                print STDERR "(But effectively): ", $new_extension->GetEffectiveStructureString();
                 confess "Unable to extend group!";
             }
         }

@@ -720,6 +720,8 @@ sub set_underlying_reln : CUMULATIVE {
             my $msg_string = "Object: " . $self->get_structure_string() . "\n";
             $msg_string .= "in direction " . $self->get_direction()->as_text();
             $msg_string .= "\n" . $reln->as_text();
+            $msg_string .= "The objects effective structure was: "
+                . $self->GetEffectiveStructureString();
             confess "unable to apply underlying relation! $msg_string";
         }
 
@@ -731,25 +733,11 @@ sub set_underlying_reln : CUMULATIVE {
     $underlying_reln_of{$id} = $ruleapp;
 }
 
+
 sub get_structure_string {
     my ($self) = @_;
     my $struct = $self->get_structure;
-    if ( ref $struct ) {
-        return _get_structure_string($struct);
-    }
-    else {
-        return $struct;
-    }
-}
-
-sub _get_structure_string {
-    my ($struct) = @_;
-    if ( ref $struct ) {
-        return "[" . join( ",", map { _get_structure_string($_) } @$struct ) . "]";
-    }
-    else {
-        return $struct;
-    }
+    SUtil::StructureToString($struct);
 }
 
 # XXX(Assumption): [2006/09/16] Parts are non-overlapping.
@@ -857,6 +845,22 @@ sub GetEffectiveObject {
     return $self unless $metonym_activeness_of{$id};
     return $metonym_of{$id}->get_starred();
 }
+
+sub GetEffectiveStructure {
+    my ( $self ) = @_;
+    return [ map { $_->GetEffectiveObject()->get_structure } @$self ];
+}
+
+sub SElement::GetEffectiveStructure{
+    my ( $self ) = @_;
+    return $self->get_mag();
+}
+
+sub GetEffectiveStructureString{
+    my ( $self ) = @_;
+    return SUtil::StructureToString($self->GetEffectiveStructure());
+}
+
 
 sub GetUnstarred{
     my ( $self ) = @_;
