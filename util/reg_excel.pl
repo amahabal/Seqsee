@@ -24,6 +24,12 @@ sub CreateSheetForSequence{
                                            2, # xlNo
                                                );
 
+    my $table_columns = $table->ListColumns();
+    $table_columns->Item(1)->{Name} = "Date";
+    $table_columns->Item(2)->{Name} = "% Extnd'd";
+    $table_columns->Item(3)->{Name} = "% Death";
+    $table_columns->Item(4)->{Name} = "Avg CodeCnt";
+
     my $label_range = $sheet->Range('C1');
     $label_range->{Font}->{Size} = 20;
     $label_range->{Font}->{Bold} = 1;
@@ -31,19 +37,25 @@ sub CreateSheetForSequence{
     $label_range->{Value} = "$name: $sequence";
 
 
-    my $chart_object = $workbook->ActiveSheet->ChartObjects()->Add(240, 20, 230, 160);
+    my $chart_object = $workbook->ActiveSheet->ChartObjects()->Add(240, 30, 230, 160);
     my $chart = $chart_object->{"Chart"};
     $chart->SetSourceData($sheet->Range('D4:D' . ($row_count + 3)));
     $chart->{ChartType} = 4; # Line
     $chart->{ChartStyle} = 4;
+    my $serieses = $chart->SeriesCollection();
+    $serieses->Item(1)->{Name} = "Avg #codelets (when successful)";
+    $chart->ApplyLayout(12);
 
     my $second_chart_object = $workbook->ActiveSheet->ChartObjects()->Add(240, 200, 230, 160);
     my $chart2 = $second_chart_object->{Chart};
     my $axis = $chart2->Axes(1); # xlCategory => 1
     $axis->{CategoryNames} = $sheet->Range('A4:A7');
     $chart2->SetSourceData($sheet->Range('B4:C' . ($row_count + 3)));
-    $chart2->{ChartType} = 76; #AreaStacked
-    $chart2->{ChartStyle} = 4;
+    $chart2->{ChartType} = 4; #AreaStacked = 76; 
+    $chart2->{ChartStyle} = 18;
+    $serieses = $chart2->SeriesCollection();
+    $serieses->Item(1)->{Name} = "% Extended";
+    $serieses->Item(2)->{Name} = "% Died (ERROR)";
 }
 
 my $outfile   = "excel_output.pdf";
@@ -100,7 +112,11 @@ sub process_single_seq {
         # Now @result has: $time, $GotIt $BlemishedGotIt $Extended $NotEvenExtended $Died
         my @result_subset = (@result[0, 1, 5, 6],
                                              );
-        push @list, \@result_subset;
+        ## XXX(Board-it-up): [2007/02/13] Until the program starts getting it more often, I'll
+        # count extending as good enough.
+        $result_subset[1] += $result[3];
+
+        unshift @list, \@result_subset;
     }
     $seq_name =~ s#_# #g;
     CreateSheetForSequence($workbook, $seq_name, $seq, \@list);
@@ -109,6 +125,7 @@ sub process_single_seq {
 sub timestring{
     my ( $time ) = @_;
     my $string = localtime($time);
-    return $string;
+    my @components = split(/([\s:])/, $string);
+    return join('', @components[1..10]);
 }
 
