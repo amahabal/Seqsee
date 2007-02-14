@@ -74,6 +74,7 @@ ok( SWorkspace->check_at_location({ start => 3,
                                     direction => DIR::LEFT(),
                                     what => SObject->create(6),
                                 }), );
+## check
 ok( SWorkspace->check_at_location({ start => 3,
                                     direction => DIR::LEFT(),
                                     what => SObject->create(2,3,6),

@@ -457,7 +457,7 @@ sub check_at_location {
 
         my $left_end_of_potential_match = $start - $span + 1;
         return CheckElementsRightwardFromLocation($left_end_of_potential_match,
-                                                  [ reverse(@flattened) ],
+                                                  \@flattened,
                                                   $what, $start, $direction 
                                                       );
     } else {

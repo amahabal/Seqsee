@@ -93,13 +93,22 @@ sub create {
         );
     }
 
+    my @original_arguments = @arguments;
+    my @categories_of_arguments = map {
+        my @cats;
+        if (UNIVERSAL::isa($_, "SObject")) {
+            @cats = @{ $_->get_categories() };
+        }
+        \@cats;
+    } @arguments;
+
     # Convert Sobjects to array refs...
     @arguments = map { UNIVERSAL::isa( $_, "SObject" ) ? $_->get_structure() : $_ } @arguments;
 
     if ( @arguments == 1 and ref( $arguments[0] ) ) {
 
         # Single argument which is an array ref
-        return $package->create( @{ $arguments[0] } );
+        return $package->create( @{ $original_arguments[0] } );
     }
 
     if ( @arguments == 1 ) {    # and is an int
@@ -108,6 +117,11 @@ sub create {
 
     # Finally, convert all arrays to objects, too!
     @arguments = map { CreateObjectFromStructure($_) } @arguments;
+    for my $idx (0..scalar(@arguments)-1) {
+        for my $cat (@{$categories_of_arguments[$idx]}) {
+            $arguments[$idx]->describe_as($cat);
+        }
+    }
 
     my $group_p = ( @arguments == 1 ) ? 0 : 1;
 
