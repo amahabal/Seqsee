@@ -505,6 +505,12 @@ multimethod get_fringe_for => ('SAnchored') => sub {
             items => [ $core->get_first(), $core->get_second(), ],
             reln  => $core,
           };
+    } elsif (not(SWorkspace->is_there_a_covering_group($core->get_extent()))) {
+        THOUGHT AreTheseGroupable,
+          {
+            items => [ $core->get_first(), $core->get_second(), ],
+            reln  => $core,
+          };
     }
 
     {
@@ -545,6 +551,14 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         my ( $l1, $r1, $l2, $r2 ) =
           map { $_->get_edges() } ( $core->get_first(), $core->get_second() );
         my @gap                 = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
+        if ($gap[1] >= $SWorkspace::elements_count) {
+            print STDERR "Ends: ($l1, $r1), ($l2, $r2)\n";
+            print STDERR "Element count: $SWorkspace::elements_count\n";
+            print STDERR "Gap: @gap\n";
+            my $elements = join(", ", map { $_->get_mag } @SWorkspace::elements);
+            print STDERR "Elements: $elements\n";
+            print STDERR map {$_->get_structure_string()} $core->get_ends();
+        }
         my @intervening_objects = SWorkspace->get_intervening_objects(@gap);
         my $distance            = scalar(@intervening_objects);
         last unless $distance;

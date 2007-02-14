@@ -178,7 +178,7 @@ NOLOG
     );
     "main"->install_sub(
         {   default_error_handler => sub {
-                $_[0]->throw();
+                die $_[0];
                 }
         }
     );

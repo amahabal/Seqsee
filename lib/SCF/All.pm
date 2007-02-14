@@ -190,14 +190,19 @@ use Compile::SCF;
 
 sub worth_asking{
     my ( $matched, $unmatched, $extension_from_span ) = @_;
-    ## $matched
-    ## $unmatched
+    my $time_since_extension = $Global::Steps_Finished - $Global::TimeOfLastNewElement;
+    my $number_of_user_verified_elements = $SWorkspace::elements_count - $Global::InitialTermCount;
+    return if $time_since_extension < 10 * $number_of_user_verified_elements;
+    # main::message("Verified: $number_of_user_verified_elements; Time: $time_since_extension");
+    ### $matched
+    ### $unmatched
     my $penetration = (scalar(@$matched) + $extension_from_span) / $SWorkspace::elements_count;
-    ## $penetration
+    # print STDERR "Penetration: $penetration\n";
     return unless $penetration;
 
     my $on_a_limb = scalar(@$unmatched)/(scalar(@$matched) + $extension_from_span);
-    return 1 if ($penetration > 0.3 and $on_a_limb < 0.8);
+    # print STDERR "On a limb: $on_a_limb\n";
+    return 1 if ($penetration > 0.2 and $on_a_limb < 0.85);
     return;
 }
 

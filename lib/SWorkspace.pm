@@ -67,6 +67,7 @@ sub init {
         _insert_element($_);
     }
     @Global::RealSequence = @seq;
+    $Global::InitialTermCount = scalar(@seq);
 }
 
 sub set_future_terms {
@@ -79,6 +80,7 @@ sub insert_elements {
     for (@_) {
         _insert_element($_);
     }
+    $Global::TimeOfLastNewElement = $Global::Steps_Finished;
 }
 
 # section: _insert_element
@@ -126,7 +128,8 @@ sub read_object {
     unless ($object) {
         ### Failed to read any object at ReadHead = : $ReadHead
         ### elements_count: $elements_count
-        confess;
+        _saccade();
+        return read_object();
     }
     my $right_edge = $object->get_right_edge;
 
@@ -271,6 +274,8 @@ sub get_longest_non_adhoc_object_starting_at {
     }
 
     if ($left >= $elements_count) {
+        ### left: $left
+        ### elements_count: $elements_count
         confess "Why am I being asked this?";
     }
     # Getting here means no group. Return the element.
@@ -362,6 +367,9 @@ sub get_intervening_objects {
     my @ret;
     my $left = $l;
     ##  $left, $r
+    if ($r >= $elements_count) {
+        confess "get_intervening_objects called with right end of gap beyond known elements";
+    }
     while ( $left <= $r ) {
         my $o = SWorkspace->get_longest_non_adhoc_object_starting_at($left);
         push @ret, $o;
