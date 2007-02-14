@@ -96,7 +96,22 @@ sub ExtendInDirection {
             confess "Huh?";
         }
 
-        $reln or confess "Relation should have been found!";
+        unless ($reln) {
+            my @wso_cats = map { $_->get_name() }@{$wso->get_categories()};
+            my @object_at_end_cats = map { $_->get_name() }@{$object_at_end->get_categories()};
+            my @wso_part_cats = map { [map { $_->get_name() } @{ $_->get_categories()}] } @$wso;
+            my @object_part_cats = map { [map { $_->get_name() } @{ $_->get_categories()}] } @$object_at_end;
+            ### No reln Found: $wso, $object_at_end
+            ### wso structure: $wso->get_structure_string()
+            ### (but effectively) : $wso->GetEffectiveStructureString()
+            ### (categories) : @wso_cats
+            ### (part categories): @wso_part_cats
+            ### object_at_end structure: $object_at_end->get_structure_string()
+            ### (but effectively) : $object_at_end->GetEffectiveStructureString()
+            ### (categories) : @object_at_end_cats
+            ### (part categories): @object_part_cats
+            confess "Relation should have been found!";
+        }
         $reln->insert();
         return 1;
     }

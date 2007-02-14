@@ -150,7 +150,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
             = apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
         return unless $new_metonymy_type;
 
-        if ( $reln_meto_mode == 3 ) {
+        if ( $reln_meto_mode == METO_MODE::ALL() ) {
             $ret_obj = $ret_obj->apply_blemish_everywhere($new_metonymy_type);
         }
         else {

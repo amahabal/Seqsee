@@ -270,6 +270,9 @@ sub get_longest_non_adhoc_object_starting_at {
         }
     }
 
+    if ($left >= $elements_count) {
+        confess "Why am I being asked this?";
+    }
     # Getting here means no group. Return the element.
     return $elements[$left];
 }
@@ -443,7 +446,9 @@ sub check_at_location {
     ## $direction, $start, $what
     ## @flattened
     if ( $direction eq DIR::RIGHT() ) {    # rightward
-        CheckElementsRightwardFromLocation( $start, \@flattened);
+        CheckElementsRightwardFromLocation( $start, \@flattened,
+                                            $what, $start, $direction
+                                                );
     } elsif ($direction eq $DIR::LEFT) {
         
         if ( $span > $start + 1 ) { # would extend beyond left edge
@@ -452,7 +457,8 @@ sub check_at_location {
 
         my $left_end_of_potential_match = $start - $span + 1;
         return CheckElementsRightwardFromLocation($left_end_of_potential_match,
-                                                  [ reverse(@flattened) ] 
+                                                  [ reverse(@flattened) ],
+                                                  $what, $start, $direction 
                                                       );
     } else {
         confess "Huh?";
@@ -461,7 +467,10 @@ sub check_at_location {
 }
 
 sub CheckElementsRightwardFromLocation{
-    my ( $start, $elements_ref ) = @_;
+    my ( $start, $elements_ref,
+         $object_being_looked_for,
+         $position_it_is_being_looked_from,
+         $direction_to_look_in) = @_;
     my @flattened = @$elements_ref;
     my $current_pos = $start - 1;
     my @already_validated;
@@ -472,6 +481,9 @@ sub CheckElementsRightwardFromLocation{
             my $err = SErr::AskUser->new(
                 already_matched => [@already_validated],
                 next_elements   => [@flattened],
+                object => $object_being_looked_for,
+                from_position => $position_it_is_being_looked_from,
+                direction => $direction_to_look_in
                     );
             $err->throw();
         }
@@ -741,6 +753,10 @@ sub SErr::AskUser::Ask {
     my $already_matched = $self->already_matched();
     my $next_elements   = $self->next_elements();
 
+    my $object_being_looked_for = $self->object();
+    my $position_it_is_being_looked_from = $self->from_position();
+    my $direction_to_look_in = $self->direction();
+
     if (@$already_matched) {
         $msg .=
           "I also found the expected terms " . join( ', ', @$already_matched );
@@ -751,6 +767,14 @@ sub SErr::AskUser::Ask {
         SWorkspace->insert_elements( @$next_elements );
         main::update_display();
         $Global::Break_Loop = 1;
+
+        if (defined $object_being_looked_for) {
+            plonk_into_place($position_it_is_being_looked_from,
+                             $direction_to_look_in,
+                             $object_being_looked_for
+                                 );
+        }
+
     } else {
         my $seq = join(', ', @$next_elements);
         $Global::ExtensionRejectedByUser{ $seq } = 1;

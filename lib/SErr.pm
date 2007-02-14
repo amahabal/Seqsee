@@ -22,7 +22,12 @@ use Exception::Class (
 
     'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
-    'SErr::AskUser' => { fields => [qw{already_matched next_elements}] },
+    'SErr::AskUser' => { fields => [qw{already_matched 
+                                       next_elements
+                                       object
+                                       from_position
+                                       direction
+                                   }] },
 
     'SErr::FinishedTest' => { fields => [qw( got_it)] },
     'SErr::FinishedTestBlemished' => {},
