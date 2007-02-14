@@ -151,7 +151,7 @@ sub FindExtension{
         start  => $next_pos,
         direction => $direction_to_extend_in,
         trust_level => 50, # !!
-        reason => 'Extension attempted for: ',
+        reason => 'Extension attempted for: ' . $rule->as_text(),
     });
 }
 

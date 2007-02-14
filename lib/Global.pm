@@ -15,6 +15,8 @@ our %Feature;                       # Features turned on from commandline with -
 our $Options_ref;                   # Global options, includes defaults, configs and commandline
 our @RealSequence;                  # The sequence in reality. Seqsee maybe unaware of several
                                     # terms, in test mode.
+our $InitialTermCount;              # Number of terms at start.
+our $TimeOfLastNewElement;          # When was the last element added?
 
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact rules onlyfwd);
 $LogString = '';
