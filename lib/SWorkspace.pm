@@ -81,6 +81,7 @@ sub insert_elements {
         _insert_element($_);
     }
     $Global::TimeOfLastNewElement = $Global::Steps_Finished;
+    $Global::TimeOfNewStructure   = $Global::Steps_Finished;
 }
 
 # section: _insert_element
@@ -412,6 +413,7 @@ sub add_group {
     }
 
     $groups{$gp} = $gp;
+    $Global::TimeOfNewStructure = $Global::Steps_Finished;
     return 1;
 }
 

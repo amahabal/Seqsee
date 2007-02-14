@@ -71,7 +71,9 @@ sub FindTypeOfFlippedRelation{
         ### Unable to flip relation!
         ### Relation: $reln->as_text()
         ### End 1: ($reln->get_ends())[0]->get_structure_string()
+        ### (but eff object): ($reln->get_ends())[0]->GetEffectiveObject()->get_structure_string()
         ### End 2: ($reln->get_ends())[1]->get_structure_string()
+        ### (but eff object): ($reln->get_ends())[1]->GetEffectiveObject()->get_structure_string()
         confess "Unable to flip relation!";
     }
     return $flipped_version->get_type();

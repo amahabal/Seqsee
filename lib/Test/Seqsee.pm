@@ -208,6 +208,9 @@ NOLOG
         }
     );
 
+    # XXX(Board-it-up): [2007/02/14] Will need modification for correct testing!
+    "main"->install_sub({ ask_for_more_terms => sub {}});
+
 }
 
 sub stochastic_test_codelet {

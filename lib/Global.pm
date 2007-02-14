@@ -16,7 +16,8 @@ our $Options_ref;                   # Global options, includes defaults, configs
 our @RealSequence;                  # The sequence in reality. Seqsee maybe unaware of several
                                     # terms, in test mode.
 our $InitialTermCount;              # Number of terms at start.
-our $TimeOfLastNewElement;          # When was the last element added?
+our $TimeOfLastNewElement = 0;      # When was the last element added?
+our $TimeOfNewStructure   = 0;      # When was the last group created or element added?
 
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact rules onlyfwd);
 $LogString = '';

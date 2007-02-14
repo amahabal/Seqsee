@@ -514,4 +514,20 @@ use Compile::SCF;
        $rule->Reject();
    }
 </run>
+no Compile::SCF;
+#################################
+use Compile::SCF;
+[package] SCF::CheckProgress
+
+<run>
+    my $time_since_last_addn = $Global::Steps_Finished - $Global::TimeOfNewStructure;
+    my $time_since_new_elements = $Global::Steps_Finished - $Global::TimeOfLastNewElement;
+if ($time_since_new_elements > 2500) {
+    main::ask_for_more_terms();
+} elsif ($time_since_last_addn > 150) {
+    # XXX(Board-it-up): [2007/02/14] should be biased by 100 - strength?
+    my $gp = SChoose::uniform([values %SWorkspace::groups]);
+    SWorkspace->remove_gp($gp) if $gp;
+}
+</run>
 1;

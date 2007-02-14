@@ -209,7 +209,11 @@ sub init_display{
         "main"->install_sub( { ask_user_extension =>
                                   $ask_user_extension_displayer
                                   });
-
+        "main"->install_sub( { ask_for_more_terms => sub {
+                                   my $window = SGUI::ask_for_more_terms();
+                                   # main::message("Got $window");
+                                   $window->waitWindow();
+                               }});
 
     } else {
         my $update_display_sub = sub {
@@ -232,6 +236,15 @@ sub init_display{
             return prompt($msg, "-yn");
         };
 
+        my $ask_for_more_terms = sub {
+            my $v = prompt("Looks like I am stuck! Please provide more terms: ");
+            $v =~ s/^\s+//;
+            $v =~ s/\s+$//;
+            my @seq = split( /[,\s]+/, $v );
+            SWorkspace->insert_elements(@seq);            
+        };
+
+
         "main"->install_sub( {update_display =>
                                   $update_display_sub
                                       });
@@ -243,6 +256,7 @@ sub init_display{
         "main"->install_sub( { ask_user_extension =>
                                   $ask_user_extension_displayer
                                   });
+        "main"->install_sub( { ask_for_more_terms => $ask_for_more_terms });
 
     }
 }

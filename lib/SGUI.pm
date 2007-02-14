@@ -66,7 +66,27 @@ sub ask_seq {
             $top->destroy;
         }
     );
+}
 
+sub ask_for_more_terms {
+    my $top = $MW->Toplevel( -title => "Request for more terms" );
+    $top->Label( -text => "I am stuck! Please provide more terms! (space separated): " )->pack( -side => 'top' );
+    $top->focusmodel('active');
+    my $e = $top->Entry()->pack( -side => 'top' );
+    $e->focus();
+    $e->bind(
+        '<Return>' => sub {
+            my $v = $e->get();
+            $v =~ s/^\s+//;
+            $v =~ s/\s+$//;
+            my @seq = split( /[,\s]+/, $v );
+            print "Return pressed; Seq is: @seq";
+            SWorkspace->insert_elements(@seq);
+            Update();
+            $top->destroy;
+        }
+    );
+    return $top;
 }
 
 sub SetupButtons {

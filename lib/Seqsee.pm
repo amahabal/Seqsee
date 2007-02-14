@@ -21,11 +21,24 @@ sub run{
 }
 
 # method: do_background_activity
-sub do_background_activity{
-    SCoderack->add_codelet( SCodelet->new( "Reader",
-                                           50, {}
-                                               ));
-    SLTM::DecayAll() unless $Global::Steps_Finished % 10;
+{
+    my $TimeLastProgressCheckerLaunched = 0;
+    sub do_background_activity{
+        SCoderack->add_codelet( SCodelet->new( "Reader",
+                                               50, {}
+                                                   ));
+
+        my $time_since_last_addn = $Global::Steps_Finished - $Global::TimeOfNewStructure;
+        my $time_since_last_checker = $Global::Steps_Finished - $TimeLastProgressCheckerLaunched;
+
+        if ($time_since_last_checker > 20 and 
+                SUtil::toss($time_since_last_addn/150)) {
+            $TimeLastProgressCheckerLaunched = $Global::Steps_Finished;
+            SCodelet->new("CheckProgress", 100, {} )->schedule();
+        }
+
+        SLTM::DecayAll() unless $Global::Steps_Finished % 10;
+    }
 }
 sub already_rejected_by_user{
     my ( $aref ) = @_;
