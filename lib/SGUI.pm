@@ -4,18 +4,6 @@ use warnings;
 use Carp;
 use Config::Std;
 use English qw(-no_match_vars);
-use Tk::SCoderack;
-use Tk::SStream;
-use Tk::SComponents;
-use Tk::SInfo;
-#use Tk::SWorkspace;
-use Tk::SActivation;
-use Tk::SStream2;
-use Tk::SCodeletCount;
-use Tk::SCoderack2;
-use Tk::SActivation2;
-use Tk::SCategory2;
-use Tk::Strength2;
 use Smart::Comments;
 
 our $MW;
@@ -145,6 +133,7 @@ sub SetupBindings {
             $line =~ s#^\s*##;
             $line =~ s#\s*$##;
             my ( $name, $parent, $widget_type, $position, @rest ) = split( /\s+/, $line );
+            require "Tk/$widget_type.pm";
             ## In CreateWidgets: $name, $parent, $widget_type, $position, @rest
             no strict;
             my $widget;
