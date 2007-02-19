@@ -214,7 +214,7 @@ sub deserialize {
 package EXTENDIBILE;
 use strict;
 use warnings;
-our $NO      = 0;
+our $NO      = bless { mode => 'NO' }, 'EXTENDIBILE';
 our $PERHAPS = bless { mode => 'PERHAPS' }, 'EXTENDIBILE';
 our $UNKNOWN = bless { mode => 'UNKNOWN' }, 'EXTENDIBILE';
 sub NO      {$NO}
@@ -225,6 +225,14 @@ sub as_insertlist {
     my ( $self, $verbosity ) = @_;
     return new SInsertList( $self->{mode}, '' );
 }
+
+use overload (
+    q{bool} => sub {
+        my ( $self ) = @_;
+        return ($self->{mode} eq 'NO') ? 0 : 1;
+    },
+    fallback => 1,
+        );
 
 package RELN_SCHEME;
 use strict;
