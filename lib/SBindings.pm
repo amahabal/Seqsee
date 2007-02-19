@@ -50,24 +50,7 @@ my %bindings_of_of : ATTR(:get<bindings_ref>);
 # variable: %squinting_raw_of
 #    Hash ref: indexed by absolute positions in the object, and having values that are SMetonyms
 my %squinting_raw_of : ATTR(:get<squinting_raw>);
-
-# variable: %metonymy_mode_of
-#    How many metonymys are there?
-#
-#     * NONE
-#     * SINGLE
-#     * ALLBUTONE
-#     * ALL
-#    XXX: now stored in package METO_MODE
-#    Stored in reality, currently, as 0, 1, 2 and 3.
 my %metonymy_mode_of : ATTR(:get<metonymy_mode>);
-
-# variable: %position_mode_of
-#    If positions are an issue, how are positions reckoned? Can have one of the following values
-#    * FORWARD
-#    * BACKWARD
-#    * NAMED
-#
 my %position_mode_of : ATTR(:get<position_mode>);
 
 # variable: %position_of

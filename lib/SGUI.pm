@@ -169,6 +169,7 @@ sub SetupBindings {
                 push @to_Update, $widget;
             }
         }
+        $MW->focus();
     }
 
     sub GetWidgetOptions {

@@ -6,6 +6,7 @@ use Config::Std;
 use Smart::Comments;
 use Tk::widgets qw{Canvas};
 use List::Util qw(min max);
+use Sort::Key qw(rikeysort);
 use base qw/Tk::Derived Tk::Canvas/;
 
 our $canvas;
@@ -15,6 +16,11 @@ my ($Height, $Width, $Margin, $eff_width, $eff_height);
 my (@element_options, @line_options, @reln_options,
     @group_options, @group_meto_options,
         );
+my $group_top_base; # top for group of size 0
+my $group_bottom_base; # top for group of size 0
+my $group_ht_per_unit_span; # change in height with size.
+my %relations_to_hide; # becuase they are in a group.
+ 
 my ($space_per_elem);
 my %RelationAnchor;
 BEGIN {
@@ -39,6 +45,9 @@ sub Populate{
     $eff_width  = $Width - 2 * $Margin;
     ### eff_width: $eff_width
     $eff_height = $Height - 2 * $Margin;
+
+    $group_top_base = $Margin + $eff_height * 0.45;
+    $group_bottom_base = $Margin + $eff_height * 0.55;
 }
 
 sub clear{
@@ -47,7 +56,9 @@ sub clear{
 
 sub Update{
     $canvas->delete('all');
+    $group_ht_per_unit_span = $eff_height * 0.2 / $SWorkspace::elements_count;
     %RelationAnchor = ();
+    %relations_to_hide = ();
     draw_groups();
     draw_elements();
     draw_relations();
@@ -76,8 +87,9 @@ sub draw_elements{
     }
 }
 
+
 sub draw_groups{
-    for my $gp (values %SWorkspace::groups) {
+    for my $gp (rikeysort { $_->get_span() } values %SWorkspace::groups) {
         $gp->draw_ws2();
     } 
 }
@@ -102,11 +114,20 @@ sub SElement::draw_ws2{
 
 sub SAnchored::draw_ws2{
     my ( $self ) = @_;
+
+    my @items = @$self;
+    my $howmany = scalar(@items);
+    for (0..$howmany-2) {
+        $relations_to_hide{ $items[$_] . $items[$_+1 ]} = 1;
+        $relations_to_hide{ $items[$_+1] . $items[$_]} = 1;
+    }
+
     my (@edges) = $self->get_edges();
     my $leftx = $Margin + ($edges[0] + 0.1) * $space_per_elem;
     my $rightx = $Margin + ($edges[1] + 0.9) * $space_per_elem;
-    my $top =   $Margin + $eff_height * 0.4;
-    my $bottom = $Margin + $eff_height * 0.6;
+    my $span = $self->get_span();
+    my $top =   $group_top_base - $span * $group_ht_per_unit_span;
+    my $bottom = $group_bottom_base + $span * $group_ht_per_unit_span;
     ## Drawing group: $leftx, $top, $rightx, $bottom
     $RelationAnchor{$self} = [($leftx + $rightx) / 2, $top];
     my @options = $self->get_metonym_activeness() ?
@@ -117,6 +138,7 @@ sub SAnchored::draw_ws2{
 sub SReln::draw_ws2{
     my ( $self ) = @_;
     my @ends = $self->get_ends();
+    return if $relations_to_hide{join('', @ends)};
     my ($x1, $y1) = @{$RelationAnchor{$ends[0]} || []};
     my ($x2, $y2) = @{$RelationAnchor{$ends[1]} || []};
     return unless ($x1 and $x2);
