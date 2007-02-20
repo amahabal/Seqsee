@@ -792,8 +792,34 @@ sub SErr::AskUser::Ask {
     return $answer;
 }
 
-sub SortLeftToRight{
+sub SortLeftToRight {
     return ikeysort { $_->get_left_edge() } @_;
+}
+
+sub FindDirectionOfObjectSet {
+    my (@objects) = @_;
+    my @left_edges = map { $_->get_left_edge() } @objects;
+    my $how_many = scalar(@objects);
+    confess "Need at least 2" if $how_many <= 1;
+
+    my ( $leftward, $rightward );
+    for ( 0 .. $how_many - 2 ) {
+        my $diff = $left_edges[ $_ + 1 ] - $left_edges[$_];
+        if ( $diff > 0 ) {
+            $rightward++;
+        }
+        elsif ( $diff < 0 ) {
+            $leftward++;
+        }
+        else {
+            return $DIR::UNKNOWN;
+        }
+    }
+
+    return $DIR::NEITHER if ( $leftward and $rightward );
+    return $DIR::LEFT    if $leftward;
+    return $DIR::RIGHT   if $rightward;
+    confess "huh?";
 }
 
 

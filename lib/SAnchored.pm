@@ -85,72 +85,29 @@ sub get_edges {
     return ( $left_edge_of{$id}, $right_edge_of{$id} );
 }
 
-# method: create
-# Creates an anchored object
-#
-#    All of the items should also be anchored.
-# A sanity check ensures that there are no "holes". The edges get set automagically.
-sub create {
+sub create{
     my ( $package, @items ) = @_;
-
-    my @left_edges;     # for finding direction
-    my @right_edges;    # for finding direction
-    if ( @items == 1 and UNIVERSAL::isa( $items[0], "SAnchored" ) ) {
-        return $items[0];
+    confess unless @items;
+    if (@items == 1) {
+        return $items[0] if UNIVERSAL::isa($items[0], 'SAnchored');
+        confess "Unanchored object!";
     }
 
-    SWorkspace->are_there_holes_here(@items)
-        and SErr::HolesHere->throw("Holes here!");
-      #  and confess "Holes here!";
-    for my $item (@items) {
-        my ( $left, $right ) = $item->get_edges();
-        push @left_edges,  $left;
-        push @right_edges, $right;
-    }
-
-    my ( $left, $right ) = ( min(@left_edges), max(@right_edges) );
-
-    # lets find the direction now
-    my $direction;
-    {
-        my ( $leftward, $rightward, $same );
-        my $how_many = scalar(@left_edges) - 1;
-        for ( 0 .. $how_many - 1 ) {
-            my $diff = $left_edges[ $_ + 1 ] - $left_edges[$_];
-            if ( $diff > 0 ) {
-                $rightward++;
-            }
-            elsif ( $diff < 0 ) {
-                $leftward++;
-            }
-            else {
-                $same++;
-                last;
-            }
-        }
-        $direction =
-            $same ? $DIR::UNKNOWN
-          : ( $leftward  and not $rightward ) ? $DIR::LEFT
-          : ( $rightward and not $leftward )  ? $DIR::RIGHT
-          :                                     $DIR::NEITHER;
-    }
-
-    if ( $direction eq DIR::NEITHER() or $direction eq DIR::UNKNOWN() ) {
-
-        # SErr->throw("Funny object creation attempted");
-        return;
-    }
+    SErr::HolesHere->throw('Holes here') if SWorkspace->are_there_holes_here(@items);
+    my $direction = SWorkspace::FindDirectionOfObjectSet(@items);
+    return unless $direction->IsLeftOrRight();
 
     my $object = $package->new(
         {
             items      => [@items],
             group_p    => 1,
-            left_edge  => $left,
-            right_edge => $right,
+            left_edge  => -1, # Will shortly be reset
+            right_edge => -1, # Will shortly be reset
             direction  => $direction,
         }
     );
 
+    $object->recalculate_edges();
     $object->UpdateStrength();
     return $object;
 }

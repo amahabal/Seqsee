@@ -118,6 +118,11 @@ sub PotentiallyExtendible {
     return ( $self eq $LEFT or $self eq $RIGHT );
 }
 
+sub IsLeftOrRight {
+    my ($self) = @_;
+    return ( $self eq $LEFT or $self eq $RIGHT );
+}
+
 sub as_text {
     my ($self) = @_;
     return $self->{text};
