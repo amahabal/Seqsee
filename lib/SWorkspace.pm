@@ -18,7 +18,7 @@ use Perl6::Form;
 use Smart::Comments;
 use English qw(-no_match_vars);
 
-use Sort::Key qw{rikeysort};
+use Sort::Key qw{rikeysort ikeysort};
 
 # Next 2 lines: should be my!
 our $elements_count;
@@ -791,5 +791,10 @@ sub SErr::AskUser::Ask {
     }
     return $answer;
 }
+
+sub SortLeftToRight{
+    return ikeysort { $_->get_left_edge() } @_;
+}
+
 
 1;

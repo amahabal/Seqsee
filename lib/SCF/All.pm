@@ -232,6 +232,10 @@ use Compile::SCF;
 <run>
     return if ($a->overlaps($b));
 
+    unless ($Global::Feature{AllowLeftwardRelations}) {
+        ($a, $b) = SWorkspace::SortLeftToRight($a, $b);
+    }
+
     my $reln;
     if ($reln = $a->get_relation($b)) {
         # No need to create another.

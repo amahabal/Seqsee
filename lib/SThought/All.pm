@@ -607,6 +607,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
   </fringe>
 
   <actions>
+    return unless $Global::Feature{AllowLeftwardRelations};
     #if this is part of a group, the answer is NO, don't flip!
     my ( $l, $r ) = $reln->get_extent();
     if ( SWorkspace->is_there_a_covering_group( $l, $r ) ) {

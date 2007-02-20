@@ -5,7 +5,7 @@ use Seqsee;
 use warnings;
 use Smart::Comments;
 
-my $pattern = "seq_[ab]";
+my $pattern = '*';
 my %options = (
     f => sub {
         my ( $ignored, $feature_name ) = @_;
