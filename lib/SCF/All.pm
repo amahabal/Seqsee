@@ -413,7 +413,12 @@ use Compile::SCF;
     my $extension = $object->FindExtension($direction, 0) or return;
     #main::message("Found extension: $extension; " . $extension->get_structure_string());
     my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
-    $object->Extend( $extension, $add_to_end_p );
+    eval { $object->Extend( $extension, $add_to_end_p ); };
+if ($EVAL_ERROR) {
+    my $msg = "Extending object: " . $object->as_text() . "\n";
+    $msg .= "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
+    confess $msg;
+}
     ContinueWith( SThought::AreWeDone->new({group => $object}) ) 
        if SUtil::toss($object->get_strength() / 100); 
     #main::message("Extended!");
@@ -461,6 +466,8 @@ use Compile::SCF;
         $new_extension = $unstarred;
     }
     if ( $new_extension and $new_extension ne $ejected_object ) {
+        my $structure_string_before_ejection = 
+            $object->get_structure_string();
         if ($change_at_end_p) {
             $ejected_object = pop(@$object);
         }
@@ -476,6 +483,7 @@ use Compile::SCF;
         eval { $object->Extend( $new_extension, $change_at_end_p ) };
         if (my $e = $EVAL_ERROR) {
             if (UNIVERSAL::isa($e, "SErr::CouldNotCreateExtendedGroup")) {
+                print STDERR "(structure before ejection): $structure_string_before_ejection\n";
                 print STDERR "Extending group: ", $object->get_structure_string(), "\n";
                 print STDERR "(But effectively): ", $object->GetEffectiveStructureString();
                 print STDERR "Ejected object: ", $ejected_object->get_structure_string(), "\n";

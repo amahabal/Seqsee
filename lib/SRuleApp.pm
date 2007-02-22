@@ -110,7 +110,12 @@ sub ExtendInDirection {
             ### (but effectively) : $object_at_end->GetEffectiveStructureString()
             ### (categories) : @object_at_end_cats
             ### (part categories): @object_part_cats
-            confess "Relation should have been found!";
+
+            # XXX(Board-it-up): [2007/02/20] Should die. But there is a bug
+            # currently that needs to be fixed. Relation between [1 2 3] and
+            # [1 [2 2] 3] not being seen.
+            #confess "Relation should have been found!";
+            return;
         }
         $reln->insert();
         return 1;

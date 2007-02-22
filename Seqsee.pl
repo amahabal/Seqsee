@@ -165,6 +165,7 @@ sub init_display{
             my $msg = UNIVERSAL::isa($err, 'Exception::Class') ? $err->as_string() : $err;
             if ($msg !~ m#\S#) {
                 $msg .= "<EMPTY MESSAGE>";
+                confess $msg;
             }
             tkdie($msg);
         };

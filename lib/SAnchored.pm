@@ -283,7 +283,7 @@ sub Extend {
     }
 
     my $potential_new_group = SAnchored->create(@parts_of_new_group) 
-        or SErr::CouldNotCreateExtendedGroup->throw();
+        or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")->throw();
     my ( $exact_conflict, @subset_conflicts ) =
       SWorkspace->FindGroupsConflictingWith($potential_new_group);
 
