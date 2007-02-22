@@ -83,6 +83,13 @@ sub draw_elements{
         new_object( $elt, $counter, $Margin + (0.5+$counter) * $space_per_elem,
                     $Margin + $eff_height * 0.5
                         );
+        if ($elt->get_metonym_activeness()) {
+            DrawMetonym({ actual_string => $elt->get_mag(),
+                          starred => $elt->GetEffectiveObject()->get_structure_string(),
+                          x1 => $Margin + ($counter + 0.1) * $space_per_elem,
+                          x2 => $Margin + ($counter + 0.9) * $space_per_elem,
+                      });
+        }
         $counter++;
     }
 }
@@ -128,6 +135,15 @@ sub SAnchored::draw_ws2{
     my $span = $self->get_span();
     my $top =   $group_top_base - $span * $group_ht_per_unit_span;
     my $bottom = $group_bottom_base + $span * $group_ht_per_unit_span;
+
+    if ($self->get_metonym_activeness()) {
+        DrawMetonym({ actual_string => $self->get_structure_string(),
+                      starred => $self->GetEffectiveObject()->get_structure_string(),
+                      x1 => $leftx,
+                      x2 => $rightx,
+                  });
+    }
+
     ## Drawing group: $leftx, $top, $rightx, $bottom
     $RelationAnchor{$self} = [($leftx + $rightx) / 2, $top];
     my @options = $self->get_metonym_activeness() ?
@@ -148,4 +164,19 @@ sub SReln::draw_ws2{
                                $x2, $y2,
                                @reln_options,
                                   );
+}
+
+sub DrawMetonym{
+    my ( $opts_ref ) = @_;
+    $canvas->createText(($opts_ref->{x1} + $opts_ref->{x2})/2,
+                        $Margin + $eff_height - 20,
+                        @element_options,
+                        -text => $opts_ref->{actual_string},
+                            );
+    $canvas->createText(($opts_ref->{x1} + $opts_ref->{x2})/2,
+                        $Margin + $eff_height - 40,
+                        @element_options,
+                        -text => $opts_ref->{starred},
+                            );
+    
 }
