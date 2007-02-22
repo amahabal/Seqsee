@@ -148,6 +148,7 @@ sub BUILD{
         $guesser_ref->{$k} = sub {
             my $object = shift;
             my $subobject = $object->get_at_position( $v );
+            $subobject = $subobject->GetEffectiveObject();
             if (exists $type_ref->{$k} and 
                     $type_ref->{$k} eq 'int') {
                 if (ref($subobject) eq "SElement") {
@@ -173,6 +174,7 @@ sub BUILD{
             ## $object->get_structure
             ## $v->($object)
             my $subobject = $object->get_subobj_given_range( $v->($object) );
+            $subobject = $subobject->GetEffectiveObject();
             ## $subobject
             if (exists $type_ref->{$k} and
                     $type_ref->{$k} eq 'int') {

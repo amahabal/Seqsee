@@ -516,6 +516,25 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
     my ( $start, $direction, $el ) = @_;
     my $el_in_ws = $SWorkspace::elements[$start];
     confess "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
+
+    my $obj = $el;
+    my $new_obj = $el_in_ws;
+    for ( @{ $obj->get_categories() } ) {
+        my $bindings = $new_obj->describe_as($_)
+          or confess "Description failed for category " . $_->get_name() . " for object ".
+              $obj->get_structure_string();
+        my $old_bindings = $obj->describe_as($_);
+        my $old_pos_mode = $old_bindings->get_position_mode();
+        if ( defined $old_pos_mode ) {
+            $bindings->TellDirectedStory( $new_obj, $old_pos_mode );
+        }
+    }
+
+    if ( my $metonym = $obj->get_metonym() ) {
+        my ( $cat, $name ) = ( $metonym->get_category(), $metonym->get_name() );
+        $new_obj->AnnotateWithMetonym( $cat, $name );
+        $new_obj->SetMetonymActiveness( $obj->get_metonym_activeness );
+    }
     return $el_in_ws;
 };
 
@@ -540,14 +559,14 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
         $plonk_cursor += $subobjectspan;
     }
 
-    @new_parts = reverse(@new_parts)
-      if ( $obj->get_direction() eq DIR::LEFT() );
-
     my $new_obj                  = SAnchored->create(@new_parts);
     my $new_obj_structure_string = $new_obj->get_structure_string;
 
     my $old_obj;
-    ## $new_obj_structure_string
+    ## obj_structure_string: $obj->get_structure_string()
+    ## (effectively): $obj->GetEffectiveStructureString()
+    ## new_obj_structure_string: $new_obj_structure_string
+    ## (effectively): $new_obj->GetEffectiveStructureString()
     for my $spanning_obj (
         SWorkspace->get_all_covering_groups( $start, $start + $span - 1 ) )
     {
@@ -576,7 +595,8 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
 
     for ( @{ $obj->get_categories() } ) {
         my $bindings = $new_obj->describe_as($_)
-          or confess "Description failed";
+          or confess "Description failed for category " . $_->get_name() . " for object ".
+              $obj->get_structure_string();
         my $old_bindings = $obj->describe_as($_);
         my $old_pos_mode = $old_bindings->get_position_mode();
         if ( defined $old_pos_mode ) {
