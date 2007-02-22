@@ -94,4 +94,11 @@ sub UpdateStrength{
     # do nothing.
 }
 
+sub CheckSquintability{
+    my ( $self, $intended ) = @_;
+    $self->describe_as($S::NUMBER);
+    return SAnchored::CheckSquintability($self, $intended);
+}
+
+
 1;
