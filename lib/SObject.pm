@@ -484,7 +484,7 @@ multimethod _can_be_seen_as_no_rec => ( '#', '#' ) => sub {
 
 sub tell_forward_story {
     my ( $self, $cat ) = @_;
-    my $bindings = $self->get_binding($cat);
+    my $bindings = $self->GetBindingForCategory($cat);
     confess "Object $self does not belong to category " . $cat->get_name()
         unless $bindings;
     $self->AddHistory( "Forward story telling for " . $cat->get_name );
@@ -497,7 +497,7 @@ sub tell_forward_story {
 
 sub tell_backward_story {
     my ( $self, $cat ) = @_;
-    my $bindings = $self->get_binding($cat);
+    my $bindings = $self->GetBindingForCategory($cat);
     confess "Object $self does not belong to category $cat!"
         unless $bindings;
     $self->AddHistory( "Backward story telling for " . $cat->get_name );
@@ -506,7 +506,7 @@ sub tell_backward_story {
 
 sub TellDirectedStory{
     my ( $self, $cat, $position_mode ) = @_;
-    my $bindings = $self->get_binding($cat);
+    my $bindings = $self->GetBindingForCategory($cat);
     confess "Object $self does not belong to category $cat!"
         unless $bindings;
     $bindings->TellDirectedStory($self, $position_mode);

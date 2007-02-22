@@ -179,11 +179,11 @@ sub is_of_category_p {
     }
 }
 
-# method: get_binding
+# method: GetBindingForCategory
 # Returns binding for a particular category
 #
 
-sub get_binding {
+sub GetBindingForCategory {
     my ( $self, $cat ) = @_;
     my $id = ident $self;
 

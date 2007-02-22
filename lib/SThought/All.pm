@@ -204,7 +204,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         SLTM::SpikeBy( 5, $category );
         FRINGE 100, $category;
 
-        my $bindings = $core->get_binding( $category );
+        my $bindings = $core->GetBindingForCategory( $category );
         my $meto_mode = $bindings->get_metonymy_mode();
         if ($meto_mode ne $METO_MODE::NONE) {
             FRINGE 100, $meto_mode;

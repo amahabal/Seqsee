@@ -26,13 +26,13 @@ BUILDING: {
 IS_INSTANCE: {
   my $bindings;
   $bindings = $cat->is_instance( SObject->create( 2,3,4 ));
-  cmp_ok( $bindings->get_binding('start'), 'eq', 2 );
-  cmp_ok( $bindings->get_binding('end'), 'eq', 4 );
+  cmp_ok( $bindings->GetBindingForAttribute('start'), 'eq', 2 );
+  cmp_ok( $bindings->GetBindingForAttribute('end'), 'eq', 4 );
 
   
   $bindings = $cat->is_instance( SObject->create(2));
-  cmp_ok( $bindings->get_binding('start'), 'eq', 2 );
-  cmp_ok( $bindings->get_binding('end'), 'eq', 2 );
+  cmp_ok( $bindings->GetBindingForAttribute('start'), 'eq', 2 );
+  cmp_ok( $bindings->GetBindingForAttribute('end'), 'eq', 2 );
 }
 
 BLEMISHED_IS_INST: {
@@ -52,8 +52,8 @@ BLEMISHED_IS_INST: {
   $bindings =
     $cat->is_instance( $object );
   ## $bindings
-  cmp_ok( $bindings->get_binding('start'), 'eq', 3 );
-  cmp_ok( $bindings->get_binding('end'), 'eq', 8 );
+  cmp_ok( $bindings->GetBindingForAttribute('start'), 'eq', 3 );
+  cmp_ok( $bindings->GetBindingForAttribute('end'), 'eq', 8 );
   
   $object = SObject->QuickCreate([3,4,[5,5],6,7,8]);
   ## $object
@@ -62,8 +62,8 @@ BLEMISHED_IS_INST: {
   $bindings =
     $cat->is_instance( $object );
   ## $bindings
-  cmp_ok( $bindings->get_binding('start'), 'eq', 3 );
-  cmp_ok( $bindings->get_binding('end'), 'eq', 8 );
+  cmp_ok( $bindings->GetBindingForAttribute('start'), 'eq', 3 );
+  cmp_ok( $bindings->GetBindingForAttribute('end'), 'eq', 8 );
   cmp_ok( $bindings->get_metonymy_mode(), 'eq', $METO_MODE::SINGLE);
 
 }

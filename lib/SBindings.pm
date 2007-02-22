@@ -104,13 +104,13 @@ sub BUILD {
 #
 # subsection: Public Interface
 
-# method: get_binding
+# method: GetBindingForAttribute
 # Extracts the particular value from the binding.
 #
 #    Example:
-#    $bdg->get_binding("start")
+#    $bdg->GetBindingForAttribute("start")
 
-sub get_binding {
+sub GetBindingForAttribute {
     my ( $self, $what ) = @_;
     my $id = ident $self;
 

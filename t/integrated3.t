@@ -92,10 +92,10 @@ ok( $WSO_gn->get_direction() eq DIR::RIGHT(), );
 
 
 $WSO_gn->structure_ok( [1,2,[3,3]]);
-$bindings = $WSO_gn->get_binding($S::ASCENDING);
+$bindings = $WSO_gn->GetBindingForCategory($S::ASCENDING);
 ok( $bindings->get_metonymy_mode() eq METO_MODE::SINGLE(), );
 ## here...
-ok( $WSO_gn->[2]->get_binding($S::SAMENESS), );
+ok( $WSO_gn->[2]->GetBindingForCategory($S::SAMENESS), );
 
  
 

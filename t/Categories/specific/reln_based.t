@@ -31,7 +31,7 @@ IS_INSTANCE: {
     ## $bindings
     {
         local $TODO = 1;
-        cmp_ok( $bindings->get_binding('relation'), 'eq', $WSO_ra );
+        cmp_ok( $bindings->GetBindingForAttribute('relation'), 'eq', $WSO_ra );
     }
     $bindings = $cat->is_instance( $SWorkspace::elements[0]);
     ok( not($bindings), );
