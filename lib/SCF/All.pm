@@ -250,6 +250,9 @@ use Compile::SCF;
     my $type_activation = spike_reln_type($reln);
     return unless (SUtil::toss($type_activation));
 
+if ($b->get_right_edge() >= $SWorkspace::elements_count) {
+    print STDERR "Hmmm... problem traced back here\n";
+}
     $reln->AddHistory("Found relation!");
 
     # So a relation has been found

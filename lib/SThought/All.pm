@@ -423,11 +423,11 @@ multimethod get_fringe_for => ('SAnchored') => sub {
             if ( !$has_been_rejected
                 or SUtil::toss( 1 - 10 / $has_been_rejected ) )
             {
-                ACTION 100, TryRule,
-                  {
-                    rule => $rule,
-                    reln => $core,
-                  };
+                #ACTION 100, TryRule,
+                #  {
+                #    rule => $rule,
+                #    reln => $core,
+                 # };
             }
         }
 
@@ -553,11 +553,15 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         my @gap                 = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
         if ($gap[1] >= $SWorkspace::elements_count) {
             print STDERR "Ends: ($l1, $r1), ($l2, $r2)\n";
+            print STDERR "Second is: ", $core->get_second(), "with structure ", $core->get_second()->get_structure_string(), "\n";
             print STDERR "Element count: $SWorkspace::elements_count\n";
             print STDERR "Gap: @gap\n";
             my $elements = join(", ", map { $_->get_mag } @SWorkspace::elements);
             print STDERR "Elements: $elements\n";
             print STDERR map {$_->get_structure_string()} $core->get_ends();
+            print STDERR "\nHistory of core: \n\t", join("\n\t", @{$core->get_history()}), "\n";
+print STDERR "\nHistory of first: \n\t", join("\n\t", @{$core->get_first()->get_history()}), "\n";
+print STDERR "\nHistory of second: \n\t", join("\n\t", @{$core->get_second()->get_history()}), "\n";
         }
         my @intervening_objects = SWorkspace->get_intervening_objects(@gap);
         my $distance            = scalar(@intervening_objects);
