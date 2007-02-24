@@ -177,6 +177,10 @@ sub SetupBindings {
         if ( exists $SeqseeWidgets{$type} ) {
             exists( $config_ref->{$type} ) or confess "Missing config for $type";
             my %ret         = %{ $config_ref->{$type} };
+            for (values %ret) {
+                next unless m/^!(.*)/;
+                $_ = eval($1);
+            }
             my $tags_config = $config_ref->{ $type . '_tags' };
             if ( defined $tags_config ) {
                 $ret{'-tags_provided'} = tags_to_aref($tags_config);
@@ -187,6 +191,10 @@ sub SetupBindings {
         else {
             my $extra_config = $config_ref->{$type};
             my %extra_config = ( defined $extra_config ) ? %$extra_config : ();
+            for (values %extra_config) {
+                next unless m/^!(.*)/;
+                $_ = eval($1);
+            }
             return ( %extra_config, @rest );
         }
     }

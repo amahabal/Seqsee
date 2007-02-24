@@ -9,6 +9,7 @@ use Carp;
 use Smart::Comments;
 use Config::Std;
 use Getopt::Long;
+use Time::HiRes qw( sleep );
 
 sub run{
     my (@sequence) = @_;
@@ -73,6 +74,8 @@ sub already_rejected_by_user{
 
 sub Seqsee_Step{
     $Global::Steps_Finished++;
+    sleep($Global::InterstepSleep/1000);
+    #main::message($Global::InterstepSleep);
     do_background_activity();
 
     ## $Global::Steps_Finished

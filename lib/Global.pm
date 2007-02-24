@@ -19,6 +19,8 @@ our $InitialTermCount;              # Number of terms at start.
 our $TimeOfLastNewElement = 0;      # When was the last element added?
 our $TimeOfNewStructure   = 0;      # When was the last group created or element added?
 
+our $InterstepSleep = 0;            # In milli-seconds
+
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact rules onlyfwd);
 $LogString = '';
 $Feature{interlaced} = 1; # On by default!
