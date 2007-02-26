@@ -8,6 +8,7 @@ use Tk::widgets qw{Canvas};
 use List::Util qw(min max);
 use Sort::Key qw(rikeysort);
 use base qw/Tk::Derived Tk::Canvas/;
+use lib '.';
 
 our $canvas;
 our %Id2Obj;
@@ -23,6 +24,8 @@ my %relations_to_hide; # becuase they are in a group.
  
 my ($space_per_elem);
 my %RelationAnchor;
+my $BackgdBitmap;
+
 BEGIN {
     read_config 'config/GUI_ws2.conf' => my %config;
     @element_options  = %{$config{elements}};
@@ -31,6 +34,10 @@ BEGIN {
     @group_options = %{$config{group}}; 
     @group_meto_options= %{$config{group_meto}};
     $Margin            = $config{placing}{-margin};
+
+    #$SGUI::MW->Bitmap('bgdbitmap', # %{$config{BackgdBitmap}},
+    #                  -file => 'foo.xbm'
+    #                      );
 }
 
 Construct Tk::Widget 'SWorkspace2';
@@ -56,6 +63,7 @@ sub clear{
 
 sub Update{
     $canvas->delete('all');
+    DrawBackground();
     $group_ht_per_unit_span = $eff_height * 0.2 / $SWorkspace::elements_count;
     %RelationAnchor = ();
     %relations_to_hide = ();
@@ -179,4 +187,12 @@ sub DrawMetonym{
                         -text => $opts_ref->{starred},
                             );
     
+}
+
+sub DrawBackground{
+    $canvas->createRectangle($Margin, $Margin, $eff_width, $eff_height,
+                             -stipple => '@'.Tk->findINC('images/foo.xbm'),
+                             -fill => '#f5f5ff',
+                             -width => 0,
+                                 );
 }
