@@ -16,7 +16,7 @@ use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SInstance SHistory SFasc};
-use overload fallback => 1;
+use overload (fallback => 1);
 
 multimethod 'find_reln';
 
@@ -507,7 +507,8 @@ sub tell_backward_story {
 sub TellDirectedStory{
     my ( $self, $cat, $position_mode ) = @_;
     my $bindings = $self->GetBindingForCategory($cat);
-    confess "Object $self does not belong to category $cat!"
+    my $self_as_text = $self->as_text();
+    confess "Object $self ($self_as_text) does not belong to category $cat!"
         unless $bindings;
     $bindings->TellDirectedStory($self, $position_mode);
 }
@@ -983,7 +984,11 @@ sub recalculate_relations {
     }
 }
 
-
+sub as_text {
+    my ($self) = @_;
+    my $structure_string = $self->get_structure_string();
+    return "SObject $structure_string";
+}
 
 1;
 

@@ -48,8 +48,8 @@ sub blemish {
     my $id = ident $type;
 
     my ( $cat, $name, $info_loss ) = ( $category_of{$id}, $meto_name_of{$id}, $info_loss_of{$id} );
-    my $finder = $cat->get_meto_unfinder($name);
-    my $obj = $finder->( $cat, $name, $info_loss, $object );
+    my $unfinder = $cat->get_meto_unfinder($name);
+    my $obj = $unfinder->( $cat, $name, $info_loss, $object );
 
     #$obj->SetMetonym($object);
     #$obj->SetMetonymActiveness(1);

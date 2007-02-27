@@ -10,6 +10,7 @@ use Smart::Comments;
 use Config::Std;
 use Getopt::Long;
 use Time::HiRes qw( sleep );
+use Class::Multimethods;
 
 sub run{
     my (@sequence) = @_;
@@ -94,6 +95,10 @@ sub Seqsee_Step{
             SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");
         }
     };
+
+    if (1 or $Global::Sanity) {
+        SanityCheck();
+    }
 
     if ($EVAL_ERROR) {
         my $err = $EVAL_ERROR;
@@ -264,6 +269,79 @@ sub _read_config{
 
     return $RETURN_ref;
 }
+
+multimethod SanityFail => ('$') => sub {
+    my ($m) = @_;
+    my $msg = "Entered inconsistent state after a $Global::CurrentRunnableString.($Global::Steps_Finished)\n$m";
+    main::message($msg);
+    confess "Sanity failed... exiting!";
+};
+
+
+multimethod SanityCheck => () => sub {
+    for my $gp (values %SWorkspace::groups) {
+        SanityCheck($gp);
+    }
+    for my $rel (values %SWorkspace::relations) {
+        SanityCheck($rel);
+    }
+};
+
+multimethod SanityCheck => qw(SElement) => sub {
+    my ( $el ) = @_;
+     
+};
+
+multimethod SanityCheck => qw(SAnchored) => sub {
+    my ( $gp ) = @_;
+    if (my $underlying_ruleapp = $gp->get_underlying_reln()) {
+        SanityCheck( $gp, $underlying_ruleapp );
+    }
+    my ($l, $r) = $gp->get_edges();
+    0 <= $l or SanityFail("Edge problem: left $l");
+    $l <= $r or SanityFail("Edge problem: $l $r");
+    $r < $SWorkspace::elements_count or SanityFail("Edge problem: right $r");
+
+    my @parts = @$gp;
+
+    SWorkspace->are_there_holes_here(@parts) and SanityFail("Holes in group!");
+
+    for my $part (@parts) {
+        $part->isa('SAnchored') or SanityFail("Unanchored part!");
+        $part->get_is_a_metonym() and SanityFail("Group has metonym as part");
+    }
+};
+
+multimethod SanityCheck => qw(SAnchored SRuleApp) => sub {
+    SanityCheck(@_, '');
+};
+
+multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
+    my ( $gp, $ra, $m ) = @_;
+    $m = $m ? "($m) " : "";
+    my @gp_parts = @$gp;
+    my @ra_items = @{$ra->get_items()};
+    my $count = scalar(@gp_parts);
+    unless (scalar(@ra_items) == $count) {
+        my $msg = "Group: " . $gp->as_text() . " has $count elements: @gp_parts, whereas ruleapp only has @ra_items";
+        SanityFail("$m Gp/Ruleapp out of sync! $msg");
+    }
+    for my $i (0..$count-1) {
+        my $gp_part = $gp_parts[$i];
+        my $ra_part = $ra_items[$i];
+        if ($gp_part->get_metonym_activeness()) {
+           # $gp_part->GetEffectiveObject() eq $ra_part or SanityFail("Metonym'd object had ruleapp with unmetonymd part or different part " . join(";", "Group", $gp, $gp->as_text(), "Part: ", $gp_part, $gp_part->as_text(), $gp_part->GetEffectiveObject(), $ra_part, $ra_part->as_text()));
+        } else {
+            $gp_part eq $ra_part or SanityFail("$m Gp/Ruleapp item out of sync!");
+        }
+    }
+};
+
+
+multimethod SanityCheck => qw(SReln) => sub {
+    my ( $rel ) = @_;
+     
+};
 
 
 

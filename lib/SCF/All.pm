@@ -410,17 +410,36 @@ use Compile::SCF;
 [package] SCF::AttemptExtensionOfGroup
 [param] object!
 [param] direction!
-
+[multi] SanityCheck
 <run>
     #main::message("Starting SCF::AttemptExtensionOfGroup");
+    my $underlying_reln = $object->get_underlying_reln();
+unless (exists $SWorkspace::groups{$object}) {
+    return;
+    #main::message("Aha! group is NOT in w/s" . $object->as_text());
+}
+if ($underlying_reln) {
+    SanityCheck($object, $underlying_reln, "In AttemptExtensionOfGroup pre");
+}
     my $extension = $object->FindExtension($direction, 0) or return;
+if ($underlying_reln) {
+    SanityCheck($object, $underlying_reln, "In AttemptExtensionOfGroup post");
+}
+    #print STDERR "\nExtending object: ", $object->as_text();
+    #print STDERR "\nExtension found:", $extension->as_text();
+    #print STDERR "\nDirection:", $direction;
     #main::message("Found extension: $extension; " . $extension->get_structure_string());
     my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
+    ## add_to_end_p (in SCF): $add_to_end_p
     eval { $object->Extend( $extension, $add_to_end_p ); };
-if ($EVAL_ERROR) {
-    my $msg = "Extending object: " . $object->as_text() . "\n";
-    $msg .= "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
-    confess $msg;
+if (my $e = $EVAL_ERROR) {
+    if (UNIVERSAL::isa($e, 'SErr::CouldNotCreateExtendedGroup')) {
+        my $msg = "Extending object: " . $object->as_text() . "\n";
+        $msg .= "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
+        print STDERR $msg;
+        main::message($msg);
+    }
+    confess($e);
 }
     ContinueWith( SThought::AreWeDone->new({group => $object}) ) 
        if SUtil::toss($object->get_strength() / 100); 
@@ -452,7 +471,9 @@ use Compile::SCF;
 [param] direction!
 
 <run>
-    # main::message("SCF::ConvulseEnd: " . $object->as_text());
+    unless (exists $SWorkspace::groups{$object}) {
+        return;    # main::message("SCF::ConvulseEnd: " . $object->as_text());
+    }
     my $change_at_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
     my @object_parts = @$object;
     my $ejected_object;
@@ -463,14 +484,24 @@ use Compile::SCF;
         $ejected_object = shift(@object_parts);
     }
 
+    my $underlying_reln = $object->get_underlying_reln();
+    multimethod 'SanityCheck';
+        if ($underlying_reln) {
+            SanityCheck($object, $underlying_reln, "Pre-extension");
+        }
+
     my $new_extension = $object->FindExtension($direction, 1) or return;
     if (my $unstarred = $new_extension->get_is_a_metonym()) {
         main::message("new_extension was metonym! fixing...");
         $new_extension = $unstarred;
     }
     if ( $new_extension and $new_extension ne $ejected_object ) {
+        if ($underlying_reln) {
+            SanityCheck($object, $underlying_reln, "post-extension");
+        }
+
         my $structure_string_before_ejection = 
-            $object->get_structure_string();
+            $object->as_text();
         if ($change_at_end_p) {
             $ejected_object = pop(@$object);
         }
@@ -483,11 +514,11 @@ use Compile::SCF;
         #      . $ejected_object->as_text()
         #      . " I can use "
         #      . $new_extension->as_text() );
-        eval { $object->Extend( $new_extension, $change_at_end_p ) };
+        my $extended = eval { $object->Extend( $new_extension, $change_at_end_p ) };
         if (my $e = $EVAL_ERROR) {
             if (UNIVERSAL::isa($e, "SErr::CouldNotCreateExtendedGroup")) {
                 print STDERR "(structure before ejection): $structure_string_before_ejection\n";
-                print STDERR "Extending group: ", $object->get_structure_string(), "\n";
+                print STDERR "Extending group: ", $object->as_text(), "\n";
                 print STDERR "(But effectively): ", $object->GetEffectiveStructureString();
                 print STDERR "Ejected object: ", $ejected_object->get_structure_string(), "\n";
                 print STDERR "(But effectively): ", $ejected_object->GetEffectiveStructureString();
@@ -495,6 +526,17 @@ use Compile::SCF;
                 print STDERR "(But effectively): ", $new_extension->GetEffectiveStructureString();
                 confess "Unable to extend group!";
             }
+            confess $e;
+        }
+        unless ($extended) {
+            # main::message("Failed to extend, and no deaths!");
+            if ($change_at_end_p) {
+                push(@$object, $ejected_object);
+            }
+            else {
+                unshift(@$object, $ejected_object);
+            }
+            $object->recalculate_edges();            
         }
     }
 </run>

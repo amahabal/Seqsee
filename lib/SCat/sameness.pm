@@ -69,6 +69,9 @@ my $meto_finder_each = sub {
 
 my $meto_unfinder_each = sub {
     my ( $cat, $name, $info_loss, $object ) = @_;
+    unless (exists $info_loss->{length}) {
+        confess "Length missing in info_loss: ". %$info_loss;
+    }
     return $cat->build( { each => $object, %$info_loss } );
 };
 

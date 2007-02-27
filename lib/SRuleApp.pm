@@ -135,6 +135,10 @@ sub FindExtension{
     my $rule       = $Rule_of{$id};
     my $direction_of_self = $Direction_of{$id};
 
+    ## current runnable: $Global::CurrentRunnableString
+    ## self, to_extend_in: $direction_of_self, $direction_to_extend_in
+    ## skip: $skip
+    
     my ($last_object, $relation, $next_state);
     if ($direction_of_self eq $direction_to_extend_in) {
         $last_object = $items_ref->[-1 - $skip];
@@ -142,12 +146,16 @@ sub FindExtension{
         ($relation, $next_state) = $rule->GetRelationAndTransition($last_state);
     } else {
         $last_object = $items_ref->[$skip];
+        ## skip: $skip
+        ## items_ref: $items_ref
+        ## last_object: $last_object->as_text()
         my $last_state = $states_ref->[$skip];
         ($relation, $next_state) = $rule->GetReverseRelationAndTransition($last_state);
     }
 
     my $next_pos = $last_object->get_next_pos_in_dir($direction_to_extend_in);
     return unless defined $next_pos;
+    ## next_pos: $next_pos
 
     my $expected_next_object = apply_reln( $relation, $last_object->GetEffectiveObject()) or return;
 

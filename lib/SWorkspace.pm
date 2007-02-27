@@ -594,10 +594,10 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     }
 
     for ( @{ $obj->get_categories() } ) {
+        my $old_bindings = $obj->describe_as($_);
         my $bindings = $new_obj->describe_as($_)
           or confess "Description failed for category " . $_->get_name() . " for object ".
-              $obj->get_structure_string();
-        my $old_bindings = $obj->describe_as($_);
+              $obj->as_text() . "Old: $old_bindings";
         my $old_pos_mode = $old_bindings->get_position_mode();
         if ( defined $old_pos_mode ) {
             $bindings->TellDirectedStory( $new_obj, $old_pos_mode );

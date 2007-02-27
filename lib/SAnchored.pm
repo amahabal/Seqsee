@@ -129,7 +129,9 @@ sub get_span {
 
 sub as_text {
     my ($self) = @_;
-    return "SAnchored " . $self->get_bounds_string();
+    my $bounds_string = $self->get_bounds_string();
+    my $structure_string = $self->get_structure_string();
+    return "SAnchored $bounds_string $structure_string";
 }
 
 sub as_insertlist {
@@ -226,9 +228,11 @@ sub get_next_pos_in_dir {
     my $id = ident $self;
 
     if ( $direction eq DIR::RIGHT() ) {
+        ## Dir Left
         return $right_edge_of{$id} + 1;
     }
     elsif ( $direction eq DIR::LEFT() ) {
+        ## Dir Left
         my $le = $left_edge_of{$id};
         return unless $le > 0;
         return $le - 1;
