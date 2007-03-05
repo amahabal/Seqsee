@@ -325,14 +325,22 @@ sub _install_instancer{
 
         my $guess_built = $me->build( \%guess );
         ## Structure of built: $guess_built->get_structure()
-        my $slippages   = $object->can_be_seen_as( $guess_built );
+        ## Object structure: $object->get_structure()
+        my $result_of_can_be_seen_as = $object->CanBeSeenAs( $guess_built );
+        return unless $result_of_can_be_seen_as;
+        ## $result_of_can_be_seen_as,
+        my $slippages   = $result_of_can_be_seen_as->GetPartsBlemished() || {};
         ## $slippages
-        if (defined $slippages) {
-            return SBindings->create( $slippages, \%guess, $object );
-        } else {
-            return;
-        }
 
+        # Special case: $object is a SElement
+        if ($object->isa('SElement')) {
+            if (my $entire_blemish = $result_of_can_be_seen_as->GetEntireBlemish()) {
+                $slippages = { 0 => $entire_blemish};
+            }
+        }
+        ## $slippages
+
+        return SBindings->create( $slippages, \%guess, $object);
     };
 
 }

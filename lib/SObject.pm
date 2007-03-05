@@ -990,5 +990,117 @@ sub as_text {
     return "SObject $structure_string";
 }
 
+multimethod CanBeSeenAs => ( '#', '#' ) => sub {
+    my ( $a, $b ) = @_;
+    return ResultOfCanBeSeenAs->newUnblemished() if $a == $b;
+    return ResultOfCanBeSeenAs->NO();
+};
+
+multimethod CanBeSeenAs => ('SObject', 'SObject') => sub {
+    my ( $obj, $structure ) = @_;
+    return CanBeSeenAs($obj, $structure->get_structure());
+};
+
+
+multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
+    my ( $object, $int ) = @_;
+    my $lit_or_meto = $object->CanBeSeenAs_Literal0rMeto($int);
+    ## lit_or_meto(elt): $lit_or_meto
+    return $lit_or_meto if defined $lit_or_meto;
+    return ResultOfCanBeSeenAs::NO();
+
+};
+
+multimethod CanBeSeenAs => ( 'SObject', 'ARRAY' ) => sub {
+    my ( $object, $structure ) = @_;
+    my $meto_activeness = $object->get_metonym_activeness();
+    my $metonym         = $object->get_metonym();
+    my $starred         = $metonym ? $metonym->get_starred() : undef;
+    ## before active meto
+    if ($meto_activeness) {
+        my $meto_seen_as = $object->CanBeSeenAs_Meto($structure, $starred, $metonym);
+        return $meto_seen_as if defined $meto_seen_as;
+    }
+
+    ## before by part
+    my $part_seen_as = $object->CanBeSeenAs_ByPart($structure);
+    return $part_seen_as if defined $part_seen_as;
+
+    ## before meto
+    if ($metonym) {
+        my $meto_seen_as = $object->CanBeSeenAs_Meto($structure, $starred, $metonym);
+        return $meto_seen_as if defined $meto_seen_as;
+    }
+    ## failed CanBeSeenAs
+    return ResultOfCanBeSeenAs::NO();
+};
+
+sub CanBeSeenAs_ByPart{
+    my ( $object, $structure ) = @_;
+    my $seen_as_part_count = scalar(@$structure);
+    ## $seen_as_part_count
+    return 
+      unless scalar(@$object) == $seen_as_part_count;
+    my %blemishes;
+    my $obj_part_ref = $object->get_parts_ref();
+    for my $i ( 0 .. $seen_as_part_count - 1 ) {
+        my $obj_part            = $obj_part_ref->[$i];
+        my $seen_as_part        = $structure->[$i];
+        my $part_can_be_seen_as = CanBeSeenAs( $obj_part, $seen_as_part );
+        ## obj, seen_as: $obj_part->as_text(), $seen_as_part, $part_can_be_seen_as
+        return unless $part_can_be_seen_as;
+        return if $part_can_be_seen_as->ArePartsBlemished();
+        ## is part blemished: $part_can_be_seen_as->IsBlemished()
+        next unless $part_can_be_seen_as->IsBlemished();
+        $blemishes{$i} = $part_can_be_seen_as->GetEntireBlemish();
+    }
+    ## %blemishes
+    return ResultOfCanBeSeenAs->newUnblemished() unless %blemishes;
+    return ResultOfCanBeSeenAs->newByPart( \%blemishes );    
+}
+
+sub CanBeSeenAs_Meto{
+    scalar(@_) == 4 or confess;
+    my ( $object, $structure, $starred, $metonym ) = @_;
+    return ResultOfCanBeSeenAs->newEntireBlemish($metonym)
+        if SUtil::compare_deep( $starred->get_structure(), $structure );
+}
+
+sub CanBeSeenAs_Literal{
+    my ( $object, $structure ) = @_;
+    return ResultOfCanBeSeenAs->newUnblemished()
+      if SUtil::compare_deep( $object->get_structure(), $structure );    
+}
+
+
+sub CanBeSeenAs_Literal0rMeto {
+    my ( $object, $structure ) = @_;
+    $structure = $structure->get_structure()
+      if UNIVERSAL::isa( $structure, 'SObject' );
+
+    my $meto_activeness = $object->get_metonym_activeness();
+    my $metonym         = $object->get_metonym();
+    my $starred         = $metonym ? $metonym->get_starred() : undef;
+
+    if ($meto_activeness) {
+        ## active metonym
+        return ResultOfCanBeSeenAs->newEntireBlemish($metonym)
+            if SUtil::compare_deep( $starred->get_structure(), $structure );
+    }
+
+    return ResultOfCanBeSeenAs->newUnblemished()
+      if SUtil::compare_deep( $object->get_structure(), $structure );
+
+    if ($metonym) {
+        ## inactive metonym
+        return ResultOfCanBeSeenAs->newEntireBlemish($metonym)
+          if SUtil::compare_deep( $starred->get_structure(), $structure );
+    }
+
+#if we get here, it means that the metonym, if present,is not active. and also that the metonym or the object itself cannot be seen as structure
+    return;
+
+}
+
 1;
 

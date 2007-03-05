@@ -1,6 +1,7 @@
 use strict;
 use blib;
 use Test::Seqsee;
+use Smart::Comments;
 BEGIN { plan tests => 6; }
 
 
@@ -15,6 +16,9 @@ my $descending = $S::DESCENDING;
 
   my $bindings2 = $bo->describe_as($ascending);
   cmp_ok( $bindings, 'eq', $bindings2 );
+
+  my $bindings3 = $bo->describe_as($descending);
+  ### $bindings3
 
   ok not( $bo->describe_as($descending));
 }

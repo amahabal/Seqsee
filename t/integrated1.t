@@ -99,7 +99,7 @@ ok( $WSO_gb->get_right_extendibility() == EXTENDIBILE::PERHAPS(), );
 $WSO_gb->set_right_extendibility(EXTENDIBILE::NO());
 ok( $WSO_gb->get_right_extendibility() == EXTENDIBILE::NO(), );
 
-# More plonk_into_place stuff
+### More plonk_into_place stuff
 SUtil::clear_all();
 SWorkspace->init({seq => [qw( 1 1 1 7 8 9 1 1 7 8 9)]});
 $WSO_o1 = $S::ASCENDING->build({ start => 7, end => 9});
@@ -109,6 +109,7 @@ isa_ok( $plonked, "SAnchored");
 $plonked->structure_ok([7,8,9]);
 ok( $SWorkspace::elements[3]->get_relation($SWorkspace::elements[4]), );
 
+SWorkspace->remove_gp($plonked);
 my $WSO_o2 = $S::DESCENDING->build({ start => 9, end => 7});
 $WSO_o2->set_direction(DIR::LEFT());
 

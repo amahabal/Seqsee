@@ -47,6 +47,7 @@ use SAnchored;
 use SElement;
 use SWorkspace;
 
+use ResultOfCanBeSeenAs;
 # Need to convert the next four
 #use SCat::Derive::assuming;
 #use SCat::Derive::blemished;
