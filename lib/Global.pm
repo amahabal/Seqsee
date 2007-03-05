@@ -20,6 +20,7 @@ our $TimeOfLastNewElement = 0;      # When was the last element added?
 our $TimeOfNewStructure   = 0;      # When was the last group created or element added?
 
 our $InterstepSleep = 0;            # In milli-seconds
+our $Sanity; # Do sanity check after each step?
 
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact rules onlyfwd);
 $LogString = '';

@@ -96,7 +96,7 @@ sub Seqsee_Step{
         }
     };
 
-    if (1 or $Global::Sanity) {
+    if ($Global::Sanity) {
         SanityCheck();
     }
 
@@ -206,11 +206,16 @@ sub _read_commandline{
                 "max_steps=i", "n=i", # same option!
                 'f=s',
                 'gui_config=s', 'gui=s', # same option!
-                'tabbed!', 
+                'tabbed!',
+                'sanity!',
                     );
     $options{max_steps} ||= $options{n} if exists $options{n};
     $options{gui_config} ||= $options{gui} if exists $options{gui};
     $options{gui_config} = 'GUI_tabbed' if $options{tabbed};
+
+    # XXX(Board-it-up): [2007/03/05] should be elsewhere!
+    $Global::Sanity = 1 if $options{sanity};
+
     return %options;
 }
 
