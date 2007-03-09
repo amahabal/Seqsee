@@ -17,6 +17,18 @@ use Sub::Installer;
 use IO::Prompt 0.99.4;
 use English qw(-no_match_vars );
 
+use Perl6::Form;
+use Sort::Key;
+use Memoize;
+use Exception::Class;
+use Class::Multimethods;
+use Log::Log4perl;
+use Log::Log4perl::Layout::PatternLayout;
+use PerlIO;
+use File::Slurp;
+use Tk::ROText;
+use attributes;
+
 # variable: $OPTIONS_ref
 #    final configuration hash
 #     
