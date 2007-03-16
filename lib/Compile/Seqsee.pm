@@ -66,7 +66,10 @@ sub process_block{
     my ( $object, $tag, $block ) = @_;
     my $handler = $object->can("handle_$tag");
     unless ($handler) {
-        die "Don't know how to handle '$tag' blocks";
+        if ($object->can("DEFAULT_HANDLER")) {
+            return $object->DEFAULT_HANDLER($tag, $block);
+        }
+        die "Don't know how to handle '$tag' blocks, and no DEFAULT_HANDLER";
     }
     $handler->($object, $block);
 }
