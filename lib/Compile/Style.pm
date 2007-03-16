@@ -38,6 +38,8 @@ sub serialize{
     my $style = 'Style::' . $style_name_of{$id};
     my $params = $params_of{$id};
     my $param_list = $params ? "my ($params)= \@_;" : '';
+    my $param_count = $params ? 1 + ($params =~ tr/,//) : 0;
+    print "Param count: $param_count for $style\n";
     my $entries_ref = $entries_of_of{$id};
 my $entries;
     while (my ($k,$v)=each %$entries_ref) {
@@ -47,9 +49,10 @@ my $entries;
     my $ret = <<"HERE";
 {
 sub $style {
+confess "Incorrect number of arguments to $style!" unless scalar(\@_) == $param_count;
 $param_list
 my \%entries=($entries) ;
-return \\%entries;   
+return \%entries;   
 }
 memoize('$style');
 }

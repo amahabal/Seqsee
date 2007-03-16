@@ -114,7 +114,7 @@ sub SetupBindings {
 {
     my %SeqseeWidgets
         = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace SActivation);
-    my %Updatable = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace SActivation SWorkspace2);
+    my %Updatable = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace SActivation SWorkspace2 SWorkspace3);
     my @to_Update = ();
 
     sub CreateWidgets {

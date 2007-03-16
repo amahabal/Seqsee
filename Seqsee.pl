@@ -1,5 +1,6 @@
 use strict;
-use blib;
+#use blib;
+use lib 'lib/';
 
 use Config::Std;
 use Getopt::Long;
