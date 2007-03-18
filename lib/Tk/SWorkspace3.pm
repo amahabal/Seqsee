@@ -39,7 +39,7 @@ BEGIN {
       )
       = @layout_options{
         qw{Margin ElementsYFraction MinGpHeightFraction MaxGpHeightFraction
-          RelnZenithFraction
+          MetoYFraction RelnZenithFraction
           }
       };
 }
@@ -56,10 +56,12 @@ sub Populate {
     $ElementsY   = $Margin + $EffectiveHeight * $ElementsYFraction;
     $MinGpHeight = $EffectiveHeight * $MinGpHeightFraction;
     $MaxGpHeight = $EffectiveHeight * $MaxGpHeightFraction;
+    $MetoY       = $EffectiveHeight * $MetoYFraction;
 }
 
 sub Update{
     $Canvas->delete('all');
+    DrawLegend(10, 10);
     $GroupHtPerUnitSpan = ($MaxGpHeight - $MinGpHeight) / ($SWorkspace::elements_count || 1);
     $SpacePerElement = $EffectiveWidth / ($SWorkspace::elements_count + 1);
     %AnchorsForRelations = ();
@@ -80,6 +82,7 @@ sub SElement::draw_ws3 {
         -tags => [ $self, 'element', $idx ],
         Style::Element(),
     );
+    $AnchorsForRelations{$self} ||= [$_[0], $_[1] - 10];
     return $id;
 }
 
@@ -100,7 +103,8 @@ sub SAnchored::draw_ws3 {
     my $top = $ElementsY - $MinGpHeight - $span * $GroupHtPerUnitSpan;
     my $bottom = $ElementsY + $MinGpHeight + $span * $GroupHtPerUnitSpan;
     
-    if ($self->get_metonym_activeness()) {
+    my $is_meto;
+    if ($is_meto = $self->get_metonym_activeness()) {
         DrawMetonym({ actual_string => $self->get_structure_string(),
                       starred => $self->GetEffectiveObject()->get_structure_string(),
                       x1 => $leftx,
@@ -108,8 +112,10 @@ sub SAnchored::draw_ws3 {
                   });
     }
     $AnchorsForRelations{$self} = [($leftx + $rightx) / 2, $top];
+    my $strength = $self->get_strength();
+    my $is_hilit = 0;
     return $Canvas->createOval($leftx, $top, $rightx, $bottom,
-                               Style::Group(),
+                               Style::Group($is_meto, $is_hilit, $strength),
                                    );
 
 }
@@ -123,6 +129,7 @@ sub SReln::draw_ws3 {
     my $strength = $self->get_strength();
     return unless ( $x1 and $x2 );
     ## drawing a relation: $x1, $y1, $x2, $y2
+    ## $RelnZenithFraction, $EffectiveHeight: $RelnZenithFraction, $EffectiveHeight
     return $Canvas->createLine(
         $x1, $y1,
         ( $x1 + $x2 ) / 2,
@@ -153,7 +160,7 @@ sub DrawGroups{
         $gp->draw_ws3();
     }
     for my $elt (@SWorkspace::elements) {
-        SAnchored::draw_ws3($elt);
+        SAnchored::draw_ws3($elt) if $elt->get_group_p();
     }    
 }
 
@@ -165,19 +172,45 @@ sub DrawRelations{
 
 sub DrawMetonym{
     my ( $opts_ref ) = @_;
-    $Canvas->createText(($opts_ref->{x1} + $opts_ref->{x2})/2,
+    my $id = $Canvas->createText(($opts_ref->{x1} + $opts_ref->{x2})/2,
                         $Margin + $MetoY + 20,
                         Style::Element(),
                         -text => $opts_ref->{actual_string},
                             );
+    my @bbox = $Canvas->bbox($id);
+    $Canvas->createLine(@bbox, );
+    $Canvas->createLine(@bbox[2, 1, 0, 3],);
     $Canvas->createText(($opts_ref->{x1} + $opts_ref->{x2})/2,
                         $Margin + $MetoY,
-                        Style::Element(),
+                        Style::Starred(),
                         -text => $opts_ref->{starred},
                             );
     
 }
 
+{
+    my @grp_str = map { my %f = Style::Group(0,0,$_*10); $f{-fill}} 0..10;
+    my @star_str = map { my %f =Style::Group(1,0,$_*10); $f{-fill}} 0..10;
+    my @reln_str = map { my %f = Style::Relation($_*10); $f{-fill}} 0..10;
+sub DrawLegend{
+    my ( $x, $y ) = @_;
+    my $step = 15;
+    $Canvas->createText($x, $y, -text => 'Legend', -anchor => 'nw');
+    my $id1 = $Canvas->createText($x, $y+$step, -text => 'Group Strengths', -anchor => 'nw');
+    my $id2 = $Canvas->createText($x, $y+2 * $step, -text => 'Squinting Strengths', -anchor => 'nw');
+    my $id3 = $Canvas->createText($x, $y+3 * $step, -text => 'Relation Strengths', -anchor => 'nw');
+    my $newx = ($Canvas->bbox($id1, $id2, $id3))[2] + 10;
+    my $box_size = 10;
+    for (0..10) {
+        $Canvas->createRectangle($newx + $_* $box_size, $y + $step, $newx + $box_size + $_ * $box_size, $y + $step +$box_size,
+                                     -fill => $grp_str[$_], -width => 0 );
+        $Canvas->createRectangle($newx + $_* $box_size, $y + 2 * $step, $newx + $box_size + $_ * $box_size, $y + 2 * $step +$box_size,
+                                     -fill => $star_str[$_], -width => 0 );
+        $Canvas->createRectangle($newx + $_* $box_size, $y + 3 * $step, $newx + $box_size + $_ * $box_size, $y + 3 * $step +$box_size,
+                                     -fill => $reln_str[$_], -width => 0 );
+    }
+}
+}
 
 1;
 
