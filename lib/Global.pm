@@ -21,6 +21,7 @@ our $TimeOfNewStructure   = 0;      # When was the last group created or element
 
 our $InterstepSleep = 0;            # In milli-seconds
 our $Sanity; # Do sanity check after each step?
+our %Hilit; # 0bjects to hi1lit; can have 1/2as values
 
 %PossibleFeatures = map { $_ => 1 } qw(interlaced meto relnact rules onlyfwd);
 $LogString = '';
@@ -31,6 +32,18 @@ sub clear {
     $AtLeastOneUserVerification = 0;
     %ExtensionRejectedByUser    = ();
     $LogString                  = '';
+    %Hilit = ();
 }
+
+sub ClearHilit{
+     %Hilit = ();
+}
+
+sub Hilit{
+    my ( $value ) = shift;
+    $Hilit{$_}= $value for @_;
+}
+
+
 
 1;

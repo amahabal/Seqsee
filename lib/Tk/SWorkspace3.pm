@@ -113,7 +113,7 @@ sub SAnchored::draw_ws3 {
     }
     $AnchorsForRelations{$self} = [($leftx + $rightx) / 2, $top];
     my $strength = $self->get_strength();
-    my $is_hilit = 0;
+    my $is_hilit = $Global::Hilit{$self}||0;
     return $Canvas->createOval($leftx, $top, $rightx, $bottom,
                                Style::Group($is_meto, $is_hilit, $strength),
                                    );
