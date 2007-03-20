@@ -35,25 +35,72 @@ sub tags_to_aref {
     return \@ret;
 }
 
+my $check_and_accept_input_sequence = sub {
+    my ( $v, $msg_label ) = @_;
+    if ($v =~ /[^\d\s,-]/) {
+        $msg_label->configure( -text => "Illformed input: $v" );
+        return;
+    }
+    return unless $v =~ /\d/;
+    $v =~ s/^\s+//;
+    $v =~ s/\s+$//;
+    my @seq = split( /[,\s]+/, $v );
+    print "Return pressed; Seq is: @seq";
+    SWorkspace->clear();
+    SWorkspace->insert_elements(@seq);
+    Update();    
+    return 1;
+};
+
+
 sub ask_seq {
     my $top = $MW->Toplevel( -title => "Seqsee Sequence Entry" );
     $top->Label( -text => "Enter sequence(space separated): " )->pack( -side => 'left' );
     $top->focusmodel('active');
-    my $e = $top->Entry()->pack( -side => 'left' );
-    $e->focus();
-    $e->bind(
-        '<Return>' => sub {
-            my $v = $e->get();
-            $v =~ s/^\s+//;
-            $v =~ s/\s+$//;
-            my @seq = split( /[,\s]+/, $v );
-            print "Return pressed; Seq is: @seq";
-            SWorkspace->clear();
-            SWorkspace->insert_elements(@seq);
-            Update();
-            $top->destroy;
-        }
-    );
+    my $label = $top->Label(-text => '')->pack(-side=>'bottom');
+    my $f = $top->ComboEntry(
+         -invoke => sub {
+             my ( $comboentry ) = @_;
+             my $seq = $comboentry->get();
+             if ($check_and_accept_input_sequence->($seq, $label)) {
+                 $top->destroy;
+             }
+         },
+
+        -list => ['1 1 2 1 2 3',
+                  '1 7 2 8 3 9',
+                  '1 7 1 2 8 1 2 3 9'],
+        -showmenu => 1,
+        -width => 40,
+            )->pack(-side => 'top', -expand => 'true', -fill => 'both');
+    $f->bind('<Return>' => sub {
+                 my $seq = $f->get();
+                 if ($check_and_accept_input_sequence->($seq, $label)) {
+                     $top->destroy;
+                 }
+             });
+    $f->focus();
+    $top->Button(-text => 'Go', -command => sub {
+                     my $seq = $f->get();
+                     if ($check_and_accept_input_sequence->($seq, $label)) {
+                         $top->destroy;
+                     }       
+                 })->pack(-side => 'right');
+    #my $e = $top->Entry()->pack( -side => 'left' );
+    #$e->focus();
+    #$e->bind(
+    #     '<Return>' => sub {
+#             my $v = $e->get();
+#             $v =~ s/^\s+//;
+#             $v =~ s/\s+$//;
+#             my @seq = split( /[,\s]+/, $v );
+#             print "Return pressed; Seq is: @seq";
+#             SWorkspace->clear();
+#             SWorkspace->insert_elements(@seq);
+#             Update();
+#             $top->destroy;
+#         }
+    #);
 }
 
 sub ask_for_more_terms {
