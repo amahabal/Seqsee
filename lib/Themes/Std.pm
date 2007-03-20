@@ -46,7 +46,9 @@ use Compile::Style;
 </fill>
 <outline>
     my ($s, $v) = (50, 70 - 0.5 * $strength);
-    $meto ? HSV(240, $s, $v) : HSV(160, $s, $v);
+if ($hilit) {
+'#FF0000'
+} else {$meto ? HSV(240, $s, $v) : HSV(160, $s, $v);}
 </outline>
-[width] 1 + 2 *$hilit 
+[width] 1 + 4 *$hilit 
 no Compile::Style;

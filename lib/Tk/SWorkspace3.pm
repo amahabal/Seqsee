@@ -69,6 +69,7 @@ sub Update{
     DrawGroups();
     DrawElements();
     DrawRelations();
+    DrawLastRunnable();
 }
 
 
@@ -210,6 +211,10 @@ sub DrawLegend{
                                      -fill => $reln_str[$_], -width => 0 );
     }
 }
+}
+
+sub DrawLastRunnable{
+    $Canvas->createText($Margin,$Height-$Margin,-anchor => 'sw', -text=> $Global::CurrentRunnableString);
 }
 
 1;

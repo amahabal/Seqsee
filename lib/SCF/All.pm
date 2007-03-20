@@ -7,10 +7,12 @@ use Compile::SCF;
     if ( SUtil::toss(0.5) ) {
         $object = SWorkspace->read_object();
         if ( LOGGING_INFO() and $object ) {
-            my ( $l, $r, $s )
-                = ( $object->get_left_edge, $object->get_right_edge, $object->get_structure, );
+            my ( $l, $r, $s ) = (
+                $object->get_left_edge, $object->get_right_edge,
+                $object->get_structure,
+            );
             my $strength = $object->get_strength();
-            my $msg = "* Read Object: \t[$l,$r] $s\n";
+            my $msg      = "* Read Object: \t[$l,$r] $s\n";
             $logger->info($msg);
         }
     }
@@ -19,11 +21,13 @@ use Compile::SCF;
         $logger->info("* Read Relation \n");
     }
     if ($object) {
+
         # main::message("read an SAnchored!") if (ref $object) eq "SAnchored";
         my $strength = $object->get_strength();
         $logger->info("\tstrength: $strength\n");
         SThought->create($object)->schedule();
     }
+
 </run>
 
 no Compile::SCF;
@@ -45,19 +49,21 @@ use Compile::SCF;
 [param] object!
 <run>
     my @structure;
-    if ($object->get_metonym_activeness) {
-        @structure = $object->get_metonym()->get_starred->get_structure();
-    } else {
-        @structure = 
-            map { $_->get_structure }
-                map { $_->GetEffectiveObject } 
-                    @{$object->get_parts_ref};
-        ## @structure
-    }
-    
-    my $lit_cat = $S::LITERAL->build({ structure => [@structure] });
-    ## $lit_cat, ident $lit_cat
-    my $bindings = $object->describe_as( $lit_cat ) or confess "Hey, should NEVER have failed!";
+if ( $object->get_metonym_activeness ) {
+    @structure = $object->get_metonym()->get_starred->get_structure();
+}
+else {
+    @structure =
+      map { $_->get_structure }
+      map { $_->GetEffectiveObject } @{ $object->get_parts_ref };
+    ## @structure
+}
+
+my $lit_cat = $S::LITERAL->build( { structure => [@structure] } );
+## $lit_cat, ident $lit_cat
+my $bindings = $object->describe_as($lit_cat)
+  or confess "Hey, should NEVER have failed!";
+
 </run>
 
 no Compile::SCF;
@@ -73,119 +79,138 @@ use Compile::SCF;
 [param] direction!
 
 <run>
-    my $direction_of_core = $core->get_direction;
-    return unless $direction_of_core->PotentiallyExtendible(); # i.e., is LEFT or RIGHT
-    my $type = $core->isa('SObject') ? "object" : "reln";
+   my $direction_of_core = $core->get_direction;
+return
+  unless $direction_of_core->PotentiallyExtendible();   # i.e., is LEFT or RIGHT
+my $type = $core->isa('SObject') ? "object" : "reln";
 
-    if ($type eq "object") {
-        confess "The functionality of extending objects now done by AttemptExtensionOfGroup.";
-    }
+if ( $type eq "object" ) {
+    confess
+"The functionality of extending objects now done by AttemptExtensionOfGroup.";
+}
 
-    ## $direction, $direction_of_core, $type
+## $direction, $direction_of_core, $type
 
-    my ( $reln, $obj1, $obj2, $next_pos, $what_next );
-    if ($direction eq $direction_of_core) {
-        ($reln, $obj1, $obj2 ) = ($core, $core->get_ends );
-    } else {
-        ($reln, $obj2, $obj1 ) = ($core->FlippedVersion(), $core->get_ends );
-    }
+my ( $reln, $obj1, $obj2, $next_pos, $what_next );
+if ( $direction eq $direction_of_core ) {
+    ( $reln, $obj1, $obj2 ) = ( $core, $core->get_ends );
+}
+else {
+    ( $reln, $obj2, $obj1 ) = ( $core->FlippedVersion(), $core->get_ends );
+}
 
-    $next_pos = $obj2->get_next_pos_in_dir( $direction );
-    return unless defined($next_pos);
+$next_pos = $obj2->get_next_pos_in_dir($direction);
+return unless defined($next_pos);
 
-    eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() )} or return;
-    if ($EVAL_ERROR) {
-        ### eval error in apply reln!
-        ### $reln
-        ### $obj2
-        exit;
-    }
+eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() ) }
+  or return;
+if ($EVAL_ERROR) {
+    ### eval error in apply reln!
+    ### $reln
+    ### $obj2
+    exit;
+}
 
-    my $core_span = $core->get_span;
-    
-    # Check that this is what is present...
-    my $is_this_what_is_present;
-    eval {$is_this_what_is_present= 
-              SWorkspace->check_at_location({ start => $next_pos,
-                                              direction => $direction,
-                                              what => $what_next,
-                                          }
-                                                );
-      };
+my $core_span = $core->get_span;
 
-    if ($EVAL_ERROR) {
-        my $err = $EVAL_ERROR;
-        # main::message("Good! Error caught");
-        if (UNIVERSAL::isa($err, "SErr::AskUser")) {
-            my $already_matched = $err->already_matched();
-            my $ask_if_what = $err->next_elements();
-            #main::message("already_matched @$already_matched; span = $core_span");
-            if (worth_asking($already_matched, $ask_if_what, $core_span)) {
-                # main::message("We may ask the user if the next elements are: @$ask_if_what");
-                my $ans = $err->Ask('(Extending relation)'); 
-                if ($ans) {
-                    $is_this_what_is_present = 1;
-                } else {
-                    $core->set_right_extendibility( EXTENDIBILE::NO());
-                }
-            } else {
-                #main::message("decided not to ask if next are @$ask_if_what");
+# Check that this is what is present...
+my $is_this_what_is_present;
+eval {
+    $is_this_what_is_present = SWorkspace->check_at_location(
+        {
+            start     => $next_pos,
+            direction => $direction,
+            what      => $what_next,
+        }
+    );
+};
+
+if ($EVAL_ERROR) {
+    my $err = $EVAL_ERROR;
+
+    # main::message("Good! Error caught");
+    if ( UNIVERSAL::isa( $err, "SErr::AskUser" ) ) {
+        my $already_matched = $err->already_matched();
+        my $ask_if_what     = $err->next_elements();
+
+        #main::message("already_matched @$already_matched; span = $core_span");
+        if ( worth_asking( $already_matched, $ask_if_what, $core_span ) ) {
+
+ # main::message("We may ask the user if the next elements are: @$ask_if_what");
+            my $ans = $err->Ask('(Extending relation)');
+            if ($ans) {
+                $is_this_what_is_present = 1;
             }
-            return;
-        } else {
-            $err->rethrow;
+            else {
+                $core->set_right_extendibility( EXTENDIBILE::NO() );
+            }
         }
+        else {
+
+            #main::message("decided not to ask if next are @$ask_if_what");
+        }
+        return;
     }
-    if ($is_this_what_is_present) {
-        my $wso = plonk_into_place($next_pos, 
-                                   $direction,
-                                   $what_next
-                                       );
-
-        return unless $wso;
-
-        if ($reln->isa('SReln::Compound')) {
-            my $type = $reln->get_base_category;
-            ## Describe as: $type
-            $wso->describe_as( $type ) or return;
-        }
-
-        ## $wso, $wso->get_structure
-        ## $direction, $direction_of_core
-        ## $obj2->get_structure
-
-
-        my $reln_to_add;
-        if ($direction eq $direction_of_core) {
-            $reln_to_add = find_reln($obj2, $wso);
-        } else {
-            $reln_to_add = find_reln($wso, $obj2);
-        }
-
-        if ($reln_to_add) {
-            $reln_to_add->insert;
-        } else {
-            # ToDo: [2006/09/27] For ad_hoc, the constucted object has type ad_hoc, but it's
-            # constituents are not correctly typed
-            #   main::message("No relation found to insert!");
-        }
-    } else {
-        # maybe attempt extension
-        if ($direction eq DIR::RIGHT()) {
-            $core->set_right_extendibility( EXTENDIBILE::NO() );
-        } elsif ($direction eq DIR::LEFT()) {
-            $core->set_left_extendibility( EXTENDIBILE::NO() );
-        }
-        if (SUtil::toss(0.5)) {
-            return;
-        } else {
-            my $tht = new SThought::AreTheseGroupable
-                ( { items => [$core->get_ends()],
-                    reln  => $core
-                        });
-            ContinueWith( $tht );
-        }
+    else {
+        $err->rethrow;
     }
+}
+if ($is_this_what_is_present) {
+    my $wso = plonk_into_place( $next_pos, $direction, $what_next );
+
+    return unless $wso;
+
+    if ( $reln->isa('SReln::Compound') ) {
+        my $type = $reln->get_base_category;
+        ## Describe as: $type
+        $wso->describe_as($type) or return;
+    }
+
+    ## $wso, $wso->get_structure
+    ## $direction, $direction_of_core
+    ## $obj2->get_structure
+
+    my $reln_to_add;
+    if ( $direction eq $direction_of_core ) {
+        $reln_to_add = find_reln( $obj2, $wso );
+    }
+    else {
+        $reln_to_add = find_reln( $wso, $obj2 );
+    }
+
+    if ($reln_to_add) {
+        $reln_to_add->insert;
+    }
+    else {
+
+# ToDo: [2006/09/27] For ad_hoc, the constucted object has type ad_hoc, but it's
+# constituents are not correctly typed
+#   main::message("No relation found to insert!");
+    }
+}
+else {
+
+    # maybe attempt extension
+    if ( $direction eq DIR::RIGHT() ) {
+        $core->set_right_extendibility( EXTENDIBILE::NO() );
+    }
+    elsif ( $direction eq DIR::LEFT() ) {
+        $core->set_left_extendibility( EXTENDIBILE::NO() );
+    }
+    if ( SUtil::toss(0.5) ) {
+        return;
+    }
+    else {
+        my $tht = new SThought::AreTheseGroupable(
+            {
+                items => [ $core->get_ends() ],
+                reln  => $core
+            }
+        );
+        ContinueWith($tht);
+    }
+}
+
 </run>
 
 sub worth_asking{
@@ -441,6 +466,8 @@ if (my $e = $EVAL_ERROR) {
     }
     confess($e);
 }
+Global::Hilit(1,@$object);
+#$Global::Break_Loop = 1;
     ContinueWith( SThought::AreWeDone->new({group => $object}) ) 
        if SUtil::toss($object->get_strength() / 100); 
     #main::message("Extended!");

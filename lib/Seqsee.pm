@@ -78,6 +78,7 @@ sub Seqsee_Step{
     sleep($Global::InterstepSleep/1000);
     #main::message($Global::InterstepSleep);
     do_background_activity();
+    Global::ClearHilit();
 
     ## $Global::Steps_Finished
     my $runnable = SCoderack->get_next_runnable();
