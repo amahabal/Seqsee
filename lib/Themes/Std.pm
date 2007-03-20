@@ -52,3 +52,8 @@ if ($hilit) {
 </outline>
 [width] 1 + 4 *$hilit 
 no Compile::Style;
+
+use Compile::Style;
+[style] NetActivation
+[fill] HSV(240,30,80)
+no Compile::Style;
