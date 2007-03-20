@@ -466,8 +466,6 @@ if (my $e = $EVAL_ERROR) {
     }
     confess($e);
 }
-Global::Hilit(1,@$object);
-#$Global::Break_Loop = 1;
     ContinueWith( SThought::AreWeDone->new({group => $object}) ) 
        if SUtil::toss($object->get_strength() / 100); 
     #main::message("Extended!");

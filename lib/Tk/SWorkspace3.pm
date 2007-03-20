@@ -114,6 +114,7 @@ sub UpdateNet {
     my @concepts_with_activation = SLTM::GetTopConcepts(10);
     my ( $row, $col ) = ( -1, 0 );
     for (@concepts_with_activation) {
+        next unless $_->[1] > 0.05;
         $row++;
         if ( $row >= $NetEntriesPerColumn ) {
             $row = 0;

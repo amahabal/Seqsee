@@ -139,6 +139,7 @@ use Compile::SThought;
                 if ( 1 or $gp->get_right_extendibility() ne EXTENDIBILE::NO() ) {
 
                     #great.
+                    Global::Hilit(2,@$gp);
                     main::update_display();
                     BelieveDone();
                 }
