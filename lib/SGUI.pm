@@ -47,17 +47,27 @@ my $check_and_accept_input_sequence = sub {
     my @seq = split( /[,\s]+/, $v );
     print "Return pressed; Seq is: @seq";
     SWorkspace->clear();
+    SCoderack->clear();
+    SStream->clear();
+
     SWorkspace->insert_elements(@seq);
     Update();    
     return 1;
 };
 
+BEGIN {
+    open my $in, 'config/sequence.list';
+    our @seq = <$in>;
+    chomp(@seq);
+    @seq = grep { /\d/ } @seq;
+}
 
 sub ask_seq {
     my $top = $MW->Toplevel( -title => "Seqsee Sequence Entry" );
     $top->Label( -text => "Enter sequence(space separated): " )->pack( -side => 'left' );
     $top->focusmodel('active');
     my $label = $top->Label(-text => '')->pack(-side=>'bottom');
+    our @seq;
     my $f = $top->ComboEntry(
          -invoke => sub {
              my ( $comboentry ) = @_;
@@ -67,9 +77,10 @@ sub ask_seq {
              }
          },
 
-        -list => ['1 1 2 1 2 3',
-                  '1 7 2 8 3 9',
-                  '1 7 1 2 8 1 2 3 9'],
+        # -list => ['1 1 2 1 2 3',
+#                   '1 7 2 8 3 9',
+#                   '1 7 1 2 8 1 2 3 9'],
+         -list => \@seq,
         -showmenu => 1,
         -width => 40,
             )->pack(-side => 'top', -expand => 'true', -fill => 'both');
