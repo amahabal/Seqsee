@@ -10,6 +10,7 @@ sub new {
 
 sub run {
     my $self = shift;
+    return unless CheckFreshness($self->[2], values %{$self->[3]});
     $Global::CurrentCodelet       = $self;
     $Global::CurrentCodeletFamily = $self->[0];
     no strict;
@@ -66,5 +67,32 @@ sub display_self {
             ( keys %{ $self->[3] } ),
     );
 }
+
+
+sub CheckFreshness{
+    my $since = shift; # Should not have changed since this time.
+    for (@_) {
+        return unless(IsFresh($_, $since));
+    }
+    return 1;
+}
+
+
+use Class::Multimethods;
+multimethod IsFresh => ('*', '#') => sub {
+    # detualt case:fresh.
+    return 1;    
+};
+
+
+multimethod IsFresh => ('SAnchored', '#') => sub {
+    my ( $obj, $since ) = @_;
+    return $obj->UnchangedSince($since);   
+};
+multimethod IsFresh => ('SReln', '#') => sub {
+    my ( $rel, $since ) = @_;
+    my @ends = $rel->get_ends();
+    return ( $ends[0]->UnchangedSince($since) and $ends[1]->UnchangedSince($since));   
+};
 
 1;

@@ -24,7 +24,8 @@ sub BUILD {
 
 sub history_string {
     my ($msg) = @_;
-    return "[$Global::Steps_Finished]$Global::CurrentRunnableString\t$msg";
+    my $steps = $Global::Steps_Finished || 0;
+    return "[$steps]$Global::CurrentRunnableString\t$msg";
 }
 
 sub AddHistory {
@@ -36,9 +37,17 @@ sub AddHistory {
 
 sub search_history {
     my ( $self, $re ) = @_;
-    return map { m/^ \[ (\d+) \]/o; $1 } (grep $re,
+    return map { m/^ \[ (\d+) \]/ox; $1 } (grep $re,
       @{ $messages_of{ ident $self} });
 }
+
+sub UnchangedSince {
+    my ( $self, $since ) = @_;
+    my $last_msg_str = $messages_of{ ident $self}->[-1];
+    $last_msg_str =~ /^ \[ (\d+) \]/ox or confess "Huh '$last_msg_str'";
+    return $1 > $since ? 0 : 1;
+}
+
 
 1;
 
