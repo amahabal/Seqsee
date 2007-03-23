@@ -223,6 +223,9 @@ multimethod get_fringe_for => ('SAnchored') => sub {
  <actions>
     my $metonym            = $core->get_metonym();
     my $metonym_activeness = $core->get_metonym_activeness();
+    my $strength = $core->get_strength();
+my $flush_right = $core->IsFlushRight();
+my $flush_left = $core->IsFlushLeft();
 
     # extendibility checking...
     if ( $core->get_right_extendibility() ) {
@@ -231,6 +234,9 @@ multimethod get_fringe_for => ('SAnchored') => sub {
         #    { core => $core,
         #      direction => DIR::RIGHT(),
         #  };
+        if ($flush_right and not($flush_left)) {
+            next unless SUtil::toss(0.15);
+        }
         CODELET 100, AttemptExtensionOfGroup,
           {
             object    => $core,

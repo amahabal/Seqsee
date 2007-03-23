@@ -101,6 +101,9 @@ else {
 
 $next_pos = $obj2->get_next_pos_in_dir($direction);
 return unless defined($next_pos);
+if ($next_pos == $SWorkspace::elements_count) {
+    return unless SUtil::toss(0.15);
+}
 
 eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() ) }
   or return;

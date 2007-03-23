@@ -513,6 +513,7 @@ sub CheckElementsRightwardFromLocation{
 
 
 multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
+    *__ANON__ = "__ANON_plonk_into_place_el";
     my ( $start, $direction, $el ) = @_;
     my $el_in_ws = $SWorkspace::elements[$start];
     confess "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
@@ -539,6 +540,7 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
 };
 
 multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
+    *__ANON__ = "__ANON_plonk_into_place_obj";
     my ( $start, $dir, $obj ) = @_;
     my $span = $obj->get_span;
 
