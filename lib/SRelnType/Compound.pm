@@ -181,6 +181,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     my $new_dir = apply_reln( $rel_dir, $obj_dir );
 
     $ret_obj->set_direction($new_dir);
+    $ret_obj->set_group_p(1);
     return $ret_obj;
 
 };

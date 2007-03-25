@@ -536,6 +536,9 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
         $new_obj->AnnotateWithMetonym( $cat, $name );
         $new_obj->SetMetonymActiveness( $obj->get_metonym_activeness );
     }
+
+    $el_in_ws->set_group_p(1) if $el->get_group_p();
+
     return $el_in_ws;
 };
 

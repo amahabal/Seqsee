@@ -21,7 +21,7 @@ use overload (fallback => 1);
 multimethod 'find_reln';
 
 my %items_of : ATTR( :get<parts_ref> );    #    The items of this object.
-my %group_p_of : ATTR( :get<group_p>);     #    Is this object a group?
+my %group_p_of : ATTR( :get<group_p> :set<group_p>);     #    Is this object a group?
                                            # Can also be true for a single item.
 my %metonym_of : ATTR( :get<metonym>);     #    The metonym associated with this object
 my %metonym_activeness_of : ATTR( :get<metonym_activeness>);           # Bool: is it active?
