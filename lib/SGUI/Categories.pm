@@ -26,6 +26,7 @@ my $EntriesPerColumn;
 my $ColumnWidth;
 my $RowHeight;
 my $WidthForImage;
+my $HeightForImage;
 
 my $SpacePerElement;
 my $ElementsY;
@@ -55,6 +56,7 @@ sub Setup {
     $ColumnWidth     = int( $EffectiveWidth / $ColumnCount );
     $RowHeight       = int( $EffectiveHeight / $EntriesPerColumn );
     $WidthForImage   = $ColumnWidth / 2;
+    $HeightForImage  = $RowHeight * 0.8;
 
     $MinGpHeight = $RowHeight * $MinGpHeightFraction;
     $MaxGpHeight = $RowHeight * $MaxGpHeightFraction;
@@ -98,19 +100,19 @@ sub DrawCategory {
     my ( $cat, $left, $top, $objects ) = @_;
     $Canvas->createText(
         $left + $WidthForImage + 5,
-        $top,
-        -anchor => 'nw',
+        $top + 0.5 * $HeightForImage,
+        -anchor => 'w',
         -text   => $cat->get_name()
     );
     $Canvas->createRectangle(
         $left, $top,
         $left + $WidthForImage,
-        $top + $RowHeight,
+        $top + $HeightForImage,
         -fill => '#EEEEEE'
     );
 
     # Draw ovals for instances
-    my $CenterY = $top + $RowHeight / 2;
+    my $CenterY = $top + $HeightForImage / 2;
     for my $o (@$objects) {
         my ( $l, $r ) = @$o;
         my $span = $r - $l + 1;
@@ -128,7 +130,7 @@ sub DrawCategory {
 
     # Draw ovals for elements
     my ( $oval_top, $oval_bottom ) =
-      ( $top + $RowHeight / 2 - 1, $top + $RowHeight / 2 + 1 );
+      ( $CenterY - 1, $CenterY + 1 );
     my ( $oval_left, $oval_right ) =
       ( $left + $SpacePerElement - 1, $left + $SpacePerElement + 1 );
     for ( 1 .. $SWorkspace::elements_count ) {
