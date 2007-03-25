@@ -12,13 +12,14 @@ use base qw/Tk::Derived Tk::Canvas/;
 use Themes::Std;
 use SGUI::Workspace;
 use SGUI::Slipnet;
+use SGUI::Categories;
 
 my $Canvas;
 my ( $Width, $Height );
 Construct Tk::Widget 'Seqsee';
 
 my @Parts = ( [ 'SGUI::Workspace', 0, 0, 100, 50 ],
-              [ 'SGUI::Slipnet', 0, 50, 100, 50],
+              [ 'SGUI::Categories', 0, 50, 100, 50],
                   );
 
 sub SetupParts {
