@@ -50,7 +50,7 @@ if ($hilit) {
 '#FF0000'
 } else {$meto ? HSV(240, $s, $v) : HSV(160, $s, $v);}
 </outline>
-[width] 1 + 4 *$hilit 
+[width] 1 + 1 *$hilit 
 no Compile::Style;
 
 use Compile::Style;

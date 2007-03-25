@@ -7,7 +7,7 @@ use Smart::Comments;
 use Tk::widgets qw{Canvas};
 use List::Util qw(min max);
 use Sort::Key qw(rikeysort);
-use base qw/Tk::Derived Tk::Canvas/;
+use base qw/Tk::Derived Tk::Frame/;
 
 use Themes::Std;
 use SGUI::Workspace;
@@ -18,9 +18,19 @@ my $Canvas;
 my ( $Width, $Height );
 Construct Tk::Widget 'Seqsee';
 
-my @Parts = ( [ 'SGUI::Workspace', 0, 0, 100, 50 ],
-              [ 'SGUI::Categories', 0, 50, 100, 50],
-                  );
+my @ViewOptions = (
+    ['Workspace', [['SGUI::Workspace', 0, 0, 100, 100]]],
+    ['Workspace + Slipnet', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ 'SGUI::Slipnet', 0, 50, 100, 50 ],
+            ]],
+    ['Workspace + Categories', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ 'SGUI::Categories', 0, 50, 100, 50 ],
+            ]],
+        );
+
+my @Parts = @{ $ViewOptions[0][1] };
 
 sub SetupParts {
     for my $part (@Parts) {
@@ -40,10 +50,31 @@ sub Update {
     $_->[0]->DrawIt() for @Parts;
 }
 
-sub Populate{
+sub Populate {
     my ( $self, $args ) = @_;
-     ( $Canvas, $Height, $Width ) =
-         ( $self, $args->{'-height'}, $args->{'-width'} );
+    my $l_Menubar = $self->Menustrip();
+
+    $l_Menubar->MenuLabel('View');
+    for my $vo (@ViewOptions) {
+        $l_Menubar->MenuEntry( 'View', $vo->[0],
+                               sub {
+                                   @Parts = @{$vo->[1]};
+                                   SetupParts();
+                                   Update();
+                               }
+                                   );
+    }
+
+    $l_Menubar->MenuLabel( 'Help', '-right' );
+    $l_Menubar->MenuEntry( 'Help', 'About...' );
+    $l_Menubar->MenuSeparator('Help');
+    $l_Menubar->MenuEntry( 'Help', 'Help On...' );
+
+    $l_Menubar->pack( -fill => 'x' );
+    ( $Height, $Width ) =
+      ( $args->{'-height'}, $args->{'-width'} );
+    $Canvas = $self->Canvas( -height => $Height,
+                             -width => $Width)->pack( -side => 'bottom' );
     SetupParts();
 }
 
