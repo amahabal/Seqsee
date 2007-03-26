@@ -184,6 +184,9 @@ sub display_as_text {
 #
 #    Jumps to a random valid position
 sub _saccade {
+    if (SUtil::toss(0.5)) {
+        return $ReadHead = 0;
+    }
     my $random_pos = int( rand() * $elements_count );
     $ReadHead = $random_pos;
 }

@@ -3,6 +3,10 @@
 use Compile::SCF;
 [package] SCF::Reader
 <run>
+    if ( SUtil::toss(0.2) ){
+        #ReadSamenessAroundReadHead();
+        #return;
+    }
     my $object;
     if ( SUtil::toss(0.5) ) {
         $object = SWorkspace->read_object();
@@ -29,6 +33,42 @@ use Compile::SCF;
     }
 
 </run>
+
+sub ReadSamenessAroundReadHead{
+    my $readheadpos = $SWorkspace::ReadHead;
+    my $magnitude = $SWorkspace::elements[$readheadpos]->get_mag();
+    my ($left_margin_of_sameness_gp, $right_margin_of_sameness_gp) = ($readheadpos, $readheadpos);
+    while ($left_margin_of_sameness_gp > 0) {
+        if ($SWorkspace::elements[$left_margin_of_sameness_gp - 1]->get_mag() == $magnitude) {
+            $left_margin_of_sameness_gp--;
+        } else {
+            last;
+        }
+    }
+    while ($right_margin_of_sameness_gp <= $SWorkspace::elements_count - 2) {
+        if ($SWorkspace::elements[$right_margin_of_sameness_gp + 1]->get_mag() == $magnitude) {
+            $right_margin_of_sameness_gp++;
+        } else {
+            last;
+        }
+    }
+    my $span = $right_margin_of_sameness_gp - $left_margin_of_sameness_gp + 1;
+    return if $span < 2;
+    my $is_covering = SWorkspace->is_there_a_covering_group($left_margin_of_sameness_gp, $right_margin_of_sameness_gp);
+    return if $is_covering;
+    my @items = @SWorkspace::elements[$left_margin_of_sameness_gp..$right_margin_of_sameness_gp];
+    for (@items) {
+        return if $_->get_metonym_activeness();
+    }
+
+    my $new_group = SAnchored->create(@items);
+    eval { SWorkspace->add_group($new_group) };
+    if (my $e = $EVAL_ERROR) {
+        return if UNIVERSAL::isa($e, 'SErr::ConflictingGroups');
+        confess $e;
+    }
+}
+
 
 no Compile::SCF;
 #####################################
