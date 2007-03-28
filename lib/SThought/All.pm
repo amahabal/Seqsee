@@ -108,50 +108,32 @@ use Compile::SThought;
     my $span        = $gp->get_span;
     my $total_count = $SWorkspace::elements_count;
     my $right_extendibility = $gp->get_right_extendibility();
+    my $left_edge = $gp->get_left_edge();
     ### $span, $total_count
     #main::message( $right_extendibility);
 
     if ( $Global::AtLeastOneUserVerification
         and ( $span / $total_count ) > 0.8 )
     {
-
-        # This very well may be it!
-        if ( $gp->get_left_edge() != 0 ) {
-            if ( $gp->get_left_extendibility() ne EXTENDIBILE::NO() ) {
-                ACTION 80, AttemptExtensionOfGroup,
-                  {
-                    object    => $gp,
-                    direction => DIR::LEFT()
-                  };
+        if ( $left_edge > 0) {
+            if ($total_count - $span == $left_edge ) {
+                # Maybe there is a blemish here!
+                my $extension = $gp->FindExtension($DIR::LEFT, 0);
+                return if $extension;
+                
+                # Hmm.. very blemishy!
+                Global::Hilit(2,@$gp);
+                main::update_display();
+                BelieveBlemish();
             }
-            else {
-                if ( $total_count - $span == $gp->get_left_edge ) {
-                    BelieveBlemish();
-                }
-            }
-        }
-        else {
-
-            # so flush left
+        } else {
+        
+        # so flush left
             if ( $span == $total_count ) {
                 #Bingo!
-                # XXX(Board-it-up): [2007/01/15] Some problem with get_right_extendibility, hence next line funny
-                if ( 1 or $gp->get_right_extendibility() ne EXTENDIBILE::NO() ) {
-
-                    #great.
-                    Global::Hilit(2,@$gp);
-                    main::update_display();
-                    BelieveDone();
-                }
-                else {
-                    main::update_display();
-                    my $rejected =
-                      join( ", ", keys %Global::ExtensionRejectedByUser );
-                    my $msg = "I think I am stuck. ";
-                    $msg .=
-"You have already rejected {$rejected} as possible continuation(s)";
-                    main::message($msg);
-                }
+                Global::Hilit(2,@$gp);
+                main::update_display();
+                BelieveDone();
             }
             else {
                 ACTION 80, AttemptExtensionOfGroup,
@@ -162,7 +144,6 @@ use Compile::SThought;
             }
         }
     }
-
  </actions>
 
 sub BelieveDone{
@@ -179,7 +160,7 @@ sub BelieveBlemish{
     if ($Global::TestingMode) {
         SErr::FinishedTestBlemished->new()->throw();
     }
-    main::message("I believe this group has a blemish at the beginning");
+    main::message("I seem unable to figure out the start of the sequence. Maybe there is a blemish at the beginning");
 }
 
 ##########################################
@@ -226,14 +207,11 @@ multimethod get_fringe_for => ('SAnchored') => sub {
     my $strength = $core->get_strength();
 my $flush_right = $core->IsFlushRight();
 my $flush_left = $core->IsFlushLeft();
+    my $span_fraction = $core->get_span() / $SWorkspace::elements_count;
+
 
     # extendibility checking...
     if ( $core->get_right_extendibility() ) {
-
-        #CODELET 100, AttemptExtension,
-        #    { core => $core,
-        #      direction => DIR::RIGHT(),
-        #  };
         if ($flush_right and not($flush_left)) {
             next unless SUtil::toss(0.15);
         }
@@ -244,11 +222,6 @@ my $flush_left = $core->IsFlushLeft();
           };
     }
     if ( $core->get_left_extendibility() ) {
-
-        #CODELET 100, AttemptExtension,
-        #    { core => $core,
-        #      direction => DIR::LEFT(),
-        #  };
         CODELET 100, AttemptExtensionOfGroup,
           {
             object    => $core,
@@ -329,6 +302,9 @@ my $flush_left = $core->IsFlushLeft();
         }
     }
 
+if ($span_fraction > 0.5) {
+    THOUGHT AreWeDone, { group => $core };
+}
  </actions>
 
 ##########################################

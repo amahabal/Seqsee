@@ -13,6 +13,7 @@ use base qw{};
 
 my %messages_of : ATTR( :get<history>);
 my %message_count_of : ATTR();
+my %dob_of :ATTR();
 
 $Global::Steps_Finished        ||= '';
 $Global::CurrentRunnableString ||= '';
@@ -20,6 +21,7 @@ $Global::CurrentRunnableString ||= '';
 sub BUILD {
     my ( $self, $id, $opts ) = @_;
     $messages_of{$id} = [ history_string("created") ];
+    $dob_of{$id} = $Global::Steps_Finished;
 }
 
 sub history_string {
@@ -46,6 +48,11 @@ sub UnchangedSince {
     my $last_msg_str = $messages_of{ ident $self}->[-1];
     $last_msg_str =~ /^ \[ (\d+) \]/ox or confess "Huh '$last_msg_str'";
     return $1 > $since ? 0 : 1;
+}
+
+sub GetAge{
+    my ( $self ) = @_;
+    return $Global::Steps_Finished - $dob_of{ident $self};
 }
 
 

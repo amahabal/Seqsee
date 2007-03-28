@@ -4,8 +4,8 @@ use Class::Std;
 use Smart::Comments;
 
 
-my $MULTILINE_BLOCK_START = qr/^ \s* < (\w+) > \s* $/x;
-my $SINGLELINE_BLOCK = qr/^ \s* \[ (\w+) \] \s* (.*?) \s* $/x;
+our $MULTILINE_BLOCK_START = qr/^ \s* < (\w+) > \s* $/x;
+our $SINGLELINE_BLOCK = qr/^ \s* \[ (\w+) \] \s* (.*?) \s* $/x;
 sub block_end_regexp{
     my ( $tag ) = @_;
     return qr/^ \s* < \/ $tag > \s* $/x;

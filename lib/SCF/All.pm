@@ -644,25 +644,58 @@ no Compile::SCF;
 use Compile::SCF;
 [package] SCF::CheckProgress
 
-our $last_time_codelet_run = 0;
+our $last_time_progresschecker_run = 0;
 <run>
-    our $last_time_codelet_run;
+    our $last_time_progresschecker_run;
     my $time_since_last_addn = $Global::Steps_Finished - $Global::TimeOfNewStructure;
     my $time_since_new_elements = $Global::Steps_Finished - $Global::TimeOfLastNewElement;
-    my $time_since_codelet_run = $Global::Steps_Finished - $last_time_codelet_run;
+    my $time_since_codelet_run = $Global::Steps_Finished - $last_time_progresschecker_run;
 
+# Don't run too frequently
 return if $time_since_codelet_run < 100;
-$last_time_codelet_run = $Global::Steps_Finished;
+$last_time_progresschecker_run = $Global::Steps_Finished;
 
-if ($time_since_new_elements > 2500) {
+my $desperation = CalculateDesperation($time_since_last_addn, $time_since_new_elements);
+
+my $chooser_on_inv_strength = SChoose->create( { map => q{100 - $_->get_strength()}});
+if ($desperation > 50) {
     main::ask_for_more_terms();
-} elsif ($time_since_last_addn > 150) {
+} elsif ($desperation > 30) {
     # XXX(Board-it-up): [2007/02/14] should be biased by 100 - strength?
-    my $gp = SChoose->uniform([values %SWorkspace::groups]);
+    # my $gp = SChoose->uniform([values %SWorkspace::groups]);
+    my $gp = $chooser_on_inv_strength->([values %SWorkspace::groups]);
     if ($gp) {
         # main::message("Deleting group $gp: " . $gp->get_structure_string());
         SWorkspace->remove_gp($gp);
     }
+} elsif ($desperation > 10) {
+    for (values %SWorkspace::relations) {
+        my $age = $_->GetAge();
+        if (SUtil::toss((100 - $_->get_strength()) / 200)
+              and SUtil::toss($age/400)) {
+            $_->uninsert();
+        }
+    }
 }
 </run>
+
+{
+    my @Cutoffs = (
+        [1500, 0, 80],
+        [800, 2500, 80],
+        [500, 0, 40],
+        [200, 0, 20],
+            );
+    sub CalculateDesperation{
+        my ( $time_since_last_addn, $time_since_new_elements ) = @_;
+        for (@Cutoffs) {
+            my ($a, $b, $c) = @$_;
+            return $c if ($time_since_last_addn >= $a and
+                              $time_since_new_elements >= $b);
+        }
+        return 0;
+    }
+}
+
+
 1;
