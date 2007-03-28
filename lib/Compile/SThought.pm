@@ -154,7 +154,7 @@ sub process_codelet{
         $str =~ m#\s* ;#mxgc or die "Missing ;";
         if ($specie eq "CODELET") {
             $processed .= <<"END";
-        push \@ret, new SCodelet("$type", $urgency,
+        push \@ret, SCodelet->new("$type", $urgency,
               $option_hash);
 
 END
