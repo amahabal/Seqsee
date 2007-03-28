@@ -164,7 +164,7 @@ sub DrawGroups {
         $gp->draw_ws3();
     }
     for my $elt (@SWorkspace::elements) {
-        SAnchored::draw_ws3($elt) if $elt->get_group_p();
+        SAnchored::draw_ws3($elt) if ($elt->get_group_p() or $elt->get_metonym_activeness());
     }
 }
 

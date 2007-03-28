@@ -153,6 +153,7 @@ if ($EVAL_ERROR) {
     ### $obj2
     exit;
 }
+return unless @$what_next; # Zero elements, hopeless!
 
 my $core_span = $core->get_span;
 
