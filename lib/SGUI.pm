@@ -274,4 +274,9 @@ sub SetupBindings {
 
 }
 
+sub Tk::Error{
+    carp "Tk Error! @_";
+}
+
+
 1;

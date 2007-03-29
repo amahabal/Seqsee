@@ -169,8 +169,11 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
             ## $new_metonymy_type->get_info_loss()
 
             ## $new_object->get_structure
-            $ret_obj = $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position );
+            my $blemished;
+            eval { $blemished = $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position ) };
             ## new object: $ret_obj->get_structure
+            return unless $blemished;
+            $ret_obj = $blemished;
         }
     }
 
