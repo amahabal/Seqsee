@@ -120,14 +120,15 @@ sub SAnchored::draw_ws3 {
     my $strength = $self->get_strength();
     my $is_hilit = $Global::Hilit{$self} || 0;
     my $tags = $is_hilit ? ['hilit'] : [];
+    my $canvas_obj = $Canvas->createOval( $leftx, $top, $rightx, $bottom,
+        Style::Group( $is_meto, $is_hilit, $strength ),
+    );
+
     $Canvas->createOval($leftx, $top, $rightx, $bottom,
                         Style::GroupBorder( $is_meto, $is_hilit, $strength ),
                         -tags => $tags,
                             );
-    return $Canvas->createOval( $leftx, $top, $rightx, $bottom,
-        Style::Group( $is_meto, $is_hilit, $strength ),
-    );
-
+    return $canvas_obj;
 }
 
 sub SReln::draw_ws3 {

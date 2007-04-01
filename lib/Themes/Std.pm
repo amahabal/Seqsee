@@ -76,3 +76,18 @@ use Compile::Style;
 </fill>
 [width] $is_current ? 3 : 1
 no Compile::Style;
+
+use Compile::Style;
+[style] ThoughtComponent
+[params] $presence_level, $component_importance
+<fill>
+    my ($s, $v) = (70, 80 - 0.5 * $component_importance);
+    print "$component_importance => $v\n";
+    HSV(30, $s, $v)
+</fill>
+no Compile::Style;
+
+use Compile::Style;
+[style] ThoughtHead
+[font] '-adobe-helvetica-bold-r-normal--12-140-100-100-p-105-iso8859-4'
+no Compile::Style;
