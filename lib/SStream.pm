@@ -70,6 +70,9 @@ our $CurrentThought = '';
 
 our %vivify;
 
+our %hit_intensity = ();  # keys are components, values numbers
+our %thought_hit_intensity = ();  # keys are thoughts, values intensity
+
 # method: clear
 # Clears stream entirely
 #
@@ -306,7 +309,7 @@ sub _is_there_a_hit{
     ## $fringe_ref
     ## $extended_ref
     my %components_hit; # keys values same
-    my %hit_intensity;  # keys are components, values numbers
+    our %hit_intensity = ();  # keys are components, values numbers
 
     for my $in_fringe (@$fringe_ref, @$extended_ref) {
         my ($comp, $intensity ) = @$in_fringe;
@@ -316,7 +319,7 @@ sub _is_there_a_hit{
     }
 
     # Now get a list of which thoughts are hit.
-    my %thought_hit_intensity;  # keys are thoughts, values intensity
+    our %thought_hit_intensity = ();  # keys are thoughts, values intensity
 
     for my $comp (values %components_hit) {
         next unless exists $ComponentOwnership_of{$comp};

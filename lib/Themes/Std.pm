@@ -64,3 +64,15 @@ use Compile::Style;
 [style] NetActivation
 [fill] HSV(240,30,80)
 no Compile::Style;
+
+use Compile::Style;
+[style] ThoughtBox
+[params] $hit_intensity, $is_current
+<fill>
+    $hit_intensity = 2000 if $hit_intensity > 2000;
+    my ($s, $v) = (40, 80 - 0.025 * $hit_intensity);
+    # print "$hit_intensity => $v\n";
+    $is_current ? HSV(120, $s, $v) : HSV(100, $s, $v);
+</fill>
+[width] $is_current ? 3 : 1
+no Compile::Style;
