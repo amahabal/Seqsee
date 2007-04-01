@@ -119,6 +119,11 @@ sub SAnchored::draw_ws3 {
     $AnchorsForRelations{$self} = [ ( $leftx + $rightx ) / 2, $top ];
     my $strength = $self->get_strength();
     my $is_hilit = $Global::Hilit{$self} || 0;
+    my $tags = $is_hilit ? ['hilit'] : [];
+    $Canvas->createOval($leftx, $top, $rightx, $bottom,
+                        Style::GroupBorder( $is_meto, $is_hilit, $strength ),
+                        -tags => $tags,
+                            );
     return $Canvas->createOval( $leftx, $top, $rightx, $bottom,
         Style::Group( $is_meto, $is_hilit, $strength ),
     );
@@ -166,6 +171,7 @@ sub DrawGroups {
     for my $elt (@SWorkspace::elements) {
         SAnchored::draw_ws3($elt) if ($elt->get_group_p() or $elt->get_metonym_activeness());
     }
+    $Canvas->raise('hilit')
 }
 
 sub DrawRelations {
