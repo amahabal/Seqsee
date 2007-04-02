@@ -328,9 +328,17 @@ if ($span_fraction > 0.5) {
          FRINGE 80, $_;
      }
     
-     my $abs_pos = "absolute_position_". $core->get_left_edge();
-     FRINGE 80, $abs_pos;
+     FRINGE 30, $S::LITERAL->build( { structure => [ $mag + 1] });
+     FRINGE 30, $S::LITERAL->build( { structure => [ $mag - 1] });
 
+    
+     my $pos = $core->get_left_edge();
+     my $abs_pos = "absolute_position_". $pos; 
+     FRINGE 80, $abs_pos;
+     my $prev_abs_pos = "absolute_position_" . ($pos - 1);
+     my $next_abs_pos = "absolute_position_" . ($pos + 1);
+     FRINGE 30, $prev_abs_pos;
+     FRINGE 30, $next_abs_pos;
      return \@ret;
  };
 
@@ -339,16 +347,7 @@ if ($span_fraction > 0.5) {
  </fringe>
 
  <extended_fringe>
-     my $mag = $magnitude;
-    
-     FRINGE 50, $S::LITERAL->build( { structure => [ $mag + 1] });
-     FRINGE 50, $S::LITERAL->build( { structure => [ $mag - 1] });
 
-     my $pos = $core->get_left_edge();
-     my $prev_abs_pos = "absolute_position_" . ($pos - 1);
-     my $next_abs_pos = "absolute_position_" . ($pos + 1);
-     FRINGE 80, $prev_abs_pos;
-     FRINGE 80, $next_abs_pos;
  </extended_fringe>
 
  <actions>
