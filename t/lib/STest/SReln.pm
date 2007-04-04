@@ -132,7 +132,7 @@ sub genNextTest{
     $new_object->structure_ok( $o3 );
 }
 
-sub many :Test(3){
+sub many :Test(2){
     #genNextTest( $S::ASCENDING, $o1123b, $o12223b, [1,2,[3,3,3,3]]);
     print 'Here';
     genNextTest( $S::ASCENDING, $o1123f, $o12223f, [1,2,[3,3,3,3]]);

@@ -136,27 +136,7 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
 
     ## Base meto mode found: $meto_mode
 
-    #bindings
-    my $changed_ref   = {};
-    my $unchanged_ref = {};
-    my %bindings_1    = %{ $b1->get_bindings_ref };
-    my %bindings_2    = %{ $b2->get_bindings_ref };
-    while ( my ( $k, $v1 ) = each %bindings_1 ) {
-        unless ( exists $bindings_2{$k} ) {
-            confess "In _find_reln($$$): binding for $k missing for second object!";
-        }
-        my $v2 = $bindings_2{$k};
-        if ( $v1 eq $v2 ) {
-            $unchanged_ref->{$k} = $v1;
-            next;
-        }
-        my $rel = find_reln( $v1, $v2 );
-        ## k, v1, v2, rel: $k, $v1, $v2, $rel
-        return unless $rel;
-        $changed_ref->{$k} = $rel->get_type();
-    }
-    $opts_ref->{changed_bindings}   = $changed_ref;
-    $opts_ref->{unchanged_bindings} = $unchanged_ref;
+   CalculateBindingsChange($opts_ref, $b1->get_bindings_ref(), $b2->get_bindings_ref());
 
     ## bindings: %bindings_1, %bindings_2
     ## changed_bindings found: $changed_ref
@@ -189,6 +169,28 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
 
     return SReln::Compound->new($opts_ref);
 };
+
+sub CalculateBindingsChange{
+    my ( $output_ref, $bindings_1, $bindings_2 ) = @_;
+    my $changed_ref   = {};
+    my $unchanged_ref = {};
+    while ( my ( $k, $v1 ) = each %$bindings_1 ) {
+        unless ( exists $bindings_2->{$k} ) {
+            confess "In _find_reln($$$): binding for $k missing for second object!";
+        }
+        my $v2 = $bindings_2->{$k};
+        if ( $v1 eq $v2 ) {
+            $unchanged_ref->{$k} = $v1;
+            next;
+        }
+        my $rel = find_reln( $v1, $v2 );
+        ## k, v1, v2, rel: $k, $v1, $v2, $rel
+        return unless $rel;
+        $changed_ref->{$k} = $rel->get_type();
+    }
+    $output_ref->{changed_bindings}   = $changed_ref;
+    $output_ref->{unchanged_bindings} = $unchanged_ref;
+}
 
 # method: find_reln
 # calls _find_reln
