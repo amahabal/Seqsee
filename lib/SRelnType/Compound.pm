@@ -27,6 +27,8 @@ my %changed_bindings_of_of : ATTR(:get<changed_bindings_ref>);
 my %position_reln_of : ATTR(:get<position_reln>);
 my %metonymy_reln_of : ATTR(:get<metonymy_reln>);
 my %direction_reln_of : ATTR(:get<direction_reln>);
+my %slippages_of :ATTR(:get<slippages_ref>); #key: new attribute, val: old att
+
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -34,6 +36,7 @@ sub BUILD {
     $base_meto_mode_of{$id}        = $opts_ref->{base_meto_mode};
     $pos_mode_of{$id}              = $opts_ref->{base_pos_mode};
     $changed_bindings_of_of{$id}   = $opts_ref->{changed_bindings};
+    $slippages_of{$id}             = $opts_ref->{slippages} || {};
     $metonymy_reln_of{$id}         = $opts_ref->{metonymy_reln};
     $position_reln_of{$id}         = $opts_ref->{position_reln};
     $string_representation_of{$id} = $opts_ref->{string};
@@ -68,7 +71,8 @@ sub BUILD {
                 qw(base_category base_meto_mode metonymy_reln base_pos_mode
                     position_reln                                       )
                 },
-            join( ";", map { "$_=>" . $changed_bindings{$_}->get_type() } keys %changed_bindings )
+            join( ";", map { "$_=>" . $changed_bindings{$_}->get_type() } keys %changed_bindings ),
+            join(';', %{$opts{slippages} || {}}),
         );
 
         ## attempted creation: $string
@@ -100,7 +104,9 @@ sub as_text {
     }
     chop($changed_bindings_string);
     my $metonymy_presence = $base_meto_mode_of{$id}->is_metonymy_present() ? '*' : '';
-    return "[$basecat$metonymy_presence] $changed_bindings_string";
+    my %slippages = %{$slippages_of{$id}};
+    my $slippages_str = %slippages ? '{' .join(',',%slippages). '}': '';
+    return "[$basecat$metonymy_presence] $slippages_str $changed_bindings_string";
 }
 
 multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
@@ -110,28 +116,44 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     my $cat = $reln->get_base_category;
 
     # Make sure the object belongs to that category
-    my $bindings = $object->describe_as($cat);
+    my $bindings = $object->describe_as($cat) or return;
     $bindings->TellDirectedStory( $object, $reln->get_base_pos_mode() );
     ## $bindings
     ## $cat->as_text
-    return unless $bindings;
 
     # Find the bindings for it.
     my $bindings_ref         = $bindings->get_bindings_ref;
     my $changed_bindings_ref = $reln->get_changed_bindings_ref;
+    my $slippages_ref        = $reln->get_slippages_ref();
     my $new_bindings_ref     = {};
 
-    while ( my ( $k, $v ) = each %$bindings_ref ) {
-        ## $k, $v: $k, $v
-        if ( exists $changed_bindings_ref->{$k} ) {
-            ## cbr: $changed_bindings_ref->{$k}
-            $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k}, $v );
-            next;
+    if (%$slippages_ref) {
+        for my $att (keys %$slippages_ref) {
+            my $old_attr = $slippages_ref->{$att} or next;
+            my $val = $bindings_ref->{$old_attr};
+            if (exists $changed_bindings_ref->{$att}) {
+                $new_bindings_ref->{$att}= apply_reln( $changed_bindings_ref->{$att}, $val);
+                next;
+            }
+            $new_bindings_ref->{$att} = $val;
         }
-        ## handled
-        # no change...
-        $new_bindings_ref->{$k} = $v;
     }
+    else {
+
+        while ( my ( $k, $v ) = each %$bindings_ref ) {
+            ## $k, $v: $k, $v
+            if ( exists $changed_bindings_ref->{$k} ) {
+                ## cbr: $changed_bindings_ref->{$k}
+                $new_bindings_ref->{$k} =
+                  apply_reln( $changed_bindings_ref->{$k}, $v );
+                next;
+            }
+            ## handled
+            # no change...
+            $new_bindings_ref->{$k} = $v;
+        }
+    }
+
     my $ret_obj = $cat->build($new_bindings_ref);
     ## $new_bindings_ref
     # We have not "applied the blemishes" yet, of course
@@ -146,8 +168,8 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     unless ( $reln_meto_mode == METO_MODE::NONE() ) {
 
         # Calculate the metonymy type of the new object
-        my $new_metonymy_type
-            = apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
+        my $new_metonymy_type =
+          apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
         return unless $new_metonymy_type;
 
         if ( $reln_meto_mode == METO_MODE::ALL() ) {
@@ -156,7 +178,8 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
         else {
 
             # If we get here, position is relevant!
-            my $new_position = apply_reln( $reln->get_position_reln, $bindings->get_position );
+            my $new_position =
+              apply_reln( $reln->get_position_reln, $bindings->get_position );
             ## new_blemish position: $new_position->get_name()
             return unless $new_position;
             ## $reln->get_position_reln()->get_text()
@@ -170,7 +193,11 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
 
             ## $new_object->get_structure
             my $blemished;
-            eval { $blemished = $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position ) };
+            eval {
+                $blemished =
+                  $ret_obj->apply_blemish_at( $new_metonymy_type,
+                    $new_position );
+            };
             ## new object: $ret_obj->get_structure
             return unless $blemished;
             $ret_obj = $blemished;
