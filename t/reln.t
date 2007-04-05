@@ -8,7 +8,7 @@ BEGIN { print time(), "\n" }
 multimethod 'find_reln';
 multimethod 'apply_reln';
 
-plan tests => 15;
+plan tests => 16;
 
 ## STart: time()
 
@@ -98,59 +98,67 @@ my $succ = find_reln( 3, 4 );
 my $seven = apply_reln( $succ, 6 );
 cmp_ok( $seven, '==', 7 );
 
-# diag "mini_copycat_tests";
-mini_copycat_test( {}, [ 1, 2 ], [ 1, 2, 3 ], [ 5, 6 ], [ 5, 6, 7 ] );
-mini_copycat_test( {}, [ 1, 2 ], [ 5, 6, 7 ] );
-mini_copycat_test( {}, [ 1, 2 ], [ 1, 2, 3 ], [ 1, 2, 3, 2, 1 ] );
+ diag "mini_copycat_tests";
+ mini_copycat_test( {}, [ 1, 2 ], [ 1, 2, 3 ], [ 5, 6 ], [ 5, 6, 7 ] );
+ mini_copycat_test( {}, [ 1, 2 ], [ 5, 6, 7 ] );
+ mini_copycat_test( {}, [ 1, 2 ], [ 1, 2, 3 ], [ 1, 2, 3, 2, 1 ] );
+ mini_copycat_test(
+     {},
+     [ 1, [ 2, 2 ], 3 ],
+     [ 1, 2, [ 3, 3 ] ],
+     [ 2, 3, [ 4, 4 ], 5, 6, 7 ],
+     [ 2, 3, 4, [ 5, 5 ], 6, 7 ]
+ );
+ mini_copycat_test(
+     {},
+     [ 11, 12, 13 ],
+     [ 13, 14, 15 ],
+     [ 5, 6, 7,  8 ],
+     [ 8, 9, 10, 11 ]
+ );
 mini_copycat_test(
     {},
-    [ 1, [ 2, 2 ], 3 ],
-    [ 1, 2, [ 3, 3 ] ],
-    [ 2, 3, [ 4, 4 ], 5, 6, 7 ],
-    [ 2, 3, 4, [ 5, 5 ], 6, 7 ]
-);
-mini_copycat_test(
-    {},
-    [ 11, 12, 13 ],
-    [ 13, 14, 15 ],
+    [ 6, 7, 8, 9, 10 ],
+    [ 11, 12, 13, 14, 15 ],
     [ 5, 6, 7,  8 ],
-    [ 8, 9, 10, 11 ]
-);
-mini_copycat_test(
-    {},
-    [ 11, 12, 13 ],
-    [ 14, 15 ],
-    [ 5, 6,  7, 8 ],
-    [ 9, 10, 11 ]
-);
-mini_copycat_test( {}, [ 11, 12, 13 ], [ 8, 9, 10, 11 ], [ 5, 6, 7 ], [ 2, 3, 4, 5 ] );
-
-mini_copycat_test(
-    { common_category => $S::MOUNTAIN },
-    [ 1, 2, 1 ],
-    [ 1, 2, 3, 2, 1 ],
-    [ 1, 2, 3, 4, 3, 2, 1 ],
-    [ 1, 2, 3, 4, 5, 4, 3, 2, 1 ]
-);
-mini_copycat_test(
-    { common_category => $S::SAMENESS },
-    [ 1, 1 ],
-    [ 2, 2 ],
-    [ 3, 3, 3 ],
-    [ 4, 4, 4 ]
+    [ 9, 10, 11, 12 ]
 );
 
-my $e1  = SElement->create( 2, 0 );
-my $e2  = SElement->create( 3, 0 );
-my $rel = find_reln( $e1,      $e2 );
-ok($rel);
-ok( $rel->get_first()  eq $e1 );
-ok( $rel->get_second() eq $e2 );
-## $rel
-$e1->AddRelation($rel);
-$e2->AddRelation($rel);
+ mini_copycat_test(
+     {},
+     [ 11, 12, 13 ],
+     [ 14, 15 ],
+     [ 5, 6,  7, 8 ],
+     [ 9, 10, 11 ]
+ );
+ mini_copycat_test( {}, [ 11, 12, 13 ], [ 8, 9, 10, 11 ], [ 5, 6, 7 ], [ 2, 3, 4, 5 ] );
 
-# diag "$e1";
-ok( $e1->get_relation($e2) );
-ok( $e2->get_relation($e1) );
-## End: time()
+ mini_copycat_test(
+     { common_category => $S::MOUNTAIN },
+     [ 1, 2, 1 ],
+     [ 1, 2, 3, 2, 1 ],
+     [ 1, 2, 3, 4, 3, 2, 1 ],
+     [ 1, 2, 3, 4, 5, 4, 3, 2, 1 ]
+ );
+ mini_copycat_test(
+     { common_category => $S::SAMENESS },
+     [ 1, 1 ],
+     [ 2, 2 ],
+     [ 3, 3, 3 ],
+     [ 4, 4, 4 ]
+ );
+
+ my $e1  = SElement->create( 2, 0 );
+ my $e2  = SElement->create( 3, 0 );
+ my $rel = find_reln( $e1,      $e2 );
+ ok($rel);
+ ok( $rel->get_first()  eq $e1 );
+ ok( $rel->get_second() eq $e2 );
+ ## $rel
+ $e1->AddRelation($rel);
+ $e2->AddRelation($rel);
+
+ # diag "$e1";
+ ok( $e1->get_relation($e2) );
+ ok( $e2->get_relation($e1) );
+ ## End: time()

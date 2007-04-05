@@ -109,6 +109,17 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     return _find_reln( $o1, $o2, $cat );
 };
 
+multimethod find_reln => qw(# SElement) => sub {
+    my ( $num, $elt ) = @_;
+    return find_reln($num, $elt->get_mag());
+};
+
+multimethod find_reln => qw(SElement #) => sub {
+    my ( $elt, $num ) = @_;
+    return find_reln($elt->get_mag(), $num);
+};
+
+
 # multi: find_reln ( SObject, SObject, SCat::OfObj )
 
 multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
@@ -211,7 +222,14 @@ sub CalculateBindingsChange_no_slips {
 }
 
 sub CalculateBindingsChange_with_slips {
-    my ( $output_ref, $bindings_1, $bindings_2, $cat ) = @_;
+    my ( $output_ref, $bindings_1, $bindings_2, $cat, $is_reverse ) = @_;
+
+    # An explanation for $is_reverse:
+    # For a reln to be valid, it's reverse must be valid too. Thus, a reln 
+    # between 1 2 3 and 1 as ascending is not desirable, with no way to get back.
+    # So I'll also check for reverse, and is_reverse is true if that is what is
+    # happening.
+
     my $changed_ref   = {};
     my $unchanged_ref = {};
     my $slips_ref     = {};
@@ -239,7 +257,20 @@ sub CalculateBindingsChange_with_slips {
     }
     $output_ref->{changed_bindings}   = $changed_ref;
     $output_ref->{unchanged_bindings} = $unchanged_ref;
+    ## checking if atts sufficient: $slips_ref
     return unless $cat->AreAttributesSufficientToBuild( sort keys %$slips_ref );
+    ## look sufficient:
+    unless ($is_reverse) {
+        ## checking reverse:
+        return unless CalculateBindingsChange_with_slips({},# don't care
+                                                         $bindings_2,
+                                                         $bindings_1,
+                                                         $cat,
+                                                         1 # is_reverse true
+                                                             );
+        ## reverse ok :
+        #print "H";
+    }
     $output_ref->{slippages} = $slips_ref;
     return 1;
 }

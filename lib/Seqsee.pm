@@ -209,6 +209,7 @@ sub _read_commandline{
                 'gui_config=s', 'gui=s', # same option!
                 'tabbed!',
                 'sanity!',
+                'view=i',
                     );
     $options{max_steps} ||= $options{n} if exists $options{n};
     $options{gui_config} ||= $options{gui} if exists $options{gui};
@@ -239,6 +240,8 @@ sub _read_config{
 
             UseScheduledThoughtProb ScheduledThoughtVanishProb
             DecayRate
+
+            view
 
             gui_config
         }) {

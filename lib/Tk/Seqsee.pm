@@ -35,7 +35,7 @@ my @ViewOptions = (
             ]],
         );
 
-my @Parts = @{ $ViewOptions[0][1] };
+my @Parts = @{ $ViewOptions[$Global::Options_ref->{view}||0][1] };
 
 sub SetupParts {
     for my $part (@Parts) {
