@@ -15,7 +15,7 @@ use base qw{};
 use Smart::Comments;
 use English qw(-no_match_vars);
 
-our %StateCount_of : ATTR;                   # How many states?
+our %StateCount_of : ATTR(:get<state_count>);# How many states?
 our %TransitionFunction_of : ATTR;           # state->state
 our %Relations_of : ATTR(:get<relations>);   # state->reln
 our %FlippedRelations_of : ATTR;             # Fliped versions, if needed.

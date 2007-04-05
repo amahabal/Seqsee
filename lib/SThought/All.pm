@@ -116,16 +116,16 @@ use Compile::SThought;
         and ( $span / $total_count ) > 0.8 )
     {
         if ( $left_edge > 0) {
-            if ($total_count - $span == $left_edge ) {
-                # Maybe there is a blemish here!
-                my $extension = $gp->FindExtension($DIR::LEFT, 0);
-                return if $extension;
+#             if ($total_count - $span == $left_edge ) {
+#                 # Maybe there is a blemish here!
+#                 my $extension = $gp->FindExtension($DIR::LEFT, 0);
+#                 return if $extension;
                 
-                # Hmm.. very blemishy!
-                Global::Hilit(2,@$gp);
-                main::update_display();
-                BelieveBlemish();
-            }
+#                 # Hmm.. very blemishy!
+#                 Global::Hilit(2,@$gp);
+#                 main::update_display();
+#                 BelieveBlemish();
+#             }
         } else {
         
         # so flush left
@@ -265,16 +265,6 @@ my $flush_left = $core->IsFlushLeft();
               };
         }
 
-        if (    $Global::Feature{meto}
-            and $S::IsMetonyable{$poss_cat}
-            and not($metonym) )
-        {
-            CODELET 100, FindIfMetonyable,
-              {
-                object   => $core,
-                category => $poss_cat,
-              };
-        }
     }
 
     my $possible_category_for_ends =
@@ -303,7 +293,7 @@ my $flush_left = $core->IsFlushLeft();
     }
 
 if ($span_fraction > 0.5) {
-    THOUGHT AreWeDone, { group => $core };
+    THOUGHT LargeGroup, { group => $core };
 }
  </actions>
 
