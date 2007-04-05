@@ -40,20 +40,24 @@ use Class::Std;
 use Class::Multimethods;
 use base qw{SReln SInstance };
 use Smart::Comments;
-use List::Util qw(sum);
+use List::Util qw(sum shuffle);
+use List::MoreUtils qw(uniq);
 
-my %type_of : ATTR(:get<type>);          # The SRelnType::Compound object.
-my %first_of : ATTR( :get<first> );      # First object. Not necessarily the left.
-my %second_of : ATTR( :get<second> );    # Second object.
+my %type_of : ATTR(:get<type>);        # The SRelnType::Compound object.
+my %first_of : ATTR( :get<first> );    # First object. Not necessarily the left.
+my %second_of : ATTR( :get<second> );  # Second object.
 
-sub get_pure                 { return $type_of{ ident $_[0] } }
-sub get_base_category        { return $type_of{ ident $_[0] }->get_base_category() }
-sub get_base_meto_mode       { return $type_of{ ident $_[0] }->get_base_meto_mode() }
-sub get_base_pos_mode        { return $type_of{ ident $_[0] }->get_base_pos_mode() }
-sub get_changed_bindings_ref { return $type_of{ ident $_[0] }->get_changed_bindings_ref() }
-sub get_position_reln        { return $type_of{ ident $_[0] }->get_position_reln() }
-sub get_metonymy_reln        { return $type_of{ ident $_[0] }->get_metonymy_reln() }
-sub get_direction_reln       { return $type_of{ ident $_[0] }->get_direction_reln() }
+sub get_pure           { return $type_of{ ident $_[0] } }
+sub get_base_category  { return $type_of{ ident $_[0] }->get_base_category() }
+sub get_base_meto_mode { return $type_of{ ident $_[0] }->get_base_meto_mode() }
+sub get_base_pos_mode  { return $type_of{ ident $_[0] }->get_base_pos_mode() }
+
+sub get_changed_bindings_ref {
+    return $type_of{ ident $_[0] }->get_changed_bindings_ref();
+}
+sub get_position_reln  { return $type_of{ ident $_[0] }->get_position_reln() }
+sub get_metonymy_reln  { return $type_of{ ident $_[0] }->get_metonymy_reln() }
+sub get_direction_reln { return $type_of{ ident $_[0] }->get_direction_reln() }
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -63,8 +67,8 @@ sub BUILD {
     confess unless $first->isa('SObject');
     confess unless $second->isa('SObject');
 
-    $opts_ref->{dir_reln}
-        = find_reln( $first->get_direction(), $second->get_direction() );
+    $opts_ref->{dir_reln} =
+      find_reln( $first->get_direction(), $second->get_direction() );
     $type_of{$id} = SRelnType::Compound->create($opts_ref);
 
     $self->AddHistory("Created");
@@ -97,7 +101,7 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     ## @common_categories
     return unless @common_categories;
 
-    # XXX(Board-it-up): [2006/11/07] change: SLTM::ChooseConceptGivenConcept(\@common_categories)
+# XXX(Board-it-up): [2006/11/07] change: SLTM::ChooseConceptGivenConcept(\@common_categories)
     my $cat = $common_categories[0];
 
     ## $cat
@@ -136,7 +140,9 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
 
     ## Base meto mode found: $meto_mode
 
-   CalculateBindingsChange($opts_ref, $b1->get_bindings_ref(), $b2->get_bindings_ref());
+    CalculateBindingsChange( $opts_ref, $b1->get_bindings_ref(),
+        $b2->get_bindings_ref(), $cat )
+      or return;
 
     ## bindings: %bindings_1, %bindings_2
     ## changed_bindings found: $changed_ref
@@ -170,13 +176,24 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     return SReln::Compound->new($opts_ref);
 };
 
-sub CalculateBindingsChange{
-    my ( $output_ref, $bindings_1, $bindings_2 ) = @_;
+sub CalculateBindingsChange {
+
+    # my ( $output_ref, $bindings_1, $bindings_2, $cat ) = @_;
+    ##CalculateBindingsChange:
+
+    return 1 if CalculateBindingsChange_no_slips(@_);
+    return CalculateBindingsChange_with_slips(@_);
+}
+
+sub CalculateBindingsChange_no_slips {
+    my ( $output_ref, $bindings_1, $bindings_2, $cat ) = @_;
+    ##CalculateBindingsChange_no_slips:
     my $changed_ref   = {};
     my $unchanged_ref = {};
     while ( my ( $k, $v1 ) = each %$bindings_1 ) {
         unless ( exists $bindings_2->{$k} ) {
-            confess "In _find_reln($$$): binding for $k missing for second object!";
+            confess
+              "In _find_reln($$$): binding for $k missing for second object!";
         }
         my $v2 = $bindings_2->{$k};
         if ( $v1 eq $v2 ) {
@@ -190,6 +207,41 @@ sub CalculateBindingsChange{
     }
     $output_ref->{changed_bindings}   = $changed_ref;
     $output_ref->{unchanged_bindings} = $unchanged_ref;
+    return 1;
+}
+
+sub CalculateBindingsChange_with_slips {
+    my ( $output_ref, $bindings_1, $bindings_2, $cat ) = @_;
+    my $changed_ref   = {};
+    my $unchanged_ref = {};
+    my $slips_ref     = {};
+    ##CalculateBindingsChange_with_slips:
+
+    my @attributes = uniq( keys(%$bindings_2), keys(%$bindings_1) );
+  LOOP: while ( my ( $k2, $v2 ) = each %$bindings_2 ) {
+        for my $k ( shuffle(@attributes) ) {
+            ## k2, k: $k2, $k
+            my $v = $bindings_1->{$k};
+            ## v2, v: $v2, $v
+            if ( $v eq $v2 ) {
+                $unchanged_ref->{$k2} = $v2;
+                $slips_ref->{$k2}     = $k;
+                ## v = v2:
+                next LOOP;
+            }
+            my $rel = find_reln( $v, $v2 );
+            next unless $rel;
+            ## found rel:
+            $changed_ref->{$k2} = $rel->get_type();
+            $slips_ref->{$k2}   = $k;
+            next LOOP;
+        }
+    }
+    $output_ref->{changed_bindings}   = $changed_ref;
+    $output_ref->{unchanged_bindings} = $unchanged_ref;
+    return unless $cat->AreAttributesSufficientToBuild( sort keys %$slips_ref );
+    $output_ref->{slippages} = $slips_ref;
+    return 1;
 }
 
 # method: find_reln
@@ -250,9 +302,8 @@ sub as_insertlist {
 }
 
 multimethod are_relns_compatible => qw(SReln SReln) => sub {
-    return; #we are here if one is simple, the other compound.
+    return;    #we are here if one is simple, the other compound.
 };
-
 
 multimethod are_relns_compatible => qw(SReln::Compound SReln::Compound) => sub {
     my ( $a, $b ) = @_;
@@ -275,15 +326,15 @@ sub suggest_cat {
     return;
 }
 
-sub suggest_cat_for_ends{
-    my ( $self ) = @_;
-    return $type_of{ident $self}->suggest_cat_for_ends();
+sub suggest_cat_for_ends {
+    my ($self) = @_;
+    return $type_of{ ident $self}->suggest_cat_for_ends();
 }
-
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength = 20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );
+    my $strength =
+      20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );
 
     $strength = 100 if $strength > 100;
     $self->set_strength($strength);

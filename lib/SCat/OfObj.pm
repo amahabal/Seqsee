@@ -66,6 +66,7 @@ my %meto_unfinder_of_of :ATTR;
 #    The type of attribute (e.g., "int")
 my %att_type_of_of :ATTR;
 
+my %sufficient_atts_of_of :ATTR;
 
 my %IS_BLEMISHED_VERSION_OF;
 #
@@ -136,6 +137,8 @@ sub BUILD{
 
     $meto_finder_of_of{$id} = $opts_ref->{metonymy_finders} || {};
     $meto_unfinder_of_of{$id} = $opts_ref->{metonymy_unfinders} || {};
+
+    $sufficient_atts_of_of{$id} = $opts_ref->{sufficient_atts} || {};
 
     my $is_metonyable = (%{$meto_finder_of_of{$id}}) ? 1 : 0;
 
@@ -460,4 +463,11 @@ sub derive_blemished{
                                     });
     $IS_BLEMISHED_VERSION_OF{$derived_cat} = $category;
     return $derived_cat;
+}
+
+sub AreAttributesSufficientToBuild{
+    my ( $self, @atts ) = @_;
+    my $sufficient_atts_ref = $sufficient_atts_of_of{ident $self};
+    my $string = join(':', @atts);
+    return exists($sufficient_atts_ref->{$string}) ? 1 : 0;
 }
