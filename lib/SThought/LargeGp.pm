@@ -46,9 +46,12 @@ if (!$flush_left) {
                                                         group => $group,
                                                         cat => $cat,
                                                     };
+                    return;
                 }
             }
         }
+        # So: either statecount > 1, or not interlaced.
+        THOUGHT ArbitraryInitialBlemish, { group => $group};
     }
 }    
 </actions>
@@ -82,4 +85,19 @@ while (@subparts > $count) {
  my $new_gp =  SAnchored->create(@newparts);
  SWorkspace->add_group($new_gp);
  SThought->create($new_gp)->schedule();
+</actions>
+
+no Compile::SThought;
+use Compile::SThought;
+[package] SThought::ArbitraryInitialBlemish
+[param] group!
+<fringe>
+</fringe>
+<actions>
+    my $left_edge = $group->get_left_edge();
+    my $msg = "There seems to be a strange blemish at the start! The initial ";
+$msg .= join(", ", map { $_->get_mag()} @SWorkspace::elements[0..$left_edge-1])
+    ;
+    $msg .= ' does not seem to fit in!';
+   main::message($msg);
 </actions>
