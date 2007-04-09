@@ -279,7 +279,7 @@ no Compile::SCF;
 #####################################
 #####################################
 use Compile::SCF;
-[package] SCF::flipReln;
+[package] SCF::flipReln
 [multi] find_reln
 [param] reln!
 

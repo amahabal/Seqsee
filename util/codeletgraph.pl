@@ -9,7 +9,7 @@ use SStream;
 
 my $g = GraphViz->new(rankdir => 1,
                       width => 8,
-                      height => 11,
+                      height => 10.5,
                           );
 
 {
@@ -22,15 +22,15 @@ my $g = GraphViz->new(rankdir => 1,
         my ( $source_node, $code ) = @_;
         if ($source_node =~ /^SCF/) {
             $g->add_node($source_node, shape => 'trapezium', 
-                             color => 'yellow', style => 'filled');
+                             color => '0.5,0.2,0.8', style => 'filled');
         } elsif ($source_node =~ /^SThought/) {
             $g->add_node($source_node, shape => 'octagon',
-                             color => 'red', style => 'filled');
+                             color => '0.6,0.2, 0.8', style => 'filled');
         } else {
             $g->add_node($source_node,
                          shape => 'triangle',
                          style => 'filled',
-                         color => 'green',
+                         color => '0.7,0.2,0.8',
                              )
         }
         #print $code;
@@ -91,8 +91,9 @@ sub ProcessFile{
     }
 }
 
-{ # SThought
-    open my $in, "<", 'lib/SThought/All.pm';
+sub ThoughtFile{
+    my ( $file ) = @_;
+    open my $in, "<", $file;
     my @packages = map {m/ \[ package \] \s* (\S+)/x; $1 }
         grep { m/^ \s* \[ package \] /x } <$in>;
     close $in;
@@ -103,27 +104,29 @@ sub ProcessFile{
         my $as_str = Dump($sub_ref)->Out();
         # print $as_str; 
         AddEdges($p, $as_str);
-    }
+    }     
 }
 
-{ # Background activity
-    my $sub_name = 'Seqsee::do_background_activity';
-    my $sub_ref =             \&$sub_name;
+sub GetFromSubroutine{
+    my ( $node_name, $sub_name ) = @_;
+    my $sub_ref = \&$sub_name;
     my $as_str = Dump($sub_ref)->Out();
     # print $as_str; 
-    AddEdges("Background", $as_str);
+    $g->add_edge(UnusualNode => $node_name);
+    AddEdges($node_name, $as_str);
 }
 
-{ # Stream activity
-    my $sub_name = 'SStream::_think_the_current_thought';
-    my $sub_ref =             \&$sub_name;
-    my $as_str = Dump($sub_ref)->Out();
-    # print $as_str; 
-    AddEdges("Stream", $as_str);
+GetFromSubroutine('Background', 'Seqsee::do_background_activity');
+GetFromSubroutine('Stream', 'SStream::_think_the_current_thought');
+GetFromSubroutine('GetSomethingLike', 'SWorkspace::GetSomethingLike');
+
+for (<lib/SThought/*.pm>) {
+    ThoughtFile($_);
 }
+
 
 open my $OUT, ">", 'graph.ps';
 binmode $OUT;
 print {$OUT} $g->as_ps;
 close $OUT;
-
+system "ps2pdf graph.ps; rm graph.ps";
