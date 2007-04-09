@@ -63,7 +63,7 @@ sub clear{
 
 sub Update{
     $canvas->delete('all');
-    DrawBackground();
+    #DrawBackground();
     $group_ht_per_unit_span = $eff_height * 0.2 / ($SWorkspace::elements_count||1);
     %RelationAnchor = ();
     %relations_to_hide = ();
