@@ -14,15 +14,6 @@ use English qw(-no_match_vars);
 
 use Class::Std;
 my %direction_reln_of : ATTR( :get<direction_reln> :set<direction_reln>  );
-# variable: %right_extendibility_of
-#    Could this gp be extended rightward?
-#    -1 means No!, 0 means unknown.
-my %right_extendibility_of :ATTR(:set<right_extendibility> :get<right_extendibility>);
-
-
-# variable: %left_extendibility_of
-#    same as above, leftward?
-my %left_extendibility_of :ATTR(:set<left_extendibility> :get<left_extendibility>);
 
 use Class::Multimethods;
 multimethod 'find_reln';
@@ -37,8 +28,6 @@ sub BUILD{
     } else {
         $direction_reln_of{$id} = "unknown";
     }
-    $right_extendibility_of{$id} = EXTENDIBILE::PERHAPS();
-    $left_extendibility_of{$id} = EXTENDIBILE::PERHAPS();
 }
 
 

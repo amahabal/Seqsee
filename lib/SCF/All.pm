@@ -185,9 +185,6 @@ if ($EVAL_ERROR) {
             if ($ans) {
                 $is_this_what_is_present = 1;
             }
-            else {
-                $core->set_right_extendibility( EXTENDIBILE::NO() );
-            }
         }
         else {
 
@@ -235,12 +232,6 @@ if ($is_this_what_is_present) {
 else {
 
     # maybe attempt extension
-    if ( $direction eq DIR::RIGHT() ) {
-        $core->set_right_extendibility( EXTENDIBILE::NO() );
-    }
-    elsif ( $direction eq DIR::LEFT() ) {
-        $core->set_left_extendibility( EXTENDIBILE::NO() );
-    }
     if ( SUtil::toss(0.5) ) {
         return;
     }
@@ -632,7 +623,6 @@ use Compile::SCF;
        #main::message("Application of rule succeded! " . $rule->as_text());
        $application->ExtendLeftMaximally();
        my $new_group = SAnchored->create(@{$application->get_items()});
-       $new_group->set_right_extendibility($EXTENDIBILE::PERHAPS);
        SWorkspace->add_group($new_group) or return;
        ContinueWith( SThought::AreWeDone->new({group => $new_group}) );
    } else {

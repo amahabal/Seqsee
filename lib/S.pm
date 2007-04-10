@@ -221,6 +221,8 @@ sub deserialize {
 }
 
 package EXTENDIBILE;
+# XXX(Board-it-up): [2007/04/09] Keeping in case I bring extendibility of relations back.
+
 use strict;
 use warnings;
 our $NO      = bless { mode => 'NO' }, 'EXTENDIBILE';

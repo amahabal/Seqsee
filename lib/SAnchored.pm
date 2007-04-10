@@ -22,18 +22,12 @@ multimethod 'apply_reln';
 my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>)
   ;    # Left edge. 0 is leftmost.
 my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
-my %right_extendibility_of : ATTR(:set<right_extendibility>)
-  ;    # Can we extend right?
-my %left_extendibility_of : ATTR(:set<left_extendibility>)
-  ;    # Can we extend left?
 
 use overload fallback => 1;
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
-    $self->set_left_extendibility($EXTENDIBILE::UNKNOWN);
-    $self->set_right_extendibility($EXTENDIBILE::UNKNOWN);
 }
 
 # method: recalculate_edges
@@ -149,13 +143,6 @@ sub as_insertlist {
         $list->concat(
             $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
         $list->append( "Extendibility: ", 'heading' );
-        my ( $le, $re ) =
-          ( $left_extendibility_of{$id}, $right_extendibility_of{$id} );
-        $list->append(
-            ( $le ? "$le->{mode}, " : "No, " ),
-            "", ( $re ? "$re->{mode}" : "No" ),
-            "", "\n"
-        );
         $list->append( "Direction: ", 'heading', $self->get_direction->as_text,
             "", "\n" );
         $list->append(
@@ -197,9 +184,6 @@ sub set_underlying_reln : CUMULATIVE {
     my ( $self, $reln ) = @_;
     my $id = ident $self;
     $reln or confess "Cannot set underlying relation to be an undefined value!";
-
-    $right_extendibility_of{$id} = EXTENDIBILE::PERHAPS();
-    $left_extendibility_of{$id}  = EXTENDIBILE::PERHAPS();
 }
 
 sub get_next_pos_in_dir {
