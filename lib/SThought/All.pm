@@ -107,7 +107,6 @@ use Compile::SThought;
     my $gp          = $group;
     my $span        = $gp->get_span;
     my $total_count = $SWorkspace::elements_count;
-    my $right_extendibility = $gp->get_right_extendibility();
     my $left_edge = $gp->get_left_edge();
     ### $span, $total_count
     #main::message( $right_extendibility);
@@ -190,7 +189,6 @@ multimethod get_fringe_for => ('SAnchored') => sub {
     my $span_fraction      = $core->get_span() / $SWorkspace::elements_count;
 
     # extendibility checking...
-    if ( $core->get_right_extendibility() ) {
         if ( $flush_right and not($flush_left) ) {
             next unless SUtil::toss(0.15);
         }
@@ -199,14 +197,12 @@ multimethod get_fringe_for => ('SAnchored') => sub {
             object    => $core,
             direction => DIR::RIGHT(),
           };
-    }
-    if ( $core->get_left_extendibility() ) {
+
         CODELET 100, AttemptExtensionOfGroup,
           {
             object    => $core,
             direction => DIR::LEFT(),
           };
-    }
 
     if ( scalar(@$core) > 1 and SUtil::toss(0.8) ) {
         if ( SUtil::toss(0.5) ) {
@@ -355,14 +351,10 @@ multimethod get_fringe_for => ('SAnchored') => sub {
     my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
     if ( not $holey ) {
-        if ( $core->get_right_extendibility() eq $EXTENDIBILE::PERHAPS ) {
             ACTION 80, AttemptExtensionOfRelation,
               { core => $core, direction => $DIR::RIGHT };
-        }
-        if ( $core->get_left_extendibility() eq $EXTENDIBILE::PERHAPS ) {
             ACTION 80, AttemptExtensionOfRelation,
               { core => $core, direction => $DIR::LEFT };
-        }
     }
 
     {

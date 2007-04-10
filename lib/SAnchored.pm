@@ -193,27 +193,6 @@ sub as_insertlist {
 
 }
 
-# XXX(Assumption): [2006/10/14] Based on underlying relation, may change with rules.
-sub get_right_extendibility {
-    my ($self) = @_;
-    my $id = ident $self;
-
-    my $rel = $self->get_underlying_reln();
-
-    return EXTENDIBILE::NO() unless $rel;
-    return $right_extendibility_of{$id};
-}
-
-sub get_left_extendibility {
-    my ($self) = @_;
-    my $id = ident $self;
-
-    my $rel = $self->get_underlying_reln();
-
-    return EXTENDIBILE::NO() unless $rel;
-    return $left_extendibility_of{$id};
-}
-
 sub set_underlying_reln : CUMULATIVE {
     my ( $self, $reln ) = @_;
     my $id = ident $self;

@@ -109,12 +109,12 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     return _find_reln( $o1, $o2, $cat );
 };
 
-multimethod find_reln => qw(# SElement) => sub {
+multimethod find_reln => ('#', 'SElement') => sub {
     my ( $num, $elt ) = @_;
     return find_reln($num, $elt->get_mag());
 };
 
-multimethod find_reln => qw(SElement #) => sub {
+multimethod find_reln => ('SElement', '#') => sub {
     my ( $elt, $num ) = @_;
     return find_reln($elt->get_mag(), $num);
 };
