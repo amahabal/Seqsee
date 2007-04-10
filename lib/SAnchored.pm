@@ -30,9 +30,6 @@ sub BUILD {
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
 }
 
-# method: recalculate_edges
-#
-#
 sub recalculate_edges {
     my ($self) = @_;
     my $id = ident $self;
@@ -180,12 +177,6 @@ sub as_insertlist {
 
 }
 
-sub set_underlying_reln : CUMULATIVE {
-    my ( $self, $reln ) = @_;
-    my $id = ident $self;
-    $reln or confess "Cannot set underlying relation to be an undefined value!";
-}
-
 sub get_next_pos_in_dir {
     my ( $self, $direction ) = @_;
     my $id = ident $self;
@@ -302,42 +293,6 @@ sub Update{
     SWorkspace::UpdateGroupsContaining($self);
 }
 
-# XXX(Board-it-up): [2007/02/03] used to be FindExtension. Major change ahead...
-sub FindExtension_old {
-    my ( $self, $direction_to_extend_in ) = @_;
-    my $direction_of_self = $self->get_direction();
-    return unless $direction_of_self->PotentiallyExtendible();
-
-    my ( $reln, $end_object );
-    if ( $direction_of_self eq $direction_to_extend_in ) {
-        $reln = $self->get_underlying_reln() or return;
-        $end_object = $self->[-1];
-    }
-    else {
-        my $underlying_reln = $self->get_underlying_reln() or return;
-        $reln = $underlying_reln->FlippedVersion() or return;
-        $end_object = $self->[0];
-    }
-
-    my $next_position =
-      $end_object->get_next_pos_in_dir($direction_to_extend_in);
-    return unless defined $next_position;
-
-    my $expected_next_object =
-      apply_reln( $reln, $end_object->GetEffectiveObject() )
-      or return;
-
-    return SWorkspace->GetSomethingLike(
-        {
-            object    => $expected_next_object,
-            start     => $next_position,
-            direction => $direction_to_extend_in,
-            trust_level => 50,
-            reason => 'Attempting to extend ' . $self->get_structure_string(),
-        }
-    );
-
-}
 
 sub FindExtension{
     @_ == 3 or confess "FindExtension for an object requires 3 args";

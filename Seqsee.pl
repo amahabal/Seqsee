@@ -37,7 +37,8 @@ use SGUI;
 # variable: $OPTIONS_ref
 #    final configuration hash
 #
-#    This is the result after passing through all the three stages (config, command line, default)
+#    This is the result after passing through all the three stages 
+#  (config, command line, default)
 #
 #     This is passed on to initialize several others, and is thus very important
 #
@@ -93,23 +94,6 @@ sub INITIALIZE {
 
 # method: GET_GOING
 #      Goes into an infinite loop: what loop depends upon whether there is interaction, whether or not we are running Tk
-#
-#    details:
-#
-#        tk - (this implies interactive) Calls MainLoop
-#        interactive - Calls TextMainLoop()
-#        batch mode - Calls Interaction_continue()
-#
-#    usage:
-#     GET_GOING( $OPTIONS_ref )
-#
-#    parameter list:
-#        $OPTIONS_ref -
-#
-#    return value:
-#      may never return
-#
-#    possible exceptions:
 
 sub GET_GOING {
 
@@ -155,9 +139,7 @@ sub Interaction_step {
 }
 
 #method: init_display
-# Initializes display related attributes, windows(if necessary) etc.
-#
-# Also pulls in the Tk modules if called for. Sets up update_display() as well.
+# Sets up update_display() as well.
 
 sub init_display {
     SGUI::setup($OPTIONS_ref);
