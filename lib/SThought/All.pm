@@ -115,20 +115,7 @@ use Compile::SThought;
     if ( $Global::AtLeastOneUserVerification
         and ( $span / $total_count ) > 0.8 )
     {
-        if ( $left_edge > 0) {
-#             if ($total_count - $span == $left_edge ) {
-#                 # Maybe there is a blemish here!
-#                 my $extension = $gp->FindExtension($DIR::LEFT, 0);
-#                 return if $extension;
-                
-#                 # Hmm.. very blemishy!
-#                 Global::Hilit(2,@$gp);
-#                 main::update_display();
-#                 BelieveBlemish();
-#             }
-        } else {
-        
-        # so flush left
+        if ( $left_edge == 0) {
             if ( $span == $total_count ) {
                 #Bingo!
                 Global::Hilit(2,@$gp);
@@ -154,13 +141,6 @@ sub BelieveDone{
               ->throw();
     }
     main::message("I believe I got it");    
-}
-
-sub BelieveBlemish{
-    if ($Global::TestingMode) {
-        SErr::FinishedTestBlemished->new()->throw();
-    }
-    main::message("I seem unable to figure out the start of the sequence. Maybe there is a blemish at the beginning");
 }
 
 ##########################################
@@ -204,15 +184,14 @@ multimethod get_fringe_for => ('SAnchored') => sub {
  <actions>
     my $metonym            = $core->get_metonym();
     my $metonym_activeness = $core->get_metonym_activeness();
-    my $strength = $core->get_strength();
-my $flush_right = $core->IsFlushRight();
-my $flush_left = $core->IsFlushLeft();
-    my $span_fraction = $core->get_span() / $SWorkspace::elements_count;
-
+    my $strength           = $core->get_strength();
+    my $flush_right        = $core->IsFlushRight();
+    my $flush_left         = $core->IsFlushLeft();
+    my $span_fraction      = $core->get_span() / $SWorkspace::elements_count;
 
     # extendibility checking...
     if ( $core->get_right_extendibility() ) {
-        if ($flush_right and not($flush_left)) {
+        if ( $flush_right and not($flush_left) ) {
             next unless SUtil::toss(0.15);
         }
         CODELET 100, AttemptExtensionOfGroup,
@@ -272,13 +251,15 @@ my $flush_left = $core->IsFlushLeft();
       if $core->get_underlying_reln;
     if ($possible_category_for_ends) {
         for ( @{ $core->get_underlying_reln()->get_items() } ) {
-            unless (UNIVERSAL::isa($_, "SAnchored")) {
-                print "An item of an SAnchored object($core) is not anchored!\n";
-                print "The anchored object is ", $core->get_structure_string(), "\n";
-                print "Its items are: ", join("; ", @$core);
+            unless ( UNIVERSAL::isa( $_, "SAnchored" ) ) {
+                print
+                  "An item of an SAnchored object($core) is not anchored!\n";
+                print "The anchored object is ", $core->get_structure_string(),
+                  "\n";
+                print "Its items are: ", join( "; ", @$core );
                 print "Items of the underlying ruleapp are: ",
-                    join("; ", @{$core->get_underlying_reln()->get_items()});
-                confess "$_ is not anchored!" 
+                  join( "; ", @{ $core->get_underlying_reln()->get_items() } );
+                confess "$_ is not anchored!";
             }
             my $is_inst =
               $_->is_of_category_p($possible_category_for_ends)->[0];
@@ -292,9 +273,9 @@ my $flush_left = $core->IsFlushLeft();
         }
     }
 
-if ($span_fraction > 0.5) {
-    THOUGHT LargeGroup, { group => $core };
-}
+    if ( $span_fraction > 0.5 ) {
+        THOUGHT LargeGroup, { group => $core };
+    }
  </actions>
 
 ##########################################

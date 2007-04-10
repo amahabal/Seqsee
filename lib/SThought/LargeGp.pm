@@ -96,8 +96,9 @@ use Compile::SThought;
 <actions>
     my $left_edge = $group->get_left_edge();
     my $msg = "There seems to be a strange blemish at the start! The initial ";
-$msg .= join(", ", map { $_->get_mag()} @SWorkspace::elements[0..$left_edge-1])
-    ;
+    $msg .= join( ", ",
+        map { $_->get_mag() } @SWorkspace::elements[ 0 .. $left_edge - 1 ] );
     $msg .= ' does not seem to fit in!';
-   main::message($msg);
+    main::message($msg);
+    SErr::FinishedTestBlemished->throw() if $Global::TestingMode;
 </actions>
