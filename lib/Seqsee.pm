@@ -200,7 +200,6 @@ sub _read_commandline{
     GetOptions( \%options,
                 "seed=i",
                 "log!",
-                "tk!",
                 "seq=s",
                 "update_interval=i",
                 "interactive!",
@@ -235,7 +234,7 @@ sub _read_config{
     my $RETURN_ref = {};
     read_config 'config/seqsee.conf' => my %config;
 
-    for (qw{seed log tk max_steps 
+    for (qw{seed log max_steps 
             interactive update_interval
 
             UseScheduledThoughtProb ScheduledThoughtVanishProb
