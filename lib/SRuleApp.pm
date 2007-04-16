@@ -163,7 +163,7 @@ sub FindExtension{
         object => $expected_next_object,
         start  => $next_pos,
         direction => $direction_to_extend_in,
-        trust_level => 50, # !!
+        trust_level => 50 * $self->get_span() / ($SWorkspace::elements_count + 1), # !!
         reason => 'Extension attempted for: ' . $rule->as_text(),
     });
 }
@@ -321,6 +321,11 @@ sub suggest_cat_for_ends{
     }
 }
 
+sub get_span {
+    my ($self) = @_;
+    return List::Util::sum( map { $_->get_span() }
+          @{ $Items_of{ ident $self} } );
+}
 
 
 

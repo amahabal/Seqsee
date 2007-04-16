@@ -741,8 +741,9 @@ sub GetSomethingLike {
         if ( UNIVERSAL::isa( $e, 'SErr::AskUser' ) ) {
 
             # XXX(Board-it-up): [2006/12/18]
-            if ( $e->WorthAsking($trust_level) ) {
-                $e->Ask($reason);
+            if ( my $new_trust_level = $e->WorthAsking($trust_level) ) {
+                $new_trust_level *= 0.02; # had multiplied by 50 for toss...
+                $e->Ask("<trust: $new_trust_level> $reason");
             }
         }
         else {
@@ -783,7 +784,7 @@ sub SErr::AskUser::WorthAsking {
                                    scalar(@{$self->next_elements()}));
     my $fraction_already_matched = $match_size / ($match_size + $ask_size);
     $trust_level += (1 - $trust_level) * $fraction_already_matched; 
-    return SUtil::toss($trust_level) ? 1 : 0;
+    return SUtil::toss($trust_level) ? $trust_level : 0;
 }
 
 sub SErr::AskUser::Ask {
@@ -797,7 +798,7 @@ sub SErr::AskUser::Ask {
 
     if (@$already_matched) {
         $msg .=
-          "I also found the expected terms " . join( ', ', @$already_matched );
+          "I found the expected terms " . join( ', ', @$already_matched );
     }
 
     my $answer =  main::ask_user_extension( $next_elements, $msg );

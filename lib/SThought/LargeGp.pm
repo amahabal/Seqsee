@@ -46,7 +46,10 @@ if (!$flush_left) {
                                                         group => $group,
                                                         cat => $cat,
                                                     };
-                    return;
+                    # XXX(Board-it-up): [2007/04/15] just return useless.
+                    # Add to compiler: RETURN that translates to line below..
+
+                    return @ret;
                 }
             }
         }

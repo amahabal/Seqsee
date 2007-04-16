@@ -181,7 +181,7 @@ if ($EVAL_ERROR) {
         if ( worth_asking( $already_matched, $ask_if_what, $core_span ) ) {
 
  # main::message("We may ask the user if the next elements are: @$ask_if_what");
-            my $ans = $err->Ask('(Extending relation)');
+            my $ans = $err->Ask("(Extending relation [@$already_matched])");
             if ($ans) {
                 $is_this_what_is_present = 1;
             }
@@ -250,6 +250,7 @@ else {
 
 sub worth_asking{
     my ( $matched, $unmatched, $extension_from_span ) = @_;
+    return 1 if (@$matched > 0);
     my $time_since_extension = $Global::Steps_Finished - $Global::TimeOfLastNewElement;
     my $number_of_user_verified_elements = $SWorkspace::elements_count - $Global::InitialTermCount;
     return if $time_since_extension < 10 * $number_of_user_verified_elements;
@@ -262,7 +263,7 @@ sub worth_asking{
 
     my $on_a_limb = scalar(@$unmatched)/(scalar(@$matched) + $extension_from_span);
     # print STDERR "On a limb: $on_a_limb\n";
-    return 1 if ($penetration > 0.2 and $on_a_limb < 0.85);
+    return 1 if ($penetration > 0.5 and $on_a_limb < 0.85);
     return;
 }
 
