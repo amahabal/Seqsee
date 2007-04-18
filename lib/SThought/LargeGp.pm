@@ -49,12 +49,14 @@ if (!$flush_left) {
                     # XXX(Board-it-up): [2007/04/15] just return useless.
                     # Add to compiler: RETURN that translates to line below..
 
-                    return @ret;
+                    return @actions_ret;
                 }
             }
         }
         # So: either statecount > 1, or not interlaced.
-        THOUGHT ArbitraryInitialBlemish, { group => $group};
+        if ($flush_right) {
+            THOUGHT ArbitraryInitialBlemish, { group => $group};
+        }
     }
 }    
 </actions>
@@ -97,11 +99,12 @@ use Compile::SThought;
 <fringe>
 </fringe>
 <actions>
-    my $left_edge = $group->get_left_edge();
-    my $msg = "There seems to be a strange blemish at the start! The initial ";
-    $msg .= join( ", ",
-        map { $_->get_mag() } @SWorkspace::elements[ 0 .. $left_edge - 1 ] );
-    $msg .= ' does not seem to fit in!';
-    main::message($msg);
+    #my $left_edge = $group->get_left_edge();
+    #my $msg = "There seems to be a strange blemish at the start! The initial ";
+    #$msg .= join( ", ",
+    #    map { $_->get_mag() } @SWorkspace::elements[ 0 .. $left_edge - 1 ] );
+    #$msg .= ' does not seem to fit in!';
+    #main::message($msg);
     SErr::FinishedTestBlemished->throw() if $Global::TestingMode;
+    ACTION 100, DescribeSolution, { group => $group };
 </actions>
