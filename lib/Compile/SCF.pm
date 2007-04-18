@@ -64,9 +64,8 @@ sub param_string{
             chop;
             $is_necessary = 1;
         }
-        $ret .= "my \$$_ = \$opts_ref->{$_}";
-        $ret .= " or confess \"Need $_\"" if $is_necessary;
-        $ret .= ";\n";
+        $ret .= "my \$$_ = \$opts_ref->{$_};\n";
+        $ret .= "defined(\$$_) or confess \"Need '$_', only got '\" .join(';', keys \%\$opts_ref). \"'\";\n" if $is_necessary;
     }
 
     my $optional_hash = $default_of_of{$id};

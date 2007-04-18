@@ -69,6 +69,7 @@ use SWorkspace;
 use SCF::All;
 use SThought::All;
 use SThought::LargeGp;
+use SCF::DescribeSolution;
 
 use SActivation;
 use SLTM;

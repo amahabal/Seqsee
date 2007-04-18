@@ -119,7 +119,7 @@ use Compile::SThought;
                 #Bingo!
                 Global::Hilit(2,@$gp);
                 main::update_display();
-                BelieveDone();
+                BelieveDone($group);
             }
             else {
                 ACTION 80, AttemptExtensionOfGroup,
@@ -139,7 +139,9 @@ sub BelieveDone{
         SErr::FinishedTest->new(got_it => 1)
               ->throw();
     }
-    main::message("I believe I got it");    
+    main::message("I believe I got it");
+    ACTION 100, DescribeSolution,
+        { group => $group };
 }
 
 ##########################################

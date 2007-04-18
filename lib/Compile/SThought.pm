@@ -154,13 +154,13 @@ sub process_codelet{
         $str =~ m#\s* ;#mxgc or die "Missing ;";
         if ($specie eq "CODELET") {
             $processed .= <<"END";
-        push \@ret, SCodelet->new("$type", $urgency,
+        push \@actions_ret, SCodelet->new("$type", $urgency,
               $option_hash);
 
 END
         } elsif ($specie eq "ACTION") {
             $processed .= <<"END";
-        push \@ret, SAction->new( {
+        push \@actions_ret, SAction->new( {
              family => "$type", 
              urgency => $urgency,
              args =>  $option_hash, });
@@ -189,7 +189,7 @@ sub process_thoughts{
         }
         $str =~ m#\s* ;#mxgc or die "Missing ;";
         $processed .= <<"END";
-        push \@ret,
+        push \@actions_ret,
           SThought::${type}->new($option_hash);
 END
     }
@@ -289,9 +289,9 @@ sub get_actions{
     my ( \$self ) = \@_;
     my \$id = ident \$self;
     $generated_arg_pulling_of{$id}
-    my \@ret;
+    our \@actions_ret = ();
     $actions_block_of{$id}
-    return \@ret;
+    return \@actions_ret;
 }
 
 HERE
@@ -324,6 +324,8 @@ use Class::Multimethods;
 use base qw{SThought};
 use List::Util qw{min max};
 use Class::Std;
+
+our \@actions_ret;
 
 $MULTIS
 $VAR_DECLARATIONS
