@@ -157,11 +157,11 @@ sub init_display {
         tkdie($msg);
     };
     my $msg_displayer = sub {
-        my ($msg) = @_;
+        my ($msg, $no_break) = @_;
         my $btn =
           $SGUI::MW->messageBox( -message => $msg, -type => "OkCancel" );
         ## $btn
-        $Global::Break_Loop = 1;
+        $Global::Break_Loop = 1 unless $no_break;
     };
     my $ask_user_extension_displayer = sub {
         my ( $arr_ref, $msg_suffix ) = @_;

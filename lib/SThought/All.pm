@@ -139,7 +139,7 @@ sub BelieveDone{
         SErr::FinishedTest->new(got_it => 1)
               ->throw();
     }
-    main::message("I believe I got it");
+    main::message("I believe I got it", 1);
     ACTION 100, DescribeSolution,
         { group => $group };
 }
