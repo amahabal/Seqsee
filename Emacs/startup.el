@@ -247,6 +247,8 @@
   "" 'seq-expansion-mmc 0)
 (define-abbrev cperl-mode-abbrev-table "sxo"
   "" 'seq-expansion-object 0)
+(define-abbrev cperl-mode-abbrev-table "scrpt"
+  "" 'seq-script 0)
 
 (define-abbrev cperl-mode-abbrev-table "diesok"
   "" 'seq-expansion-diesok 0)

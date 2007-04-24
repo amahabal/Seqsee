@@ -347,11 +347,24 @@
   "] " _ "\n"
 )
 
+
 (define-skeleton seq-comment-assumption
   ""
   nil
   "# XXX(Assumption): [" (setq v1 (format-time-string insert-date-format (current-time)))
   "] " _ "\n"
+)
+
+(define-skeleton seq-script
+  ""
+  nil
+  "no Compile::Scripts;" "\n"
+  "use Compile::Scripts;" "\n"
+  "[script] " (skeleton-read "Script name: ") "\n"
+  ("Parameters?: " "[param] " str "\n")  
+  "<steps>" "\n" "\n"
+  _
+  "</steps>" "\n"
 )
 
 (define-skeleton seq-perl6-method-or-sub

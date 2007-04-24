@@ -2,7 +2,7 @@ use Compile::Scripts;
 [script] DescribeSolution
 [param] group!
 <steps>
- main::message("I will describe the solution now ($group)!", 1);
+ main::message("I will describe the solution now!", 1);
  SCRIPT DescribeInitialBlemish, { group => $group };
  ******
 
@@ -62,5 +62,69 @@ use Compile::Scripts;
 [script] DescribeRelation
 [param] reln!
 <steps>
-    main::message("I want to describe the reln $reln", 1);
+    if ( $reln->isa('SRelnType::Compound')) {
+        SCRIPT DescribeRelationCompound, { reln => $reln };
+    } elsif ($reln->isa('SRelnType::Simple')) {
+        SCRIPT DescribeRelationSimple, { reln => $reln };
+    } else {
+        main::message("Strange bond! SOmething wrong", 1);
+    }
+
+</steps>
+
+no Compile::Scripts;
+use Compile::Scripts;
+[script] DescribeRelationSimple
+[param] reln!
+<steps>
+    my $string = $reln->get_text();
+    my $msg = 'Each succesive term is the ';
+if ($string eq 'succ') {
+    $msg .= 'numerical successor ';
+} elsif ($string eq 'pred') {
+    $msg .= 'numerical predecessor ';
+} elsif ($string eq 'same') {
+    $msg .= 'same as ';
+}
+$msg .= 'the previous term';
+    main::message($msg, 1);
+</steps>
+
+no Compile::Scripts;
+use Compile::Scripts;
+[script] DescribeRelationCompound
+[param] reln!
+<steps>
+my $category = $reln->get_base_category();
+SCRIPT DescribeRelnCategory, { cat => $category };
+******
+my $meto_mode = $reln->get_base_meto_mode();
+my $meto_reln = $reln->get_metonymy_reln();
+SCRIPT DescribeRelnMetoMode, { meto_mode => $meto_mode,
+                               meto_reln => $meto_reln,
+                           };
+
+</steps>
+
+no Compile::Scripts;
+use Compile::Scripts;
+[script] DescribeRelnCategory
+[param] cat!
+<steps>
+my $name = $cat->get_name();
+main::message("Each block is an instance of $name. (Better descriptions of categories will be implemented)", 1);
+</steps>
+
+no Compile::Scripts;
+use Compile::Scripts;
+[script] DescribeRelnMetoMode
+[param] meto_mode!
+[param] meto_reln!
+<steps>
+    unless ($meto_mode->is_metonymy_present) {
+        RETURN;
+    }
+
+    main::message('Seqsee is squinting in order to see the blocks as instances of that category', 1);
+
 </steps>
