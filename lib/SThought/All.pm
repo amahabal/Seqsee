@@ -131,17 +131,24 @@ use Compile::SThought;
         }
     }
  </actions>
+{
+    my $LastSolutionDescriptionTime;
+    sub BelieveDone{
+        my ( $group ) = @_;
+        if ($Global::TestingMode) {
+            # Currently assume belief always right.
+            SErr::FinishedTest->new(got_it => 1)
+                  ->throw();
+        }
+        return if ($LastSolutionDescriptionTime and
+                       $LastSolutionDescriptionTime > $Global::TimeOfLastNewElement
+                       );
 
-sub BelieveDone{
-    my ( $group ) = @_;
-    if ($Global::TestingMode) {
-        # Currently assume belief always right.
-        SErr::FinishedTest->new(got_it => 1)
-              ->throw();
+        $LastSolutionDescriptionTime = $Global::Steps_Finished;
+        main::message("I believe I got it", 1);
+        ACTION 100, DescribeSolution,
+            { group => $group };
     }
-    main::message("I believe I got it", 1);
-    ACTION 100, DescribeSolution,
-        { group => $group };
 }
 
 ##########################################

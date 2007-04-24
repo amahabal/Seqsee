@@ -13,7 +13,7 @@ use Compile::Scripts;
  SCRIPT DescribeRule, { rule => $rule };
  ******
 
- main::message("That finishes the description!", 1);
+ main::message("That finishes the description!");
 </steps>
 no Compile::Scripts;
 
