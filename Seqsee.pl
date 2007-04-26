@@ -182,7 +182,7 @@ sub init_display {
           ( $cnt == 1 )
           ? "Is the next term @$arr_ref? "
           : "Are the next terms: @$arr_ref?";
-        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse($msg); 
+        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse("$msg\n"); 
         if ($ok) {
             $Global::AtLeastOneUserVerification = 1;
         }
