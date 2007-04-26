@@ -3,9 +3,9 @@
 use Compile::SCF;
 [package] SCF::Reader
 <run>
-    if ( SUtil::toss(0.2) ){
-        #ReadSamenessAroundReadHead();
-        #return;
+    if ( SUtil::toss(0.05) ){
+        ReadSamenessAroundReadHead();
+        return;
     }
     my $object;
     if ( SUtil::toss(0.5) ) {
