@@ -24,11 +24,20 @@ sub Update {
 
 sub Populate {
     my ( $self, $args ) = @_;
+    my $tags_ref = delete $args->{-tags_provided};
+    my $font = delete $args->{-font};
+
     $Text =
-      $self->Scrolled( 'ROText', -scrollbars => 'se', %$args )
+      $self->Scrolled( 'ROText', -scrollbars => 'se', -font => $font, %$args )
       ->pack( -side => 'left' );
     $Text->bind( '<KeyPress>',   sub { Tk->break() } );
     $Text->bind( '<KeyPress-q>', sub { exit } );
+
+    for (@$tags_ref) {
+        print "Configuring $_->[0]\n";
+        $Text->tagConfigure(@$_);
+    }
+
     $ButtonFrame = $self->Frame()->pack( -side => 'right' );
     for my $button_number ( 0 .. 3 ) {
         push @Buttons,
@@ -77,7 +86,9 @@ sub MessageRequiringAResponse {
     for ( 0 .. 3 ) {
         $Buttons[$_]->configure( -text => '', -state => 'disabled' );
     }
-    return $response_ref->[$Response];
+    my $response = $response_ref->[$Response];
+    $Text->insert('end', '  ', [], $response, ['user_response'], "\n");
+    return $response;
 }
 
 sub MessageRequiringBooleanResponse {

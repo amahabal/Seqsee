@@ -68,10 +68,12 @@ sub ask_seq {
     $top->focusmodel('active');
     my $label = $top->Label(-text => '')->pack(-side=>'bottom');
     our @seq;
+    my $seq; # selected sequence
+
     my $f = $top->ComboEntry(
          -invoke => sub {
              my ( $comboentry ) = @_;
-             my $seq = $comboentry->get();
+             $seq = $comboentry->get();
              if ($check_and_accept_input_sequence->($seq, $label)) {
                  $top->destroy;
              }
@@ -85,18 +87,20 @@ sub ask_seq {
         -width => 40,
             )->pack(-side => 'top', -expand => 'true', -fill => 'both');
     $f->bind('<Return>' => sub {
-                 my $seq = $f->get();
+                 $seq = $f->get();
                  if ($check_and_accept_input_sequence->($seq, $label)) {
                      $top->destroy;
                  }
              });
     $f->focus();
     $top->Button(-text => 'Go', -command => sub {
-                     my $seq = $f->get();
+                     $seq = $f->get();
                      if ($check_and_accept_input_sequence->($seq, $label)) {
                          $top->destroy;
                      }       
                  })->pack(-side => 'right');
+    $SGUI::Commentary->MessageRequiringNoResponse('New Sequence Started: ', [], "$seq\n");
+    
     #my $e = $top->Entry()->pack( -side => 'left' );
     #$e->focus();
     #$e->bind(
@@ -171,7 +175,7 @@ sub SetupBindings {
 
 {
     my %SeqseeWidgets
-        = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace SActivation);
+        = map { $_ => 1 } qw(SCoderack SStream SComponents SInfo SWorkspace SActivation SCommentary);
     my %Updatable = map { $_ => 1 } qw(SCoderack SStream SComponents SWorkspace SActivation SWorkspace2 SWorkspace3 Seqsee);
     my @to_Update = ();
 

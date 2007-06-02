@@ -168,7 +168,7 @@ sub init_display {
         if ($no_break) {
             $SGUI::Commentary->MessageRequiringNoResponse("$msg\n");
         } else {
-            $SGUI::Commentary->MessageRequiringAResponse(['Continue'], "$msg\n");
+            $SGUI::Commentary->MessageRequiringAResponse(['continue'], "$msg");
         }
     };
 
@@ -180,9 +180,9 @@ sub init_display {
         my $cnt = scalar(@$arr_ref);
         my $msg =
           ( $cnt == 1 )
-          ? "Is the next term @$arr_ref? "
+          ? "Is the next term @$arr_ref?"
           : "Are the next terms: @$arr_ref?";
-        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse("$msg\n"); 
+        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse($msg); 
         if ($ok) {
             $Global::AtLeastOneUserVerification = 1;
         }
