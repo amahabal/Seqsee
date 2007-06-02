@@ -117,6 +117,7 @@ use Compile::SThought;
         if ( $left_edge == 0) {
             if ( $span == $total_count ) {
                 #Bingo!
+                Global::ClearHilit();
                 Global::Hilit(2,@$gp);
                 main::update_display();
                 BelieveDone($group);
