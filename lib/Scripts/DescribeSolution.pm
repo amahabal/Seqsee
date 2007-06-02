@@ -2,6 +2,9 @@ use Compile::Scripts;
 [script] DescribeSolution
 [param] group!
 <steps>
+    if (my $ruleapp = $group->get_underlying_reln()) {
+        SWorkspace::DeleteObjectsInconsistentWith($ruleapp);
+    }
  main::message("I will describe the solution now!", 1);
  SCRIPT DescribeInitialBlemish, { group => $group };
  ******

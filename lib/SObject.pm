@@ -821,6 +821,21 @@ sub HasAsItem{
     return 0;
 }
 
+sub SElement::HasAsPartDeep{
+    my ( $self, $item ) = @_;
+    return $self eq $item;
+}
+
+sub HasAsPartDeep{
+    my ( $self, $item ) = @_;
+    for (@$self) {
+        return 1 if $_ eq $item;
+        return 1 if $_->HasAsPartDeep($item);
+    }
+    return 0;
+}
+
+
 # ###################################################################
 # VERSION POST REFACTORING
 

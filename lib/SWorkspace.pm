@@ -427,7 +427,8 @@ sub remove_gp {
 
 sub DeleteGroupsContaining{
     my ( $member_object ) = @_;
-    for my $gp (values %groups) {
+    my @groups = values %groups;
+    for my $gp (@groups) {
         DeleteGroupsContaining($gp) if $gp->HasAsItem($member_object);
     }
     $member_object->RemoveAllRelations();
@@ -849,6 +850,22 @@ sub FindDirectionOfObjectSet {
     return $DIR::LEFT    if $leftward;
     return $DIR::RIGHT   if $rightward;
     confess "huh?";
+}
+
+sub DeleteObjectsInconsistentWith{
+    my ( $ruleapp ) = @_;
+
+    for my $rel (values %relations) {
+        my $is_consistent = $ruleapp->CheckConsitencyOfRelation($rel);
+        $rel->uninsert();
+    }
+
+    my @groups = values %groups;
+    for my $gp (@groups) {
+        next unless exists $groups{$gp};
+        my $is_consistent = $ruleapp->CheckConsitencyOfGroup($gp);
+        SWorkspace->remove_gp($gp) unless $is_consistent;
+    }
 }
 
 
