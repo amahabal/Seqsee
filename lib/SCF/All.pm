@@ -177,19 +177,14 @@ if ($EVAL_ERROR) {
         my $already_matched = $err->already_matched();
         my $ask_if_what     = $err->next_elements();
 
-        #main::message("already_matched @$already_matched; span = $core_span");
-        if ( worth_asking( $already_matched, $ask_if_what, $core_span ) ) {
+        return unless worth_asking($already_matched, $ask_if_what, $core_span);
 
- # main::message("We may ask the user if the next elements are: @$ask_if_what");
-            my $ans = $err->Ask("(Extending relation [@$already_matched])");
-            if ($ans) {
-                $is_this_what_is_present = 1;
-            }
-        }
-        else {
-
-            #main::message("decided not to ask if next are @$ask_if_what");
-        }
+        SCodelet->new("WorthAskingForExtendingReln", 100, {
+            core => $core,
+            direction => $direction,
+            already_matched => $already_matched,
+            ask_if_what => $ask_if_what,
+        } )->schedule();
         return;
     }
     else {
@@ -689,5 +684,26 @@ if ($desperation > 50) {
     }
 }
 
+no Compile::SCF;
+############################
+use Compile::SCF;
+[package] SCF::WorthAskingForExtendingReln
+[param] core!
+[param] direction!
+[param] already_matched!
+[param] ask_if_what!
+
+<run>
+    my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
+    if ($type_activation < 0.3 or SUtil::toss(1 - $type_activation)) {
+        $SGUI::Commentary->MessageRequiringNoResponse("Not asking if next terms " . join(' ', @$ask_if_what) . "\n");
+        return;
+    }
+
+    # So worth asking?
+    SCodelet->new('AttemptExtensionOfRelation', 100, {core => $core,
+                                                      direction => $direction
+                                                  })->schedule();
+</run>
 
 1;
