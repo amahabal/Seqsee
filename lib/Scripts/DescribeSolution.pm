@@ -12,9 +12,11 @@ use Compile::Scripts;
  SCRIPT DescribeBlocks, { group => $group };
  ******
 
- my $rule = $group->get_underlying_reln()->get_rule();
- SCRIPT DescribeRule, { rule => $rule };
+ my $ruleapp = $group->get_underlying_reln();
+ my $rule = $ruleapp->get_rule();
+ SCRIPT DescribeRule, { rule => $rule, ruleapp => $ruleapp };
  ******
+ 
 
  main::message("That finishes the description!");
 </steps>
@@ -47,14 +49,16 @@ no Compile::Scripts;
 use Compile::Scripts;
 [script] DescribeRule
 [param] rule!
+[param] ruleapp!
 <steps>
     my $state_count = $rule->get_state_count();
+    main::debug_message("Rule is $rule", 1);
     if ($state_count > 1) {
         main::message("Complex rule display not implemented", 1);
         RETURN;
     } else {
         my $reln = $rule->get_relations()->[0];
-        SCRIPT DescribeRelation, { reln => $reln };
+        SCRIPT DescribeRelation, { reln => $reln, ruleapp => $ruleapp };
     }
     *******
     RETURN;
@@ -64,13 +68,14 @@ no Compile::Scripts;
 use Compile::Scripts;
 [script] DescribeRelation
 [param] reln!
+[param] ruleapp
 <steps>
     if ( $reln->isa('SRelnType::Compound')) {
-        SCRIPT DescribeRelationCompound, { reln => $reln };
+        SCRIPT DescribeRelationCompound, { reln => $reln, ruleapp => $ruleapp };
     } elsif ($reln->isa('SRelnType::Simple')) {
         SCRIPT DescribeRelationSimple, { reln => $reln };
     } else {
-        main::message("Strange bond! SOmething wrong", 1);
+        main::message("Strange bond! Something wrong, let abhijit know", 1);
     }
 
 </steps>
@@ -97,6 +102,7 @@ no Compile::Scripts;
 use Compile::Scripts;
 [script] DescribeRelationCompound
 [param] reln!
+[param] ruleapp!
 <steps>
 my $category = $reln->get_base_category();
 SCRIPT DescribeRelnCategory, { cat => $category };
@@ -105,6 +111,7 @@ my $meto_mode = $reln->get_base_meto_mode();
 my $meto_reln = $reln->get_metonymy_reln();
 SCRIPT DescribeRelnMetoMode, { meto_mode => $meto_mode,
                                meto_reln => $meto_reln,
+                               ruleapp => $ruleapp,
                            };
 
 </steps>
@@ -123,11 +130,21 @@ use Compile::Scripts;
 [script] DescribeRelnMetoMode
 [param] meto_mode!
 [param] meto_reln!
+[param] ruleapp!
 <steps>
     unless ($meto_mode->is_metonymy_present) {
         RETURN;
     }
 
-    main::message('Seqsee is squinting in order to see the blocks as instances of that category', 1);
+    main::message('I am squinting in order to see the blocks as instances of that category', 1);
+    my @items = @{$ruleapp->get_items()};
+    my @to_describe = (scalar(@items) > 3)? (@items[0..2]) : @items;
+    main::message('I am seeing: ', 1);
+    for (@to_describe) {
+        my $msg = "\t".$_->get_structure_string().' is being seen as '.
+            $_->GetEffectiveStructureString();
+        main::message($msg, 1);
+    }
+    main::message("\t\t... and so forth", 1);
 
 </steps>

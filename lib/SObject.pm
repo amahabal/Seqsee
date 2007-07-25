@@ -891,7 +891,6 @@ sub GetEffectiveStructureString{
     return SUtil::StructureToString($self->GetEffectiveStructure());
 }
 
-
 sub GetUnstarred{
     my ( $self ) = @_;
     my $id = ident $self;

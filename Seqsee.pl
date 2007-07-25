@@ -171,6 +171,10 @@ sub init_display {
             $SGUI::Commentary->MessageRequiringAResponse(['continue'], "$msg");
         }
     };
+    my $commentary_displayer_debug = sub {
+        my ( $msg, $no_break ) = @_;
+        $commentary_displayer->("[DEBUG: $msg]", $no_break);
+    };
 
     my $ask_user_extension_displayer = sub {
         my ( $arr_ref, $msg_suffix ) = @_;
@@ -194,6 +198,7 @@ sub init_display {
     "main"->install_sub( { default_error_handler => $default_error_handler } );
     "main"->install_sub( { pop_message => $msg_displayer } );
     "main"->install_sub( { message => $commentary_displayer } );
+    "main"->install_sub( { debug_message => $commentary_displayer_debug } );
     "main"
       ->install_sub( { ask_user_extension => $ask_user_extension_displayer } );
     "main"->install_sub(
