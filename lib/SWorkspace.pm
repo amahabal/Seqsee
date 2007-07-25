@@ -266,6 +266,17 @@ sub get_groups_starting_at {
     return rikeysort { $_->get_right_edge() } @ret;
 }
 
+sub get_groups_ending_at {
+    my ( $self, $right ) = @_;
+    my @ret;
+
+    foreach ( values %groups ) {
+        my ( $l, $r ) = $_->get_edges;
+        push( @ret, $_ ) if ( $r == $right );
+    }
+    return ikeysort { $_->get_right_edge() } @ret;
+}
+
 sub get_longest_non_adhoc_object_starting_at {
     my ( $self, $left ) = @_;
     for my $gp ( $self->get_groups_starting_at($left) )
@@ -284,6 +295,21 @@ sub get_longest_non_adhoc_object_starting_at {
     }
     # Getting here means no group. Return the element.
     return $elements[$left];
+}
+
+sub get_longest_non_adhoc_object_ending_at {
+    my ( $self, $right ) = @_;
+    for my $gp ( $self->get_groups_ending_at($right) )
+    {    # That gives us longest first.
+      INNER: for my $cat ( @{ $gp->get_categories() } ) {
+            if ( $cat->get_name() !~ m#ad_hoc_# ) {
+                return $gp;
+            }
+        }
+    }
+
+    # Getting here means no group. Return the element.
+    return $elements[$right];
 }
 
 sub AreGroupsInConflict {

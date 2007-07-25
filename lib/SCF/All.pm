@@ -694,16 +694,39 @@ use Compile::SCF;
 [param] ask_if_what!
 
 <run>
-    my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
-    if ($type_activation < 0.3 or SUtil::toss(1 - $type_activation)) {
-        $SGUI::Commentary->MessageRequiringNoResponse("Not asking if next terms " . join(' ', @$ask_if_what) . "\n");
+my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
+if ( $type_activation < 0.3 or SUtil::toss( 1 - $type_activation ) ) {
+    $SGUI::Commentary->MessageRequiringNoResponse(
+        "Not asking if next terms " . join( ' ', @$ask_if_what ) . "\n" );
+    return;
+}
+
+my $element_count                  = $SWorkspace::elements_count;
+my $matched_elements_count         = scalar(@$already_matched);
+my $index_of_first_matched_element = $element_count - $matched_elements_count;
+if ( $index_of_first_matched_element > 0 ) {
+    my $largest_preceding_group = SWorkspace->get_longest_non_adhoc_object_ending_at (
+        $index_of_first_matched_element - 1 );
+    my $matched_elements_fraction = $matched_elements_count / $element_count;
+    my $preceding_group_fraction  = $largest_preceding_group->get_span() / $element_count;
+    my $core_span_ratio = $core->get_span() / $element_count;
+    unless (
+        $core_span_ratio > 0.6 or
+        $matched_elements_fraction > 0.3
+        or (    $matched_elements_fraction + $preceding_group_fraction > 0.5
+            and $matched_elements_fraction < $preceding_group_fraction )
+        )
+    {
         return;
     }
+}
 
-    # So worth asking?
-    SCodelet->new('AttemptExtensionOfRelation', 100, {core => $core,
-                                                      direction => $direction
-                                                  })->schedule();
+
+
+# So worth asking?
+SCodelet->new('AttemptExtensionOfRelation', 100, {core => $core,
+                                                  direction => $direction
+                                                      })->schedule();
 </run>
 
 1;
