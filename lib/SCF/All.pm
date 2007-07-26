@@ -1,5 +1,6 @@
 #####################################
 #####################################
+#This codelet reads an object at the current location and makes it the current thought
 use Compile::SCF;
 [package] SCF::Reader
 <run>
@@ -112,6 +113,16 @@ my $bindings = $object->describe_as($lit_cat)
 no Compile::SCF;
 #####################################
 #####################################
+# Given a relation and a direction it tries to extend it in that direction
+# How it works
+# find next position where extension starts
+#   if extension is beyond known elements. fizzle with an 85% probability
+# find out what the next object should be
+# if the object is actually present, then a relation  is added to one of the original 
+# objects as appropriate, and category labels are added to the new object
+#
+# if, on the other hand, the new object lies in the unknown range, another codelet is
+# launched that  checks if the user should be asked and extends the terms if possible
 use Compile::SCF;
 [package] SCF::AttemptExtensionOfRelation
 [multi] find_reln
@@ -178,7 +189,7 @@ if ($EVAL_ERROR) {
         my $already_matched = $err->already_matched();
         my $ask_if_what     = $err->next_elements();
 
-        return unless worth_asking( $already_matched, $ask_if_what, $core_span );
+        # return unless worth_asking( $already_matched, $ask_if_what, $core_span );
 
         SCodelet->new(
             "WorthAskingForExtendingReln",
@@ -187,6 +198,7 @@ if ($EVAL_ERROR) {
                 direction       => $direction,
                 already_matched => $already_matched,
                 ask_if_what     => $ask_if_what,
+                err => $err, # so that we can call $err->Ask()
             }
         )->schedule();
         return;
@@ -720,12 +732,14 @@ elsif ( $desperation > 10 ) {
 
 no Compile::SCF;
 ############################
+
 use Compile::SCF;
 [package] SCF::WorthAskingForExtendingReln
 [param] core!
 [param] direction!
 [param] already_matched!
 [param] ask_if_what!
+[param] err!
 
 <run>
 my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
@@ -756,6 +770,7 @@ if ( $index_of_first_matched_element > 0 ) {
 }
 
 # So worth asking?
+$err->Ask() or return;
 SCodelet->new(
     'AttemptExtensionOfRelation',
     100,
