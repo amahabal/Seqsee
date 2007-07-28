@@ -53,8 +53,8 @@ our $Number = SCat::OfObj->new({
     to_recreate => '$S::NUMBER',
     builder => $builder,
     instancer => $instancer,
-    metonymy_finders => { square => $meto_finder_square},
-    metonymy_unfinders => { square => $meto_unfinder_square},
+    metonymy_finders => {}, # square => $meto_finder_square},
+    metonymy_unfinders => {}, # square => $meto_unfinder_square},
 });
 
 1;
