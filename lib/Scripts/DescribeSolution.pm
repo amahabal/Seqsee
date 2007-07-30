@@ -60,6 +60,8 @@ use Compile::Scripts;
         my $reln = $rule->get_relations()->[0];
         SCRIPT DescribeRelation, { reln => $reln, ruleapp => $ruleapp };
     }
+    Global::SetRuleAppAsBest($ruleapp);
+
     *******
     RETURN;
 </steps>

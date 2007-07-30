@@ -60,12 +60,14 @@ sub Populate {
 
 sub MessageRequiringNoResponse {
     my ( $self, @msg ) = @_;
+    ### SAW: join("+++", @msg)
     $Text->insert( 'end', @msg );
     $Text->see('end');
 }
 
 sub MessageRequiringAResponse {
     my ( $self, $response_ref, @msg ) = @_;
+    ### SAW: join("+++", @msg)
     $Text->insert( 'end', @msg );
     $Text->see('end');
 

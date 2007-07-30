@@ -20,10 +20,16 @@ our $TimeOfLastNewElement = 0;      # When was the last element added?
 our $TimeOfNewStructure   = 0;      # When was the last group created or element added?
 
 our $InterstepSleep = 0;            # In milli-seconds
-our $Sanity; # Do sanity check after each step?
-our %Hilit; # 0bjects to hi1lit; can have 1/2as values
+our $Sanity;                        # Do sanity check after each step?
+our %Hilit;                         # 0bjects to hi1lit; can have 1/2as values
 
-%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd chooseright);
+our $BestRule;                      # Best rule seen so far.
+our $BestRuleApp;
+our $RecentPromisingRule;           # A recently seen rule that might be right.
+our $RecentPromisingRuleApp;
+our %GroupStrengthByConsistency;    # Strength confered on groups by consistency with rules.
+
+%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd chooseright assumecompleteblocks);
 $LogString = '';
 
 sub clear {
@@ -31,18 +37,47 @@ sub clear {
     $AtLeastOneUserVerification = 0;
     %ExtensionRejectedByUser    = ();
     $LogString                  = '';
+    %Hilit                      = ();
+    $BestRule                   = undef;
+    $RecentPromisingRule        = undef;
+    %GroupStrengthByConsistency = ();
+}
+
+sub ClearHilit {
     %Hilit = ();
 }
 
-sub ClearHilit{
-     %Hilit = ();
+sub Hilit {
+    my ($value) = shift;
+    $Hilit{$_} = $value for @_;
 }
 
-sub Hilit{
-    my ( $value ) = shift;
-    $Hilit{$_}= $value for @_;
+sub SetRuleAppAsBest {
+    my ($ruleapp) = @_;
+    $BestRuleApp = $ruleapp;
+    $BestRule    = $ruleapp->get_rule();
+    UpdateGroupStrengthByConsistency();
 }
 
+sub SetRuleAppAsRecent {
+    my ($ruleapp) = @_;
+    $RecentPromisingRuleApp = $ruleapp;
+    $RecentPromisingRule    = $ruleapp->get_rule();
+    UpdateGroupStrengthByConsistency();
+}
 
+sub UpdateGroupStrengthByConsistency{
+    %GroupStrengthByConsistency = ();
+    if ($BestRuleApp) {
+        for (@{$BestRuleApp->get_items}) {
+            $GroupStrengthByConsistency{$_}+= 40;
+        }
+    }
+    if ($RecentPromisingRuleApp) {
+        for (@{$RecentPromisingRuleApp->get_items}) {
+            $GroupStrengthByConsistency{$_}+= 40;
+        }
+    }
+}
 
 1;

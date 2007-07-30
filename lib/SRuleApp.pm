@@ -115,7 +115,8 @@ sub ExtendInDirection {
     if ( my $e = $EVAL_ERROR ) {
         die $e unless UNIVERSAL::isa( $e, 'SErr::AskUser' );
 
-        # XXX(Board-it-up): [2007/01/01] Trust level clearly should not be 1..
+        my $trust_level = ($self->get_span() / $SWorkspace::elements_count) *
+            log(scalar(@{$self->get_items})) / log(3);
         if ( $e->WorthAsking(1) ) {
             $is_this_what_is_present = $e->Ask('(while extending rule)');
         }
@@ -254,6 +255,7 @@ sub ExtendForward {
             return;
         }
     }
+    Global::UpdateGroupStrengthByConsistency();
     return 1;
 }
 
@@ -283,6 +285,7 @@ sub ExtendBackward {
             return;
         }
     }
+    Global::UpdateGroupStrengthByConsistency();
     return 1;
 }
 

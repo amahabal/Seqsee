@@ -111,6 +111,12 @@ use Compile::SThought;
     ### $span, $total_count
     #main::message( $right_extendibility);
 
+my $underlying_rule_app = $gp->get_underlying_reln();
+
+if ($span / $total_count > 0.5) {
+    Global::SetRuleAppAsRecent($underlying_rule_app) if $underlying_rule_app;
+}
+
     if ( $Global::AtLeastOneUserVerification
         and ( $span / $total_count ) > 0.8 )
     {

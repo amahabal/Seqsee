@@ -749,9 +749,9 @@ sub GetSomethingLike {
         if ( UNIVERSAL::isa( $e, 'SErr::AskUser' ) ) {
 
             # XXX(Board-it-up): [2006/12/18]
-            if ( my $new_trust_level = $e->WorthAsking($trust_level) ) {
-                $new_trust_level *= 0.02;    # had multiplied by 50 for toss...
-                $e->Ask("<trust: $new_trust_level> $reason");
+            if ( $e->WorthAsking($trust_level) ) {
+                $trust_level *= 0.02;    # had multiplied by 50 for toss...
+                $e->Ask("<trust: $trust_level> $reason");
             }
         }
         else {
@@ -788,8 +788,7 @@ sub SErr::AskUser::WorthAsking {
     my ( $self, $trust_level ) = @_;
     my ( $match_size, $ask_size )
         = ( scalar( @{ $self->already_matched() } ), scalar( @{ $self->next_elements() } ) );
-    my $fraction_already_matched = 3 * $match_size / ( $match_size + $ask_size );
-    $fraction_already_matched /= $SWorkspace::elements_count;
+    my $fraction_already_matched = $match_size / ( $match_size + $ask_size );
     $trust_level += ( 1 - $trust_level ) * $fraction_already_matched;
     return SUtil::toss($trust_level) ? $trust_level : 0;
 }

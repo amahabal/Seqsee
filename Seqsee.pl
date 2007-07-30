@@ -164,16 +164,19 @@ sub init_display {
         $Global::Break_Loop = 1 unless $no_break;
     };
     my $commentary_displayer = sub {
-        my ( $msg, $no_break ) = @_;
+        my ( $msg, $no_break) = @_;
+        print "MSG=$msg\n";
         if ($no_break) {
-            $SGUI::Commentary->MessageRequiringNoResponse("$msg\n");
+            my @msg = (ref($msg) eq 'ARRAY') ? @$msg : ("$msg\n");
+            $SGUI::Commentary->MessageRequiringNoResponse(@msg);
         } else {
-            $SGUI::Commentary->MessageRequiringAResponse(['continue'], "$msg");
+            my @msg = ref($msg) eq 'ARRAY' ? @$msg : ($msg);
+            $SGUI::Commentary->MessageRequiringAResponse(['continue'], @msg);
         }
     };
     my $commentary_displayer_debug = sub {
         my ( $msg, $no_break ) = @_;
-        $commentary_displayer->("[DEBUG: $msg]", $no_break);
+        $commentary_displayer->(["[DEBUG: $msg]", ['debug']], $no_break);
     };
 
     my $ask_user_extension_displayer = sub {
@@ -186,7 +189,8 @@ sub init_display {
           ( $cnt == 1 )
           ? "Is the next term @$arr_ref?"
           : "Are the next terms: @$arr_ref?";
-        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse($msg); 
+
+        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse($msg, '', $msg_suffix, ['debug']); 
         if ($ok) {
             $Global::AtLeastOneUserVerification = 1;
         }
