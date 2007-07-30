@@ -23,7 +23,7 @@ our $InterstepSleep = 0;            # In milli-seconds
 our $Sanity; # Do sanity check after each step?
 our %Hilit; # 0bjects to hi1lit; can have 1/2as values
 
-%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd);
+%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd chooseright);
 $LogString = '';
 
 sub clear {

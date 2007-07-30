@@ -78,7 +78,7 @@ sub get_edges {
 
 sub create{
     my ( $package, @items ) = @_;
-    confess unless @items;
+    #confess unless @items;
     if (@items == 1) {
         return $items[0] if UNIVERSAL::isa($items[0], 'SAnchored');
         confess "Unanchored object!";

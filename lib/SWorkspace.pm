@@ -66,7 +66,7 @@ sub init {
         # print "Inserting '$_'\n";
         _insert_element($_);
     }
-    @Global::RealSequence = @seq;
+    @Global::RealSequence     = @seq;
     $Global::InitialTermCount = scalar(@seq);
 }
 
@@ -121,17 +121,18 @@ multimethod _insert_element => ('SElement') => sub {
 };
 
 # method: read_object
-# Don't yet know how this will work... right now just returns some object at the readhead and advances it.
-#
 sub read_object {
     my ($package) = @_;
-    my $object = _get_some_object_at($ReadHead);
-    unless ($object) {
-        ### Failed to read any object at ReadHead = : $ReadHead
-        ### elements_count: $elements_count
-        _saccade();
-        return read_object();
+    my @choose_from;
+    my @all_objects = (@elements, values %groups);
+    if ($Global::Feature{chooseright}) {
+        @choose_from  = @all_objects;
+        push @choose_from, grep { $_->get_span() > 4} @all_objects;
     }
+    push @choose_from,
+        grep { $_->get_left_edge() <= $ReadHead and $_->get_right_edge() >= $ReadHead }
+        @all_objects;
+    my $object     = $strength_chooser->( \@choose_from );
     my $right_edge = $object->get_right_edge;
 
     if ( $right_edge == $elements_count - 1 ) {
@@ -142,7 +143,6 @@ sub read_object {
     }
 
     return $object;
-
 }
 
 {
@@ -159,8 +159,8 @@ sub read_object {
     sub _get_some_object_at {
         my ($idx) = @_;
         my @matching_objects =
-          grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
-          ( @elements, values %groups );
+            grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
+            ( @elements, values %groups );
 
         return $strength_chooser->( \@matching_objects );
     }
@@ -173,9 +173,9 @@ sub read_object {
 sub display_as_text {
     my ($package) = @_;
     print form "======================================================",
-      " Elements:  {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-      join( ", ", map { $_->get_mag() } @elements ),
-      "======================================================";
+        " Elements:  {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
+        join( ", ", map { $_->get_mag() } @elements ),
+        "======================================================";
 
 }
 
@@ -184,7 +184,7 @@ sub display_as_text {
 #
 #    Jumps to a random valid position
 sub _saccade {
-    if (SUtil::toss(0.5)) {
+    if ( SUtil::toss(0.5) ) {
         return $ReadHead = 0;
     }
     my $random_pos = int( rand() * $elements_count );
@@ -279,29 +279,28 @@ sub get_groups_ending_at {
 
 sub get_longest_non_adhoc_object_starting_at {
     my ( $self, $left ) = @_;
-    for my $gp ( $self->get_groups_starting_at($left) )
-    {    # That gives us longest first.
-      INNER: for my $cat ( @{ $gp->get_categories() } ) {
+    for my $gp ( $self->get_groups_starting_at($left) ) {    # That gives us longest first.
+    INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
                 return $gp;
             }
         }
     }
 
-    if ($left >= $elements_count) {
+    if ( $left >= $elements_count ) {
         ### left: $left
         ### elements_count: $elements_count
         confess "Why am I being asked this?";
     }
+
     # Getting here means no group. Return the element.
     return $elements[$left];
 }
 
 sub get_longest_non_adhoc_object_ending_at {
     my ( $self, $right ) = @_;
-    for my $gp ( $self->get_groups_ending_at($right) )
-    {    # That gives us longest first.
-      INNER: for my $cat ( @{ $gp->get_categories() } ) {
+    for my $gp ( $self->get_groups_ending_at($right) ) {    # That gives us longest first.
+    INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
                 return $gp;
             }
@@ -317,7 +316,7 @@ sub AreGroupsInConflict {
     return 1 if $A eq $B;
 
     my ( $smaller, $bigger ) =
-      sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
+        sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
 
     return 0 if $smaller->isa('SElement');    # Never conflicts!
     return 0 unless $bigger->spans($smaller); # obvious case.
@@ -342,7 +341,7 @@ sub AreGroupsInConflict {
         # No mismatch detected!
         return 1;    # Conflicts!
     }
-    confess "Why am I here?"; # if bigger spans smaller, no business being here!
+    confess "Why am I here?";    # if bigger spans smaller, no business being here!
 }
 
 sub AreGroupsInConflict_helper {
@@ -352,14 +351,11 @@ sub AreGroupsInConflict_helper {
 
     my ( $smaller_left_edge, $smaller_right_edge ) = $smaller->get_edges();
     for my $piece_of_bigger (@$bigger) {
-        my ( $piece_left_edge, $piece_right_edge ) =
-          $piece_of_bigger->get_edges();
+        my ( $piece_left_edge, $piece_right_edge ) = $piece_of_bigger->get_edges();
         next
-          if $piece_right_edge <
-          $smaller_left_edge;    # piece too early within bigger. Look ahead.
+            if $piece_right_edge < $smaller_left_edge;  # piece too early within bigger. Look ahead.
         ## If we are here, the current piece must be $smaller, or have $smaller as part.
-        return $package->AreGroupsInConflict_helper( $smaller,
-            $piece_of_bigger );
+        return $package->AreGroupsInConflict_helper( $smaller, $piece_of_bigger );
     }
     confess "Why am I here?";
 }
@@ -372,19 +368,19 @@ sub FindGroupsConflictingWith {
     my @exact_span = SWorkspace->get_all_groups_with_exact_span( $l, $r );
     my $structure_string = $object->get_structure_string();
     my @exact_span_same_structure =
-      grep { $_->get_structure_string() eq $structure_string } @exact_span;
+        grep { $_->get_structure_string() eq $structure_string } @exact_span;
 
     if (@exact_span_same_structure) {
-        $exact_conflict = $exact_span_same_structure[0]; # Can only ever be one.
+        $exact_conflict = $exact_span_same_structure[0];    # Can only ever be one.
     }
 
     my @conflicting = grep {
         ## Conflict check: ident($object), $object->get_bounds_string(), ident($_), $_->get_bounds_string()
         SWorkspace->AreGroupsInConflict( $object, $_ );
-      } (
+        } (
         SWorkspace->get_all_covering_groups( $l, $r ),
         SWorkspace->get_all_groups_within( $l, $r )
-      );
+        );
     ## @conflicting: @conflicting
 
     # @conflicting will also contain $exact_conflict, but that is fine.
@@ -397,7 +393,7 @@ sub get_intervening_objects {
     my @ret;
     my $left = $l;
     ##  $left, $r
-    if ($r >= $elements_count) {
+    if ( $r >= $elements_count ) {
         confess "get_intervening_objects called with right end of gap beyond known elements";
     }
     while ( $left <= $r ) {
@@ -413,22 +409,19 @@ sub get_intervening_objects {
 
 sub add_group {
     my ( $self, $gp ) = @_;
-    my ( $exact_conflict, @subset_conflicts ) =
-      SWorkspace->FindGroupsConflictingWith($gp);
+    my ( $exact_conflict, @subset_conflicts ) = SWorkspace->FindGroupsConflictingWith($gp);
     ## $exact_conflict, @subset_conflicts: $exact_conflict, @subset_conflicts
     return 0 if $exact_conflict;
 
     if (@subset_conflicts) {
         my $one_conflict = shift(@subset_conflicts);
         ## $one_conflict: ident($one_conflict)
-        if (
-            SWorkspace->FightUntoDeath(
-                {
-                    challenger => $gp,
+        if (SWorkspace->FightUntoDeath(
+                {   challenger => $gp,
                     incumbent  => $one_conflict
                 }
             )
-          )
+            )
         {
 
             ## So the incumbent was defeated!
@@ -451,8 +444,8 @@ sub remove_gp {
     DeleteGroupsContaining($gp);
 }
 
-sub DeleteGroupsContaining{
-    my ( $member_object ) = @_;
+sub DeleteGroupsContaining {
+    my ($member_object) = @_;
     my @groups = values %groups;
     for my $gp (@groups) {
         DeleteGroupsContaining($gp) if $gp->HasAsItem($member_object);
@@ -461,14 +454,12 @@ sub DeleteGroupsContaining{
     delete $groups{$member_object};
 }
 
-
-sub UpdateGroupsContaining{
-    my ( $member_object ) = @_;
-    for my $gp (values %groups) {
+sub UpdateGroupsContaining {
+    my ($member_object) = @_;
+    for my $gp ( values %groups ) {
         $gp->Update() if $gp->HasAsItem($member_object);
     }
 }
-
 
 # method: check_at_location
 # checks if this is the object present at a location
@@ -486,45 +477,43 @@ sub check_at_location {
     ## $direction, $start, $what
     ## @flattened
     if ( $direction eq DIR::RIGHT() ) {    # rightward
-        CheckElementsRightwardFromLocation( $start, \@flattened,
-                                            $what, $start, $direction
-                                                );
-    } elsif ($direction eq $DIR::LEFT) {
-        
-        if ( $span > $start + 1 ) { # would extend beyond left edge
+        CheckElementsRightwardFromLocation( $start, \@flattened, $what, $start, $direction );
+    }
+    elsif ( $direction eq $DIR::LEFT ) {
+
+        if ( $span > $start + 1 ) {        # would extend beyond left edge
             return;
         }
 
         my $left_end_of_potential_match = $start - $span + 1;
-        return CheckElementsRightwardFromLocation($left_end_of_potential_match,
-                                                  \@flattened,
-                                                  $what, $start, $direction 
-                                                      );
-    } else {
+        return CheckElementsRightwardFromLocation( $left_end_of_potential_match,
+            \@flattened, $what, $start, $direction );
+    }
+    else {
         confess "Huh?";
     }
 
 }
 
-sub CheckElementsRightwardFromLocation{
-    my ( $start, $elements_ref,
-         $object_being_looked_for,
-         $position_it_is_being_looked_from,
-         $direction_to_look_in) = @_;
-    my @flattened = @$elements_ref;
+sub CheckElementsRightwardFromLocation {
+    my ( $start, $elements_ref, $object_being_looked_for, $position_it_is_being_looked_from,
+        $direction_to_look_in )
+        = @_;
+    my @flattened   = @$elements_ref;
     my $current_pos = $start - 1;
     my @already_validated;
     while (@flattened) {
         $current_pos++;
         if ( $current_pos >= $elements_count ) {
+
             # already out of range!
             my $err = SErr::AskUser->new(
                 already_matched => [@already_validated],
                 next_elements   => [@flattened],
-                object => $object_being_looked_for,
-                from_position => $position_it_is_being_looked_from,
-                direction => $direction_to_look_in
-                    );
+                object          => $object_being_looked_for,
+                from_position   => $position_it_is_being_looked_from,
+                direction       => $direction_to_look_in
+            );
             $err->throw();
         }
         else {
@@ -538,9 +527,8 @@ sub CheckElementsRightwardFromLocation{
             }
         }
     }
-    return 1;     
+    return 1;
 }
-
 
 multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
     *__ANON__ = "__ANON_plonk_into_place_el";
@@ -548,12 +536,14 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SElement' ) => sub {
     my $el_in_ws = $SWorkspace::elements[$start];
     confess "unable to plonk!" unless $el_in_ws->get_mag() == $el->get_mag();
 
-    my $obj = $el;
+    my $obj     = $el;
     my $new_obj = $el_in_ws;
     for ( @{ $obj->get_categories() } ) {
         my $bindings = $new_obj->describe_as($_)
-          or confess "Description failed for category " . $_->get_name() . " for object ".
-              $obj->get_structure_string();
+            or confess "Description failed for category "
+            . $_->get_name()
+            . " for object "
+            . $obj->get_structure_string();
         my $old_bindings = $obj->describe_as($_);
         my $old_pos_mode = $old_bindings->get_position_mode();
         if ( defined $old_pos_mode ) {
@@ -582,15 +572,13 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
         return plonk_into_place( $start - $span + 1, DIR::RIGHT(), $obj );
     }
 
-    my @to_insert =
-      ( $obj->get_direction() eq DIR::LEFT() ) ? reverse(@$obj) : @$obj;
+    my @to_insert = ( $obj->get_direction() eq DIR::LEFT() ) ? reverse(@$obj) : @$obj;
     my $plonk_cursor = $start;
     my @new_parts;
 
     for my $subobject (@to_insert) {
         my $subobjectspan = $subobject->get_span;
-        push @new_parts,
-          plonk_into_place( $plonk_cursor, DIR::RIGHT(), $subobject );
+        push @new_parts, plonk_into_place( $plonk_cursor, DIR::RIGHT(), $subobject );
         $plonk_cursor += $subobjectspan;
     }
 
@@ -602,14 +590,10 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     ## (effectively): $obj->GetEffectiveStructureString()
     ## new_obj_structure_string: $new_obj_structure_string
     ## (effectively): $new_obj->GetEffectiveStructureString()
-    for my $spanning_obj (
-        SWorkspace->get_all_covering_groups( $start, $start + $span - 1 ) )
-    {
+    for my $spanning_obj ( SWorkspace->get_all_covering_groups( $start, $start + $span - 1 ) ) {
         ## $spanning_obj: $spanning_obj->get_structure_string()
         ## new_obj_structure_string: $new_obj_structure_string
-        if (
-            $spanning_obj->get_structure_string() eq $new_obj_structure_string )
-        {
+        if ( $spanning_obj->get_structure_string() eq $new_obj_structure_string ) {
             $old_obj = $spanning_obj;
             ## $old_obj
             last;
@@ -630,9 +614,12 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
 
     for ( @{ $obj->get_categories() } ) {
         my $old_bindings = $obj->describe_as($_);
-        my $bindings = $new_obj->describe_as($_)
-          or confess "Description failed for category " . $_->get_name() . " for object ".
-              $obj->as_text() . "Old: $old_bindings";
+        my $bindings     = $new_obj->describe_as($_)
+            or confess "Description failed for category "
+            . $_->get_name()
+            . " for object "
+            . $obj->as_text()
+            . "Old: $old_bindings";
         my $old_pos_mode = $old_bindings->get_position_mode();
         if ( defined $old_pos_mode ) {
             $bindings->TellDirectedStory( $new_obj, $old_pos_mode );
@@ -681,19 +668,20 @@ sub rapid_create_gp {
 
 sub are_there_holes_here {
     my ( $self, @items ) = @_;
+    return 1 unless @items;
     my %slots_taken;
     for my $item (@items) {
         SErr->throw("SAnchored->create called with a non anchored object")
-          unless UNIVERSAL::isa( $item, "SAnchored" );
+            unless UNIVERSAL::isa( $item, "SAnchored" );
         my ( $left, $right ) = $item->get_edges();
         @slots_taken{ $left .. $right } = ( $left .. $right );
     }
 
     my @keys = values %slots_taken;
     ## @keys
-    my ( $left, $right ) =
-      List::MoreUtils::minmax( $keys[0], @keys )
-      ; #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+    my ( $left, $right )
+        = List::MoreUtils::minmax( $keys[0], @keys )
+        ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     ## $left, $right
     my $span = $right - $left + 1;
 
@@ -705,13 +693,10 @@ sub are_there_holes_here {
 
 sub FightUntoDeath {
     my ( $package, $opts_ref ) = @_;
-    my ( $challenger, $incumbent ) =
-      ( $opts_ref->{challenger}, $opts_ref->{incumbent} );
+    my ( $challenger, $incumbent ) = ( $opts_ref->{challenger}, $opts_ref->{incumbent} );
     my (@strengths) = map { $_->get_strength() } ( $challenger, $incumbent );
     confess "Both strengths 0" unless $strengths[0] + $strengths[1];
-    if (
-        SUtil::toss( $strengths[0] / ( $strengths[0] + 1.5 * $strengths[1] ) ) )
-    {
+    if ( SUtil::toss( $strengths[0] / ( $strengths[0] + 1.5 * $strengths[1] ) ) ) {
 
         # challenger won!
         SWorkspace->remove_gp($incumbent);
@@ -726,32 +711,28 @@ sub FightUntoDeath {
 
 sub GetSomethingLike {
     my ( $package, $opts_ref ) = @_;
-    my $object    = $opts_ref->{object} or confess;
-    my $start_pos = $opts_ref->{start};
-    my $direction = $opts_ref->{direction} or confess;
-    my $reason    = $opts_ref->{reason} || ''; # used for message for ask_user
-    my $trust_level = $opts_ref->{trust_level} or confess; # used if ask_user
+    my $object      = $opts_ref->{object} or confess;
+    my $start_pos   = $opts_ref->{start};
+    my $direction   = $opts_ref->{direction} or confess;
+    my $reason      = $opts_ref->{reason} || '';              # used for message for ask_user
+    my $trust_level = $opts_ref->{trust_level} or confess;    # used if ask_user
     defined($start_pos) or confess;
 
     my @objects_at_that_location;
     if ( $direction eq $DIR::RIGHT ) {
         @objects_at_that_location =
-          grep { $_->get_left_edge() eq $start_pos }
-          ( @elements, values %groups );
+            grep { $_->get_left_edge() eq $start_pos } ( @elements, values %groups );
     }
     elsif ( $direction eq $DIR::LEFT ) {
         @objects_at_that_location =
-          grep { $_->get_right_edge() eq $start_pos }
-          ( @elements, values %groups );
+            grep { $_->get_right_edge() eq $start_pos } ( @elements, values %groups );
     }
 
     my $expected_structure_string = $object->get_structure_string();
 
     my ( @matching_objects, @potentially_matching_objects );
     for (@objects_at_that_location) {
-        if ( $_->GetEffectiveObject()->get_structure_string() eq
-            $expected_structure_string )
-        {
+        if ( $_->GetEffectiveObject()->get_structure_string() eq $expected_structure_string ) {
             push @matching_objects, $_;
         }
         else {
@@ -769,7 +750,7 @@ sub GetSomethingLike {
 
             # XXX(Board-it-up): [2006/12/18]
             if ( my $new_trust_level = $e->WorthAsking($trust_level) ) {
-                $new_trust_level *= 0.02; # had multiplied by 50 for toss...
+                $new_trust_level *= 0.02;    # had multiplied by 50 for toss...
                 $e->Ask("<trust: $new_trust_level> $reason");
             }
         }
@@ -779,8 +760,7 @@ sub GetSomethingLike {
     }
 
     if ($is_object_literally_present) {
-        my $present_object =
-          plonk_into_place( $start_pos, $direction, $object );
+        my $present_object = plonk_into_place( $start_pos, $direction, $object );
         if ( SUtil::toss(0.5) ) {
             return $present_object;
         }
@@ -794,8 +774,7 @@ sub GetSomethingLike {
             SCodelet->new(
                 'TryToSquint',
                 50,
-                {
-                    actual   => $_,
+                {   actual   => $_,
                     intended => $object,
                 }
             )
@@ -807,10 +786,11 @@ sub GetSomethingLike {
 
 sub SErr::AskUser::WorthAsking {
     my ( $self, $trust_level ) = @_;
-    my ($match_size, $ask_size) = (scalar(@{$self->already_matched()}),
-                                   scalar(@{$self->next_elements()}));
-    my $fraction_already_matched = $match_size / ($match_size + $ask_size);
-    $trust_level += (1 - $trust_level) * $fraction_already_matched; 
+    my ( $match_size, $ask_size )
+        = ( scalar( @{ $self->already_matched() } ), scalar( @{ $self->next_elements() } ) );
+    my $fraction_already_matched = 3 * $match_size / ( $match_size + $ask_size );
+    $fraction_already_matched /= $SWorkspace::elements_count;
+    $trust_level += ( 1 - $trust_level ) * $fraction_already_matched;
     return SUtil::toss($trust_level) ? $trust_level : 0;
 }
 
@@ -819,31 +799,29 @@ sub SErr::AskUser::Ask {
     my $already_matched = $self->already_matched();
     my $next_elements   = $self->next_elements();
 
-    my $object_being_looked_for = $self->object();
+    my $object_being_looked_for          = $self->object();
     my $position_it_is_being_looked_from = $self->from_position();
-    my $direction_to_look_in = $self->direction();
+    my $direction_to_look_in             = $self->direction();
 
     if (@$already_matched) {
-        $msg .=
-          "I found the expected terms " . join( ', ', @$already_matched );
+        $msg .= "I found the expected terms " . join( ', ', @$already_matched );
     }
 
-    my $answer =  main::ask_user_extension( $next_elements, $msg );
+    my $answer = main::ask_user_extension( $next_elements, $msg );
     if ($answer) {
-        SWorkspace->insert_elements( @$next_elements );
+        SWorkspace->insert_elements(@$next_elements);
         main::update_display();
         $Global::Break_Loop = 1;
 
-        if (defined $object_being_looked_for) {
-            plonk_into_place($position_it_is_being_looked_from,
-                             $direction_to_look_in,
-                             $object_being_looked_for
-                                 );
+        if ( defined $object_being_looked_for ) {
+            plonk_into_place( $position_it_is_being_looked_from,
+                $direction_to_look_in, $object_being_looked_for );
         }
 
-    } else {
-        my $seq = join(', ', @$next_elements);
-        $Global::ExtensionRejectedByUser{ $seq } = 1;
+    }
+    else {
+        my $seq = join( ', ', @$next_elements );
+        $Global::ExtensionRejectedByUser{$seq} = 1;
     }
     return $answer;
 }
@@ -878,10 +856,10 @@ sub FindDirectionOfObjectSet {
     confess "huh?";
 }
 
-sub DeleteObjectsInconsistentWith{
-    my ( $ruleapp ) = @_;
+sub DeleteObjectsInconsistentWith {
+    my ($ruleapp) = @_;
 
-    for my $rel (values %relations) {
+    for my $rel ( values %relations ) {
         my $is_consistent = $ruleapp->CheckConsitencyOfRelation($rel);
         $rel->uninsert();
     }
@@ -893,6 +871,5 @@ sub DeleteObjectsInconsistentWith{
         SWorkspace->remove_gp($gp) unless $is_consistent;
     }
 }
-
 
 1;

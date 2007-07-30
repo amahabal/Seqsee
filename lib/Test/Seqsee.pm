@@ -185,7 +185,7 @@ NOLOG
 
     "main"->install_sub(
         {   ask_user_extension => sub {
-                my ($arr_ref)       = @_;
+                my ($arr_ref) = @_;
                 return if Seqsee::already_rejected_by_user($arr_ref);
                 my $ws_count        = $SWorkspace::elements_count;
                 my $ask_terms_count = scalar(@$arr_ref);
@@ -209,7 +209,10 @@ NOLOG
     );
 
     # XXX(Board-it-up): [2007/02/14] Will need modification for correct testing!
-    "main"->install_sub({ ask_for_more_terms => sub {}});
+    "main"->install_sub(
+        {   ask_for_more_terms => sub { }
+        }
+    );
 
 }
 
@@ -445,24 +448,23 @@ sub RegTestHelper {
         }
     };
     my $err = $EVAL_ERROR;
-    my $with_error = $err ? (" (With Exception Thrown " . ref($err) . ")"): "";
+    my $with_error = $err ? ( " (With Exception Thrown " . ref($err) . ")" ) : "";
     print STDERR "Done$with_error.\n";
     ### Finished run, with steps: $Global::Steps_Finished
     ### Workspace has this many elements: $SWorkspace::elements_count
 
-
     my $failed_requests = GetFailedRequests();
     if ( $failed_requests > $max_false_continuations ) {
         print STDERR "+TOO MANY FAILED QUERIES ($failed_requests > $max_false_continuations)!\n";
-        print STDERR join('; ', keys %Global::ExtensionRejectedByUser), "\n";
-        return ("TooManyFalseQueries", 0);
+        print STDERR join( '; ', keys %Global::ExtensionRejectedByUser ), "\n";
+        return ( "TooManyFalseQueries", 0 );
     }
 
-    if ( $err ) {
+    if ($err) {
         if ( UNIVERSAL::isa( $err, "SErr::FinishedTest" ) ) {
             if ( $err->got_it() ) {
                 print STDERR "+GOT IT\n";
-                return ("GotIt", $Global::Steps_Finished);
+                return ( "GotIt", $Global::Steps_Finished );
             }
             else {
                 confess "A SErr::FinishedTest thrown without getting it. Bad.";
@@ -470,13 +472,14 @@ sub RegTestHelper {
         }
         elsif ( UNIVERSAL::isa( $err, "SErr::NotClairvoyant" ) ) {
             print STDERR "+EXTENDED (NO MORE KNOWN TERMS)\n";
-            return ("Extended", $Global::Steps_Finished);
+            return ( "Extended", $Global::Steps_Finished );
         }
         elsif ( UNIVERSAL::isa( $err, 'SErr::FinishedTestBlemished' ) ) {
             print STDERR "+BLEMISHED GOT IT\n";
-            return ("BlemishedGotIt", $Global::Steps_Finished);
+            return ( "BlemishedGotIt", $Global::Steps_Finished );
         }
         else {
+
             # print STDERR "Caught error $err";
             print STDERR "ERROR WAS: $err\n";
             die $err;
@@ -487,13 +490,13 @@ sub RegTestHelper {
         # Natural end?
         if ( $SWorkspace::elements_count - scalar(@$seq) > $min_extension ) {
             print STDERR "+EXTENDED A BIT\n";
-            return ("ExtendedWithoutGettingIt", $Global::Steps_Finished);
+            return ( "ExtendedWithoutGettingIt", $Global::Steps_Finished );
         }
         else {
 
             # print "Steps finished : $Global::Steps_Finished\n";
             print STDERR "+NOT EVEN EXTENDED ONCE\n";
-            return ("NotEvenExtended", $Global::Steps_Finished);
+            return ( "NotEvenExtended", $Global::Steps_Finished );
         }
     }
 }
@@ -511,14 +514,20 @@ sub RegTestHelper {
         my %outputs;
         my %errors;
         my @successful_codelet_count;
+        my @RESULTS;
         for ( 1 .. 10 ) {    ## Trials===[%]      Done
             my $out;
             my $step_count;
-            eval { ($out, $step_count) = RegTestHelper($opts_ref); };
-            if ($out eq "GotIt" or $out eq "Extended") {
+            eval { ( $out, $step_count ) = RegTestHelper($opts_ref); };
+            if ( $out eq "GotIt" or $out eq "Extended" ) {
                 push @successful_codelet_count, $step_count;
+                push @RESULTS,                  "SUCCESS: $out\t$step_count";
+                $outputs{$out}++;
+                next;
             }
+
             if ($EVAL_ERROR) {
+                push @RESULTS, "Error: $EVAL_ERROR";
                 $errors{$EVAL_ERROR}++;
                 $outputs{UnnaturalDeath}++;
                 next;
@@ -526,12 +535,14 @@ sub RegTestHelper {
 
             if ( $out =~ m/^UnnaturalDeath:\s*(.*)$/ ) {
                 $errors{$1}++;
+                push @RESULTS, "Error: $1";
                 $outputs{UnnaturalDeath}++;
                 print STDERR "\nERROR:\n$1\n=================\n";
                 next;
             }
 
-            $outputs{$out}++;
+            push @RESULTS, "Different result!";
+
         }
 
         print "============\n";
@@ -546,8 +557,10 @@ sub RegTestHelper {
             print "$v\t times: $k\n";
         }
 
+        $outputs{RESULTS} = \@RESULTS;
         if (@successful_codelet_count) {
-            $outputs{avgcc} = List::Util::sum(@successful_codelet_count) / scalar(@successful_codelet_count);
+            $outputs{avgcc}
+                = List::Util::sum(@successful_codelet_count) / scalar(@successful_codelet_count);
         }
         use Data::Dumper;
         open OUT, ">", $tmp_file;
@@ -562,7 +575,7 @@ sub RegTestHelper {
         print TEMP Data::Dumper->Dump( [$opts_ref], ["opts_ref"] );
         close TEMP;
         my $FeatureSetCommand
-            = join( ";", map {"\$Global::Feature{$_} = 1"} (keys %Global::Feature) );
+            = join( ";", map {"\$Global::Feature{$_} = 1"} ( keys %Global::Feature ) );
         system "perl -Mblib -e \"use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
             and die "The subcommand was cancelled. exiting";
         open REG, "<", $tmp_file;
@@ -603,58 +616,62 @@ my %PleasantlyHigh = (
 );
 
 sub RegHarness {
-    my @files = @_;
-    my ( @improved, @became_worse );
-    for (@files) {
-        my %opts;
-        read_config $_ => %opts;
-        %opts = %{ $opts{''} };
-        ( $opts{seq}, $opts{continuation} ) = ParseSeq_( $opts{seq} );
-        $opts{max_false}     ||= 10;
-        $opts{max_steps}     ||= 10000;
-        $opts{min_extension} ||= 2;
-        my $start_time = time();
-        my $output     = RegStatShell( \%opts );
-        $output->{avgcc} ||= 0;
-        return unless sum( values %$output ) == 10 + $output->{avgcc};
-        my $total_time = time() - $start_time;
-        print "Processing time: $total_time\n";
-        my $current_GotIt = $output->{GotIt} ||= 0;
+    my $file = shift;
+    my ( @improved, @became_worse, @Results );
+    my %opts;
 
-        my $earlier_GotIt = 0;
-        my $last_res_file = $_ . ".last_res";
-        my $log_file      = $_ . ".log_res";
-        if ( -e $last_res_file ) {
-            my %out;
-            eval { read_config $last_res_file => %out; };
-            $earlier_GotIt = $EVAL_ERROR ? 0 : $out{''}->{GotIt};
-        }
+    read_config $file => %opts;
+    %opts = %{ $opts{''} };
+    ( $opts{seq}, $opts{continuation} ) = ParseSeq_( $opts{seq} );
+    $opts{max_false}     ||= 10;
+    $opts{max_steps}     ||= 10000;
+    $opts{min_extension} ||= 2;
+    my $start_time = time();
+    my $output     = RegStatShell( \%opts );
+    ### output: $output
+    $output->{avgcc} ||= 0;
+    push @Results, @{ $output->{RESULTS} };
 
-        open LOG,     ">>", $log_file;
-        open CURRENT, ">",  $last_res_file;
-        print LOG "[", sprintf( time() ), "]\n";
-        while ( my ( $k, $v ) = each %$output ) {
-            $k =~ s#\W##g;
-            print LOG "$k = $v\n";
-            print CURRENT "$k = $v\n";
-        }
-        close LOG;
-        close CURRENT;
+    #return unless sum( values %$output ) == 10 + $output->{avgcc};
+    my $total_time = time() - $start_time;
+    print "Processing time: $total_time\n";
+    my $current_GotIt = $output->{GotIt} ||= 0;
 
-        if ( $current_GotIt <= $TooLow{$earlier_GotIt} ) {
-            print "##########\n# PERFORMANCE WORSE!\n Had Got It ",
-                "$earlier_GotIt times, now just $current_GotIt";
-            push @became_worse, [ $opts{seq}, $earlier_GotIt, $current_GotIt ];
-        }
-        elsif ( $current_GotIt >= $PleasantlyHigh{$earlier_GotIt} ) {
-            print "!!!!!!!!!\n# PERFORMANCE BETTER!\n Had Got It ",
-                "$earlier_GotIt times, now it is $current_GotIt";
-            push @improved, [ $opts{seq}, $earlier_GotIt, $current_GotIt ];
-        }
-
+    my $earlier_GotIt = 0;
+    my $last_res_file = $_ . ".last_res";
+    my $log_file      = $_ . ".log_res";
+    if ( -e $last_res_file ) {
+        my %out;
+        eval { read_config $last_res_file => %out; };
+        $earlier_GotIt = $EVAL_ERROR ? 0 : $out{''}->{GotIt};
     }
 
-    return ( \@improved, \@became_worse );
+    open LOG,     ">>", $log_file;
+    open CURRENT, ">",  $last_res_file;
+    print LOG "[", sprintf( time() ), "]\n";
+    while ( my ( $k, $v ) = each %$output ) {
+        $k =~ s#\W##g;
+        print LOG "$k = $v\n";
+        print CURRENT "$k = $v\n";
+    }
+    close LOG;
+    close CURRENT;
+
+    if ( $current_GotIt <= $TooLow{$earlier_GotIt} ) {
+        print "##########\n# PERFORMANCE WORSE!\n Had Got It ",
+            "$earlier_GotIt times, now just $current_GotIt";
+        push @became_worse, [ $opts{seq}, $earlier_GotIt, $current_GotIt ];
+    }
+    elsif ( $current_GotIt >= $PleasantlyHigh{$earlier_GotIt} ) {
+        print "!!!!!!!!!\n# PERFORMANCE BETTER!\n Had Got It ",
+            "$earlier_GotIt times, now it is $current_GotIt";
+        push @improved, [ $opts{seq}, $earlier_GotIt, $current_GotIt ];
+    }
+
+    my @to_ret = ( \@improved, \@became_worse, \@Results, \%opts );
+    use Smart::Comments;
+    ### to return: @to_ret
+    return @to_ret;
 }
 
 sub ParseSeq_ {
