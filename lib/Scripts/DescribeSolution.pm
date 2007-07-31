@@ -26,12 +26,18 @@ use Compile::Scripts;
 [script] DescribeInitialBlemish
 [param] group!
 <steps>
-    if (my $le = $group->get_left_edge()) {
-        my @initial_bl = map { $_->get_mag() } @SWorkspace::elements[0..$le-1];
-        main::message('There is an initial blemish in the sequence: '.
-                          join(', ', @initial_bl) . ' don\'t fit', 1);
+    if ( my $le = $group->get_left_edge() ) {
+    my @initial_bl = map { $_->get_mag() } @SWorkspace::elements[ 0 .. $le - 1 ];
+    main::message(
+        'There is an initial blemish in the sequence: ' . join( ', ', @initial_bl )
+            . (
+            scalar(@initial_bl) > 1
+            ? ' don\'t fit'
+            : ' doesn\'t fit'), 1
+            );
     }
-    RETURN;
+
+RETURN;
 </steps>
 
 no Compile::Scripts;
