@@ -115,9 +115,12 @@ sub ExtendInDirection {
     if ( my $e = $EVAL_ERROR ) {
         die $e unless UNIVERSAL::isa( $e, 'SErr::AskUser' );
 
-        my $trust_level = ($self->get_span() / $SWorkspace::elements_count) *
-            log(scalar(@{$self->get_items})) / log(3);
-        if ( $e->WorthAsking(1) ) {
+        my $trust_level = ($self->get_span() / $SWorkspace::elements_count) * 0.5;
+        ### span: $self->get_span()
+        ### count: $SWorkspace::elements_count
+        ### trust: $trust_level
+        # log(scalar(@{$self->get_items})) / log(3);
+        if ( $e->WorthAsking($trust_level) ) {
             $is_this_what_is_present = $e->Ask('(while extending rule)');
         }
     }

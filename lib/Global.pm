@@ -29,6 +29,9 @@ our $RecentPromisingRule;           # A recently seen rule that might be right.
 our $RecentPromisingRuleApp;
 our %GroupStrengthByConsistency;    # Strength confered on groups by consistency with rules.
 
+our $AcceptableTrustLevel = 0.5;    # Trust level above which questions can be asked.
+                                    # Gets adjusted programatically ..
+
 %PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd chooseright assumecompleteblocks);
 $LogString = '';
 
@@ -66,16 +69,16 @@ sub SetRuleAppAsRecent {
     UpdateGroupStrengthByConsistency();
 }
 
-sub UpdateGroupStrengthByConsistency{
+sub UpdateGroupStrengthByConsistency {
     %GroupStrengthByConsistency = ();
     if ($BestRuleApp) {
-        for (@{$BestRuleApp->get_items}) {
-            $GroupStrengthByConsistency{$_}+= 40;
+        for ( @{ $BestRuleApp->get_items } ) {
+            $GroupStrengthByConsistency{$_} += 40;
         }
     }
     if ($RecentPromisingRuleApp) {
-        for (@{$RecentPromisingRuleApp->get_items}) {
-            $GroupStrengthByConsistency{$_}+= 40;
+        for ( @{ $RecentPromisingRuleApp->get_items } ) {
+            $GroupStrengthByConsistency{$_} += 40;
         }
     }
 }

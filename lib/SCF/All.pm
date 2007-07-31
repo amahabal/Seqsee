@@ -752,6 +752,7 @@ if ( $type_activation < 0.3 or SUtil::toss( 1 - $type_activation ) ) {
 my $element_count                  = $SWorkspace::elements_count;
 my $matched_elements_count         = scalar(@$already_matched);
 my $index_of_first_matched_element = $element_count - $matched_elements_count;
+my $trust;
 if ( $index_of_first_matched_element > 0 ) {
     my $largest_preceding_group
         = SWorkspace->get_longest_non_adhoc_object_ending_at( $index_of_first_matched_element - 1 );
@@ -767,10 +768,12 @@ if ( $index_of_first_matched_element > 0 ) {
     {
         return;
     }
+    my $trust = 0.7 - (1 - $type_activation)*(1 - $core_span_ratio);
+    return if $trust < $Global::AcceptableTrustLevel;
 }
 
 # So worth asking?
-$err->Ask() or return;
+$err->Ask('extending relation') or return;
 SCodelet->new(
     'AttemptExtensionOfRelation',
     100,

@@ -75,6 +75,9 @@ sub already_rejected_by_user{
 
 sub Seqsee_Step{
     $Global::Steps_Finished++;
+    unless ($Global::Steps_Finished % 100) {
+        $Global::AcceptableTrustLevel -= 0.002;
+    }
     sleep($Global::InterstepSleep/1000);
     #main::message($Global::InterstepSleep);
     do_background_activity();
