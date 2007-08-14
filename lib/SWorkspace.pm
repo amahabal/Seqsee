@@ -566,6 +566,7 @@ multimethod plonk_into_place => ( '#', 'DIR', 'SObject' ) => sub {
     *__ANON__ = "__ANON_plonk_into_place_obj";
     my ( $start, $dir, $obj ) = @_;
     my $span = $obj->get_span;
+    return unless $span;
 
     if ( $dir eq DIR::LEFT() ) {
         return if $start - $span + 1 < 0;
@@ -668,7 +669,7 @@ sub rapid_create_gp {
 
 sub are_there_holes_here {
     my ( $self, @items ) = @_;
-    return 1 unless @items;
+    return 0 unless @items;
     my %slots_taken;
     for my $item (@items) {
         SErr->throw("SAnchored->create called with a non anchored object")

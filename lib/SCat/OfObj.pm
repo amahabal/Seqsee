@@ -17,6 +17,7 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{SInstance SCat};
+use English qw(-no_match_vars);
 use Smart::Comments;
 
 
@@ -319,8 +320,11 @@ sub _install_instancer{
         
         my %guess;
         for (@to_guess) {
-            my $guess = $guesser_ref->{$_}->($object, $_);
-            return unless defined $guess;
+            my $guess = eval { $guesser_ref->{$_}->($object, $_) };
+            if (my $o = $EVAL_ERROR) {
+                confess $o unless (UNIVERSAL::isa($o, 'SErr::Pos::OutOfRange'));
+            }
+            return if(not defined $guess);
 
             $guess{$_} = $guess;
             ## Guessed: $_, $guess

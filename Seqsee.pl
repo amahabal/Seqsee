@@ -1,7 +1,7 @@
 use strict;
 
 #use blib;
-use lib 'lib/';
+use lib 'genlib/';
 
 use Config::Std;
 use Getopt::Long;

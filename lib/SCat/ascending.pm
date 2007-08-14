@@ -49,7 +49,7 @@ our $ascending = SCat::OfObj->new(
             'length:start' => 1,
             'end:length' => 1,
             'end:length:start' => 1, # stupid!!
-                },
+        },
     }
 );
 

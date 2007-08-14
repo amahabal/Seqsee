@@ -34,8 +34,9 @@ sub Populate {
     $Text->bind( '<KeyPress-q>', sub { exit } );
 
     for (@$tags_ref) {
-        print "Configuring $_->[0]\n";
+        print "Configuring $_->[0]...";
         $Text->tagConfigure(@$_);
+        print " Done.\n";
     }
 
     $ButtonFrame = $self->Frame()->pack( -side => 'right' );

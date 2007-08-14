@@ -23,9 +23,10 @@ sub find_range {
     my $index = $index_of{ ident $self};
     my $size  = $object->get_parts_count();
 
-    $size == 0     and SErr::Pos::OutOfRange->throw();
-    $index < 1     and SErr::Pos::OutOfRange->throw();
-    $index > $size and SErr::Pos::OutOfRange->throw();
+    my $object_str = $object->get_structure_string();
+    $size == 0     and SErr::Pos::OutOfRange->throw("[obj=$object_str]index=$index, size=$size, ");
+    $index < 1     and SErr::Pos::OutOfRange->throw("[obj=$object_str]index=$index, size=$size, ");
+    $index > $size and SErr::Pos::OutOfRange->throw("[obj=$object_str]index=$index, size=$size, ");
 
     return [ $index - 1 ];
 }

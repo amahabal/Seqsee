@@ -152,6 +152,8 @@ else {
     ( $reln, $obj2, $obj1 ) = ( $core->FlippedVersion(), $core->get_ends );
 }
 
+return if SWorkspace->are_there_holes_here($obj1, $obj2);
+
 $next_pos = $obj2->get_next_pos_in_dir($direction);
 return unless defined($next_pos);
 if ( $next_pos == $SWorkspace::elements_count ) {

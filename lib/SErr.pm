@@ -7,6 +7,7 @@ use Exception::Class (
     'SErr::Pos::MultipleNamed' => {},
     'SErr::Att::Missing'       => { fields => ['what'] },
     'SErr::Att::Extra'         => { fields => ['what'] },
+    'SErr::EmptyCreate'        => {},
 
     'SErr::ConflictingGroups' => { fields => ['conflicts']},
 

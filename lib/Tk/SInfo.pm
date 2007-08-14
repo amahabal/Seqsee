@@ -43,6 +43,7 @@ sub clear{
 }
 
 sub Display{
+    return;
     my $self = shift;
     $list->delete('0.0', 'end');
     my @insert_array;
@@ -72,6 +73,7 @@ sub Update{
 }
 
 sub insert_autoTagged{
+    return;
     my ( $self, $where, @rest ) = @_;
     my @to_insert;
     for my $str (@rest) {
@@ -109,6 +111,7 @@ sub classify{
 
 
 sub insert_insertlist{
+    return;
     my ( $self, $list ) = @_;
     for (@$list) {
         $self->insert('end', @$_);
