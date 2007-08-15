@@ -1,0 +1,10 @@
+[Set 1]
+Type = AskOne
+seq = 1 7 2 8 3 9
+seq = 1 7 2 6 3 5
+
+[Set 2]
+Type = AskAll
+seq = 3 4 5 6
+seq = 4 5 6 7
+
