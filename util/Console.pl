@@ -20,19 +20,7 @@ my @input_requiring_commands_config = (
              ],
      [ # Command constructor
          'CreateRunPerlScriptCommand',
-         qw{-Mlib=lib Seqsee.pl}, 
-         qq{--seq="\$Sequence"}, 
-         ],
-        ],
-    ["Seqsee Genlib", #command name
-     [ # inputs
-         ["Sequence", #input name
-          "1 1 2 1 2 3", # default
-              ]
-             ],
-     [ # Command constructor
-         'CreateRunPerlScriptCommand',
-         qw{-Mlib=genlib Seqsee.pl}, 
+         qw{Seqsee.pl}, 
          qq{--seq="\$Sequence"}, 
          ],
         ],
@@ -95,8 +83,6 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
 my @button_config = (
     [Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl')],
     [CPAN => CreateRunPerlScriptCommand(qw{-MCPAN -e shell})],
-    [RegularSeqsee => CreateRunPerlScriptCommand(qw{-Mlib=lib Seqsee.pl --seq="1 1 2 1 2 3"})],
-    [GenlibSeqsee => CreateRunPerlScriptCommand(qw{-Mlib=genlib Seqsee.pl --seq="1 1 2 1 2 3"})],
 );
 
 INSERT_BUTTONS: {
