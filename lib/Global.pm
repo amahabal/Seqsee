@@ -83,4 +83,10 @@ sub UpdateGroupStrengthByConsistency {
     }
 }
 
+sub SetFutureTerms {
+    my ( $package, @terms ) = @_;
+    push @RealSequence, @terms;
+}
+
+
 1;

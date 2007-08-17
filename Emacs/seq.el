@@ -109,13 +109,30 @@
   > "my ( " ("Argument: " str ", ")  -2 " ) = @_;\n"
   )
 
+(define-skeleton seq-method-options
+  ""
+  nil
+  > "my ( $self, " ("Another Argument: " str ", ")  -2 " ) = @_;\n"
+  > "my $id = ident $self;\n"
+  )
+
 (define-skeleton seq-sub-body
   ""
   nil
-  "sub " (setq v1 (skeleton-read "Subroutine name: ")) "{\n"
+  "sub " (setq v1 (skeleton-read "Subroutine name: ")) " {\n"
   (if (string-match "y" (setq v2 (skeleton-read "Does it have arguments? " "y")))
       (seq-sub-options)
     "")
+  _ >
+  "\n" "}"  
+  (if (string-match "^$" v1) ";" "") "\n"
+)
+
+(define-skeleton seq-method-body
+  ""
+  nil
+  "sub " (setq v1 (skeleton-read "Subroutine name: ")) " {\n"
+  (seq-method-options)
   _ >
   "\n" "}"  
   (if (string-match "^$" v1) ";" "") "\n"

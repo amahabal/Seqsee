@@ -209,6 +209,8 @@
   "" 'seq-comment-var-nd 0)
 (define-abbrev cperl-mode-abbrev-table "sub"
   "" 'seq-sub-body 0)
+(define-abbrev cperl-mode-abbrev-table "method"
+  "" 'seq-method-body 0)
 (define-abbrev cperl-mode-abbrev-table "optg"
   "" 'seq-pull-opt 0)
 (define-abbrev cperl-mode-abbrev-table "optgd"

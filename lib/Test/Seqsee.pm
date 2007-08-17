@@ -423,7 +423,7 @@ sub RegTestHelper {
 
     ResetFailedRequests();
     SWorkspace->init( { %{$Global::TestingOptionsRef}, seq => $seq } );
-    SWorkspace->set_future_terms(@$continuation);
+    SGlobal->SetFutureTerms(@$continuation);
     SCoderack->init($Global::TestingOptionsRef);
     SStream->init($Global::TestingOptionsRef);
 
