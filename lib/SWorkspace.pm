@@ -348,11 +348,7 @@ sub RemoveRelation {
 #
 sub is_there_a_covering_group {
     my ( $self, $left, $right ) = @_;
-    foreach ( values %groups ) {
-        my ( $l, $r ) = $_->get_edges;
-        return $_ if ( $l <= $left and $r >= $right );
-    }
-    return 0;
+    return __GetObjectsWithEndsBeyond($left, $right) ? 1 : 0;
 }
 
 sub get_all_covering_groups {
@@ -379,12 +375,6 @@ sub get_groups_ending_at {
     my ( $self, $right ) = @_;
     # return __SortLtoRByLeftEdge(__GetObjectsWithEndsExactly(undef, $right));
     return __GetObjectsWithEndsExactly(undef, $right);
-    my @ret;
-    foreach ( values %groups ) {
-        my ( $l, $r ) = $_->get_edges;
-        push( @ret, $_ ) if ( $r == $right );
-    }
-    return ikeysort { $_->get_right_edge() } @ret;
 }
 
 sub get_longest_non_adhoc_object_starting_at {

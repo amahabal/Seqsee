@@ -250,5 +250,13 @@ sub StructureToString {
     }
 }
 
+sub trim {
+    for (@_) {
+        s#^\s*##;
+        s#\s*$##;
+        s#\s+# #;
+    }
+}
+
 
 1;

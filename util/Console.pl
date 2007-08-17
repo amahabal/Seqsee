@@ -33,6 +33,19 @@ my @input_requiring_commands_config = (
          qq{--seq="\$Sequence"}, 
          ],
         ],
+    [ "RunMultipleTimes",
+      [
+          [ "Terms",
+            "1 1 2 1 2 3 | 1 2 3 4 1 2 3 4 5 1 2 3 4 5 6",
+                ],
+              ],
+      [ # Command constructor
+          'CreateRunPerlScriptCommand',
+          qw{util/RunMultipleTimes.pl},
+          10,
+          qq{"\$Terms"},
+              ],
+          ],
     ["Search", #command name
      [ # inputs
          ["SearchString", #input name

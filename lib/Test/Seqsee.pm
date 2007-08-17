@@ -616,12 +616,19 @@ my %PleasantlyHigh = (
 );
 
 sub RegHarness {
-    my $file = shift;
-    my ( @improved, @became_worse, @Results );
+    my $arg1 = shift;
     my %opts;
+    my ( @improved, @became_worse, @Results );
 
-    read_config $file => %opts;
-    %opts = %{ $opts{''} };
+    if ( ref($arg1) eq 'HASH' ) {
+        %opts = %$arg1;
+    }
+    else {
+        my $file = shift;
+        read_config $file => %opts;
+        %opts = %{ $opts{''} };
+    }
+
     ( $opts{seq}, $opts{continuation} ) = ParseSeq_( $opts{seq} );
     $opts{max_false}     ||= 10;
     $opts{max_steps}     ||= 10000;
