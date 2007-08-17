@@ -3,6 +3,15 @@ use Tk;
 use Tk::StatusBar;
 use Smart::Comments;
 
+$SIG{INT} = sub  {
+    
+};
+
+$SIG{SIGHUP} = sub  {
+    exit;
+};
+
+
 my $MW = new MainWindow();
 my $SB = $MW->StatusBar();
 my $StatusMsg = "";

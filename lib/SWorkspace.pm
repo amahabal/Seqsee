@@ -357,46 +357,29 @@ sub is_there_a_covering_group {
 
 sub get_all_covering_groups {
     my ( $self, $left, $right ) = @_;
-
-    return grep {
-        my ( $l, $r ) = $_->get_edges;
-        $l <= $left and $r >= $right
-    } values %groups;
+    return __GetObjectsWithEndsBeyond($left, $right);
 }
 
 sub get_all_groups_within {
     my ( $self, $left, $right ) = @_;
-
-    return grep {
-        my ( $l, $r ) = $_->get_edges;
-        $left <= $l and $r <= $right
-    } values %groups;
+    return __GetObjectsWithEndsNotBeyond($left, $right);
 }
 
 sub get_all_groups_with_exact_span {
     my ( $self, $left, $right ) = @_;
-
-    return grep {
-        my ( $l, $r ) = $_->get_edges;
-        $l == $left and $r == $right
-    } values %groups;
+    return __GetObjectsWithEndsExactly($left, $right);
 }
 
 sub get_groups_starting_at {
     my ( $self, $left ) = @_;
-    my @ret;
-
-    foreach ( values %groups ) {
-        my ( $l, $r ) = $_->get_edges;
-        push( @ret, $_ ) if ( $l == $left );
-    }
-    return rikeysort { $_->get_right_edge() } @ret;
+    return __SortRtoLByRightEdge(__GetObjectsWithEndsExactly($left, undef));
 }
 
 sub get_groups_ending_at {
     my ( $self, $right ) = @_;
+    # return __SortLtoRByLeftEdge(__GetObjectsWithEndsExactly(undef, $right));
+    return __GetObjectsWithEndsExactly(undef, $right);
     my @ret;
-
     foreach ( values %groups ) {
         my ( $l, $r ) = $_->get_edges;
         push( @ret, $_ ) if ( $r == $right );
