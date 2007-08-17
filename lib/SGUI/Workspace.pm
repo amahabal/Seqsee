@@ -158,7 +158,7 @@ sub DrawItemOnCanvas {
 
 sub DrawElements {
     my $counter = 0;
-    for my $elt (@SWorkspace::elements) {
+    for my $elt (SWorkspace->GetElements()) {
         DrawItemOnCanvas( $elt, $counter,
             $Margin + ( 0.5 + $counter ) * $SpacePerElement, $ElementsY );
         $counter++;
@@ -166,7 +166,8 @@ sub DrawElements {
 }
 
 sub DrawGroups {
-    for my $gp ( rikeysort { $_->get_span() } values %SWorkspace::groups ) {
+#    for my $gp ( rikeysort { $_->get_span() } values %SWorkspace::groups ) {
+    for my $gp (SWorkspace->GetGroups()) {
         $gp->draw_ws3();
     }
     for my $elt (@SWorkspace::elements) {

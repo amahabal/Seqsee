@@ -28,16 +28,27 @@ use Sort::Key qw{rikeysort ikeysort};
 
 my $ElementCount = 0;
 my @Elements;
-my %Objects;    # List of all objects.
+my %Objects;          # List of all objects.
+my %NonEltObjects;    # Only groups (of size 2 or more)
 
-my %LeftEdge_of;       # Maintains left edges of "registered" groups.
-my %RightEdge_of;      # Likewise, right edges.
-my %SuperGroups_of;    # Groups whose direct element is this group.
-my %Span_of;           # Span.
+my %LeftEdge_of;      # Maintains left edges of "registered" groups.
+my %RightEdge_of;     # Likewise, right edges.
+my %SuperGroups_of;   # Groups whose direct element is this group.
+my %Span_of;          # Span.
+
+sub GetElements {
+    my ($package) = @_;
+    return @Elements;
+}
+
+sub GetGroups {
+    my ($package) = @_;
+    return rikeysort { $Span_of{$_} } values %NonEltObjects;
+}
 
 sub __Clear {
     $ElementCount   = 0;
-    @Elements       = %Objects = %LeftEdge_of = %RightEdge_of = ();
+    @Elements       = %Objects = %NonEltObjects = %LeftEdge_of = %RightEdge_of = ();
     %SuperGroups_of = %Span_of = ();
 }
 
@@ -120,6 +131,7 @@ sub __DeleteGroup {
     delete $Span_of{$group};
     delete $SuperGroups_of{$group};
     delete $Objects{$group};
+    delete $NonEltObjects{$group};
 }
 
 multimethod __InsertElement => ('SElement') => sub {
@@ -180,6 +192,7 @@ sub __DoGroupAddBookkeeping {
 
     # Assuming sanity checks passed.
     $Objects{$group}        = $group;
+    $NonEltObjects{$group}  = $group;
     $SuperGroups_of{$group} = {};
     __UpdateGroup($group);
 }
@@ -208,7 +221,6 @@ sub __RemoveFromSupergroups_of {
     my ( $subgroup, $supergroup ) = @_;
     delete $SuperGroups_of{$subgroup}{$supergroup};
 }
-
 
 #=============================================
 #=============================================
