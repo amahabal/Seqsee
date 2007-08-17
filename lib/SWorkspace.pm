@@ -20,6 +20,150 @@ use English qw(-no_match_vars);
 
 use Sort::Key qw{rikeysort ikeysort};
 
+#=============================================
+#=============================================
+# NEW CODE
+#=============================================
+
+my $ElementCount;
+my @Elements;
+my %Objects;           # List of all objects.
+
+my %LeftEdge_of;       # Maintains left edges of "registered" groups.
+my %RightEdge_of;      # Likewise, right edges.
+my %SuperGroups_of;    # Groups whose direct element is this group.
+my %Span_of;           # Span.
+
+sub __CheckLiveness {
+    exists( $Objects{ $_[0] } ) ? 1 : 0;
+}
+
+sub __GrepLiveness {
+    grep { exists( $Objects{$_} ) } @_;
+}
+
+sub __GetObjectsWithEndsExactly {
+    my ( $left, $right ) = @_;
+    my @objects = values %Objects;
+    if ( defined $left ) {
+        @objects = grep { $LeftEdge_of{$_} == $left } @objects;
+    }
+    if ( defined $right ) {
+        @objects = grep { $RightEdge_of{$_} == $right } @objects;
+    }
+    return @objects;
+}
+
+sub __GetObjectsWithEndsBeyond {
+    my ( $left, $right ) = @_;
+    my @objects = values %Objects;
+    if ( defined $left ) {
+        @objects = grep { $LeftEdge_of{$_} <= $left } @objects;
+    }
+    if ( defined $right ) {
+        @objects = grep { $RightEdge_of{$_} >= $right } @objects;
+    }
+    return @objects;
+}
+
+sub __GetObjectsWithEndsNotBeyond {
+    my ( $left, $right ) = @_;
+    my @objects = values %Objects;
+    if ( defined $left ) {
+        @objects = grep { $LeftEdge_of{$_} >= $left } @objects;
+    }
+    if ( defined $right ) {
+        @objects = grep { $RightEdge_of{$_} <= $right } @objects;
+    }
+    return @objects;
+}
+
+sub __SortLtoRByLeftEdge {
+    return ikeysort { $LeftEdge_of{$_} } @_;
+}
+
+sub __SortRtoLByLeftEdge {
+    return rikeysort { $LeftEdge_of{$_} } @_;
+}
+
+sub __SortLtoRByRightEdge {
+    return ikeysort { $RightEdge_of{$_} } @_;
+}
+
+sub __SortRtoLByRightEdge {
+    return rikeysort { $RightEdge_of{$_} } @_;
+}
+
+sub __DeleteGroup {
+    my ($group) = @_;
+    my @super_groups = @{ $SuperGroups_of{$group} };
+
+    for my $super_group (@super_groups) {
+        next unless __CheckLiveness($super_group);
+        __DeleteGroup($super_group);
+    }
+
+    __RemoveRelations_of($group);
+    delete $LeftEdge_of{$group};
+    delete $RightEdge_of{$group};
+    delete $Span_of{$group};
+    delete $SuperGroups_of{$group};
+    delete $Objects{$group};
+}
+
+multimethod __InsertElement => ('SElement') => sub {
+    my ($element) = @_;
+    $element->set_edges( $ElementCount, $ElementCount );
+    push @Elements, $element;
+    Global::UpdateExtensionsRejectedByUser( $element->get_mag() );
+
+    $LeftEdge_of{$element}    = $ElementCount;
+    $RightEdge_of{$element}   = $ElementCount;
+    $Span_of{$element}        = 1;
+    $Objects{$element}        = $element;
+    $SuperGroups_of{$element} = [];
+
+    $ElementCount++;
+};
+
+
+sub __CheckTwoGroupsForConflict {
+    my ( $A, $B ) = @_;
+    if ( !__CheckLiveness($A) or !__CheckLiveness($B) ) {
+        confess "This method only works for live objects";
+    }
+
+    my ( $smaller, $bigger ) = ikeysort { $Span_of{$_} } ( $A, $B );
+    return 0 if $smaller->isa('SElement');
+    return 0 unless $bigger->spans($smaller);
+
+    my $smaller_left_edge = $LeftEdge_of{$smaller};
+    my $current_index = -1;
+    for my $piece_of_bigger (@$bigger) {
+        $current_index++;
+        next if $RightEdge_of{$piece_of_bigger} < $smaller_left_edge;
+
+        # No "backtracking" beyond here. If @$smaller is a subset of @$bigger,
+        # it must start here! So no "next" here on.
+
+        # If @$smaller is indeed a subset of @$bigger, the pieces must match...
+        for my $piece_of_smaller (@$smaller) {
+            return 0 unless $piece_of_smaller eq $bigger->[$current_index];
+            $current_index++;
+        }
+
+        # If we reach here, then all smaller pieces match a bigger piece.
+        # smaller and bigger may also have exactly the same elements (i.e., not "proper" subset)
+        # but the conflict exists!
+        return 1;
+    }
+    confess "Should never reach here.";
+}
+
+
+#=============================================
+#=============================================
+
 # Next 2 lines: should be my!
 our $elements_count;
 our @elements = ();
@@ -68,11 +212,6 @@ sub init {
     }
     @Global::RealSequence     = @seq;
     $Global::InitialTermCount = scalar(@seq);
-}
-
-sub set_future_terms {
-    my ( $package, @terms ) = @_;
-    push @Global::RealSequence, @terms;
 }
 
 sub insert_elements {
@@ -164,18 +303,6 @@ sub read_object {
 
         return $strength_chooser->( \@matching_objects );
     }
-
-}
-
-# method: display_as_text
-# prints a string desciption of what's in the workspace
-#
-sub display_as_text {
-    my ($package) = @_;
-    print form "======================================================",
-        " Elements:  {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-        join( ", ", map { $_->get_mag() } @elements ),
-        "======================================================";
 
 }
 
