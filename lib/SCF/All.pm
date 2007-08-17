@@ -605,6 +605,7 @@ if ( $new_extension and $new_extension ne $ejected_object ) {
     else {
         $ejected_object = shift(@$object);
     }
+    SWorkspace::__RemoveFromSupergroups_of($ejected_object, $object);
     $object->recalculate_edges();
 
     #main::message( "New extension! Instead of "

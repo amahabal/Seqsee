@@ -292,6 +292,7 @@ sub Update{
         }
     }
     SWorkspace::UpdateGroupsContaining($self);
+    SWorkspace::__UpdateGroup($self);
 }
 
 

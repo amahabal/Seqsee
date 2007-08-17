@@ -12,6 +12,7 @@ use warnings;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
+use List::Util;
 use base qw{};
 
 use Perl6::Form;
@@ -27,12 +28,18 @@ use Sort::Key qw{rikeysort ikeysort};
 
 my $ElementCount = 0;
 my @Elements;
-my %Objects;           # List of all objects.
+my %Objects;    # List of all objects.
 
 my %LeftEdge_of;       # Maintains left edges of "registered" groups.
 my %RightEdge_of;      # Likewise, right edges.
 my %SuperGroups_of;    # Groups whose direct element is this group.
 my %Span_of;           # Span.
+
+sub __Clear {
+    $ElementCount   = 0;
+    @Elements       = %Objects = %LeftEdge_of = %RightEdge_of = ();
+    %SuperGroups_of = %Span_of = ();
+}
 
 sub __CheckLiveness {
     exists( $Objects{ $_[0] } ) ? 1 : 0;
@@ -96,14 +103,18 @@ sub __SortRtoLByRightEdge {
 
 sub __DeleteGroup {
     my ($group) = @_;
-    my @super_groups = @{ $SuperGroups_of{$group} };
+    my @super_groups = values %{ $SuperGroups_of{$group} };
 
     for my $super_group (@super_groups) {
         next unless __CheckLiveness($super_group);
         __DeleteGroup($super_group);
     }
 
-    __RemoveRelations_of($group);
+    for my $part (@$group) {
+        delete $SuperGroups_of{$part}{$group};
+    }
+
+    # __RemoveRelations_of($group);
     delete $LeftEdge_of{$group};
     delete $RightEdge_of{$group};
     delete $Span_of{$group};
@@ -121,11 +132,10 @@ multimethod __InsertElement => ('SElement') => sub {
     $RightEdge_of{$element}   = $ElementCount;
     $Span_of{$element}        = 1;
     $Objects{$element}        = $element;
-    $SuperGroups_of{$element} = [];
+    $SuperGroups_of{$element} = {};
 
     $ElementCount++;
 };
-
 
 sub __CheckTwoGroupsForConflict {
     my ( $A, $B ) = @_;
@@ -138,7 +148,7 @@ sub __CheckTwoGroupsForConflict {
     return 0 unless $bigger->spans($smaller);
 
     my $smaller_left_edge = $smaller->get_left_edge();
-    my $current_index = -1;
+    my $current_index     = -1;
     for my $piece_of_bigger (@$bigger) {
         $current_index++;
         next if $RightEdge_of{$piece_of_bigger} < $smaller_left_edge;
@@ -158,6 +168,45 @@ sub __CheckTwoGroupsForConflict {
         return 1;
     }
     confess "Should never reach here.";
+}
+
+sub __GroupAddSanityCheck {
+    my (@parts) = @_;
+    return 0 if __AreHolesPresent(@parts);
+}
+
+sub __DoGroupAddBookkeeping {
+    my ($group) = @_;
+
+    # Assuming sanity checks passed.
+    $Objects{$group}        = $group;
+    $SuperGroups_of{$group} = {};
+    __UpdateGroup($group);
+}
+
+# When a group shortens, I am going to have trouble with false super_group data...
+# So carefully call __RemoveFromSupergroups_of
+sub __UpdateGroup {
+    my ($group) = @_;
+
+    # Assume that if $group has changed, $SuperGroups_of{$group} was empty.
+    my @parts = @$group;
+    for my $part (@parts) {
+        $SuperGroups_of{$part}{$group} = $group;
+    }
+
+    # I can assume that all parts are live...
+    my $left_edge  = List::Util::min( @LeftEdge_of{@parts} );
+    my $right_edge = List::Util::max( @RightEdge_of{@parts} );
+    $LeftEdge_of{$group}  = $left_edge;
+    $RightEdge_of{$group} = $right_edge;
+    $Span_of{$group}      = $right_edge - $left_edge + 1;
+
+}
+
+sub __RemoveFromSupergroups_of {
+    my ( $subgroup, $supergroup ) = @_;
+    delete $SuperGroups_of{$subgroup}{$supergroup};
 }
 
 
@@ -193,6 +242,8 @@ sub clear {
     %groups         = ();
     %relations      = ();
     $ReadHead       = 0;
+
+    __Clear();
 }
 
 # method: init
@@ -265,10 +316,10 @@ multimethod _insert_element => ('SElement') => sub {
 sub read_object {
     my ($package) = @_;
     my @choose_from;
-    my @all_objects = (@elements, values %groups);
-    if ($Global::Feature{chooseright}) {
-        @choose_from  = @all_objects;
-        push @choose_from, grep { $_->get_span() > 4} @all_objects;
+    my @all_objects = ( @elements, values %groups );
+    if ( $Global::Feature{chooseright} ) {
+        @choose_from = @all_objects;
+        push @choose_from, grep { $_->get_span() > 4 } @all_objects;
     }
     push @choose_from,
         grep { $_->get_left_edge() <= $ReadHead and $_->get_right_edge() >= $ReadHead }
@@ -350,33 +401,34 @@ sub RemoveRelation {
 #
 sub is_there_a_covering_group {
     my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsBeyond($left, $right) ? 1 : 0;
+    return __GetObjectsWithEndsBeyond( $left, $right ) ? 1 : 0;
 }
 
 sub get_all_covering_groups {
     my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsBeyond($left, $right);
+    return __GetObjectsWithEndsBeyond( $left, $right );
 }
 
 sub get_all_groups_within {
     my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsNotBeyond($left, $right);
+    return __GetObjectsWithEndsNotBeyond( $left, $right );
 }
 
 sub get_all_groups_with_exact_span {
     my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsExactly($left, $right);
+    return __GetObjectsWithEndsExactly( $left, $right );
 }
 
 sub get_groups_starting_at {
     my ( $self, $left ) = @_;
-    return __SortRtoLByRightEdge(__GetObjectsWithEndsExactly($left, undef));
+    return __SortRtoLByRightEdge( __GetObjectsWithEndsExactly( $left, undef ) );
 }
 
 sub get_groups_ending_at {
     my ( $self, $right ) = @_;
+
     # return __SortLtoRByLeftEdge(__GetObjectsWithEndsExactly(undef, $right));
-    return __GetObjectsWithEndsExactly(undef, $right);
+    return __GetObjectsWithEndsExactly( undef, $right );
 }
 
 sub get_longest_non_adhoc_object_starting_at {
@@ -538,12 +590,14 @@ sub add_group {
 
     $groups{$gp} = $gp;
     $Global::TimeOfNewStructure = $Global::Steps_Finished;
+    __DoGroupAddBookkeeping($gp);
     return 1;
 }
 
 sub remove_gp {
     my ( $self, $gp ) = @_;
     DeleteGroupsContaining($gp);
+    __DeleteGroup($gp);
 }
 
 sub DeleteGroupsContaining {
@@ -896,7 +950,7 @@ sub SErr::AskUser::WorthAsking {
     $trust_level += ( 1 - $trust_level ) * $fraction_already_matched;
     ### trust_level: $trust_level
     ### acceptable: $Global::AcceptableTrustLevel
-    return 0 if ($trust_level < $Global::AcceptableTrustLevel);
+    return 0 if ( $trust_level < $Global::AcceptableTrustLevel );
     return SUtil::toss($trust_level) ? $trust_level : 0;
 }
 
