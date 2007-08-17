@@ -25,7 +25,7 @@ use Sort::Key qw{rikeysort ikeysort};
 # NEW CODE
 #=============================================
 
-my $ElementCount;
+my $ElementCount = 0;
 my @Elements;
 my %Objects;           # List of all objects.
 
@@ -129,15 +129,15 @@ multimethod __InsertElement => ('SElement') => sub {
 
 sub __CheckTwoGroupsForConflict {
     my ( $A, $B ) = @_;
-    if ( !__CheckLiveness($A) or !__CheckLiveness($B) ) {
-        confess "This method only works for live objects";
+    if ( !__CheckLiveness($B) ) {
+        confess "This method only works when the second object is live";
     }
 
     my ( $smaller, $bigger ) = ikeysort { $Span_of{$_} } ( $A, $B );
     return 0 if $smaller->isa('SElement');
     return 0 unless $bigger->spans($smaller);
 
-    my $smaller_left_edge = $LeftEdge_of{$smaller};
+    my $smaller_left_edge = $smaller->get_left_edge();
     my $current_index = -1;
     for my $piece_of_bigger (@$bigger) {
         $current_index++;
@@ -257,6 +257,8 @@ multimethod _insert_element => ('SElement') => sub {
     push( @elements, $elt );
     $elements_count++;
     %Global::ExtensionRejectedByUser = ();
+
+    __InsertElement($elt);
 };
 
 # method: read_object

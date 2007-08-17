@@ -88,5 +88,19 @@ sub SetFutureTerms {
     push @RealSequence, @terms;
 }
 
+sub UpdateExtensionsRejectedByUser {
+    my (@new_magnitudes) = @_;
+    my @keys = keys %ExtensionRejectedByUser;
+    my $new_mag_prefix = join( ", ", @new_magnitudes );
+    my @new_keys;
+    for my $key (@keys) {
+        next unless $key =~ /^$new_mag_prefix/;
+        next if $key eq $new_mag_prefix;
+        $key =~ s#^$new_mag_prefix, ##;
+        push @new_keys, $key;
+    }
+
+    %ExtensionRejectedByUser = map { $_ => 1 } @new_keys;
+}
 
 1;
