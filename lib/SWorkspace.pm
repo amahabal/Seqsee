@@ -28,6 +28,7 @@ use Sort::Key qw{rikeysort ikeysort};
 
 my $ElementCount = 0;
 my @Elements;
+my @ElementMagnitudes;
 my %Objects;          # List of all objects.
 my %NonEltObjects;    # Only groups (of size 2 or more)
 
@@ -48,7 +49,8 @@ sub GetGroups {
 
 sub __Clear {
     $ElementCount   = 0;
-    @Elements       = %Objects = %NonEltObjects = %LeftEdge_of = %RightEdge_of = ();
+    @Elements       = @ElementMagnitudes = %Objects = %NonEltObjects = ();
+    %LeftEdge_of    = %RightEdge_of = ();
     %SuperGroups_of = %Span_of = ();
 }
 
@@ -136,9 +138,12 @@ sub __DeleteGroup {
 
 multimethod __InsertElement => ('SElement') => sub {
     my ($element) = @_;
+    my $magnitude = $element->get_mag();
+
     $element->set_edges( $ElementCount, $ElementCount );
-    push @Elements, $element;
-    Global::UpdateExtensionsRejectedByUser( $element->get_mag() );
+    push @Elements,          $element;
+    push @ElementMagnitudes, $magnitude;
+    Global::UpdateExtensionsRejectedByUser($magnitude);
 
     $LeftEdge_of{$element}    = $ElementCount;
     $RightEdge_of{$element}   = $ElementCount;
@@ -149,8 +154,10 @@ multimethod __InsertElement => ('SElement') => sub {
     $ElementCount++;
 };
 
-sub __CheckTwoGroupsForConflict {
+sub __CheckTwoGroupsForConflict {    # Second must be live.
     my ( $A, $B ) = @_;
+
+    return 1 if $A eq $B;
     if ( !__CheckLiveness($B) ) {
         confess "This method only works when the second object is live";
     }
@@ -221,6 +228,45 @@ sub __RemoveFromSupergroups_of {
     my ( $subgroup, $supergroup ) = @_;
     delete $SuperGroups_of{$subgroup}{$supergroup};
 }
+
+sub __AreThereHolesOrOverlap {
+    my (@parts) = @_;
+
+    # Assumption: All @parts live
+
+    for my $idx ( 0 .. scalar(@parts) - 2 ) {
+        $RightEdge_of{ $parts[$idx] } + 1 == $LeftEdge_of{ $parts[ $idx + 1 ] }
+            or return 1;    # Hole/overlap present
+    }
+
+    return 0;               # No holes, no overlap.
+}
+
+sub __CheckMagnitudesRightwards {
+    my ( $start_position, $expected_magnitudes_ref ) = @_;
+    my $next_position_to_check = $start_position;
+    my @expected_magnitudes = @{$expected_magnitudes_ref};
+    my @already_validated;
+
+    while (@expected_magnitudes) {
+        my $next_magnitude_expected = shift(@expected_magnitudes);
+        if ($next_position_to_check >= $ElementCount) {
+            # throw!
+            SErr::AskUser->throw(
+                already_matched => \@already_validated,
+                next_elements => \@expected_magnitudes,
+                    );
+        } elsif ($ElementMagnitudes[$next_position_to_check] == $next_magnitude_expected) {
+            $next_position_to_check++;
+            push @already_validated, $next_magnitude_expected;
+        } else {
+            return 0; # Failed! Those are not the next elements.
+        }
+    }
+
+    return 1; # Yes, right elements.
+}
+
 
 #=============================================
 #=============================================
@@ -479,51 +525,7 @@ sub get_longest_non_adhoc_object_ending_at {
 
 sub AreGroupsInConflict {
     my ( $package, $A, $B ) = @_;
-    return 1 if $A eq $B;
-
-    my ( $smaller, $bigger ) =
-        sort { $a->get_span() <=> $b->get_span() } ( $A, $B );
-
-    return 0 if $smaller->isa('SElement');    # Never conflicts!
-    return 0 unless $bigger->spans($smaller); # obvious case.
-
-    my ( $smaller_left_edge, $smaller_right_edge ) = $smaller->get_edges();
-    ## smaller_edges: $smaller_left_edge, $smaller_right_edge
-
-    my $current_position = -1;
-    for my $biggers_piece (@$bigger) {
-        $current_position++;
-        next if $biggers_piece->get_right_edge() < $smaller_left_edge;
-
-        # No "backtracking" beyond here. If @$smaller is a subset of @$bigger,
-        # it must start here! So no "next" here on.
-        ## $current_position: $current_position
-
-        for my $smallers_piece (@$smaller) {
-            return 0 unless $smallers_piece eq $bigger->[$current_position];
-            $current_position++;
-        }
-
-        # No mismatch detected!
-        return 1;    # Conflicts!
-    }
-    confess "Why am I here?";    # if bigger spans smaller, no business being here!
-}
-
-sub AreGroupsInConflict_helper {
-    my ( $package, $smaller, $bigger ) = @_;
-    return 0 if $smaller eq $bigger;
-    return 1 unless $bigger->spans($smaller);
-
-    my ( $smaller_left_edge, $smaller_right_edge ) = $smaller->get_edges();
-    for my $piece_of_bigger (@$bigger) {
-        my ( $piece_left_edge, $piece_right_edge ) = $piece_of_bigger->get_edges();
-        next
-            if $piece_right_edge < $smaller_left_edge;  # piece too early within bigger. Look ahead.
-        ## If we are here, the current piece must be $smaller, or have $smaller as part.
-        return $package->AreGroupsInConflict_helper( $smaller, $piece_of_bigger );
-    }
-    confess "Why am I here?";
+    return __CheckTwoGroupsForConflict( $A, $B ) if __CheckLiveness($B);
 }
 
 sub FindGroupsConflictingWith {
@@ -531,22 +533,13 @@ sub FindGroupsConflictingWith {
     my ( $l,       $r )      = $object->get_edges();
     my $exact_conflict;
 
-    my @exact_span = SWorkspace->get_all_groups_with_exact_span( $l, $r );
+    my @exact_span = __GetObjectsWithEndsExactly( $l, $r );
     my $structure_string = $object->get_structure_string();
-    my @exact_span_same_structure =
+    my ($exact_conflict) =    # Can only ever be one.
         grep { $_->get_structure_string() eq $structure_string } @exact_span;
 
-    if (@exact_span_same_structure) {
-        $exact_conflict = $exact_span_same_structure[0];    # Can only ever be one.
-    }
-
-    my @conflicting = grep {
-        ## Conflict check: ident($object), $object->get_bounds_string(), ident($_), $_->get_bounds_string()
-        SWorkspace->AreGroupsInConflict( $object, $_ );
-        } (
-        SWorkspace->get_all_covering_groups( $l, $r ),
-        SWorkspace->get_all_groups_within( $l, $r )
-        );
+    my @conflicting = grep { __CheckTwoGroupsForConflict( $object, $_ ) }
+        ( __GetObjectsWithEndsBeyond( $l, $r ), __GetObjectsWithEndsNotBeyond( $l, $r ) );
     ## @conflicting: @conflicting
 
     # @conflicting will also contain $exact_conflict, but that is fine.
