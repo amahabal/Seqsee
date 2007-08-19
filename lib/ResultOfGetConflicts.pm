@@ -33,14 +33,16 @@ sub Resolve {
     my ( $self, $opts_ref ) = @_;
     my $id = ident $self;
 
+    my $challenger = $original_object_of{$id};
+
     my $IgnoreConflictWith;
     my $FailIfExact;
 
     if ($opts_ref) {
-        if (exists($opts_ref->{IgnoreConflictWith})) {
+        if ( exists( $opts_ref->{IgnoreConflictWith} ) ) {
             $IgnoreConflictWith = $opts_ref->{IgnoreConflictWith};
         }
-        if ($opts_ref->{FailIfExact}) {
+        if ( $opts_ref->{FailIfExact} ) {
             $FailIfExact = $opts_ref->{FailIfExact};
         }
     }
@@ -48,8 +50,8 @@ sub Resolve {
     if ( my $exact = $exact_conflict_of{$id} ) {
         return if $FailIfExact;
         SWorkspace->FightUntoDeath(
-            {   challenger => $self,
-                incumbent  => $exact
+            {   challenger => $challenger,
+                incumbent  => $exact,
             }
         ) or return;
     }
@@ -58,8 +60,8 @@ sub Resolve {
         next if $some_other eq $IgnoreConflictWith;
         next if ( !SWorkspace::__CheckLiveness($some_other) );
         SWorkspace->FightUntoDeath(
-            {   challenger => $self,
-                incumbent  => $exact
+            {   challenger => $challenger,
+                incumbent  => $some_other,
             }
         ) or return;
     }

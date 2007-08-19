@@ -21,6 +21,9 @@ use English qw(-no_match_vars);
 
 use Sort::Key qw{rikeysort ikeysort};
 
+# Seqsee packages. Fix.
+use ResultOfGetConflicts;
+
 #=============================================
 #=============================================
 # NEW CODE
@@ -591,29 +594,9 @@ sub get_intervening_objects {
 
 sub add_group {
     my ( $self, $gp ) = @_;
-    my ( $exact_conflict, @subset_conflicts ) = SWorkspace->FindGroupsConflictingWith($gp);
-    ## $exact_conflict, @subset_conflicts: $exact_conflict, @subset_conflicts
-    return 0 if $exact_conflict;
-
-    if (@subset_conflicts) {
-        my $one_conflict = shift(@subset_conflicts);
-        ## $one_conflict: ident($one_conflict)
-        if (SWorkspace->FightUntoDeath(
-                {   challenger => $gp,
-                    incumbent  => $one_conflict
-                }
-            )
-            )
-        {
-
-            ## So the incumbent was defeated!
-            # Now pretend that the other group never existed...
-            return SWorkspace->add_group($gp);
-        }
-        else {
-            ## Incumbent lives!
-            return 0;
-        }
+    my $conflicts = __FindGroupsConflictingWith($gp);
+    if ($conflicts) {
+        $conflicts->Resolve({FailIfExact => 1}) or return;
     }
 
     $groups{$gp} = $gp;
@@ -879,6 +862,10 @@ sub are_there_holes_here {
 sub FightUntoDeath {
     my ( $package, $opts_ref ) = @_;
     my ( $challenger, $incumbent ) = ( $opts_ref->{challenger}, $opts_ref->{incumbent} );
+    if (!__CheckLiveness($incumbent)) {
+        # Hah. $challenger a No contest winner.
+        return 1;
+    }
     my (@strengths) = map { $_->get_strength() } ( $challenger, $incumbent );
     confess "Both strengths 0" unless $strengths[0] + $strengths[1];
     if ( SUtil::toss( $strengths[0] / ( $strengths[0] + 1.5 * $strengths[1] ) ) ) {

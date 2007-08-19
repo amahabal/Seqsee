@@ -243,32 +243,9 @@ sub Extend {
 
     my $potential_new_group = SAnchored->create(@parts_of_new_group) 
         or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")->throw();
-    my ( $exact_conflict, @subset_conflicts ) =
-      SWorkspace->FindGroupsConflictingWith($potential_new_group);
-
-    if ($exact_conflict) {
-        SWorkspace->FightUntoDeath(
-            {
-                challenger => $potential_new_group,
-                incumbent  => $exact_conflict
-            }
-        ) or return;
-    }
-
-    for my $some_conflict (@subset_conflicts) {
-
-        # Would of course conflict with the unextended $self!
-        next if $some_conflict eq $self;
-
-        # Could already have been deleted!
-        next unless exists( $SWorkspace::groups{$some_conflict} );
-
-        SWorkspace->FightUntoDeath(
-            {
-                challenger => $potential_new_group,
-                incumbent  => $some_conflict
-            }
-        ) or return;
+    my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);
+    if ($conflicts) {
+        $conflicts->Resolve() or return;
     }
 
     # If we get here, all conflicting incumbents are dead.
