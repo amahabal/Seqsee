@@ -34,11 +34,19 @@ sub Resolve {
     my $id = ident $self;
 
     my $IgnoreConflictWith;
-    if ( $opts_ref and exists( $opts_ref->{IgnoreConflictWith} ) ) {
-        $IgnoreConflictWith = $opts_ref->{IgnoreConflictWith};
+    my $FailIfExact;
+
+    if ($opts_ref) {
+        if (exists($opts_ref->{IgnoreConflictWith})) {
+            $IgnoreConflictWith = $opts_ref->{IgnoreConflictWith};
+        }
+        if ($opts_ref->{FailIfExact}) {
+            $FailIfExact = $opts_ref->{FailIfExact};
+        }
     }
 
     if ( my $exact = $exact_conflict_of{$id} ) {
+        return if $FailIfExact;
         SWorkspace->FightUntoDeath(
             {   challenger => $self,
                 incumbent  => $exact

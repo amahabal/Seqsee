@@ -245,28 +245,52 @@ sub __AreThereHolesOrOverlap {
 sub __CheckMagnitudesRightwards {
     my ( $start_position, $expected_magnitudes_ref ) = @_;
     my $next_position_to_check = $start_position;
-    my @expected_magnitudes = @{$expected_magnitudes_ref};
+    my @expected_magnitudes    = @{$expected_magnitudes_ref};
     my @already_validated;
 
     while (@expected_magnitudes) {
         my $next_magnitude_expected = shift(@expected_magnitudes);
-        if ($next_position_to_check >= $ElementCount) {
+        if ( $next_position_to_check >= $ElementCount ) {
+
             # throw!
             SErr::AskUser->throw(
                 already_matched => \@already_validated,
-                next_elements => \@expected_magnitudes,
-                    );
-        } elsif ($ElementMagnitudes[$next_position_to_check] == $next_magnitude_expected) {
+                next_elements   => \@expected_magnitudes,
+            );
+        }
+        elsif ( $ElementMagnitudes[$next_position_to_check] == $next_magnitude_expected ) {
             $next_position_to_check++;
             push @already_validated, $next_magnitude_expected;
-        } else {
-            return 0; # Failed! Those are not the next elements.
+        }
+        else {
+            return 0;    # Failed! Those are not the next elements.
         }
     }
 
-    return 1; # Yes, right elements.
+    return 1;            # Yes, right elements.
 }
 
+sub __FindGroupsConflictingWith {
+    my ($object) = @_;
+    my ( $l, $r ) = $object->get_edges();
+
+    my @exact_span = __GetObjectsWithEndsExactly( $l, $r );
+    my $structure_string = $object->get_structure_string();
+    my ($exact_conflict) =    # Can only ever be one.
+        grep { $_->get_structure_string() eq $structure_string } @exact_span;
+
+    my @conflicting =
+        grep { $_ ne $exact_conflict }
+        grep { __CheckTwoGroupsForConflict( $object, $_ ) }
+        ( __GetObjectsWithEndsBeyond( $l, $r ), __GetObjectsWithEndsNotBeyond( $l, $r ) );
+    ## @conflicting: @conflicting
+    return ResultOfGetConflicts->new(
+        {   original => $object,
+            exact    => $exact_conflict,
+            other    => \@conflicting,
+        }
+    );
+}
 
 #=============================================
 #=============================================
@@ -531,7 +555,6 @@ sub AreGroupsInConflict {
 sub FindGroupsConflictingWith {
     my ( $package, $object ) = @_;
     my ( $l,       $r )      = $object->get_edges();
-    my $exact_conflict;
 
     my @exact_span = __GetObjectsWithEndsExactly( $l, $r );
     my $structure_string = $object->get_structure_string();
