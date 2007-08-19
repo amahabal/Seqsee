@@ -24,7 +24,7 @@ my @input_requiring_commands_config = (
     ["Seqsee", #command name
      [ # inputs
          ["Sequence", #input name
-          "1 1 2 1 2 3", # default
+          "1 1 1 2 3 1 2 2 2 3 4 1 2 3 3 3 4 5", # default
               ]
              ],
      [ # Command constructor
@@ -105,6 +105,7 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
 my @button_config = (
     [Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl')],
     [CPAN => CreateRunPerlScriptCommand(qw{-MCPAN -e shell})],
+    [SVNDiff => CreateRunPerlScriptCommand('util\ShowDiff.pl')],
 );
 
 INSERT_BUTTONS: {
