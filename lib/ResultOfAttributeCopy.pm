@@ -7,11 +7,11 @@ my %status_of : ATTR(:name<status>);
 my $FAILED  = ResultOfAttributeCopy->new( { status => 'failed' } );
 my $SUCCESS = ResultOfAttributeCopy->new( { status => 'succeeded' } );
 
-sub FAILED {
+sub Failed {
     return ResultOfAttributeCopy->new( { status => 'failed' } );
 }
 
-sub SUCCESS {
+sub Success {
     return ResultOfAttributeCopy->new( { status => 'succeeded' } );
 }
 

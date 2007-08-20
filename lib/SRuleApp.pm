@@ -15,7 +15,7 @@ use base qw{};
 use Smart::Comments;
 
 use Class::Multimethods;
-for (qw{apply_reln plonk_into_place find_reln}) {
+for (qw{apply_reln plonk_into_place __PlonkIntoPlace find_reln}) {
     multimethod $_;
 }
 
@@ -127,7 +127,10 @@ sub ExtendInDirection {
     ## is_this_what_is_present: $is_this_what_is_present
 
     if ($is_this_what_is_present) {
-        my $wso = plonk_into_place( $next_pos, $direction, $next_object );
+        my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $next_object);
+        confess "__PlonkIntoPlace failed. Shouldn't have, I think" 
+            unless $plonk_result->PlonkWasSuccessful();
+        my $wso = $plonk_result->get_resultant_object();
         my $reln;
         if ( $start_or_end eq 'end' ) {
             push @{ $Items_of{$id} },  $wso;

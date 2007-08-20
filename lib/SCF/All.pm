@@ -128,6 +128,7 @@ use Compile::SCF;
 [multi] find_reln
 [multi] apply_reln
 [multi] plonk_into_place
+[multi] __PlonkIntoPlace
 
 [param] core!
 [param] direction!
@@ -210,9 +211,9 @@ if ($EVAL_ERROR) {
     }
 }
 if ($is_this_what_is_present) {
-    my $wso = plonk_into_place( $next_pos, $direction, $what_next );
-
-    return unless $wso;
+    my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
+    return unless $plonk_result->PlonkWasSuccessful();
+    my $wso = $plonk_result->get_resultant_object();
 
     if ( $reln->isa('SReln::Compound') ) {
         my $type = $reln->get_base_category;

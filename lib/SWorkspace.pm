@@ -66,22 +66,23 @@ sub __CheckLiveness {
 sub __CheckLivenessAndDiagnose {
     my $problems_so_far = 0;
     for my $object (@_) {
-        next if exists ($Objects{$object});
+        next if exists( $Objects{$object} );
+
         # So a dead object!
         my $unstarred = $object->get_unstarred();
-        if ($unstarred ne $object) {
+        if ( $unstarred ne $object ) {
             print "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
-            if (exists $Objects{$unstarred}) {
+            if ( exists $Objects{$unstarred} ) {
                 print "\tIts unstarred *is* live.\n";
-            } else {
+            }
+            else {
                 print "\tEven its unstarred is non-live.\n";
             }
         }
         $problems_so_far++;
     }
-    return $problems_so_far ? 0: 1;
+    return $problems_so_far ? 0 : 1;
 }
-
 
 sub __GrepLiveness {
     grep { exists( $Objects{$_} ) } @_;
@@ -121,6 +122,17 @@ sub __GetObjectsWithEndsNotBeyond {
         @objects = grep { $RightEdge_of{$_} <= $right } @objects;
     }
     return @objects;
+}
+
+sub __GetExactObjectIfPresent {
+    my ($object) = @_;
+    my ( $left, $right ) = $object->get_edges();
+
+    my $structure_string = $object->get_structure_string();
+    my @matching = grep { $_->get_structure_string() eq $structure_string }
+        __GetObjectsWithEndsExactly( $left, $right );
+    return unless @matching;
+    return $matching[0];    # There can be only one.
 }
 
 sub __SortLtoRByLeftEdge {
@@ -381,7 +393,7 @@ sub __CopyAttributes {
     }
 
     # Relation Scheme:
-    if (my $rel_scheme = $from->get_reln_scheme()) {
+    if ( my $rel_scheme = $from->get_reln_scheme() ) {
         $to->apply_reln_scheme($rel_scheme);
     }
 
@@ -402,9 +414,10 @@ sub __CopyAttributes {
         }
     }
     if ($any_failure_so_far) {
-        return ResultOfAttributeCopy->FAILED();
-    } else {
-        return ResultOfAttributeCopy->SUCCESS();
+        return ResultOfAttributeCopy->Failed();
+    }
+    else {
+        return ResultOfAttributeCopy->Success();
     }
 }
 
@@ -1122,7 +1135,9 @@ sub GetSomethingLike {
     }
 
     if ($is_object_literally_present) {
-        my $present_object = plonk_into_place( $start_pos, $direction, $object );
+        my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object );
+        confess "Plonk failed. Shouldn't have." unless $plonk_result->PlonkWasSuccessful();
+        my $present_object = $plonk_result->get_resultant_object();
         if ( SUtil::toss(0.5) ) {
             return $present_object;
         }
@@ -1180,8 +1195,8 @@ sub SErr::AskUser::Ask {
         $Global::Break_Loop = 1;
 
         if ( defined $object_being_looked_for ) {
-            plonk_into_place( $position_it_is_being_looked_from,
-                $direction_to_look_in, $object_being_looked_for );
+            __PlonkIntoPlace( $position_it_is_being_looked_from,
+                              $direction_to_look_in, $object_being_looked_for );
         }
 
     }
