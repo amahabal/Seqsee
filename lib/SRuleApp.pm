@@ -15,7 +15,7 @@ use base qw{};
 use Smart::Comments;
 
 use Class::Multimethods;
-for (qw{apply_reln plonk_into_place __PlonkIntoPlace find_reln}) {
+for (qw{apply_reln __PlonkIntoPlace find_reln}) {
     multimethod $_;
 }
 

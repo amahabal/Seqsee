@@ -127,7 +127,6 @@ use Compile::SCF;
 [package] SCF::AttemptExtensionOfRelation
 [multi] find_reln
 [multi] apply_reln
-[multi] plonk_into_place
 [multi] __PlonkIntoPlace
 
 [param] core!
