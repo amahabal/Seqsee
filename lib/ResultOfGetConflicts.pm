@@ -35,8 +35,8 @@ sub Resolve {
 
     my $challenger = $original_object_of{$id};
 
-    my $IgnoreConflictWith;
-    my $FailIfExact;
+    my $IgnoreConflictWith = '';
+    my $FailIfExact        = 0;
 
     if ($opts_ref) {
         if ( exists( $opts_ref->{IgnoreConflictWith} ) ) {
@@ -48,12 +48,14 @@ sub Resolve {
     }
 
     if ( my $exact = $exact_conflict_of{$id} ) {
-        return if $FailIfExact;
-        SWorkspace->FightUntoDeath(
-            {   challenger => $challenger,
-                incumbent  => $exact,
-            }
-        ) or return;
+        if ( $IgnoreConflictWith ne $exact ) {
+            return if $FailIfExact;
+            SWorkspace->FightUntoDeath(
+                {   challenger => $challenger,
+                    incumbent  => $exact,
+                }
+            ) or return;
+        }
     }
 
     for my $some_other ( @{ $other_conflicts_of{$id} } ) {

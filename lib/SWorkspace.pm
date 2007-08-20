@@ -23,6 +23,8 @@ use Sort::Key qw{rikeysort ikeysort};
 
 # Seqsee packages. Fix.
 use ResultOfGetConflicts;
+use ResultOfAttributeCopy;
+use ResultOfPlonk;
 
 #=============================================
 #=============================================
@@ -60,6 +62,26 @@ sub __Clear {
 sub __CheckLiveness {
     exists( $Objects{ $_[0] } ) ? 1 : 0;
 }
+
+sub __CheckLivenessAndDiagnose {
+    my $problems_so_far = 0;
+    for my $object (@_) {
+        next if exists ($Objects{$object});
+        # So a dead object!
+        my $unstarred = $object->get_unstarred();
+        if ($unstarred ne $object) {
+            print "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
+            if (exists $Objects{$unstarred}) {
+                print "\tIts unstarred *is* live.\n";
+            } else {
+                print "\tEven its unstarred is non-live.\n";
+            }
+        }
+        $problems_so_far++;
+    }
+    return $problems_so_far ? 0: 1;
+}
+
 
 sub __GrepLiveness {
     grep { exists( $Objects{$_} ) } @_;
@@ -102,18 +124,22 @@ sub __GetObjectsWithEndsNotBeyond {
 }
 
 sub __SortLtoRByLeftEdge {
+    ### require: __CheckLivenessAndDiagnose(@_)
     return ikeysort { $LeftEdge_of{$_} } @_;
 }
 
 sub __SortRtoLByLeftEdge {
+    ### require: __CheckLivenessAndDiagnose(@_)
     return rikeysort { $LeftEdge_of{$_} } @_;
 }
 
 sub __SortLtoRByRightEdge {
+    ### require: __CheckLivenessAndDiagnose(@_)
     return ikeysort { $RightEdge_of{$_} } @_;
 }
 
 sub __SortRtoLByRightEdge {
+    ### require: __CheckLivenessAndDiagnose(@_)
     return rikeysort { $RightEdge_of{$_} } @_;
 }
 
@@ -165,7 +191,7 @@ sub __CheckTwoGroupsForConflict {    # Second must be live.
         confess "This method only works when the second object is live";
     }
 
-    my ( $smaller, $bigger ) = ikeysort { $Span_of{$_} } ( $A, $B );
+    my ( $smaller, $bigger ) = ikeysort { $_->get_span() } ( $A, $B );
     return 0 if $smaller->isa('SElement');
     return 0 unless $bigger->spans($smaller);
 
@@ -194,6 +220,7 @@ sub __CheckTwoGroupsForConflict {    # Second must be live.
 
 sub __GroupAddSanityCheck {
     my (@parts) = @_;
+    ### require: __CheckLivenessAndDiagnose(@_)
     return 0 if __AreHolesPresent(@parts);
 }
 
@@ -234,6 +261,7 @@ sub __RemoveFromSupergroups_of {
 
 sub __FindObjectSetDirection {
     my (@objects) = @_;
+    ### require: __CheckLivenessAndDiagnose(@_)
 
     # Assumption: @objects are live.
     my @left_edges = map { $LeftEdge_of{$_} } @objects;
@@ -262,6 +290,7 @@ sub __FindObjectSetDirection {
 
 sub __AreThereHolesOrOverlap {
     my (@parts) = @_;
+    ### require: __CheckLivenessAndDiagnose(@_)
 
     # Assumption: All @parts live
     my $direction = __FindObjectSetDirection(@parts);
@@ -271,14 +300,16 @@ sub __AreThereHolesOrOverlap {
                 or return 1;    # Hole/overlap present
         }
         return 0;               # No holes, no overlap.
-    } elsif ($direction eq $DIR::LEFT) {
+    }
+    elsif ( $direction eq $DIR::LEFT ) {
         for my $idx ( 0 .. scalar(@parts) - 2 ) {
             $LeftEdge_of{ $parts[$idx] } - 1 == $RightEdge_of{ $parts[ $idx + 1 ] }
                 or return 1;    # Hole/overlap present
         }
         return 0;               # No holes, no overlap.
-    } else {
-        return 1; # funny direction, so question of holes is moot. This cannot make a good object.
+    }
+    else {
+        return 1;   # funny direction, so question of holes is moot. This cannot make a good object.
     }
 }
 
@@ -318,6 +349,7 @@ sub __FindGroupsConflictingWith {
     my $structure_string = $object->get_structure_string();
     my ($exact_conflict) =    # Can only ever be one.
         grep { $_->get_structure_string() eq $structure_string } @exact_span;
+    $exact_conflict ||= '';
 
     my @conflicting =
         grep { $_ ne $exact_conflict }
@@ -331,6 +363,126 @@ sub __FindGroupsConflictingWith {
         }
     );
 }
+
+sub __CopyAttributes {
+    my ($opts_ref) = @_;
+    my ( $from, $to ) = ( $opts_ref->{from}, $opts_ref->{to} );
+    if ( !$from or !$to ) {
+        die "Missing from or to";
+    }
+
+    my $any_failure_so_far = 0;
+
+    # Copy Metonym:
+    if ( my $metonym = $from->get_metonym() ) {
+        my ( $cat, $name ) = ( $metonym->get_category(), $metonym->get_name() );
+        $to->AnnotateWithMetonym( $cat, $name );
+        $to->SetMetonymActiveness( $from->get_metonym_activeness() );
+    }
+
+    # Relation Scheme:
+    if (my $rel_scheme = $from->get_reln_scheme()) {
+        $to->apply_reln_scheme($rel_scheme);
+    }
+
+    # Copy groupness:
+    $to->set_group_p(1) if $from->get_group_p();
+
+    # Copy Categories:
+    for my $category ( @{ $from->get_categories() } ) {
+        my $bindings;
+        unless ( $bindings = $to->describe_as($category) ) {
+            $any_failure_so_far++;
+            next;
+        }
+        my $bindings_for_from      = $from->describe_as($category);
+        my $position_mode_for_from = $bindings_for_from->get_position_mode();
+        if ( defined $position_mode_for_from ) {
+            $bindings->TellDirectedStory( $to, $position_mode_for_from );
+        }
+    }
+    if ($any_failure_so_far) {
+        return ResultOfAttributeCopy->FAILED();
+    } else {
+        return ResultOfAttributeCopy->SUCCESS();
+    }
+}
+
+multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SElement' ) => sub {
+    my ( $start, $direction, $element ) = @_;
+    *__ANON__ = '__ANON__PlonkIntoPlace_el';
+    my $magnitude = $element->get_mag();
+
+    unless ( $magnitude == $ElementMagnitudes[$start] ) {
+        return ResultOfPlonk->Failed($element);
+    }
+
+    my $attribute_copy_result = __CopyAttributes(
+        {   from => $element,
+            to   => $Elements[$start],
+        }
+    );
+    return ResultOfPlonk->new(
+        {   object_being_plonked  => $element,
+            resultant_object      => $Elements[$start],
+            attribute_copy_result => $attribute_copy_result,
+        }
+    );
+};
+
+multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
+    my ( $start, $direction, $object ) = @_;
+    *__ANON__ = '__ANON__PlonkIntoPlace_obj';
+
+    my $span = $object->get_span() or return ResultOfPlonk->Failed($object);
+
+    if ( $direction eq $DIR::LEFT ) {
+        return ResultOfPlonk->Failed($object) if $start < $span - 1;
+        return __PlonkIntoPlace( $start - $span + 1, $DIR::RIGHT, $object );
+    }
+
+    my @to_insert = ( $object->get_direction() eq $DIR::LEFT ) ? reverse(@$object) : @$object;
+    my @new_parts;
+    my $plonk_cursor                 = $start;
+    my $attribute_copy_status_so_far = ResultOfAttributeCopy->Success();
+
+    for my $subobject (@to_insert) {
+        my $subobjectspan = $subobject->get_span;
+        my $plonk_result = __PlonkIntoPlace( $plonk_cursor, $DIR::RIGHT, $subobject );
+        if ( $plonk_result->PlonkWasSuccessful() ) {
+            push @new_parts, $plonk_result->get_resultant_object();
+            $plonk_cursor += $subobjectspan;
+            $attribute_copy_status_so_far->UpdateWith( $plonk_result->get_attribute_copy_result );
+        }
+        else {
+            return ResultOfPlonk->Failed($object);
+        }
+    }
+
+    my $new_obj = SAnchored->create(@new_parts);
+    if ( my $existing_object = __GetExactObjectIfPresent($new_obj) ) {
+        $new_obj = $existing_object;
+    }
+    else {
+        if ( !SWorkspace->add_group($new_obj) ) {
+            return ResultOfPlonk->Failed($object);
+        }
+    }
+
+    my $attribute_copy_result = __CopyAttributes(
+        {   from => $object,
+            to   => $new_obj,
+        }
+    );
+    $attribute_copy_status_so_far->UpdateWith($attribute_copy_result);
+    return ResultOfPlonk->new(
+        {   object_being_plonked  => $object,
+            resultant_object      => $new_obj,
+            attribute_copy_result => $attribute_copy_status_so_far,
+        }
+    );
+
+};
 
 #=============================================
 #=============================================

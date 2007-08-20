@@ -242,11 +242,11 @@ sub Extend {
         @parts_of_new_group = ( $to_insert, @$parts_ref );
     }
 
-    my $potential_new_group = SAnchored->create(@parts_of_new_group) 
+    my $potential_new_group = SAnchored->create(@parts_of_new_group)
         or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")->throw();
     my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);
     if ($conflicts) {
-        $conflicts->Resolve() or return;
+        $conflicts->Resolve({IgnoreConflictWith => $self}) or return;
     }
 
     # If we get here, all conflicting incumbents are dead.

@@ -528,7 +528,7 @@ use Compile::SCF;
     #main::message("Found extension: $extension; " . $extension->get_structure_string());
     my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
     ## add_to_end_p (in SCF): $add_to_end_p
-    eval { $object->Extend( $extension, $add_to_end_p ); };
+    my $extend_success = eval { $object->Extend( $extension, $add_to_end_p ); };
     if ( my $e = $EVAL_ERROR ) {
         if ( UNIVERSAL::isa( $e, 'SErr::CouldNotCreateExtendedGroup' ) ) {
             my $msg = "Extending object: " . $object->as_text() . "\n";
@@ -538,6 +538,7 @@ use Compile::SCF;
         }
         confess($e);
     }
+    return unless $extend_success;
     ContinueWith( SThought::AreWeDone->new( { group => $object } ) )
         if SUtil::toss( $object->get_strength() / 100 );
 
