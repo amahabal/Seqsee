@@ -509,7 +509,7 @@ use Compile::SCF;
 <run>
     #main::message("Starting SCF::AttemptExtensionOfGroup");
     my $underlying_reln = $object->get_underlying_reln();
-    unless ( exists $SWorkspace::groups{$object} ) {
+    unless ( SWorkspace::__CheckLiveness($object) ) {
         return;
 
         #main::message("Aha! group is NOT in w/s" . $object->as_text());
@@ -570,7 +570,7 @@ use Compile::SCF;
 [param] direction!
 
 <run>
-unless ( exists $SWorkspace::groups{$object} ) {
+unless ( SWorkspace::__CheckLiveness($object) ) {
     return;    # main::message("SCF::ConvulseEnd: " . $object->as_text());
 }
 my $change_at_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;

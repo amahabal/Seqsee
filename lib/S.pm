@@ -12,13 +12,11 @@ use SHistory;
 use SLog;
 use SInsertList;
 
-use SSet;
 use SErr;
 use SChoose;
 use SBindings;
 use SInstance;
 use SPos;
-use SSet;
 use SFasc;
 
 use SCodelet;

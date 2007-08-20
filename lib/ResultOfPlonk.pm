@@ -17,7 +17,7 @@ sub BUILD {
 
 sub Failed {
     my ( $package, $object_being_plonked ) = @_;
-    returned $package->new(
+    return $package->new(
         {   object_being_plonked => $object_being_plonked,
             resultant_object     => undef,
             attribute_copy_result => ResultOfAttributeCopy->Failed(),
