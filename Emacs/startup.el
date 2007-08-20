@@ -7,9 +7,11 @@
 ;(set-frame-font "-adobe-courier-bold-o-normal--18-180-75-75-m-110-iso8859-15")
 ;(load "startup")
 
-(load "cperl-mode.el")
+(load "cperl-mode")
+(load "cperl-mode.el.4.32")
 (load "seq.el")
-(load "cperl6-mode.el")
+;(load "cperl6-mode.el")
+(seq-change-to-dir)
 
 
 (defface cperl-pod-face-face
@@ -47,9 +49,10 @@
 (global-set-key [f6] 'switch-to-buffer)
 (global-set-key [f7] 'find-file)
 (global-set-key [f9] 'other-window)
+(global-set-key [f8] 'seq-svn-diff)
 (global-set-key [f10] 'save-buffer)
 (global-set-key [f11] 'kill-buffer)
-(global-set-key [f12] 'save-buffers-kill-emacs)
+(global-set-key [f12] 'seq-search-codebase)
 
 (setq auto-mode-alist
       (append '(("\\.pm"  . perl-mode)
@@ -107,7 +110,6 @@
 	  '(lambda () (progn (font-lock-mode))))
 
 	
-(load "cperl-mode.el.4.32")
 (abbrev-mode 1)
 (load "remote1")
 (load "menu")
@@ -308,3 +310,5 @@
   (dired-do-query-replace-regexp what-to-replace replace-with)
   (setq default-case-fold-search t))
 
+; so scratch does not open in cperl
+(text-mode)

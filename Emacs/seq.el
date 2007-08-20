@@ -460,3 +460,17 @@
   ""
   nil
   ("Parameter, optionally with type: " str ", ")  -2)  
+
+(defun seq-change-to-dir ()
+  (interactive)
+  (cd "D:\\seqsee"))
+
+(defun seq-search-codebase ()
+  (interactive)
+  (seq-change-to-dir)
+  (shell-command (concat "perl util/Search.pl " (selection-or-word) "&")))
+
+(defun seq-svn-diff ()
+  (interactive)
+  (seq-change-to-dir)
+  (shell-command (concat "perl util/ShowDiff.pl")))

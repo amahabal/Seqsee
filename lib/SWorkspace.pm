@@ -232,17 +232,54 @@ sub __RemoveFromSupergroups_of {
     delete $SuperGroups_of{$subgroup}{$supergroup};
 }
 
+sub __FindObjectSetDirection {
+    my (@objects) = @_;
+
+    # Assumption: @objects are live.
+    my @left_edges = map { $LeftEdge_of{$_} } @objects;
+    my $how_many = scalar(@objects);
+    confess "Need at least 2" if $how_many <= 1;
+
+    my ( $leftward, $rightward );
+    for ( 0 .. $how_many - 2 ) {
+        my $diff = $left_edges[ $_ + 1 ] - $left_edges[$_];
+        if ( $diff > 0 ) {
+            $rightward++;
+        }
+        elsif ( $diff < 0 ) {
+            $leftward++;
+        }
+        else {
+            return $DIR::UNKNOWN;
+        }
+    }
+
+    return $DIR::NEITHER if ( $leftward and $rightward );
+    return $DIR::LEFT    if $leftward;
+    return $DIR::RIGHT   if $rightward;
+    confess "huh?";
+}
+
 sub __AreThereHolesOrOverlap {
     my (@parts) = @_;
 
     # Assumption: All @parts live
-
-    for my $idx ( 0 .. scalar(@parts) - 2 ) {
-        $RightEdge_of{ $parts[$idx] } + 1 == $LeftEdge_of{ $parts[ $idx + 1 ] }
-            or return 1;    # Hole/overlap present
+    my $direction = __FindObjectSetDirection(@parts);
+    if ( $direction eq $DIR::RIGHT ) {
+        for my $idx ( 0 .. scalar(@parts) - 2 ) {
+            $RightEdge_of{ $parts[$idx] } + 1 == $LeftEdge_of{ $parts[ $idx + 1 ] }
+                or return 1;    # Hole/overlap present
+        }
+        return 0;               # No holes, no overlap.
+    } elsif ($direction eq $DIR::LEFT) {
+        for my $idx ( 0 .. scalar(@parts) - 2 ) {
+            $LeftEdge_of{ $parts[$idx] } - 1 == $RightEdge_of{ $parts[ $idx + 1 ] }
+                or return 1;    # Hole/overlap present
+        }
+        return 0;               # No holes, no overlap.
+    } else {
+        return 1; # funny direction, so question of holes is moot. This cannot make a good object.
     }
-
-    return 0;               # No holes, no overlap.
 }
 
 sub __CheckMagnitudesRightwards {
@@ -596,7 +633,7 @@ sub add_group {
     my ( $self, $gp ) = @_;
     my $conflicts = __FindGroupsConflictingWith($gp);
     if ($conflicts) {
-        $conflicts->Resolve({FailIfExact => 1}) or return;
+        $conflicts->Resolve( { FailIfExact => 1 } ) or return;
     }
 
     $groups{$gp} = $gp;
@@ -862,7 +899,8 @@ sub are_there_holes_here {
 sub FightUntoDeath {
     my ( $package, $opts_ref ) = @_;
     my ( $challenger, $incumbent ) = ( $opts_ref->{challenger}, $opts_ref->{incumbent} );
-    if (!__CheckLiveness($incumbent)) {
+    if ( !__CheckLiveness($incumbent) ) {
+
         # Hah. $challenger a No contest winner.
         return 1;
     }
@@ -1008,7 +1046,9 @@ sub SortLeftToRight {
 
 sub FindDirectionOfObjectSet {
     my (@objects) = @_;
-    my @left_edges = map { $_->get_left_edge() } @objects;
+
+    # Assumption: @objects are live.
+    my @left_edges = map { $LeftEdge_of{$_} } @objects;
     my $how_many = scalar(@objects);
     confess "Need at least 2" if $how_many <= 1;
 
