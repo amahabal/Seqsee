@@ -468,7 +468,7 @@
 (defun seq-search-codebase ()
   (interactive)
   (seq-change-to-dir)
-  (shell-command (concat "perl util/Search.pl " (selection-or-word) "&")))
+  (shell-command (concat "perl util/Search.pl " (get-word-at-point) "&")))
 
 (defun seq-svn-diff ()
   (interactive)

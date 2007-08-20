@@ -59,13 +59,24 @@
 )
 
 (defun selection-or-word ()
-  (let ( (word (ffap-string-at-point "-a-zA-Z0-9.") )
+  (let ( (word (ffap-string-at-point "text-mode") )
 	 (sel (x-get-selection))
 	 )
     (x-set-selection 'PRIMARY "")
     (if (> (length sel) 0) sel word)
     )
 )
+
+(defun get-word-at-point ()
+  (interactive)
+  (save-excursion
+    (backward-word 1)
+    (let ((beg (point)))
+      (forward-word 1)
+      (buffer-substring beg (point))
+      )
+    )
+  )      
 
 (defun search-google ()
   "Search current word on google"
