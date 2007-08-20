@@ -1,5 +1,5 @@
 use strict;
-use blib;
+use lib 'genlib';
 use Test::Seqsee;
 use Smart::Comments;
 plan tests => 36; 

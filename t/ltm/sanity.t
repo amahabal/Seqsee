@@ -1,5 +1,5 @@
 use strict;
-use blib;
+use lib 'genlib';
 use Test::Seqsee;
 use File::Temp qw( tempfile );
 use Class::Multimethods qw{find_reln};

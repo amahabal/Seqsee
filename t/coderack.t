@@ -1,6 +1,6 @@
 use strict;
 #use Test::MockObject;
-use blib;
+use lib 'genlib';
 use Test::Seqsee;
 BEGIN { plan tests => 5; }
 

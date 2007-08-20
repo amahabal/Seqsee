@@ -1,4 +1,4 @@
-use blib;
+use lib 'genlib';
 use strict;
 use Test::Seqsee;
 plan tests => 19;

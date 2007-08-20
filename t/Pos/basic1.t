@@ -1,4 +1,4 @@
-use blib;
+use lib 'genlib';
 use Test::Seqsee;
 BEGIN { plan tests => 23; }
 

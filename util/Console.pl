@@ -106,6 +106,7 @@ my @button_config = (
     [Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl')],
     [CPAN => CreateRunPerlScriptCommand(qw{-MCPAN -e shell})],
     [SVNDiff => CreateRunPerlScriptCommand('util\ShowDiff.pl')],
+    [RunTests => CreateRunPerlScriptCommand('c:\Perl\bin\prove.bat', 't\*')],
 );
 
 INSERT_BUTTONS: {

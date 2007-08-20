@@ -1,4 +1,4 @@
-use blib;
+use lib 'genlib';
 use Test::Seqsee;
 use Smart::Comments;
 BEGIN { plan tests => 25; }
