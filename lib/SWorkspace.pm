@@ -683,19 +683,6 @@ sub RemoveRelation {
     delete $relations{$reln};
 }
 
-# method: is_there_a_covering_group
-# given the range, says yes or no
-#
-sub is_there_a_covering_group {
-    my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsBeyond( $left, $right ) ? 1 : 0;
-}
-
-sub get_all_covering_groups {
-    my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsBeyond( $left, $right );
-}
-
 sub get_all_groups_within {
     my ( $self, $left, $right ) = @_;
     return __GetObjectsWithEndsNotBeyond( $left, $right );

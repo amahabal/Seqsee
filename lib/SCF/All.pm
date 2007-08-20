@@ -56,8 +56,11 @@ sub ReadSamenessAroundReadHead {
     }
     my $span = $right_margin_of_sameness_gp - $left_margin_of_sameness_gp + 1;
     return if $span < 2;
-    my $is_covering = SWorkspace->is_there_a_covering_group( $left_margin_of_sameness_gp,
-        $right_margin_of_sameness_gp );
+    my $is_covering = scalar(
+        SWorkspace::__GetObjectsWithEndsBeyond(
+            $left_margin_of_sameness_gp, $right_margin_of_sameness_gp
+        )
+    );
     return if $is_covering;
     my @items
         = @SWorkspace::elements[ $left_margin_of_sameness_gp .. $right_margin_of_sameness_gp ];

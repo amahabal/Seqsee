@@ -58,8 +58,7 @@ use Compile::SThought;
     }
     my $left_edge  = min(@left_edges);
     my $right_edge = max(@right_edges);
-    my $is_covering =
-      SWorkspace->is_there_a_covering_group( $left_edge, $right_edge );
+    my $is_covering = scalar( SWorkspace::__GetObjectsWithEndsBeyond( $left_edge, $right_edge ) );
     return if $is_covering;
 
     my $new_group;
@@ -465,7 +464,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
             items => [ $core->get_first(), $core->get_second(), ],
             reln  => $core,
           };
-    } elsif (not(SWorkspace->is_there_a_covering_group($core->get_extent()))) {
+    } elsif (not(SWorkspace::__GetObjectsWithEndsBeyond($core->get_extent()))) {
         THOUGHT AreTheseGroupable,
           {
             items => [ $core->get_first(), $core->get_second(), ],
@@ -573,7 +572,7 @@ print STDERR "\nHistory of second: \n\t", join("\n\t", @{$core->get_second()->ge
     return unless $Global::Feature{AllowLeftwardRelations};
     #if this is part of a group, the answer is NO, don't flip!
     my ( $l, $r ) = $reln->get_extent();
-    if ( SWorkspace->is_there_a_covering_group( $l, $r ) ) {
+    if ( SWorkspace::__GetObjectsWithEndsBeyond( $l, $r ) ) {
         return;
     }
     else {
