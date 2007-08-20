@@ -473,4 +473,4 @@
 (defun seq-svn-diff ()
   (interactive)
   (seq-change-to-dir)
-  (shell-command (concat "perl util/ShowDiff.pl")))
+  (shell-command (concat "perl util/ShowDiff.pl &")))

@@ -8,13 +8,27 @@ my $locations = <<LOCATIONS;
 lib/*.pm
 lib/*/*.pm
 lib/*/*/*.pm
-
+util/*.pl
+t/*.t
+t/*/*.t
+t/*/*/*.t
+t/lib/*.pm
+t/lib/*/*.pm
+Compiler/*.p[lm]
+Compiler/*/*.p[lm]
+Seqsee.pl
 LOCATIONS
 
 use Tk;
 my $MW = new MainWindow();
+$MW->focusmodel('active');
 my $frame = $MW->Frame()->pack( -side => 'top' );
-$frame->Entry( -textvariable => \$what )->pack( -side => 'left' );
+my $entry = $frame->Entry( -textvariable => \$what )->pack( -side => 'left' );
+$entry->bind(
+    '<Return>' => sub {
+        Search($what);
+    }
+);
 $frame->Button(
     -text    => 'Search',
     -command => sub {
@@ -24,20 +38,26 @@ $frame->Button(
 )->pack( -side => 'left' );
 
 my $TB = $MW->Scrolled('Text')->pack();
+$TB->focus();
 $TB->tagConfigure( 'file', -background => '#FFCCCC' );
 $TB->tagConfigure( 'sub',  -background => '#CCCCFF' );
+$TB->bind(
+    '<KeyPress-q>' => sub {
+        exit;
+    }
+);
 Search();
 MainLoop();
 
 sub Search {
     return unless $what;
-    $TB->delete('0.0', 'end');
+    #$TB->configure( -state => 'normal' );
+    $TB->delete( '0.0', 'end' );
     my $re = qr{$what};
     for my $file ( glob($locations) ) {
         my $content = slurp($file);
         if ( $content =~ $re ) {
 
-            #print "File: $file\n";
             $TB->insert( 'end', $file, ['file'], "\n" );
             open my $IN, '<', $file;
             my $counter;
@@ -54,14 +74,9 @@ sub Search {
 
                 $counter++;
                 if ( !$match_found_since_last_sub ) {
-
-                    #print "\n", " " x 4, "." x 20, "\n";
-                    #print " " x 4, "$most_recent_sub";
                     $TB->insert( 'end', " " x 4, [], $most_recent_sub, ['sub'], "\n" );
                 }
                 $match_found_since_last_sub = 1;
-
-                #print " " x 8, "$line";
                 $TB->insert( 'end', " " x 8, [], $line, [], "\n" );
 
             }
