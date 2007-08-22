@@ -16,6 +16,8 @@ Identifier: / [A-Za-z_] [A-Za-z0-9_]* /ix { $return = $item[1]}
 FullIdentifier: Identifier(s /::/) { $return = join('::', @{$item[1]})}
 
 PerlVar: <perl_variable> {$return = $item[1]}
+IntOrVar: /\d+/ { $return = $item[1]}
+   | PerlVar { $return = $item[1]}
 OptionalSpace: /\s*/
 
 Sigil: '$' { $return = '$'}
