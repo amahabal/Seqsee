@@ -417,7 +417,7 @@ if ( $anchored_count == scalar(@anchored_p) ) {
         }
     }
     else {    # So: object created.
-        if ( SWorkspace->get_all_groups_with_exact_span( $object->get_edges() ) ) {
+        if ( SWorkspace::__GetObjectsWithEndsExactly( $object->get_edges() ) ) {
             return;
         }
 

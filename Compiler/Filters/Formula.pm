@@ -6,6 +6,7 @@ use Parse::RecDescent;
 use Class::Std;
 use Smart::Comments;
 use Compiler::Filter;
+use Carp;
 
 my %arglist_of :ATTR(:get<arglist>);
 my %body_of :ATTR(:get<body>);
@@ -56,24 +57,19 @@ sub GenerateInsertText{
 my $FormulaFileGrammarFragment = q{
 OptionalReturns: 'returns' Identifier { $return = 1} | { $return = 1}
 
-Sigil: '$' { $return = '$'}
-
-
-ArgList: Arg(s? /,/) {$return = $item[1]}
-
-Arg: Sigil Identifier '!' { $return = { var => $item{Identifier}, sigil => $item{Sigil}, required => 1}}
-    | Sigil Identifier '=' CodeBlock { $return = { var => $item{Identifier}, sigil => $item{Sigil}, 
-                                             required => 0, default => $item{CodeBlock}}}
 
 Formula_File: Formula(s?)
 
 Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock 
-       { #print "@item", "\n";
-         my ($name, $arglist, $body) = ($item{FullIdentifier}, $item{ArgList}, $item{CodeBlock});
-         #print "NAB=$name~~$arglist~~>>$body<<\n";
-         $Compiler::Filters::Formula::LIST{$name} = new Compiler::Filters::Formula({arglist => $arglist, body => $body});
+    {    #print "@item", "\n";
+        my ( $name, $arglist, $body ) = ( $item{FullIdentifier}, $item{ArgList}, $item{CodeBlock} );
+
+        #print "NAB=$name~~$arglist~~>>$body<<\n";
+        $Compiler::Filters::Formula::LIST{$name}
+            = new Compiler::Filters::Formula( { arglist => $arglist, body => $body } );
         $return = 1;
- }
+    }
+
 };
 
 my $Grammar_For_Formula = q{
@@ -111,6 +107,9 @@ sub ExpandFormula{
                                                  $Grammar_For_Formula,
                                                  "Formula"
                                                      );
+       unless ($Filter) {
+            confess "Error creating filter Compiler::Filters::Formula";
+        }
         return $Filter;
     }
 }

@@ -46,12 +46,16 @@ $TB->bind(
         exit;
     }
 );
+$TB->bind(
+    '<KeyPress-r>' => sub {
+        Search($what);
+    }
+);
 Search();
 MainLoop();
 
 sub Search {
     return unless $what;
-    #$TB->configure( -state => 'normal' );
     $TB->delete( '0.0', 'end' );
     my $re = qr{$what};
     for my $file ( glob($locations) ) {

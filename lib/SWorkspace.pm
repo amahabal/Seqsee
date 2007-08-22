@@ -69,7 +69,8 @@ sub __CheckLivenessAndDiagnose {
         next if exists( $Objects{$object} );
 
         # So a dead object!
-        my $unstarred = $object->get_unstarred();
+        print "NON_LIVE OBJECT!\n";
+        my $unstarred = $object->GetUnstarred();
         if ( $unstarred ne $object ) {
             print "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
             if ( exists $Objects{$unstarred} ) {
@@ -81,7 +82,10 @@ sub __CheckLivenessAndDiagnose {
         }
         $problems_so_far++;
     }
-    return $problems_so_far ? 0 : 1;
+    if ($problems_so_far) {
+        confess("Dying because of liveness issues");
+    }
+    return 1;
 }
 
 sub __GrepLiveness {
@@ -683,31 +687,10 @@ sub RemoveRelation {
     delete $relations{$reln};
 }
 
-sub get_all_groups_within {
-    my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsNotBeyond( $left, $right );
-}
-
-sub get_all_groups_with_exact_span {
-    my ( $self, $left, $right ) = @_;
-    return __GetObjectsWithEndsExactly( $left, $right );
-}
-
-sub get_groups_starting_at {
-    my ( $self, $left ) = @_;
-    return __SortRtoLByRightEdge( __GetObjectsWithEndsExactly( $left, undef ) );
-}
-
-sub get_groups_ending_at {
-    my ( $self, $right ) = @_;
-
-    # return __SortLtoRByLeftEdge(__GetObjectsWithEndsExactly(undef, $right));
-    return __GetObjectsWithEndsExactly( undef, $right );
-}
-
 sub get_longest_non_adhoc_object_starting_at {
     my ( $self, $left ) = @_;
-    for my $gp ( $self->get_groups_starting_at($left) ) {    # That gives us longest first.
+    for my $gp ( __SortRtoLByRightEdge(__GetObjectsWithEndsExactly($left, undef))) { 
+        # That gives us longest first.
     INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
                 return $gp;
@@ -727,7 +710,8 @@ sub get_longest_non_adhoc_object_starting_at {
 
 sub get_longest_non_adhoc_object_ending_at {
     my ( $self, $right ) = @_;
-    for my $gp ( $self->get_groups_ending_at($right) ) {    # That gives us longest first.
+    for my $gp ( __SortLtoRByLeftEdge(__GetObjectsWithEndsExactly(undef, $right)) ) {
+        # That gives us longest first.
     INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
                 return $gp;
@@ -1096,6 +1080,7 @@ sub FindDirectionOfObjectSet {
     my (@objects) = @_;
 
     # Assumption: @objects are live.
+    ### require: __CheckLivenessAndDiagnose(@objects)
     my @left_edges = map { $LeftEdge_of{$_} } @objects;
     my $how_many = scalar(@objects);
     confess "Need at least 2" if $how_many <= 1;

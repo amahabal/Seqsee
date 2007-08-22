@@ -64,7 +64,7 @@ use SThought;
 use SStream;
 use SWorkspace;
 
-use SCF::All;
+use SCF::All2;
 use SThought::All;
 use SThought::LargeGp;
 use Scripts::DescribeSolution;

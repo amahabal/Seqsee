@@ -423,7 +423,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
 #            my @ends = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
             my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
             if (
-                SWorkspace->get_all_groups_with_exact_span(
+                SWorkspace::__GetObjectsWithEndsExactly (
                     $new_obj->get_edges()
                 )
               )
@@ -543,7 +543,7 @@ print STDERR "\nHistory of second: \n\t", join("\n\t", @{$core->get_second()->ge
             ( $core->get_first(), $core->get_second() );
             my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
             if (
-                SWorkspace->get_all_groups_with_exact_span(
+                SWorkspace::__GetObjectsWithEndsExactly(
                     $new_obj->get_edges()
                 )
               )
