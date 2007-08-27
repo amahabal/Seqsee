@@ -608,7 +608,7 @@ sub read_object {
     my ($package) = @_;
     my @choose_from;
     my @all_objects = ( @elements, values %groups );
-    if ( $Global::Feature{chooseright} ) {
+    if ( $Global::Feature{choosebiased} ) {
         @choose_from = @all_objects;
         push @choose_from, grep { $_->get_span() > 4 } @all_objects;
     }

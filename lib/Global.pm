@@ -32,7 +32,11 @@ our %GroupStrengthByConsistency;    # Strength confered on groups by consistency
 our $AcceptableTrustLevel = 0.5;    # Trust level above which questions can be asked.
                                     # Gets adjusted programatically ..
 
-%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd chooseright assumecompleteblocks);
+%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd choosebiased);
+# Feature description:
+# choosebiased: Choose biased by recency etc.
+# onlyfwd: If set, _describe_position only describes position as going forward.
+# rules, relnact: Seqsee maintains relntype activations if these are set. 
 $LogString = '';
 
 sub clear {

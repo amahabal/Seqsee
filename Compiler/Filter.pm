@@ -47,9 +47,9 @@ NamedBlocksHash: NamedBlock(s) {
     $return = { map {@$_} @{ $item[1] } }
 }
 
-#NamedBlocksArr: NamedBlock(s) {
-#    $return = [ map {@$_} @{ $item[1] } ]
-#}
+NamedBlocksArr: NamedBlock(s) {
+    $return = $item[1]
+}
 
 NamedBlock: Identifier ':' CodeBlock {
     $return = [ $item{Identifier}, $item{CodeBlock} ]
@@ -96,5 +96,14 @@ sub CreateFilter{
         _ReplaceAnything($string, 'ThisFilter', $parser);
     };
 }
+
+use Perl::Tidy;
+sub tidy {
+    my ( $string ) = @_;
+    my $ret;
+    perltidy(source => \$string, destination => \$ret);
+    return $ret;
+}
+
 
 1;

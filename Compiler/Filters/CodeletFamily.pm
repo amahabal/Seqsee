@@ -9,13 +9,87 @@ use Compiler::Filter;
 use Carp;
 
 my $Grammar_For_Family = q{
-FAMILY: 'CodeletFamily' Identifier '(' ArgList ')' 'does' '{' NamedBlocksHash '}' 
-       {
-    $return = Compiler::Filters::CodeletFamily::GenerateFamilyCode( $item{Identifier},
-        $item{ArgList}, $item{NamedBlocksHash} )
+IsScripted: 'scripted' { $return = 1}
+OptionalScripted: IsScripted(?) 
+    {
+    if ( @{ $item[1] } ) { $return = 1; }
+    else {
+        $return = 0;
+    }
 }
 
+FAMILY: 'CodeletFamily' Identifier '(' ArgList ')' 'does' OptionalScripted '{' NamedBlocksArr '}' 
+    {
+        if ( $item{OptionalScripted} ) {
+            $return = Compiler::Filters::CodeletFamily::GenerateScriptCode( $item{Identifier},
+                $item{ArgList}, $item{NamedBlocksArr} );
+        }
+        else {
+
+            $return = Compiler::Filters::CodeletFamily::GenerateFamilyCode( $item{Identifier},
+                $item{ArgList}, { map {@$_} @{$item{NamedBlocksArr}} } );
+        }
+    }
+
 };
+
+
+my $COMMON_PREAMBLE = q{
+        use strict;
+        use Carp;
+        use Smart::Comments;
+        use Log::Log4perl;
+        use English qw(-no_match_vars);
+        use SCF;
+        
+        use Class::Multimethods;
+};
+
+my %ScriptAllowedBlocks = map {$_ => 1 } qw(INITIAL FINAL STEP);
+sub GenerateScriptCode {
+    my ( $package_name, $arguments, $blocks_list ) = @_;
+
+    my %block_hash = map { @$_ } @$blocks_list; # Only one STEP survives in hash...
+    while (my($k, $v) = each %block_hash) {
+        confess "UNKNOWN BLOCK $k!" unless $ScriptAllowedBlocks{$k};
+    }
+
+    my @STEPS;
+    for my $block (@$blocks_list) {
+        my ($name, $content) = @$block;
+        print "SAW $name!\n";
+        push @STEPS, $content if $name eq 'STEP';
+    }
+
+    my $INITIAL_BLOCK = $block_hash{INITIAL} || '';
+    my $FINAL_BLOCK = $block_hash{FINAL} || '';
+    my $PARAMS = ArgumentsToStringForScript($arguments);
+    my $RUN_BLOCK = GenerateScriptRunBlock(@STEPS);
+
+
+    my $serialized = <<"HERE";
+
+{
+
+package SCF::$package_name;
+our \$package_name_ = '$package_name';
+$COMMON_PREAMBLE
+$INITIAL_BLOCK
+
+sub run{
+    my ( \$action_object, \$args_ref ) = \@_;
+    $PARAMS
+    $RUN_BLOCK
+}
+ # end run
+$FINAL_BLOCK
+
+1;
+} # end surrounding
+
+HERE
+    return Compiler::Filter::tidy($serialized);
+}
 
 my %AllowedBlocks = map {$_ => 1 } qw(INITIAL RUN FINAL);
 sub GenerateFamilyCode {
@@ -37,38 +111,13 @@ sub GenerateFamilyCode {
 {
 
 package $package_name;
-use strict;
-use Carp;
-use Smart::Comments;
-use Log::Log4perl;
-use English qw(-no_match_vars);
-use SCF;
-
-use Class::Multimethods;
+our \$package_name_ = '$package_name';
+$COMMON_PREAMBLE
 $INITIAL_BLOCK
-
-{
-    my (\$logger, \$is_debug, \$is_info);
-    BEGIN { \$logger   = Log::Log4perl->get_logger("$package_name"); 
-           \$is_debug = \$logger->is_debug();
-           \$is_info  = \$logger->is_info();
-         }
-    sub LOGGING_DEBUG() { \$is_debug; }
-    sub LOGGING_INFO()  { \$is_info;  }
-}
-
-my \$logger = Log::Log4perl->get_logger("$package_name");
 
 sub run{
     my ( \$action_object, \$opts_ref ) = \@_;
-        if (LOGGING_INFO()) {
-        my \$msg = \$action_object->generate_log_msg();
-
-        \$logger->info( \$msg );
-    }
-
     $PARAMS
-
     $RUN_BLOCK
 }
  # end run
@@ -79,7 +128,7 @@ $FINAL_BLOCK
 
 HERE
 
-print $serialized;
+#print $serialized;
     return $serialized;
 }
 
@@ -102,6 +151,23 @@ sub ArgumentsToString {
     return $ret;
 }
 
+sub ArgumentsToStringForScript {
+    my ( $arguments_array ) = @_;
+    my $preamble = q{
+    my ( $stack, $step_, $opts_ref );
+    if ( exists $args_ref->{__S_T_A_C_K__} ) {
+        # print "args_ref->{__S_T_A_C_K__} present ($package_name_)\n";
+        ( $stack, $step_, $opts_ref )
+            = ( $args_ref->{__S_T_A_C_K__}, $args_ref->{__S_T_E_P__}, $args_ref->{__A_R_G_S__} );
+    }
+    else {
+        # print "args_ref->{__S_T_A_C_K__} missing ($package_name_)\n";
+        ( $stack, $step_, $opts_ref ) = ( [], 1, $args_ref );
+    }
+     };
+    return $preamble . ArgumentsToString($arguments_array);
+}
+
 
 {
     my $Filter;
@@ -117,4 +183,75 @@ sub ArgumentsToString {
         return $Filter;
     }
 }
+
+sub GenerateScriptRunBlock {
+    my ( @steps ) = @_;
+    my $ret;
+    my $counter = 0;
+    for my $step_content (@steps, 'RETURN;') {
+        $counter++;
+        my $step_body = ExpandStepBody($step_content);
+        $ret .= qq{ if ( \$step_ == $counter ) { $step_body; \$step_++;}};
+    }
+    return $ret;
+}
+
+sub ExpandStepBody {
+    my ( $step_content ) = @_;
+    $step_content = filterReturn($step_content);
+    $step_content = filterScript($step_content);
+    return $step_content;
+}
+
+{
+    my $ScriptFilterGrammar = q(
+      Script: "SCRIPT" Identifier ',' CodeBlockUnstripped {
+        $return = qq{
+           {
+             my \$new_stack = [ \@\$stack, [\$step_ + 1, \$opts_ref, \$package_name_ ]];
+             SCodelet->new('$item{Identifier}', 10000, {
+                  __S_T_E_P__ => 1,
+                  __A_R_G_S__ => $item{CodeBlockUnstripped},
+                  __S_T_A_C_K__ => \$new_stack})->schedule();
+             return;
+            }
+        };
+      }
+    );
+    my $ScriptFilter
+        = Compiler::Filter::CreateFilter( 'SCRIPT', $ScriptFilterGrammar, 'Script' );
+
+    sub filterScript {
+        my ($string) = @_;
+        return $ScriptFilter->($string);
+    }    
+}
+
+{
+    my $ReturnFilterGrammar = q(
+      Return: 'RETURN' ';'
+           { $return = q{
+ {
+    my @new_stack = @$stack;
+    return unless @new_stack;
+    my $top_frame = pop(@new_stack);
+    my ( $step_no, $args, $name ) = @$top_frame;
+    SCodelet->new(
+        $name, 10000,
+        {   __S_T_E_P__   => $step_no,
+            __A_R_G_S__   => $args,
+            __S_T_A_C_K__ => \@new_stack,
+        }
+    )->schedule();
+    return;
+}}});
+    my $ReturnFilter
+        = Compiler::Filter::CreateFilter( 'RETURN', $ReturnFilterGrammar, 'Return' );
+
+    sub filterReturn {
+        my ($string) = @_;
+        return $ReturnFilter->($string);
+    }
+}
+
 1;
