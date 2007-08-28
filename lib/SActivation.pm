@@ -3,53 +3,55 @@ use strict;
 use warnings;
 use Carp;
 
-use constant RAW_ACTIVATION   => 0;
-use constant RAW_SIGNIFICANCE => 1;
-use constant STABILITY        => 2;
-use constant TIME_STEPS       => 3;
-use constant REAL_ACTIVATION  => 4;
+use constant RAW_ACTIVATION       => 0;
+use constant RAW_SIGNIFICANCE     => 1;
+use constant STABILITY_RECIPROCAL => 2;
+use constant REAL_ACTIVATION      => 3;
 
-my $RAW_ACTIVATION   = RAW_ACTIVATION();
-my $RAW_SIGNIFICANCE = RAW_SIGNIFICANCE();
-my $STABILITY        = STABILITY();
-my $TIME_STEPS       = TIME_STEPS();
-my $REAL_ACTIVATION  = REAL_ACTIVATION();
+my $RAW_ACTIVATION       = RAW_ACTIVATION();
+my $RAW_SIGNIFICANCE     = RAW_SIGNIFICANCE();
+my $STABILITY_RECIPROCAL = STABILITY_RECIPROCAL();
+my $REAL_ACTIVATION      = REAL_ACTIVATION();
 
-sub GetRawActivation               { return $_[0]->[RAW_ACTIVATION]; }
-sub GetRawSignificance             { return $_[0]->[RAW_SIGNIFICANCE]; }
-sub GetStability                   { return $_[0]->[STABILITY]; }
-sub GetTimeToDecrementSignificance { return $_[0]->[TIME_STEPS]; }
+sub GetRawActivation       { return $_[0]->[RAW_ACTIVATION]; }
+sub GetRawSignificance     { return $_[0]->[RAW_SIGNIFICANCE]; }
+sub GetStabilityReciprocal { return $_[0]->[STABILITY_RECIPROCAL]; }
 
 our @PRECALCULATED;
 for ( 0 .. 200 ) {
     $PRECALCULATED[$_] = 0.4815 + 0.342 * atan2( 12 * ( $_ / 100 - 0.5 ), 1 );    # change!
 }
 
+my $Initial_Raw_Activation       = 1;
+my $Initial_Raw_Significance     = 1;
+my $Initial_Stability_Reciprocal = 1 / 50;
+my $Initial_Real_Activation = $PRECALCULATED[ $Initial_Raw_Activation + $Initial_Raw_Significance ];
+
 # Note that new assumes positions mentioned later...
 sub new {
     my $package = shift;
-    bless [ 1, 1, 100, 100, $PRECALCULATED[2] ], $package;
+    bless [
+        $Initial_Raw_Activation,       $Initial_Raw_Significance,
+        $Initial_Stability_Reciprocal, $Initial_Real_Activation
+    ], $package;
 }
 
 our $DECAY_CODE = qq{
-\$_->[$REAL_ACTIVATION] = \$PRECALCULATED[ --\$_->[$RAW_ACTIVATION] + \$_->[$RAW_SIGNIFICANCE] ];
-\$_->[$RAW_ACTIVATION] ||= 1;
-unless ( --\$_->[$TIME_STEPS] ) {
-    --\$_->[$RAW_SIGNIFICANCE];
-    \$_->[$RAW_SIGNIFICANCE] ||= 1;
-    \$_->[$TIME_STEPS] = \$_->[$STABILITY];
-}
+\$_->[$RAW_ACTIVATION]-- if \$_->[$RAW_ACTIVATION] > 1;
+\$_->[$RAW_SIGNIFICANCE] -= \$_->[$STABILITY_RECIPROCAL] if \$_->[$RAW_SIGNIFICANCE] > 1;
+\$_->[$REAL_ACTIVATION] = \$PRECALCULATED[\$_->[$RAW_ACTIVATION] + \$_->[$RAW_SIGNIFICANCE]];
 };
 
 our $SPIKE_CODE = qq{
-\$_->[$RAW_ACTIVATION] += \$spike;
-if ( \$_->[$RAW_ACTIVATION] > 100 ) {
-    \$_->[$RAW_ACTIVATION] = 100;
-    \$_->[$RAW_SIGNIFICANCE]++;
-    if ( \$_->[$RAW_SIGNIFICANCE] > 100 ) {
-        \$_->[$RAW_SIGNIFICANCE] = 100;
-        \$_->[$STABILITY]++;
-    }
+\$_->[$RAW_ACTIVATION]++;
+if (\$_->[$RAW_ACTIVATION] > 99) {
+  \$_->[$RAW_SIGNIFICANCE] += 2;
+  \$_->[$RAW_ACTIVATION] = 95;
+  if (\$_->[$RAW_SIGNIFICANCE] > 99) {
+    \$_->[$RAW_SIGNIFICANCE] = 95;
+    my \$stab = 1 / \$_->[$STABILITY_RECIPROCAL];
+    \$_->[$STABILITY_RECIPROCAL] = 1 / (\$stab + 3);
+  }
 }
 \$_->[$REAL_ACTIVATION] = \$PRECALCULATED[\$_->[$RAW_ACTIVATION] + \$_->[$RAW_SIGNIFICANCE]];
 };

@@ -89,7 +89,7 @@ sub Dump {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
         my ( $significance, $stability )
             = ( $activation->[SActivation::RAW_SIGNIFICANCE],
-            $activation->[SActivation::STABILITY] );
+            $activation->[SActivation::STABILITY_RECIPROCAL] );
         print {$filehandle} "=== ", ref($pure), " $significance $stability\n", $pure->serialize(),
             "\n";
     }
@@ -173,7 +173,7 @@ sub SetSignificanceAndStabilityForIndex {
     my ( $index, $significance, $stability ) = @_;
     my $activation_object = $ACTIVATIONS[$index];
     $activation_object->[SActivation::RAW_SIGNIFICANCE] = $significance;
-    $activation_object->[SActivation::STABILITY]        = $stability;
+    $activation_object->[SActivation::STABILITY_RECIPROCAL]        = $stability;
 }
 
 sub SetRawActivationForIndex {
