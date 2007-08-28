@@ -66,7 +66,7 @@ use SWorkspace;
 
 use SCF::All2;
 use SThought::All2;
-use SThought::LargeGp;
+use SThought::LargeGp2;
 use Scripts::DescribeSolution2;
 
 use SActivation;

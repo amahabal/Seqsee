@@ -474,3 +474,8 @@
   (interactive)
   (seq-change-to-dir)
   (shell-command (concat "perl util/ShowDiff.pl &")))
+
+(defun seqsee-show-codelet-graph ()
+  (interactive)
+  (seq-change-to-dir)
+  (shell-command "perl util/codeletgraph.pl &"))

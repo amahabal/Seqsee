@@ -41,7 +41,7 @@
 (global-set-key "\`" 'dabbrev-expand)
 
 (global-set-key [f2] 'seqsee-replace-lib)
-(global-set-key [f3] 'seqsee-replace-t)
+(global-set-key [f3] 'seqsee-show-codelet-graph)
 (global-set-key [f4] 'restart-emacs)
 (global-set-key [f5] 'seqsee-replace)
 

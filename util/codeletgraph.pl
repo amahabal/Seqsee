@@ -1,23 +1,28 @@
+use strict;
+use Smart::Comments;
 use GraphViz;
 use Data::Dump::Streamer;
 
-use lib 'lib';
-use SCF::All;
-use SThought::All;
+
+use lib 'genlib';
+use SCF::All2;
+use SThought::All2;
+use SThought::LargeGp2;
+use Scripts::DescribeSolution2;
 use Seqsee;
 use SStream;
 
 my $g = GraphViz->new(rankdir => 1,
-                      width => 8,
-                      height => 10.5,
+                      width => 16,
+                      height => 21,
                           );
 
 {
-    my $ACTION_PATTERN = qr{'SAction'->new\(\s*\{\s*'family'\s*,\s*['"](\w+)['"]};
+    my $ACTION_PATTERN = qr{SAction->new\(\s*\{\s*'family'\s*,\s*['"](\w+)['"]};
     my $CODELET_PATTERN = qr{new SCodelet\(\s*"(\w+)"};
-    my $CODELET_PATTERN2 = qr{'SCodelet'->new\(\s*['"](\w+)['"]};
-    my $THOUGHT_PATTERN = qr{'SThought::(\w+)'->new};
-    my $THOUGHT_PATTERN2 = qr{'SThought'->create\(};
+    my $CODELET_PATTERN2 = qr{SCodelet->new\(\s*['"](\w+)['"]};
+    my $THOUGHT_PATTERN = qr{SThought::(\w+)->new};
+    my $THOUGHT_PATTERN2 = qr{SThought->create\(};
     sub AddEdges{
         my ( $source_node, $code ) = @_;
         if ($source_node =~ /^SCF/) {
@@ -76,29 +81,37 @@ sub ProcessFile{
     AddEdges($package, $package_block);
 }
 
-{ # SCF
-    open my $in, "<", 'lib/SCF/All.pm';
+sub CodeletFile {
+    my ( $filename ) = @_;
+    ProcessFile($filename);
+    return;
+    open my $in, "<", $filename;
     my @packages = map {m/ \[ package \] \s* (\S+)/x; $1 }
         grep { m/^ \s* \[ package \] /x } <$in>;
     close $in;
     for my $p (@packages) {
+        ### Package: $p
         # print "Package: $p\n";
         my $sub_name = $p . '::run';
         my $run_sub =             \&$sub_name;
         my $as_str = Dump($run_sub)->Out();
         # print $as_str;
         AddEdges($p, $as_str);
-    }
+    }    
 }
+
 
 sub ThoughtFile{
     my ( $file ) = @_;
+    ProcessFile($file);
+    return;
     open my $in, "<", $file;
     my @packages = map {m/ \[ package \] \s* (\S+)/x; $1 }
         grep { m/^ \s* \[ package \] /x } <$in>;
     close $in;
     for my $p (@packages) {
         # print "Package: $p\n";
+        ### Thought Package: $p
         my $sub_name = $p . '::get_actions';
         my $sub_ref =             \&$sub_name;
         my $as_str = Dump($sub_ref)->Out();
@@ -120,13 +133,25 @@ GetFromSubroutine('Background', 'Seqsee::do_background_activity');
 GetFromSubroutine('Stream', 'SStream::_think_the_current_thought');
 GetFromSubroutine('GetSomethingLike', 'SWorkspace::GetSomethingLike');
 
-for (<lib/SThought/*.pm>) {
+for (<genlib/SThought/*2.pm>) {
+    ### Thoughtfile: $_
     ThoughtFile($_);
 }
 
+for (<genlib/SCF/*2.pm>) {
+    ### Codeletfile: $_
+    CodeletFile($_);
+}
 
-open my $OUT, ">", 'graph.ps';
+for (<genlib/Scripts/*2.pm>) {
+    ### Scriptfile: $_
+    CodeletFile($_);
+}
+
+
+open my $OUT, ">", 'graph.jpg';
 binmode $OUT;
-print {$OUT} $g->as_ps;
+print {$OUT} $g->as_jpeg;
 close $OUT;
-system "ps2pdf graph.ps; rm graph.ps";
+# system "ps2pdf graph.ps; rm graph.ps";
+system 'rundll32.exe c:\Windows\system32\shimgvw.dll,ImageView_Fullscreen D:\seqsee\graph.jpg';
