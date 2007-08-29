@@ -10,12 +10,14 @@ RUN: {
         }
         else {
             $object = SWorkspace->read_relation();
+
             # $logger->info("* Read Relation \n");
         }
         if ($object) {
 
             # main::message("read an SAnchored!") if (ref $object) eq "SAnchored";
             my $strength = $object->get_strength();
+
             # $logger->info("\tstrength: $strength\n");
             SThought->create($object)->schedule();
         }
@@ -178,13 +180,13 @@ RUN: {
 
                 # return unless worth_asking( $already_matched, $ask_if_what, $core_span );
 
-                CODELET 100, WorthAskingForExtendingReln,
-                    {   core            => $core,
-                        direction       => $direction,
-                        already_matched => $already_matched,
-                        ask_if_what     => $ask_if_what,
-                        err             => $err,               # so that we can call $err->Ask()
-                    };
+                CODELET 100, WorthAskingForExtendingReln, {
+                    core            => $core,
+                    direction       => $direction,
+                    already_matched => $already_matched,
+                    ask_if_what     => $ask_if_what,
+                    err             => $err,               # so that we can call $err->Ask()
+                };
                 return;
             }
             else {
@@ -231,12 +233,11 @@ RUN: {
                 return;
             }
             else {
-                my $tht = new SThought::AreTheseGroupable(
-                    {   items => [ $core->get_ends() ],
-                        reln  => $core
-                    }
-                );
-                ContinueWith($tht);
+                THOUGHT AreTheseGroupable,
+                    {
+                    items => [ $core->get_ends() ],
+                    reln  => $core
+                    };
             }
         }
 
@@ -575,7 +576,7 @@ RUN: {
             $application->ExtendLeftMaximally();
             my $new_group = SAnchored->create( @{ $application->get_items() } );
             SWorkspace->add_group($new_group) or return;
-            ContinueWith( SThought::AreWeDone->new( { group => $new_group } ) );
+            THOUGHT AreWeDone, { group => $new_group};
         }
         else {
 
@@ -682,13 +683,10 @@ RUN: {
 
         # So worth asking?
         $err->Ask('extending relation') or return;
-        SCodelet->new(
-            'AttemptExtensionOfRelation',
-            100,
-            {   core      => $core,
-                direction => $direction
-            }
-        )->schedule();
-
+        CODELET 100, AttemptExtensionOfRelation,
+            {
+            core      => $core,
+            direction => $direction
+            };
     }
 }
