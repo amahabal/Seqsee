@@ -75,21 +75,12 @@ FINAL: {
 }
 
 CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
-INITIAL: {
-
-    }
 RUN: {
         $obj->describe_as($cat) and SLTM::SpikeBy( 10, $cat );
-    }
-FINAL: {
-
     }
 }
 
 CodeletFamily SetLiteralCat( $object ! ) does {
-INITIAL: {
-
-    }
 RUN: {
         my @structure;
         if ( $object->get_metonym_activeness ) {
@@ -106,10 +97,6 @@ RUN: {
 ## $lit_cat, ident $lit_cat
         my $bindings = $object->describe_as($lit_cat)
             or confess "Hey, should NEVER have failed!";
-
-    }
-FINAL: {
-
     }
 }
 #####################################
@@ -140,7 +127,7 @@ RUN: {
             confess "The functionality of extending objects now done by AttemptExtensionOfGroup.";
         }
 
-## $direction, $direction_of_core, $type
+        ## $direction, $direction_of_core, $type
 
         my ( $reln, $obj1, $obj2, $next_pos, $what_next );
         if ( $direction eq $direction_of_core ) {
@@ -191,16 +178,13 @@ RUN: {
 
                 # return unless worth_asking( $already_matched, $ask_if_what, $core_span );
 
-                SCodelet->new(
-                    "WorthAskingForExtendingReln",
-                    100,
+                CODELET 100, WorthAskingForExtendingReln,
                     {   core            => $core,
                         direction       => $direction,
                         already_matched => $already_matched,
                         ask_if_what     => $ask_if_what,
                         err             => $err,               # so that we can call $err->Ask()
-                    }
-                )->schedule();
+                    };
                 return;
             }
             else {
