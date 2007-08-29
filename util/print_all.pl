@@ -90,13 +90,14 @@ END
 } ## end sub print_title
 
 sub print_all_files {
-    my @code_files = sort(<Seqsee.pl lib/*.pm lib/*/*.pm lib/*/*/*.pm>);
+    my @code_files = sort(<Seqsee.pl lib/*.pm lib/*/*.pm lib/*/*/*.pm
+Compiler/*.p* Compiler/*/*.pm>);
     my @test_files = sort(<t/*.t t/*/*.t t/*/*/*.t t/lib/STest/*.pm t/lib/STest/*/*.pm>);
     my @files;
     push( @files, @code_files ) if $SHOW_CODE_FILES;
     push( @files, @test_files ) if $SHOW_TEST_FILES;
     if ($DYNAMIC_ONLY) {
-        @files = sort(<lib/SCF/*.pm lib/SThought/*.pm>);
+        @files = sort(<lib/SCF/*.pm lib/SThought/*.pm lib/Scripts/*.pm>);
     }
     my %PrintOK;
     for (@files) {
@@ -132,10 +133,7 @@ sub print_file($file) {
     $file_ =~ s#_#\\_#g;
     print OUT "\\section*{$file_}\\markboth{$file_}{$file_}\n";
     my $open_what;
-    if ( $file =~ m#All\.pm$# or $file =~ m#Activation\.pm$# ) {    # SCF/All and SThought/All
-        $open_what = $file;
-    }
-    elsif ( $file =~ m#\.p.$# ) {
+    if ( $file =~ m#\.p.$# ) {
         $open_what = "perltidy -l=120 -st $file | ";
     }
     else {
