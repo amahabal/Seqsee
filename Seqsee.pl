@@ -1,6 +1,5 @@
 use strict;
 
-#use blib;
 use lib 'genlib/';
 
 use Config::Std;

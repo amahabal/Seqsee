@@ -3,7 +3,7 @@ our %Res;
 our $SelectedSeq = undef;
 
 package main;
-use blib;
+use lib 'genlib';
 use Tk;
 use Tk::Text;
 use Tk::Listbox;

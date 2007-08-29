@@ -423,7 +423,7 @@ sub RegTestHelper {
 
     ResetFailedRequests();
     SWorkspace->init( { %{$Global::TestingOptionsRef}, seq => $seq } );
-    SGlobal->SetFutureTerms(@$continuation);
+    Global->SetFutureTerms(@$continuation);
     SCoderack->init($Global::TestingOptionsRef);
     SStream->init($Global::TestingOptionsRef);
 
@@ -576,7 +576,7 @@ sub RegTestHelper {
         close TEMP;
         my $FeatureSetCommand
             = join( ";", map {"\$Global::Feature{$_} = 1"} ( keys %Global::Feature ) );
-        system "perl -Mblib -e \"use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
+        system "perl  -e \"use lib 'genlib';use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
             and die "The subcommand was cancelled. exiting";
         open REG, "<", $tmp_file;
         my $VAR1;
