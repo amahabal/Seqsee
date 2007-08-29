@@ -66,6 +66,11 @@ sub GenerateScriptCode {
     my $PARAMS = ArgumentsToStringForScript($arguments);
     my $RUN_BLOCK = GenerateScriptRunBlock(@STEPS);
 
+    for ($INITIAL_BLOCK, $FINAL_BLOCK, $RUN_BLOCK) {
+        $_ = filterCodelet($_);
+        $_ = filterAction($_);
+        $_ = filterThought($_);
+    }
 
     my $serialized = <<"HERE";
 
@@ -104,6 +109,13 @@ sub GenerateFamilyCode {
     my $INITIAL_BLOCK = $blocks->{INITIAL} || '';
     my $FINAL_BLOCK = $blocks->{FINAL} || '';
     my $RUN_BLOCK = $blocks->{RUN} || confess "No run block?";
+
+    for ($INITIAL_BLOCK, $FINAL_BLOCK, $RUN_BLOCK) {
+        $_ = filterCodelet($_);
+        $_ = filterAction($_);
+        $_ = filterThought($_);
+    }
+
     my $PARAMS = ArgumentsToString($arguments);
 
     my $serialized = <<"HERE";
@@ -253,5 +265,56 @@ sub ExpandStepBody {
         return $ReturnFilter->($string);
     }
 }
+
+{
+    my $CodeletFilterGrammar = q{
+       Codelet: 'CODELET' IntOrVar ',' Identifier ',' CodeBlock 
+      {
+            $return = qq{SCodelet->new("$item{Identifier}", 
+                         $item{IntOrVar},
+                         {$item{CodeBlock}})->schedule(); \n};
+      }
+    };
+    my $CodeletFilter
+        = Compiler::Filter::CreateFilter( 'CODELET', $CodeletFilterGrammar, 'Codelet' );
+
+    sub filterCodelet {
+        my ($string) = @_;
+        return $CodeletFilter->($string);
+    }
+}
+
+{
+    my $ActionFilterGrammar = q{
+       Action: 'ACTION' IntOrVar ',' Identifier ',' CodeBlock 
+      {
+            $return = qq{SAction->new({ family => "$item{Identifier}", 
+                                        urgency => $item{IntOrVar},
+                                        args =>  {$item{CodeBlock}} })->conditionally_run(); \n};
+      }
+    };
+    my $ActionFilter = Compiler::Filter::CreateFilter( 'ACTION', $ActionFilterGrammar, 'Action' );
+
+    sub filterAction {
+        my ($string) = @_;
+        return $ActionFilter->($string);
+    }
+}
+
+{
+    my $ThoughtFilterGrammar = q{
+      Thought: 'THOUGHT' Identifier ',' CodeBlock
+           { $return = "ContinueWith(SThought::$item{Identifier}->new({$item{CodeBlock}}));\n";
+           }
+    };
+    my $ThoughtFilter
+        = Compiler::Filter::CreateFilter( 'THOUGHT', $ThoughtFilterGrammar, 'Thought' );
+
+    sub filterThought {
+        my ($string) = @_;
+        return $ThoughtFilter->($string);
+    }
+}
+
 
 1;

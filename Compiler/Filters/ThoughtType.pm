@@ -27,6 +27,8 @@ sub GenerateThoughtCode {
         confess "UNKNOWN BLOCK $k!" unless $AllowedBlocks{$k};
     }
 
+    $blocks->{BUILD} ||= '';
+
     my $VAR_DECLARATIONS        = ArgumentsToVarDeclarations($arguments);
     my $BUILD_ARGUMENT_PULLING  = ArgumentsToBuildPuller($arguments);
     my $OTHER_ARGUMENTS_PULLING = ArgumentsToOtherPuller($arguments);

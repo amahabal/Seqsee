@@ -7,23 +7,16 @@ RUN: {
         my $object;
         if ( SUtil::toss(0.5) ) {
             $object = SWorkspace->read_object();
-            if ( LOGGING_INFO() and $object ) {
-                my ( $l, $r, $s )
-                    = ( $object->get_left_edge, $object->get_right_edge, $object->get_structure, );
-                my $strength = $object->get_strength();
-                my $msg      = "* Read Object: \t[$l,$r] $s\n";
-                $logger->info($msg);
-            }
         }
         else {
             $object = SWorkspace->read_relation();
-            $logger->info("* Read Relation \n");
+            # $logger->info("* Read Relation \n");
         }
         if ($object) {
 
             # main::message("read an SAnchored!") if (ref $object) eq "SAnchored";
             my $strength = $object->get_strength();
-            $logger->info("\tstrength: $strength\n");
+            # $logger->info("\tstrength: $strength\n");
             SThought->create($object)->schedule();
         }
 
