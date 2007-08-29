@@ -9,7 +9,7 @@ use List::Util qw(min max);
 use Sort::Key qw(rikeysort);
 use base qw/Tk::Derived Tk::Frame/;
 
-use Themes::Std;
+use Themes::Std2;
 use SGUI::Workspace;
 use SGUI::Slipnet;
 use SGUI::Categories;

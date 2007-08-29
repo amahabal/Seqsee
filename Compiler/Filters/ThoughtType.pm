@@ -116,6 +116,8 @@ ACTIONS_BLOCK
     }
 
 SERIALIZED
+
+return Compiler::Filter::tidy($serialized);
 }
 
 sub ArgumentsToVarDeclarations {

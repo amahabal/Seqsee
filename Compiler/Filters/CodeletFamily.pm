@@ -141,7 +141,7 @@ $FINAL_BLOCK
 HERE
 
 #print $serialized;
-    return $serialized;
+    return Compiler::Filter::tidy($serialized);
 }
 
 sub ArgumentsToString {

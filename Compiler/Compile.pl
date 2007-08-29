@@ -10,11 +10,13 @@ Compiler::Filters::Formula->ReadFormulaFile('sample_formulas');
 
 use Compiler::Filters::CodeletFamily;
 use Compiler::Filters::ThoughtType;
+use Compiler::Filters::Style;
 
 my @FILTERS;
 push @FILTERS, Compiler::Filters::Formula::GetFilter();
 push @FILTERS, Compiler::Filters::CodeletFamily::GetFilter();
 push @FILTERS, Compiler::Filters::ThoughtType::GetFilter();
+push @FILTERS, Compiler::Filters::Style::GetFilter();
 
 
 sub CompileAllFiles {

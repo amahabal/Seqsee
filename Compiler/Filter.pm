@@ -1,14 +1,5 @@
 package Compiler::Filter;
 use strict;
-#use Class::Std;
-
-#my $filter_of :ATTR(:get<filter>);
-
-#sub BUILD{
-#    my ( $package, $id, $opts_ref ) = @_;
-#    
-#}
-
 
 our $Grammar = q{
 # Identifier and FullIdentifier are valid perl names
