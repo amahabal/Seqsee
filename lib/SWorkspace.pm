@@ -31,7 +31,7 @@ use ResultOfPlonk;
 # NEW CODE
 #=============================================
 
-my $ElementCount = 0;
+our $ElementCount = 0;
 my @Elements;
 my @ElementMagnitudes;
 my %Objects;          # List of all objects.
@@ -41,6 +41,7 @@ my %LeftEdge_of;      # Maintains left edges of "registered" groups.
 my %RightEdge_of;     # Likewise, right edges.
 my %SuperGroups_of;   # Groups whose direct element is this group.
 my %Span_of;          # Span.
+my %LiveAtSomePoint;  # List of all live objects ever.
 
 sub GetElements {
     my ($package) = @_;
@@ -60,8 +61,13 @@ sub __Clear {
 }
 
 sub __CheckLiveness {
-    exists( $Objects{ $_[0] } ) ? 1 : 0;
+    return List::MoreUtils::all { exists $Objects{ $_ } } @_;
 }
+
+sub __CheckLivenessAtSomePoint {
+    return List::MoreUtils::all { exists $LiveAtSomePoint{$_} } @_;
+}
+
 
 sub __CheckLivenessAndDiagnose {
     my $problems_so_far = 0;
@@ -70,6 +76,9 @@ sub __CheckLivenessAndDiagnose {
 
         # So a dead object!
         print "NON_LIVE OBJECT!\n";
+        if (exists $LiveAtSomePoint{$object}) {
+            print "But was live once!\n";
+        }
         my $unstarred = $object->GetUnstarred();
         if ( $unstarred ne $object ) {
             print "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
@@ -194,6 +203,7 @@ multimethod __InsertElement => ('SElement') => sub {
     $RightEdge_of{$element}   = $ElementCount;
     $Span_of{$element}        = 1;
     $Objects{$element}        = $element;
+    $LiveAtSomePoint{$element} = 1;
     $SuperGroups_of{$element} = {};
 
     $ElementCount++;
@@ -247,6 +257,7 @@ sub __DoGroupAddBookkeeping {
     $Objects{$group}        = $group;
     $NonEltObjects{$group}  = $group;
     $SuperGroups_of{$group} = {};
+    $LiveAtSomePoint{$group}= 1;
     __UpdateGroup($group);
 }
 
@@ -505,7 +516,6 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
 #=============================================
 
 # Next 2 lines: should be my!
-our $elements_count;
 our @elements = ();
 
 # variable: %groups
@@ -528,7 +538,7 @@ my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
 #  starts workspace off as new
 
 sub clear {
-    $elements_count = 0;
+    $ElementCount = 0;
     @elements       = ();
     %groups         = ();
     %relations      = ();
@@ -595,9 +605,6 @@ multimethod _insert_element => ('$') => sub {
 
 multimethod _insert_element => ('SElement') => sub {
     my $elt = shift;
-    $elt->set_edges( $elements_count, $elements_count );
-    push( @elements, $elt );
-    $elements_count++;
     %Global::ExtensionRejectedByUser = ();
 
     __InsertElement($elt);
@@ -607,7 +614,7 @@ multimethod _insert_element => ('SElement') => sub {
 sub read_object {
     my ($package) = @_;
     my @choose_from;
-    my @all_objects = ( @elements, values %groups );
+    my @all_objects = ( @Elements, values %groups );
     if ( $Global::Feature{choosebiased} ) {
         @choose_from = @all_objects;
         push @choose_from, grep { $_->get_span() > 4 } @all_objects;
@@ -618,7 +625,7 @@ sub read_object {
     my $object     = $strength_chooser->( \@choose_from );
     my $right_edge = $object->get_right_edge;
 
-    if ( $right_edge == $elements_count - 1 ) {
+    if ( $right_edge == $ElementCount - 1 ) {
         _saccade();
     }
     else {
@@ -643,7 +650,7 @@ sub read_object {
         my ($idx) = @_;
         my @matching_objects =
             grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
-            ( @elements, values %groups );
+            ( @Elements, values %groups );
 
         return $strength_chooser->( \@matching_objects );
     }
@@ -658,7 +665,7 @@ sub _saccade {
     if ( SUtil::toss(0.5) ) {
         return $ReadHead = 0;
     }
-    my $random_pos = int( rand() * $elements_count );
+    my $random_pos = int( rand() * $ElementCount );
     $ReadHead = $random_pos;
 }
 
@@ -698,14 +705,14 @@ sub get_longest_non_adhoc_object_starting_at {
         }
     }
 
-    if ( $left >= $elements_count ) {
+    if ( $left >= $ElementCount ) {
         ### left: $left
-        ### elements_count: $elements_count
+        ### ElementCount: $ElementCount
         confess "Why am I being asked this?";
     }
 
     # Getting here means no group. Return the element.
-    return $elements[$left];
+    return $Elements[$left];
 }
 
 sub get_longest_non_adhoc_object_ending_at {
@@ -720,7 +727,7 @@ sub get_longest_non_adhoc_object_ending_at {
     }
 
     # Getting here means no group. Return the element.
-    return $elements[$right];
+    return $Elements[$right];
 }
 
 sub AreGroupsInConflict {
@@ -751,7 +758,7 @@ sub get_intervening_objects {
     my @ret;
     my $left = $l;
     ##  $left, $r
-    if ( $r >= $elements_count ) {
+    if ( $r >= $ElementCount ) {
         confess "get_intervening_objects called with right end of gap beyond known elements";
     }
     while ( $left <= $r ) {
@@ -844,7 +851,7 @@ sub CheckElementsRightwardFromLocation {
     my @already_validated;
     while (@flattened) {
         $current_pos++;
-        if ( $current_pos >= $elements_count ) {
+        if ( $current_pos >= $ElementCount ) {
 
             # already out of range!
             my $err = SErr::AskUser->new(
@@ -859,7 +866,7 @@ sub CheckElementsRightwardFromLocation {
         else {
             ## expecting: $flattened[0]
             ## got: $elements[$current_pos]->get_mag()
-            if ( $elements[$current_pos]->get_mag() == $flattened[0] ) {
+            if ( $Elements[$current_pos]->get_mag() == $flattened[0] ) {
                 push @already_validated, shift(@flattened);
             }
             else {
@@ -961,11 +968,11 @@ sub GetSomethingLike {
     my @objects_at_that_location;
     if ( $direction eq $DIR::RIGHT ) {
         @objects_at_that_location =
-            grep { $_->get_left_edge() eq $start_pos } ( @elements, values %groups );
+            grep { $_->get_left_edge() eq $start_pos } (values %Objects);
     }
     elsif ( $direction eq $DIR::LEFT ) {
         @objects_at_that_location =
-            grep { $_->get_right_edge() eq $start_pos } ( @elements, values %groups );
+            grep { $_->get_right_edge() eq $start_pos } (values %Objects);
     }
 
     my $expected_structure_string = $object->get_structure_string();

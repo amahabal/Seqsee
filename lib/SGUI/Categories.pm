@@ -66,12 +66,12 @@ sub DrawIt {
     my ( $row, $col ) = ( -1, 0 );
     # print("Max: $MaxGpHeight $MinGpHeight");
     $GroupHtPerUnitSpan =
-      ( $MaxGpHeight - $MinGpHeight ) / ( $SWorkspace::elements_count || 1 );
-    $SpacePerElement = $WidthForImage / ( $SWorkspace::elements_count + 1 );
+      ( $MaxGpHeight - $MinGpHeight ) / ( $SWorkspace::ElementCount || 1 );
+    $SpacePerElement = $WidthForImage / ( $SWorkspace::ElementCount + 1 );
 
     my @sorted_objects =
       rikeysort { $_->get_span() } values(%SWorkspace::groups);
-    push @sorted_objects, @SWorkspace::elements;
+    push @sorted_objects, SWorkspace::GetElements();
     my %Cat2Objects;
     for my $obj (@sorted_objects) {
         my $edges_ref = [ $obj->get_edges() ];
@@ -133,7 +133,7 @@ sub DrawCategory {
       ( $CenterY - 1, $CenterY + 1 );
     my ( $oval_left, $oval_right ) =
       ( $left + $SpacePerElement - 1, $left + $SpacePerElement + 1 );
-    for ( 1 .. $SWorkspace::elements_count ) {
+    for ( 1 .. $SWorkspace::ElementCount ) {
         $Canvas->createRectangle( $oval_left, $oval_top, $oval_right, $oval_bottom );
         $oval_left  += $SpacePerElement;
         $oval_right += $SpacePerElement;

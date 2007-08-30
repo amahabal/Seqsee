@@ -6,7 +6,7 @@ my $diff = join( '', <$PIPE> );
 close($PIPE);
 
 my $parser = Text::Diff::Parser->new(
-    Simplify => 1,    # simplify the diff
+    # Simplify => 1,    # simplify the diff
 );                    # strip 2 directories
 $parser->parse($diff);
 
@@ -36,6 +36,7 @@ sub Show {
         }
         my (@lines) = ($change->line1, $change->line2);
         my $type = $change->type;
+        next unless $type =~ /\S/;
         $TB->insert('end', ' 'x4, [], $type, ['type']);
         if ($type eq 'ADD') {
             $TB->insert('end', " --> $lines[1]\n");

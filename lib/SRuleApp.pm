@@ -115,9 +115,9 @@ sub ExtendInDirection {
     if ( my $e = $EVAL_ERROR ) {
         die $e unless UNIVERSAL::isa( $e, 'SErr::AskUser' );
 
-        my $trust_level = ($self->get_span() / $SWorkspace::elements_count) * 0.5;
+        my $trust_level = ($self->get_span() / $SWorkspace::ElementCount) * 0.5;
         ### span: $self->get_span()
-        ### count: $SWorkspace::elements_count
+        ### count: $SWorkspace::ElementCount
         ### trust: $trust_level
         # log(scalar(@{$self->get_items})) / log(3);
         if ( $e->WorthAsking($trust_level) ) {
@@ -226,7 +226,7 @@ sub FindExtension {
             direction   => $direction_to_extend_in,
             trust_level => 50 *
               $self->get_span() /
-              ( $SWorkspace::elements_count + 1 ),    # !!
+              ( $SWorkspace::ElementCount + 1 ),    # !!
             reason => 'Extension attempted for: ' . $rule->as_text(),
         }
     );

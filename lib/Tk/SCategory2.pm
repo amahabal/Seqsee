@@ -31,7 +31,7 @@ sub clear{
 sub Update{
     $list->delete('0.0', 'end');
     my %category_counts;
-    for my $object (@SWorkspace::elements, values %SWorkspace::groups) {
+    for my $object (SWorkspace::GetElements(), values %SWorkspace::groups) {
         for (@{ $object->get_categories() }) {
             $category_counts{$_}++;
         }

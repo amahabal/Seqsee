@@ -28,11 +28,11 @@ FINAL: {
 
         sub ReadSamenessAroundReadHead {
             my $readheadpos = $SWorkspace::ReadHead;
-            my $magnitude   = $SWorkspace::elements[$readheadpos]->get_mag();
+            my $magnitude   = (SWorkspace::GetElements())[$readheadpos]->get_mag();
             my ( $left_margin_of_sameness_gp, $right_margin_of_sameness_gp )
                 = ( $readheadpos, $readheadpos );
             while ( $left_margin_of_sameness_gp > 0 ) {
-                if ( $SWorkspace::elements[ $left_margin_of_sameness_gp - 1 ]->get_mag()
+                if ( (SWorkspace::GetElements())[ $left_margin_of_sameness_gp - 1 ]->get_mag()
                     == $magnitude )
                 {
                     $left_margin_of_sameness_gp--;
@@ -41,8 +41,8 @@ FINAL: {
                     last;
                 }
             }
-            while ( $right_margin_of_sameness_gp <= $SWorkspace::elements_count - 2 ) {
-                if ( $SWorkspace::elements[ $right_margin_of_sameness_gp + 1 ]->get_mag()
+            while ( $right_margin_of_sameness_gp <= $SWorkspace::ElementCount - 2 ) {
+                if ( (SWorkspace::GetElements())[ $right_margin_of_sameness_gp + 1 ]->get_mag()
                     == $magnitude )
                 {
                     $right_margin_of_sameness_gp++;
@@ -60,7 +60,7 @@ FINAL: {
             );
             return if $is_covering;
             my @items
-                = @SWorkspace::elements[ $left_margin_of_sameness_gp .. $right_margin_of_sameness_gp
+                = (SWorkspace::GetElements())[ $left_margin_of_sameness_gp .. $right_margin_of_sameness_gp
                 ];
             for (@items) {
                 return if $_->get_metonym_activeness();
@@ -143,7 +143,7 @@ RUN: {
 
         $next_pos = $obj2->get_next_pos_in_dir($direction);
         return unless defined($next_pos);
-        if ( $next_pos == $SWorkspace::elements_count ) {
+        if ( $next_pos == $SWorkspace::ElementCount ) {
             return unless SUtil::toss(0.15);
         }
 
@@ -249,14 +249,14 @@ FINAL: {
             return 1 if ( @$matched > 0 );
             my $time_since_extension = $Global::Steps_Finished - $Global::TimeOfLastNewElement;
             my $number_of_user_verified_elements
-                = $SWorkspace::elements_count - $Global::InitialTermCount;
+                = $SWorkspace::ElementCount - $Global::InitialTermCount;
             return if $time_since_extension < 10 * $number_of_user_verified_elements;
 
         # main::message("Verified: $number_of_user_verified_elements; Time: $time_since_extension");
             ### $matched
             ### $unmatched
             my $penetration
-                = ( scalar(@$matched) + $extension_from_span ) / $SWorkspace::elements_count;
+                = ( scalar(@$matched) + $extension_from_span ) / $SWorkspace::ElementCount;
 
             # print STDERR "Penetration: $penetration\n";
             return unless $penetration;
@@ -311,7 +311,7 @@ RUN: {
         my $type_activation = spike_reln_type($reln);
         return unless ( SUtil::toss($type_activation) );
 
-        if ( $b->get_right_edge() >= $SWorkspace::elements_count ) {
+        if ( $b->get_right_edge() >= $SWorkspace::ElementCount ) {
             print STDERR "Hmmm... problem traced back here\n";
         }
         $reln->AddHistory("Found relation!");
@@ -658,7 +658,7 @@ RUN: {
             return;
         }
 
-        my $element_count                  = $SWorkspace::elements_count;
+        my $element_count                  = $SWorkspace::ElementCount;
         my $matched_elements_count         = scalar(@$already_matched);
         my $index_of_first_matched_element = $element_count - $matched_elements_count;
         my $trust;

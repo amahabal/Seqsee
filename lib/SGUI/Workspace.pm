@@ -64,8 +64,8 @@ sub Setup {
 sub DrawIt {
     DrawLegend( 10, 10 );
     $GroupHtPerUnitSpan =
-      ( $MaxGpHeight - $MinGpHeight ) / ( $SWorkspace::elements_count || 1 );
-    $SpacePerElement = $EffectiveWidth / ( $SWorkspace::elements_count + 1 );
+      ( $MaxGpHeight - $MinGpHeight ) / ( $SWorkspace::ElementCount || 1 );
+    $SpacePerElement = $EffectiveWidth / ( $SWorkspace::ElementCount + 1 );
     %AnchorsForRelations = ();
     %RelationsToHide     = ();
     DrawGroups();
@@ -170,7 +170,7 @@ sub DrawGroups {
     for my $gp (SWorkspace->GetGroups()) {
         $gp->draw_ws3();
     }
-    for my $elt (@SWorkspace::elements) {
+    for my $elt (SWorkspace::GetElements()) {
         SAnchored::draw_ws3($elt) if ($elt->get_group_p() or $elt->get_metonym_activeness());
     }
     $Canvas->raise('hilit')

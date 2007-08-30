@@ -24,7 +24,7 @@ STEP: {
 CodeletFamily DescribeInitialBlemish( $group ! ) does scripted {
 STEP: {
         if ( my $le = $group->get_left_edge() ) {
-            my @initial_bl = map { $_->get_mag() } @SWorkspace::elements[ 0 .. $le - 1 ];
+            my @initial_bl = map { $_->get_mag() } (SWorkspace::GetElements())[ 0 .. $le - 1 ];
             main::message(
                 'There is an initial blemish in the sequence: ' . join( ', ', @initial_bl )
                     . (

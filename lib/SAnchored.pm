@@ -319,7 +319,7 @@ sub CheckSquintabilityForCategory {
 
 sub IsFlushRight{
     my ( $self ) = @_;
-    $right_edge_of{ident $self} == $SWorkspace::elements_count - 1 ? 1 : 0;
+    $right_edge_of{ident $self} == $SWorkspace::ElementCount - 1 ? 1 : 0;
 }
 
 sub IsFlushLeft{

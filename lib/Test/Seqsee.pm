@@ -187,7 +187,7 @@ NOLOG
         {   ask_user_extension => sub {
                 my ($arr_ref) = @_;
                 return if Seqsee::already_rejected_by_user($arr_ref);
-                my $ws_count        = $SWorkspace::elements_count;
+                my $ws_count        = $SWorkspace::ElementCount;
                 my $ask_terms_count = scalar(@$arr_ref);
                 unless ($ask_terms_count) {
                     die "ask_user_extension called with 0 terms!";
@@ -451,7 +451,7 @@ sub RegTestHelper {
     my $with_error = $err ? ( " (With Exception Thrown " . ref($err) . ")" ) : "";
     print STDERR "Done$with_error.\n";
     ### Finished run, with steps: $Global::Steps_Finished
-    ### Workspace has this many elements: $SWorkspace::elements_count
+    ### Workspace has this many elements: $SWorkspace::ElementCount
 
     my $failed_requests = GetFailedRequests();
     if ( $failed_requests > $max_false_continuations ) {
@@ -488,7 +488,7 @@ sub RegTestHelper {
     else {
 
         # Natural end?
-        if ( $SWorkspace::elements_count - scalar(@$seq) > $min_extension ) {
+        if ( $SWorkspace::ElementCount - scalar(@$seq) > $min_extension ) {
             print STDERR "+EXTENDED A BIT\n";
             return ( "ExtendedWithoutGettingIt", $Global::Steps_Finished );
         }

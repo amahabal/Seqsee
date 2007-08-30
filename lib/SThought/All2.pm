@@ -82,7 +82,7 @@ ThoughtType AreWeDone( $group ! ) does {
 ACTIONS: {
         my $gp          = $group;
         my $span        = $gp->get_span;
-        my $total_count = $SWorkspace::elements_count;
+        my $total_count = $SWorkspace::ElementCount;
         my $left_edge   = $gp->get_left_edge();
         ### $span, $total_count
         #main::message( $right_extendibility);
@@ -177,7 +177,7 @@ ACTIONS: {
         my $strength           = $core->get_strength();
         my $flush_right        = $core->IsFlushRight();
         my $flush_left         = $core->IsFlushLeft();
-        my $span_fraction      = $core->get_span() / $SWorkspace::elements_count;
+        my $span_fraction      = $core->get_span() / $SWorkspace::ElementCount;
 
         # extendibility checking...
         if ( $flush_right and not($flush_left) ) {
@@ -461,13 +461,13 @@ ACTIONS: {
             my ( $l1, $r1, $l2, $r2 ) =
                 map { $_->get_edges() } ( $core->get_first(), $core->get_second() );
             my @gap = ( min( $r1, $r2 ) + 1, max( $l1, $l2 ) - 1 );
-            if ( $gap[1] >= $SWorkspace::elements_count ) {
+            if ( $gap[1] >= $SWorkspace::ElementCount ) {
                 print STDERR "Ends: ($l1, $r1), ($l2, $r2)\n";
                 print STDERR "Second is: ", $core->get_second(), "with structure ",
                     $core->get_second()->get_structure_string(), "\n";
-                print STDERR "Element count: $SWorkspace::elements_count\n";
+                print STDERR "Element count: $SWorkspace::ElementCount\n";
                 print STDERR "Gap: @gap\n";
-                my $elements = join( ", ", map { $_->get_mag } @SWorkspace::elements );
+                my $elements = join( ", ", map { $_->get_mag } SWorkspace::GetElements() );
                 print STDERR "Elements: $elements\n";
                 print STDERR map { $_->get_structure_string() } $core->get_ends();
                 print STDERR "\nHistory of core: \n\t", join( "\n\t", @{ $core->get_history() } ),

@@ -32,7 +32,7 @@ sub clear{
 
 sub Update{
     $list->delete('0.0', 'end');
-    for my $object (@SWorkspace::elements, values %SWorkspace::groups,
+    for my $object (SWorkspace::GetElements(), values %SWorkspace::groups,
                         values %SWorkspace::relations) {
         my $type = ref $object;
         my $string = $object->as_text;
