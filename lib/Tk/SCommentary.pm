@@ -31,7 +31,7 @@ sub Populate {
       $self->Scrolled( 'ROText', -scrollbars => 'se', -font => $font, %$args )
       ->pack( -side => 'left' );
     $Text->bind( '<KeyPress>',   sub { Tk->break() } );
-    $Text->bind( '<KeyPress-q>', sub { exit } );
+    $Text->bind( '<KeyPress-q>', sub { $self->grabRelease(); exit(0) } );
 
     for (@$tags_ref) {
         print "Configuring $_->[0]...";

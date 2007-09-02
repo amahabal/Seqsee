@@ -4,18 +4,69 @@ use Smart::Comments;
 use List::Util;
 use Tk;
 use Time::HiRes qw{time};
+use List::Util;
+
+use constant {
+    ASK_SEQUENCE_NEXT_TERMS_MESSAGE      => 'Provide next terms in the sequence',
+    ASK_SEQUENCE_MAXIMUM_TERMS_IN_REPLY  => 10,
+    ASK_SEQUENCE_REQUIRED_TERMS_IN_REPLY => 5,
+
+    ASK_VARIANT_NEXT_TERMS_MESSAGE      => 'Provide another sequence like',
+    ASK_VARIANT_MAXIMUM_TERMS_IN_REPLY  => 20,
+    ASK_VARIANT_REQUIRED_TERMS_IN_REPLY => 10,
+
+    OUTPUT_FILE_NAME      => 'tempfile',
+    EACH_TERM_ENTRY_WIDTH => 3,
+    LABEL_CONFIG          => [ -foreground => 'blue' ],
+};
+
+use constant {
+    SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH => ( EACH_TERM_ENTRY_WIDTH + 3 )
+        * ASK_SEQUENCE_MAXIMUM_TERMS_IN_REPLY,
+    VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH => ( EACH_TERM_ENTRY_WIDTH + 3 )
+        * ASK_VARIANT_MAXIMUM_TERMS_IN_REPLY,
+    BUTTON_HIDING_ENTRY_TERMS_MESSAGE => 'I am ready to enter the answer',
+};
+
+use constant {
+    SEQUENCE_BUTTON_HIDING_PROBLEM_SEQUENCE_WIDTH => 50,
+    VARIANT_BUTTON_HIDING_PROBLEM_SEQUENCE_WIDTH  => VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH,
+    BUTTON_HIDING_PROBLEM_SEQUENCE_MESSAGE        => 'Click to view sequence',
+};
+
+use constant {
+    HEADER_MESSAGE      => 'The Sequence Extension Experiment',
+    FOOTER_MESSAGE      => 'Percepts and Concepts Lab, Indiana University',
+    HEADER_FOOTER_WIDTH => List::Util::max(
+        120,
+        VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH,
+        SEQUENCE_BUTTON_HIDING_PROBLEM_SEQUENCE_WIDTH + SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH + 5
+    ),
+};
+
+use constant {
+    SPLASH_TEXT_WIDTH                 => HEADER_FOOTER_WIDTH - 10,
+    SPLASH_TEXT_HEIGHT                => 20,
+    SPLASH_SCREEN_PROCEED_BUTTON_TEXT => 'Proceed',
+};
+print "WIDTH: ", SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH, ' ',
+    VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH, "\n";
+
+# exit;
 
 my @sequences_to_ask = ReadInputConfig("Inputlist.txt");
 our $Position;
 our %InfoToWriteOut;
 ### Sequences: @sequences_to_ask
 
-my $MW           = new MainWindow();
-my $HeaderFrame  = $MW->Frame()->pack( -side => 'top' );
-my $FooterFrame  = $MW->Frame()->pack( -side => 'bottom' );
-my $CentralFrameCover = $MW->Frame(-height => 400)->pack( -side => 'top', -fill => 'both' );
-$CentralFrameCover->Label(-height=>15)->pack(-side=>'left');
-my $CentralFrame = $CentralFrameCover->Frame()->pack(-expand => 1, -fill => 'y');
+my $MW                = new MainWindow();
+my $HeaderFrame       = $MW->Frame()->pack( -side => 'top' );
+my $FooterFrame       = $MW->Frame()->pack( -side => 'bottom' );
+my $CentralFrameCover = $MW->Frame()->pack( -side => 'top', -fill => 'both', -expand => 1 );
+my $CentralFrame      = $CentralFrameCover->Frame(
+    -borderwidth => 2,
+    -relief      => 'groove'
+)->pack( -expand => 1, -fill => 'both' );
 
 SetupHeader($HeaderFrame);
 ShowSplashScreen($CentralFrame);
@@ -69,16 +120,17 @@ sub ChooseOneRandomly {
 
 sub ShowSplashScreen {
     my ($frame) = @_;
+
     my $Text = $frame->Scrolled(
         'Text',
         -scrollbars => 'e',
-        -width      => 80,
-        -height     => 10
+        -width      => SPLASH_TEXT_WIDTH,
+        -height     => SPLASH_TEXT_HEIGHT,
     )->pack( -side => 'top' );
     InsertSplashMessage($Text);
     my $button;
     $button = $MW->Button(
-        -text    => 'proceed',
+        -text    => SPLASH_SCREEN_PROCEED_BUTTON_TEXT,
         -command => sub {
             $Text->destroy();
             $button->destroy();
@@ -89,11 +141,12 @@ sub ShowSplashScreen {
 
 sub InsertSplashMessage {
     my ($text) = @_;
-    $text->tagConfigure('message', -foreground => '#0000FF');
+    $text->tagConfigure( 'message', -foreground => '#0000FF' );
     $text->insert( 'end', "An initial message here.", ['message'] );
 }
 
 sub AskSequences {
+    $MW->packPropagate(0);
     for my $sequence (@sequences_to_ask) {
         $Position++;
         our $GoOnToNextSequence = 0;
@@ -101,28 +154,28 @@ sub AskSequences {
         if ( $type eq 'extend' ) {
             AskSequence(
                 {   sequence          => $seq,
-                    message           => 'Provide next terms in the sequence',
+                    message           => ASK_SEQUENCE_NEXT_TERMS_MESSAGE,
                     sequence_stacking => 'left',
                     genre             => 'extend',
-                    max_next_terms    => 10,
-                    reqd_next_terms => 10,
+                    max_next_terms    => ASK_SEQUENCE_MAXIMUM_TERMS_IN_REPLY,
+                    reqd_next_terms   => ASK_SEQUENCE_REQUIRED_TERMS_IN_REPLY,
                 }
             );
         }
         else {
             AskSequence(
                 {   sequence          => $seq,
-                    message           => 'Provide another sequence like',
+                    message           => ASK_VARIANT_NEXT_TERMS_MESSAGE,
                     sequence_stacking => 'top',
                     genre             => 'variation',
-                    max_next_terms  => 20,
-                    reqd_next_terms => 10,
+                    max_next_terms    => ASK_VARIANT_MAXIMUM_TERMS_IN_REPLY,
+                    reqd_next_terms   => ASK_VARIANT_REQUIRED_TERMS_IN_REPLY,
                 }
             );
         }
         $MW->waitVariable( \$GoOnToNextSequence );
     }
-    write_config %InfoToWriteOut, "tempfile";
+    write_config %InfoToWriteOut, OUTPUT_FILE_NAME;
     exit;
 }
 
@@ -135,25 +188,45 @@ sub AskSequence {
 
     ## seq, msg: $sequence, $message
     # my $Text  = $MW->Text()->pack( -side  => 'top' );
-    my $frame = $CentralFrame->Frame()->pack( -side => 'top' );
+    my $frame = $CentralFrame->Frame()->pack( -side => 'top', -expand => 1, -fill => 'both' );
 
     {
         my $label_frame = $frame->Frame()->pack( -side => 'top' );
-        $label_frame->Label( -text => $message, -foreground => 'blue' )->pack( -side => 'left' );
+        $label_frame->Label( -text => $message, @{ LABEL_CONFIG() } )->pack( -side => 'left' );
     }
 
     my ( $subframe_given_sequence, $subframe_for_extension );
 
     {
-        my $sequences_frame = $frame->Frame()->pack( -side => 'top' );
-        $subframe_given_sequence = $sequences_frame->Frame()->pack( -side => $sequence_stacking );
-        $subframe_for_extension  = $sequences_frame->Frame()->pack( -side => $sequence_stacking );
+        my $sequences_frame = $frame->Frame( -relief => 'groove' )->pack(
+            -side   => 'top',
+            -expand => 1,
+            -fill   => 'both',
+        );
+        $subframe_given_sequence = $sequences_frame->Frame()->pack(
+            -side   => $sequence_stacking,
+            -expand => 1,
+            -fill   => 'both'
+        );
+        $subframe_for_extension = $sequences_frame->Frame()->pack(
+            -side   => $sequence_stacking,
+            -expand => 1,
+            -fill   => 'both'
+        );
     }
 
-    my $sequence_to_show = FormatSequenceToShow($sequence, $genre);
-    my $temporary_label = $subframe_for_extension->Label( -width => 35 )->pack();
+    my $sequence_to_show = FormatSequenceToShow( $sequence, $genre );
     my $reveal_button;
     my $reveal_button_for_extension;
+    my $button_hiding_entry_terms_width =
+        ( $genre eq 'extend' )
+        ? SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH
+        : VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH;
+
+    my $button_hiding_problem_sequence_width =
+        ( $genre eq 'extend' )
+        ? SEQUENCE_BUTTON_HIDING_PROBLEM_SEQUENCE_WIDTH
+        : VARIANT_BUTTON_HIDING_PROBLEM_SEQUENCE_WIDTH;
 
     # Times
     my $TimeOfSequenceDisplay;
@@ -175,7 +248,7 @@ sub AskSequence {
             my $UnderstandingTime = $TimeOfUnderstanding - $TimeOfSequenceDisplay;
             my @TypingTimes;
             $TypingTimes[0] = $TimesOfChange[0] ? $TimesOfChange[0] - $TimeOfUnderstanding : '?';
-            for ( 1 .. $max_terms-1 ) {
+            for ( 1 .. $max_terms - 1 ) {
                 if ( $TimesOfChange[$_] and $TimesOfChange[ $_ - 1 ] ) {
                     $TypingTimes[$_] = $TimesOfChange[$_] - $TimesOfChange[ $_ - 1 ];
                 }
@@ -197,66 +270,70 @@ sub AskSequence {
             }
 
     )->pack( -side => 'bottom', -expand => 1, -fill => 'x' );
-    
+
     $reveal_button = $subframe_given_sequence->Button(
-        -text    => 'Reveal Sequence',
-        -width   => 35,
+        -text       => BUTTON_HIDING_PROBLEM_SEQUENCE_MESSAGE,
+        -width      => $button_hiding_problem_sequence_width,
         -foreground => 'red',
-        -command => sub {
+        -command    => sub {
             $reveal_button->destroy();
-            $temporary_label->destroy();
             my $sequence_label = $subframe_given_sequence->Label(
                 -textvariable => \$sequence_to_show,
-                -width        => 35,
-                -foreground => 'blue',
+                -width        => $button_hiding_problem_sequence_width,
+                -foreground   => 'blue',
             )->pack( -side => 'left' );
             $TimeOfSequenceDisplay       = time();
             $reveal_button_for_extension = $subframe_for_extension->Button(
-                -text    => 'I understand the sequence',
+                -text       => BUTTON_HIDING_ENTRY_TERMS_MESSAGE,
                 -foreground => 'red',
-                -command => sub {
+                -width      => $button_hiding_entry_terms_width,
+                -command    => sub {
                     $reveal_button_for_extension->destroy();
                     $TimeOfUnderstanding = time();
-                    for my $pos ( 0 .. $max_terms-1 ) {
+                    for my $pos ( 0 .. $max_terms - 1 ) {
                         my $entry = $subframe_for_extension->Entry(
                             -textvariable    => \$next_terms_entered[$pos],
-                            -width           => 3,
+                            -width           => EACH_TERM_ENTRY_WIDTH,
                             -validate        => 'key',
                             -validatecommand => sub {
                                 $TimesOfChange[$pos] = time();
-                                if ($pos == $reqd_terms - 1) {
-                                    $DoneButton->configure(-state => 'normal');
+                                if ( $pos == $reqd_terms - 1 ) {
+                                    $DoneButton->configure( -state => 'normal' );
                                 }
                                 1;
+
                                 # print "VALIDATE COMMAND CALLED: $TimesOfChange[$pos]\n";
                             },
                         )->pack( -side => 'left' );
-                        $subframe_for_extension->Label(-text=> ', ')->pack(-side => 'left');
+                        if ($pos == 0) {
+                            $entry->focus();
+                        }
+                        $subframe_for_extension->Label( -text => ', ' )->pack( -side => 'left' );
                     }
                 },
-                -width => 35,
             )->pack( -side => 'left' );
+            $reveal_button_for_extension->focus();
         }
     )->pack( -side => 'left' );
-
+    $reveal_button->focus();
 }
 
 sub SetupHeader {
     my ($frame) = @_;
-    $frame->Label( -text => 'some stuff here', -width => 100 )->pack(-side => 'top');
+    $frame->Label( -text => HEADER_MESSAGE, -width => HEADER_FOOTER_WIDTH )->pack( -side => 'top' );
 }
 
 sub SetupFooter {
     my ($frame) = @_;
-    $frame->Label( -text => 'some stuff here', -width => 100 )->pack(-side => 'top');
+    $frame->Label( -text => FOOTER_MESSAGE, -width => HEADER_FOOTER_WIDTH )->pack( -side => 'top' );
 }
 
-sub FormatSequenceToShow{
+sub FormatSequenceToShow {
     my ( $sequence, $genre ) = @_;
     $sequence =~ s#^\s*##;
     $sequence =~ s#\s*$##;
-    my @seq = split(/\s+/, $sequence);
-    $sequence = join(', ', @seq, '');
-    return $genre eq 'extend' ? sprintf("%35s", $sequence) : "$sequence ...";
+    my @seq = split( /\s+/, $sequence );
+    $sequence = join( ', ', @seq, '' );
+    return $genre eq 'extend' ? sprintf( "%35s", $sequence ) : "$sequence ...";
 }
 
