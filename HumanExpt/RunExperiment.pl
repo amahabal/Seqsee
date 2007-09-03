@@ -15,13 +15,25 @@ use constant {
     ASK_VARIANT_REQUIRED_TERMS_IN_REPLY => 10,
 
     INPUT_CONFIGURATION_FILE => 'Inputlist.txt',
-    OUTPUT_FILE_NAME         => strftime("%Y%B%d%p%I%M%S", localtime) ,
+    OUTPUT_FILE_NAME         => strftime( "%Y%B%d%p%I%M%S", localtime ),
     EACH_TERM_ENTRY_WIDTH    => 3,
     LABEL_CONFIG             => [ -foreground => 'blue' ],
 
-    INITIAL_MESSAGE       => 'Initial Message',
+    INITIAL_MESSAGE => q{
+Thank you for choosing to participate in this experiment.
+
+This experiment has two stages, the first stage being long, and the second stage much shorter.
+
+Please take a few minutes to look at the accompanying handout, which has screenshots of what you will see, with instructions.
+
+Click the button below after you have looked at the handout.
+    },
     INITIAL_MESSAGE_COLOR => '#0000FF',
-    INTERMEDDIATE_MESSAGE => 'intermediate',
+    INTERMEDDIATE_MESSAGE =>
+        q{That completes stage I. If you have not already done so, please take a few minutes to look at stage II in the accompanying handout.},
+
+    FINAL_MESSAGE =>
+        q{That completes the experiment. Thank you for participating! If you have questions, please do not hesitate to ask. You can also email me at amahabal@indiana.edu},
 
     SEQUENCE_LABEL_CONFIG => [ -foreground => 'blue' ],
     HIDING_BUTTON_CONFIG  => [ -foreground => 'red' ],
@@ -67,7 +79,7 @@ use constant {
 use constant {
     SPLASH_TEXT_WIDTH                 => HEADER_FOOTER_WIDTH - 10,
     SPLASH_TEXT_HEIGHT                => 20,
-    SPLASH_SCREEN_PROCEED_BUTTON_TEXT => 'Proceed',
+    SPLASH_SCREEN_PROCEED_BUTTON_TEXT => q{I have read the handout, let's start the experiment},
 };
 
 print "WIDTH: ", SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH, ' ',
@@ -160,12 +172,7 @@ sub ShowInitialSplashScreen {
 }
 
 sub ShowIntermediateSplashScreen {
-    $MW->messageBox(
-        -icon    => 'info',
-        -title   => '',
-        -type    => 'Ok',
-        -message => INTERMEDDIATE_MESSAGE,
-    );
+
 }
 
 sub ShowSplashScreen {
@@ -216,8 +223,12 @@ sub AskSequences {
         );
         $MW->waitVariable( \$GoOnToNextSequence );
     }
-
-    ShowIntermediateSplashScreen();
+    $MW->messageBox(
+        -icon    => 'info',
+        -title   => '',
+        -type    => 'Ok',
+        -message => INTERMEDDIATE_MESSAGE,
+    );
 
     for my $sequence ( @{$variation_sequences_ref} ) {
         $Position++;
@@ -235,6 +246,14 @@ sub AskSequences {
         $MW->waitVariable( \$GoOnToNextSequence );
     }
     write_config %InfoToWriteOut, OUTPUT_FILE_NAME;
+
+    $MW->messageBox(
+        -icon    => 'info',
+        -title   => '',
+        -type    => 'Ok',
+        -message => FINAL_MESSAGE,
+    );
+
     exit;
 }
 
@@ -326,7 +345,7 @@ sub AskSequence {
             $info->{total_typing_time}  = $TimeOfFinish - $TimeOfUnderstanding;
             $info->{genre}              = $genre;
             $info->{next_terms_entered} = [@next_terms_entered];
-            $GoOnToNextSequence = 1;
+            $GoOnToNextSequence         = 1;
             }
 
     )->pack( -side => 'bottom', -expand => 1, -fill => 'x' );
@@ -350,33 +369,34 @@ sub AskSequence {
                 -command => sub {
                     $reveal_button_for_extension->destroy();
                     $TimeOfUnderstanding = time();
-                    @TermEntryBoxes = ();
+                    @TermEntryBoxes      = ();
                     for my $pos ( 0 .. $max_terms - 1 ) {
                         my $entry = $subframe_for_extension->Entry(
                             -textvariable    => \$next_terms_entered[$pos],
                             -width           => EACH_TERM_ENTRY_WIDTH,
                             -validate        => 'key',
-                            -state => 'disabled',
+                            -state           => 'disabled',
                             -validatecommand => sub {
-                                my ($new_value, $chars, $old_value) = @_;
-                                if (length($old_value)==0) {
-                                    unless ($new_value =~ /^\-?\d*$/) {
+                                my ( $new_value, $chars, $old_value ) = @_;
+                                if ( length($old_value) == 0 ) {
+                                    unless ( $new_value =~ /^\-?\d*$/ ) {
                                         return;
                                     }
                                 }
-                                if (length($old_value)==1 and $old_value eq '-') {
-                                    unless ($new_value =~ /^\-?\d+$/) {
+                                if ( length($old_value) == 1 and $old_value eq '-' ) {
+                                    unless ( $new_value =~ /^\-?\d+$/ ) {
                                         return;
                                     }
                                 }
-                                if ($pos != $max_terms - 1) {
-                                    $TermEntryBoxes[$pos + 1]->configure(-state => 'normal');
+                                if ( $pos != $max_terms - 1 ) {
+                                    $TermEntryBoxes[ $pos + 1 ]->configure( -state => 'normal' );
                                 }
-                                unless ($new_value =~ /^\-?\d*$/) {
+                                unless ( $new_value =~ /^\-?\d*$/ ) {
                                     $TermEntryBoxes[$pos]->focusNext();
                                     return 0;
                                 }
-                                print "Key pressed. Value now: >$new_value<.\n";
+
+                                #print "Key pressed. Value now: >$new_value<.\n";
                                 $TimesOfChange[$pos] = time();
                                 if ( $pos == $reqd_terms - 1 ) {
                                     $DoneButton->configure( -state => 'normal' );
@@ -390,7 +410,7 @@ sub AskSequence {
                         $subframe_for_extension->Label( -text => ', ' )->pack( -side => 'left' );
                     }
                     $TermEntryBoxes[0]->focus();
-                    $TermEntryBoxes[0]->configure(-state => 'normal');
+                    $TermEntryBoxes[0]->configure( -state => 'normal' );
                 },
             )->pack( -side => 'left' );
             $reveal_button_for_extension->focus();
