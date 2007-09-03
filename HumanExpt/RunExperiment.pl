@@ -78,7 +78,7 @@ use constant {
 
 use constant {
     SPLASH_TEXT_WIDTH                 => HEADER_FOOTER_WIDTH - 10,
-    SPLASH_TEXT_HEIGHT                => 20,
+    SPLASH_TEXT_HEIGHT                => 12,
     SPLASH_SCREEN_PROCEED_BUTTON_TEXT => q{I have read the handout, let's start the experiment},
 };
 
@@ -154,9 +154,12 @@ sub ReadInputConfig {
         }
     }
 
+    my $practice_extend = ['extend', 'This is the single practice seqeunce 1 1 1 1 1 1'];
+    my $practice_var = ['variation', 'This is the single practice seqeunce 7 7 7 7 7 7 7 7'];
+
     return (
-        [ List::Util::shuffle(@sequences_extend) ],
-        [ List::Util::shuffle(@sequences_variation) ]
+        [$practice_extend, List::Util::shuffle(@sequences_extend) ],
+        [$practice_var, List::Util::shuffle(@sequences_variation) ]
     );
 }
 
