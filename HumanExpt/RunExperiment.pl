@@ -78,6 +78,7 @@ print "WIDTH: ", SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH, ' ',
 my ( $extend_sequences_ref, $variation_sequences_ref ) = ReadInputConfig(INPUT_CONFIGURATION_FILE);
 our $Position;
 our %InfoToWriteOut;
+$InfoToWriteOut{BOOK_KEEPING}{start_time} = OUTPUT_FILE_NAME;
 ### Sequences: $extend_sequences_ref, $variation_sequences_ref
 
 my $MW                = new MainWindow();
@@ -292,6 +293,7 @@ sub AskSequence {
     my @TimesOfChange;
     my $TimeOfFinish;
     my @next_terms_entered = map {''} 0 .. $max_terms - 1;
+    my @TermEntryBoxes;
 
     my $DoneButton;
     $DoneButton = $CentralFrame->Button(
@@ -323,7 +325,7 @@ sub AskSequence {
             $info->{typing_times}       = [@TypingTimes];
             $info->{total_typing_time}  = $TimeOfFinish - $TimeOfUnderstanding;
             $info->{genre}              = $genre;
-
+            $info->{next_terms_entered} = [@next_terms_entered];
             $GoOnToNextSequence = 1;
             }
 
@@ -348,12 +350,33 @@ sub AskSequence {
                 -command => sub {
                     $reveal_button_for_extension->destroy();
                     $TimeOfUnderstanding = time();
+                    @TermEntryBoxes = ();
                     for my $pos ( 0 .. $max_terms - 1 ) {
                         my $entry = $subframe_for_extension->Entry(
                             -textvariable    => \$next_terms_entered[$pos],
                             -width           => EACH_TERM_ENTRY_WIDTH,
                             -validate        => 'key',
+                            -state => 'disabled',
                             -validatecommand => sub {
+                                my ($new_value, $chars, $old_value) = @_;
+                                if (length($old_value)==0) {
+                                    unless ($new_value =~ /^\-?\d*$/) {
+                                        return;
+                                    }
+                                }
+                                if (length($old_value)==1 and $old_value eq '-') {
+                                    unless ($new_value =~ /^\-?\d+$/) {
+                                        return;
+                                    }
+                                }
+                                if ($pos != $max_terms - 1) {
+                                    $TermEntryBoxes[$pos + 1]->configure(-state => 'normal');
+                                }
+                                unless ($new_value =~ /^\-?\d*$/) {
+                                    $TermEntryBoxes[$pos]->focusNext();
+                                    return 0;
+                                }
+                                print "Key pressed. Value now: >$new_value<.\n";
                                 $TimesOfChange[$pos] = time();
                                 if ( $pos == $reqd_terms - 1 ) {
                                     $DoneButton->configure( -state => 'normal' );
@@ -363,11 +386,11 @@ sub AskSequence {
                                 # print "VALIDATE COMMAND CALLED: $TimesOfChange[$pos]\n";
                             },
                         )->pack( -side => 'left' );
-                        if ( $pos == 0 ) {
-                            $entry->focus();
-                        }
+                        push @TermEntryBoxes, $entry;
                         $subframe_for_extension->Label( -text => ', ' )->pack( -side => 'left' );
                     }
+                    $TermEntryBoxes[0]->focus();
+                    $TermEntryBoxes[0]->configure(-state => 'normal');
                 },
             )->pack( -side => 'left' );
             $reveal_button_for_extension->focus();
