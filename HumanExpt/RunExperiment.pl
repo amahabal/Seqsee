@@ -1,6 +1,6 @@
 use strict;
 use Config::Std;
-use Smart::Comments;
+# use Smart::Comments;
 use List::Util;
 use Tk;
 use Time::HiRes qw{time};
@@ -47,7 +47,7 @@ use constant {
     ASK_VARIANT_NEXT_TERMS_MESSAGE =>
         'Provide another sequence like the following sequence. At least '
         . ASK_VARIANT_REQUIRED_TERMS_IN_REPLY
-        . ' terms should be provided, but you can provide more if you deem appropriate.',
+        . ' terms should be provided, but you can provide more if you deem appropriate. Be Creative!',
 };
 
 use constant {
@@ -82,8 +82,8 @@ use constant {
     SPLASH_SCREEN_PROCEED_BUTTON_TEXT => q{I have read the handout, let's start the experiment},
 };
 
-print "WIDTH: ", SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH, ' ',
-    VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH, "\n";
+#print "WIDTH: ", SEQUENCE_BUTTON_HIDING_ENTRY_TERMS_WIDTH, ' ',
+#    VARIANT_BUTTON_HIDING_ENTRY_TERMS_WIDTH, "\n";
 
 # exit;
 
@@ -154,8 +154,8 @@ sub ReadInputConfig {
         }
     }
 
-    my $practice_extend = ['extend', 'This is the single practice seqeunce 1 1 1 1 1 1'];
-    my $practice_var = ['variation', 'This is the single practice seqeunce 7 7 7 7 7 7 7 7'];
+    my $practice_extend = ['extend', 'This is the single practice sequence 1 1 1 1 1 1'];
+    my $practice_var = ['variation', 'This is the single practice sequence 7 7 7 7 7 7 7 7'];
 
     return (
         [$practice_extend, List::Util::shuffle(@sequences_extend) ],
