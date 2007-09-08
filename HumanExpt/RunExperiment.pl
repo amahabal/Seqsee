@@ -14,7 +14,7 @@ use constant {
     ASK_VARIANT_MAXIMUM_TERMS_IN_REPLY  => 20,
     ASK_VARIANT_REQUIRED_TERMS_IN_REPLY => 10,
 
-    INPUT_CONFIGURATION_FILE => 'Inputlist.txt',
+    INPUT_CONFIGURATION_FILE => 'InputList3.txt',
     OUTPUT_FILE_NAME         => strftime( "%Y%B%d%p%I%M%S", localtime ),
     EACH_TERM_ENTRY_WIDTH    => 3,
     LABEL_CONFIG             => [ -foreground => 'blue' ],
