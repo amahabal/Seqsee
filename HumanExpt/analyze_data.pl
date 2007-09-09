@@ -62,8 +62,14 @@ sub DisplayResults {
 
         my $type = $values->{Type};
         next unless $set =~ /extend/i;
+
+        my $expected_difficulty = $values->{ExpectedDifficulty} || '';
+        $expected_difficulty =~ s#\s+##g;
+        $expected_difficulty = [map {[split(/,/, $_)]} split(/;/, $expected_difficulty)];
+
         print "NEXT SET: [$type]\n";
         my @sequences_in_set = @{ $values->{seq} } or die "No sequences for set $set!";
+        my @difficulty_seen_measure;
         for my $sequence_and_ext (@sequences_in_set) {
             $sequence_and_ext =~ m/^\s* (.*?) \s* \| \s* (.*?) \s* $/x
                 or confess "Extension missing for $sequence_and_ext";
@@ -86,23 +92,68 @@ sub DisplayResults {
                     push( @correct_total_times, @times ) if $is_correct == 1;
                 }
                 print "\t Average: ", List::Util::sum(@total_times) / scalar(@total_times), "\n";
+                my $average_time_when_correct = 100000; # will be fixed, if number available.
+                my $fraction_correct= 0;
                 if (@correct_total_times) {
-                    print "\t Avg. When Correct: ",
-                        List::Util::sum(@correct_total_times) / scalar(@correct_total_times), "\n";
+                    $average_time_when_correct = List::Util::sum(@correct_total_times) / scalar(@correct_total_times);
+                    print "\t Avg. When Correct: ", $average_time_when_correct , "\n";
+                        
                 }
                 if ( scalar(@ext) and scalar(@total_times) ) {
+                    $fraction_correct = scalar(@correct_total_times) / scalar(@total_times);
                     print "\t % Correct Answers: ",
                         sprintf( "%5.3f",
-                        100 * scalar(@correct_total_times) / scalar(@total_times) ),
+                        100 * $fraction_correct),
                         "\n";
                 }
+                push(@difficulty_seen_measure, [$average_time_when_correct, $fraction_correct]);
             }
             else {
                 print "\t\t--\n";
             }
         }
+        if ($expected_difficulty) {
+            DisplayDifficultyAnalysis($expected_difficulty, \@sequences_in_set, \@difficulty_seen_measure);
+        }
     }
 }
+
+sub DisplayDifficultyAnalysis {
+    my ( $expected_difficulty, $sequences_ref, $difficulty_ref ) = @_;
+    my @groups = @$expected_difficulty;
+    my $group_count = scalar(@groups);
+    return if $group_count <= 1;
+    my $all_well = 1;
+    for my $easier_index (0..$group_count-2) {
+        my $easier_group_sequences = $groups[$easier_index];
+        for my $harder_index ($easier_index+1..$group_count-1) {
+            my $harder_group_sequences = $groups[$harder_index];
+            for my $easier (@$easier_group_sequences) {
+                my $easier_difficulty = $difficulty_ref->[$easier-1];
+                for my $harder (@$harder_group_sequences) {
+                    my $harder_difficulty = $difficulty_ref->[$harder-1];
+                    if ($easier_difficulty->[0] > $harder_difficulty->[0]) {
+                        print "!!! UNEXPECTED: Easier sequence took longer\n";
+                        print "\t\tExpected Easier: $easier_difficulty->[0]:", $sequences_ref->[$easier-1], "\n";
+                        print "\t\tExpected Harder: $harder_difficulty->[0]:", $sequences_ref->[$harder-1], "\n";
+                        $all_well = 0;
+                    }
+                    if ($easier_difficulty->[1] < $harder_difficulty->[1]) {
+                        print "!!! UNEXPECTED: Easier sequence correct less often\n";
+                        print "\t\tExpected Easier: $easier_difficulty->[1]:", $sequences_ref->[$easier-1], "\n";
+                        print "\t\tExpected Harder: $harder_difficulty->[1]:", $sequences_ref->[$harder-1], "\n";
+                        $all_well = 0;
+                    }
+                }
+            }
+        }
+    }
+    if ($all_well) {
+        print "~~~ Relative difficulty as expected.\n\n\n";
+    }
+
+}
+
 
 sub IsExtensionCorrect {
     my ( $string, $correct ) = @_;
@@ -113,4 +164,9 @@ sub IsExtensionCorrect {
         return 0 unless $given_extension[$_] == $correct_extension[$_];
     }
     return 1;
+}
+
+sub CompareDifficulty {
+    my ( $for_seq1, $for_seq2 ) = @_;
+     
 }
