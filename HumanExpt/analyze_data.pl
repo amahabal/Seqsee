@@ -36,7 +36,7 @@ sub ReadResults {
     for my $file (<$directory/*>) {
         read_config $file => my %results_for_file;
         while ( my ( $section, $content ) = each %results_for_file ) {
-            next if ( not( $section =~ /^ extend \s* [\d\s-]+ $/x ) );
+            next if ( not( $section =~ /^ variation \s* [\d\s-]+ $/x ) );
             my $extension = join( ', ', @{ $content->{next_terms_entered} } );
             for ( keys %track_these_times ) {
                 $results{$section}{$extension}{$_} ||= [];
@@ -61,7 +61,7 @@ sub DisplayResults {
         next if $set eq '';
 
         my $type = $values->{Type};
-        next unless $set =~ /extend/i;
+        next unless $set =~ /variation/i;
 
         my $expected_difficulty = $values->{ExpectedDifficulty} || '';
         $expected_difficulty =~ s#\s+##g;
@@ -76,22 +76,22 @@ sub DisplayResults {
             my ( $sequence, $ext ) = ( $1, $2 );
             my @ext = split( /\s+/, $ext );
             print "   SEQ: $sequence... ($ext)\n";
-            if ( exists $results_ref->{"extend $sequence"} ) {
+            if ( exists $results_ref->{"variation $sequence"} ) {
                 my @total_times;
                 my @correct_total_times;
-                while ( my ( $extension, $times ) = each %{ $results_ref->{"extend $sequence"} } ) {
+                while ( my ( $extension, $times ) = each %{ $results_ref->{"variation $sequence"} } ) {
                     my @times = @{ $times->{$display_what} };
                     my $is_correct = IsExtensionCorrect( $extension, \@ext );
                     my $prefix
                         = ( $is_correct == -1 ) ? '???' : ( $is_correct == 1 ) ? '***' : 'xxx';
 
-                    print "\t $prefix:$extension\n";
+                    print "\t $extension\n";
                     print "\t\t", join( ", ", map { sprintf( "%5.3f", $_ ) } @times ), "\n";
-                    print "\t\t AVERAGE: ", List::Util::sum(@times) / scalar(@times), "\n";
+                    #print "\t\t AVERAGE: ", List::Util::sum(@times) / scalar(@times), "\n";
                     push @total_times, @times;
                     push( @correct_total_times, @times ) if $is_correct == 1;
                 }
-                print "\t Average: ", List::Util::sum(@total_times) / scalar(@total_times), "\n";
+                #print "\t Average: ", List::Util::sum(@total_times) / scalar(@total_times), "\n";
                 my $average_time_when_correct = 100000; # will be fixed, if number available.
                 my $fraction_correct= 0;
                 if (@correct_total_times) {

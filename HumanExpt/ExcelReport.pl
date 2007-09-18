@@ -23,8 +23,6 @@ use constant {
 };
 my $used_up_columns = 5;
 
-my $row_counter = 1;
-
 my @Results = ReadResults(RESULTS_DIRECTORY);
 
 my $excel = CreateObject OLE 'Excel.Application' or die $!;
@@ -36,15 +34,29 @@ DisplayResults();
 
 sub DisplayResults {
 
+    my $row_counter = 5;
+
     # Fix column widths!
     my $rightmost_subject_column_integer = $used_up_columns + scalar(@Results);
+    my $leftmost_subject_column = integer_to_column($used_up_columns + 1);
     my $rightmost_subject_column         = integer_to_column($rightmost_subject_column_integer);
+    ### rightmost_subject_column_integer: $rightmost_subject_column_integer
+    ### rightmost_subject_column: $rightmost_subject_column
     my $range = $sheet->Range( make_range( 'A', 1, $rightmost_subject_column, $row_counter ) );
     $range->Columns(1)->{ColumnWidth} = 10;
-    $range->Columns(2)->{ColumnWidth} = 40;
+    $range->Columns(2)->{ColumnWidth} = 35;
     $range->Columns(3)->{ColumnWidth} = 10;
     $range->Columns(4)->{ColumnWidth} = 10;
-    $range->Columns(5)->{ColumnWidth} = 10;
+    $range->Columns(5)->{ColumnWidth} = 20;
+
+    {    # Insert headers:
+        enter_in_cell( COLUMN_FOR_SET(),                $row_counter, "SET" );
+        enter_in_cell( COLUMN_FOR_SEQUENCE(),           $row_counter, "SEQUENCE" );
+        enter_in_cell( COLUMN_FOR_COUNT(),              $row_counter, "# times seen" );
+        enter_in_cell( COLUMN_FOR_UNDERSTANDING_TIME(), $row_counter, "TIME TO UNDERSTAND" );
+        enter_in_cell( COLUMN_FOR_PERCENT_CORRECT(),    $row_counter, '% WRONG' );
+        $row_counter++;
+    }
 
     for my $i ( $used_up_columns + 1 .. $used_up_columns + scalar(@Results) ) {
         $range->Columns($i)->{ColumnWidth} = 4;
@@ -54,8 +66,13 @@ sub DisplayResults {
     ## sets: @sets
     my @sorted_sets = sort keys %ExperimentConfig;
     ## sorted sets: @sorted_sets
+    my @PerSubjectTimeWhenCorrect;
+    my @PerSubjectTime;
+    my @PerSubjectNumberCorrect;
+    my @PerSubjectNumberSeen;
+    my @PerSubjectNumberSeenThatHaveAnswers;
 
-    for my $set ( @sorted_sets ) {
+    for my $set (@sorted_sets) {
         my $values = $ExperimentConfig{$set};
         my $is_extend;
         next if $set eq '';
@@ -81,6 +98,7 @@ sub DisplayResults {
             my @ext = split( /\s+/, $ext );
             enter_in_cell( COLUMN_FOR_SEQUENCE, $row_counter, $sequence );
             my $column_counter           = $used_up_columns;
+            my $subject_number           = 0;
             my $count_of_correct_times   = 0;
             my $sum_of_correct_times     = 0;
             my $count_of_encountered     = 0;
@@ -91,32 +109,41 @@ sub DisplayResults {
                 next unless exists $result_for_a_file->{$section_in_results_file};
 
                 $count_of_encountered++;
+                $PerSubjectNumberSeenThatHaveAnswers[$subject_number]++ if @ext;
+                $PerSubjectNumberSeen[$subject_number]++;
 
                 my $section_data = $result_for_a_file->{$section_in_results_file};
                 my $is_correct = IsExtensionCorrect( $section_data->{extension}, \@ext );
                 my $formatting =
-                      ( $is_correct == -1 ) ? {}
-                    : ( $is_correct == 1 ) ? { background => 4 }
-                    :                        { background => 3 };
+                      ( $is_correct == -1 ) ? {comment => $section_data->{extension}}
+                    : ( $is_correct == 1 ) ? { background => 4, comment => $section_data->{extension} }
+                    :                        { background => 3, comment => $section_data->{extension} };
                 if ( $is_correct == 1 ) {
                     $count_of_correct_times++;
-                    $sum_of_correct_times += $section_data->{understanding};
+                    $PerSubjectNumberCorrect[$subject_number]++;
+                    $sum_of_correct_times                       += $section_data->{understanding};
+                    $PerSubjectTimeWhenCorrect[$subject_number] += $section_data->{understanding};
                 }
+                $PerSubjectTime[$subject_number] += $section_data->{understanding};
 
                 enter_in_cell(
                     integer_to_column($column_counter), $row_counter,
                     sprintf( "%3.1f", $section_data->{understanding} ), $formatting,
                 );
+                $subject_number++;
             }
 
             enter_in_cell( COLUMN_FOR_COUNT(), $row_counter, $count_of_encountered );
             if ( $sequence_extension_known and $count_of_encountered ) {
-                my $fraction_correct  = $count_of_correct_times / $count_of_encountered;
-                my $time_when_correct = $count_of_correct_times ? ($sum_of_correct_times / $count_of_correct_times) : '';
+                my $fraction_correct = $count_of_correct_times / $count_of_encountered;
+                my $time_when_correct =
+                    $count_of_correct_times
+                    ? ( $sum_of_correct_times / $count_of_correct_times )
+                    : '';
                 enter_in_cell( COLUMN_FOR_UNDERSTANDING_TIME(),
                     $row_counter, sprintf( "%5.2f", $time_when_correct ) );
                 enter_in_cell( COLUMN_FOR_PERCENT_CORRECT(),
-                    $row_counter, sprintf( "%5.2f", $fraction_correct * 100 ) );
+                    $row_counter, sprintf( "%5.2f", 100 - $fraction_correct * 100 ) );
             }
             $row_counter++;
         }
@@ -127,8 +154,9 @@ sub DisplayResults {
                     COLUMN_FOR_UNDERSTANDING_TIME, $last_row_in_set
                 )
             ) or next;
-            
+
             $range->FormatConditions()->AddDataBar();
+
             #$range->BorderAround(width => 4, ColorIndex => 4);
         }
         {
@@ -137,16 +165,61 @@ sub DisplayResults {
                     COLUMN_FOR_PERCENT_CORRECT, $last_row_in_set
                 )
             ) or next;
-            
+
             $range->FormatConditions()->AddDataBar();
+
             #$range->BorderAround(width => 4, ColorIndex => 4);
         }
-        {
-            my $range = $sheet->Range( 'A', $first_row_in_set, 'D',
-                $last_row_in_set );
-            #$range->BorderAround();
-        }
+    }
 
+    # Now enter subject Data:
+    for my $subject_number ( 0 .. $#Results ) {
+        my $avg_time_when_correct = $PerSubjectTimeWhenCorrect[$subject_number]
+            / $PerSubjectNumberCorrect[$subject_number];
+        my $avg_time = $PerSubjectTime[$subject_number]/$PerSubjectNumberSeen[$subject_number];
+        my $fraction_correct = $PerSubjectNumberCorrect[$subject_number]
+            / $PerSubjectNumberSeenThatHaveAnswers[$subject_number];
+        enter_in_cell(
+            integer_to_column( $subject_number + $used_up_columns + 1 ),
+            2, sprintf( "%5.3f", $avg_time_when_correct ),
+        );
+        enter_in_cell(
+            integer_to_column( $subject_number + $used_up_columns + 1 ),
+            1, sprintf( "%5.3f", $avg_time ),
+        );
+        enter_in_cell(
+            integer_to_column( $subject_number + $used_up_columns + 1 ),
+            3, sprintf( "%5.2f", 100 * $fraction_correct ),
+        );
+    }
+    enter_in_cell(integer_to_column($used_up_columns), 2,
+                  "Time when corr. ==> "
+                      );
+    enter_in_cell(integer_to_column($used_up_columns), 1,
+                  "Time ==> ",
+                      );
+    enter_in_cell(integer_to_column($used_up_columns), 3,
+                  "Percent Correct ==>",
+                      );
+
+    {
+        my $range = $sheet->Range(
+            make_range( $leftmost_subject_column, 1,
+                $rightmost_subject_column, 1
+            )
+        ) or next;
+
+        $range->FormatConditions()->AddDataBar();
+    }
+
+    {
+        my $range = $sheet->Range(
+            make_range( $leftmost_subject_column, 2,
+                $rightmost_subject_column, 2
+            )
+        ) or next;
+
+        $range->FormatConditions()->AddDataBar();
     }
 
 }
@@ -164,6 +237,7 @@ sub enter_in_cell {
     my ( $col, $row, $value, $options_ref ) = @_;
     my $range = $sheet->Range( make_range( $col, $row ) );
     $range->{Value} = $value;
+
     # print "In ($col, $row) entered $value\n";
     if ($options_ref) {
         if ( exists $options_ref->{background} ) {
@@ -172,6 +246,10 @@ sub enter_in_cell {
             #$range->{Interior}{PatternColor} = $options_ref->{background};
             $range->{Interior}{ColorIndex} = $options_ref->{background};
         }
+
+        if (exists $options_ref->{comment}) {
+            $range->AddComment($options_ref->{comment});
+        }
     }
 }
 
@@ -179,7 +257,7 @@ sub integer_to_column {
     my ($int) = @_;
     $int ||= 26;
     return ( 'A' .. 'Z' )[ $int - 1 ] if $int <= 26;
-    return integer_to_column( int( $int - 1 / 26 ) ) . integer_to_column( $int % 26 );
+    return integer_to_column( int( ($int - 1) / 26 ) ) . integer_to_column( $int % 26 );
 }
 
 sub IsExtensionCorrect {
