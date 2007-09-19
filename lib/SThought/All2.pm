@@ -493,7 +493,7 @@ ACTIONS: {
                 and SUtil::toss($ad_hoc_activation) )
             {
                 my @ends
-                    = ikeysort { $_->get_left_edge() } ( $core->get_first(), $core->get_second() );
+                    = SWorkspace::__SortLtoRByLeftEdge( $core->get_first(), $core->get_second() );
                 my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
                 if ( SWorkspace::__GetObjectsWithEndsExactly( $new_obj->get_edges() ) ) {
                     return;

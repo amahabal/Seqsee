@@ -77,9 +77,11 @@ ACTIONS: {
             }
             my $newpart = SAnchored->create(@new_part);
             $newpart->describe_as($cat);
-            SWorkspace->add_group($newpart);
+            SWorkspace->add_group($newpart) or return;
+            main::message("Adding a single group succeded");
             push @newparts, $newpart;
         }
+        main::message("Adding all groups succeeded");
         my $new_gp = SAnchored->create(@newparts);
         SWorkspace->add_group($new_gp);
         SThought->create($new_gp)->schedule();

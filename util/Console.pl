@@ -24,15 +24,30 @@ my @input_requiring_commands_config = (
     ["Seqsee", #command name
      [ # inputs
          ["Sequence", #input name
-          "1 1 1 2 3 1 2 2 2 3 4 1 2 3 3 3 4 5", # default
-              ]
+          #"1 1 1 2 3 1 2 2 2 3 4 1 2 3 3 3 4 5", # default
+          "1 7 2 8 3 9",
+              ],
+         ["View", 2],
+         ["Feature1",
+          "-f=ruleapp",
+              ],
+         ["Feature2",
+          "-f=rules",
+              ],
+         ["Feature3",
+          "",
+              ],
              ],
      [ # Command constructor
          'CreateRunPerlScriptCommand',
-         qw{Seqsee.pl}, 
+         qw{Seqsee.pl},
+         qq{--view="\$View"},
+         qq{"\$Feature1"},
+         qq{"\$Feature2"},
+         qq{"\$Feature3"},
          qq{--seq="\$Sequence"}, 
+             ],
          ],
-        ],
     [ "RunMultipleTimes",
       [
           [ "Terms",
@@ -82,7 +97,7 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
                            ### old args: @args
                            @args = map { 
                                my $string = $_;
-                               $string =~ s<\$([a-zA-Z_][a-zA-Z0_9_]*)>
+                               $string =~ s<\$([a-zA-Z_][a-zA-Z0-9_]*)>
                                            <print "SAW $1#", %Inputs, "\n";
                                            if (exists($Inputs{$1})) {
                                                print "$1 exists in \%Inputs\n";

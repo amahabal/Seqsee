@@ -15,10 +15,10 @@ our %MEMORY;                 # Just has the index into @MEMORY.
 our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
 our @ACTIVATIONS;            # Also 1-based, an array of SActivation objects.
 our $NodeCount;              # Number of nodes.
-our %_PURE_;                 # List of pure classes: those that can be stored in the LTM.
+our %_PURE_CLASSES_;                 # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
 
-%_PURE_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
+%_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
 
 Clear();
@@ -47,7 +47,7 @@ sub GetMemoryIndex {
 
 sub InsertNode {
     ### ensure: $_[0] ne "SLTM"
-    ### ensure: $_[0] and $_PURE_{ref($_[0])}
+    ### ensure: $_[0] and $_PURE_CLASSES_{ref($_[0])}
     my ($pure) = @_;
 
     ## Currently installing: %CurrentlyInstalling, $pure
