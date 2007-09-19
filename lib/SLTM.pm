@@ -9,13 +9,20 @@ use Smart::Comments;
 use SLTM::Platonic;
 use SActivation;    # In order to use constnts defined there.
 
+use constant {
+    LTM_FOLLOWS        => 1,
+    LTM_IS             => 2,
+    LTM_CAN_BE_SEEN_AS => 3,
+};
+
 our @PRECALCULATED = @SActivation::PRECALCULATED;
 
 our %MEMORY;                 # Just has the index into @MEMORY.
 our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
 our @ACTIVATIONS;            # Also 1-based, an array of SActivation objects.
+our @LINKS;                  # Also 1-based; Outgoing links from given node.
 our $NodeCount;              # Number of nodes.
-our %_PURE_CLASSES_;                 # List of pure classes: those that can be stored in the LTM.
+our %_PURE_CLASSES_;         # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
 
 %_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
@@ -29,6 +36,7 @@ sub Clear {
     $NodeCount   = 0;
     @MEMORY      = ('!!!');                   # Remember, its 1-based
     @ACTIVATIONS = ( SActivation->new() );    # Remember, this, too, is 1-based
+    @LINKS       = ('!!!');
 }
 
 # method GetNodeCount( $package:  ) returns int
@@ -61,11 +69,48 @@ sub InsertNode {
     ## ACTIVATIONS: @ACTIVATIONS
     push @ACTIVATIONS, SActivation->new();
     ## ACTIVATIONS NOW: @ACTIVATIONS
+    push @LINKS, [];
     $MEMORY{$pure} = $NodeCount;
 
     ## Finished installing: $pure
     delete $CurrentlyInstalling{$pure};
     return $NodeCount;
+}
+
+sub __InsertLink {
+    my ( $from_index, $to_index, $modifier_index, $type ) = @_;
+    my $outgoing_links_ref = ( $LINKS[$from_index][$type] ||= {} );
+
+    # Link non-existence should have been checked.
+    $outgoing_links_ref->{$to_index} = new SLinkActivation($modifier_index);
+}
+
+sub SpreadActivationFrom {
+    my ($root_index) = @_;
+    my %nodes_at_distance_below_1 = ( $root_index, 0 );    # Keys are nodes.
+          # values are amount of activation pumped into them.
+
+    my $activation = $ACTIVATIONS[$root_index][$SActivation::REAL_ACTIVATION];    # is fn faster?
+    for my $link_set ( @{ $LINKS[$root_index] } ) {
+        while ( my ( $target_index, $link ) = each %$link_set ) {
+            my $amount_to_spread = $link->AmountToSpread($activation);
+            $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
+            $nodes_at_distance_below_1{$target_index} += $amount_to_spread;
+        }
+    }
+
+    # Now to nodes at distance 2.
+    while ( my ( $node, $amount_spiked_by ) = each %nodes_at_distance_below_1 ) {
+        next unless $amount_spiked_by > 5;
+        for my $link_set ( @{ $LINKS[$node] } ) {
+            while ( my ( $target_index, $link ) = each %$link_set ) {
+                next if exists $nodes_at_distance_below_1{$target_index};
+                my $amount_to_spread = $link->AmountToSpread($activation);
+                $amount_to_spread *= 0.3;
+                $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
+            }
+        }
+    }
 }
 
 # method Dump( $package: Str $filename )
@@ -87,9 +132,10 @@ sub Dump {
 
     for my $index ( 1 .. $NodeCount ) {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
-        my ( $significance, $stability )
-            = ( $activation->[SActivation::RAW_SIGNIFICANCE],
-            $activation->[SActivation::STABILITY_RECIPROCAL] );
+        my ( $significance, $stability ) = (
+            $activation->[SActivation::RAW_SIGNIFICANCE],
+            $activation->[SActivation::STABILITY_RECIPROCAL]
+        );
         print {$filehandle} "=== ", ref($pure), " $significance $stability\n", $pure->serialize(),
             "\n";
     }
@@ -172,8 +218,8 @@ sub Load {
 sub SetSignificanceAndStabilityForIndex {
     my ( $index, $significance, $stability ) = @_;
     my $activation_object = $ACTIVATIONS[$index];
-    $activation_object->[SActivation::RAW_SIGNIFICANCE] = $significance;
-    $activation_object->[SActivation::STABILITY_RECIPROCAL]        = $stability;
+    $activation_object->[SActivation::RAW_SIGNIFICANCE]     = $significance;
+    $activation_object->[SActivation::STABILITY_RECIPROCAL] = $stability;
 }
 
 sub SetRawActivationForIndex {
@@ -210,7 +256,8 @@ sub GetRealActivationsForIndices {
 
 sub GetRealActivationsForConcepts {
     my ($index_ref) = @_;
-    return [ map { $ACTIVATIONS[GetMemoryIndex($_)]->[SActivation::REAL_ACTIVATION] } @$index_ref ];
+    return [ map { $ACTIVATIONS[ GetMemoryIndex($_) ]->[SActivation::REAL_ACTIVATION] }
+            @$index_ref ];
 }
 
 {
@@ -247,11 +294,13 @@ sub GetRealActivationsForConcepts {
 # XXX(Board-it-up): [2006/11/15] dummy function
 sub GetTopConcepts {
     my ($N) = @_;
-    return
-        map { [ $MEMORY[$_], $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION],
-                    $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION],
-                    $ACTIVATIONS[$_]->[SActivation::RAW_SIGNIFICANCE]] }
-        ( 1 .. $NodeCount );
+    return map {
+        [   $MEMORY[$_],
+            $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION],
+            $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION],
+            $ACTIVATIONS[$_]->[SActivation::RAW_SIGNIFICANCE]
+        ]
+    } ( 1 .. $NodeCount );
 }
 
 1;
