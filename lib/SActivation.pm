@@ -3,15 +3,17 @@ use strict;
 use warnings;
 use Carp;
 
-use constant RAW_ACTIVATION       => 0;
-use constant RAW_SIGNIFICANCE     => 1;
-use constant STABILITY_RECIPROCAL => 2;
-use constant REAL_ACTIVATION      => 3;
+use constant RAW_ACTIVATION       => 0;    # Index.
+use constant RAW_SIGNIFICANCE     => 1;    # Index.
+use constant STABILITY_RECIPROCAL => 2;    # Index.
+use constant REAL_ACTIVATION      => 3;    # Index.
+use constant MODIFIER_NODE_INDEX  => 4;    # Index. *only* used for links.
 
 my $RAW_ACTIVATION       = RAW_ACTIVATION();
 my $RAW_SIGNIFICANCE     = RAW_SIGNIFICANCE();
 my $STABILITY_RECIPROCAL = STABILITY_RECIPROCAL();
 my $REAL_ACTIVATION      = REAL_ACTIVATION();
+my $MODIFIER_NODE_INDEX  = MODIFIER_NODE_INDEX();
 
 sub GetRawActivation       { return $_[0]->[RAW_ACTIVATION]; }
 sub GetRawSignificance     { return $_[0]->[RAW_SIGNIFICANCE]; }
@@ -31,8 +33,8 @@ my $Initial_Real_Activation = $PRECALCULATED[ $Initial_Raw_Activation + $Initial
 sub new {
     my $package = shift;
     bless [
-        $Initial_Raw_Activation,       $Initial_Raw_Significance,
-        $Initial_Stability_Reciprocal, $Initial_Real_Activation
+        $Initial_Raw_Activation,  $Initial_Raw_Significance, $Initial_Stability_Reciprocal,
+        $Initial_Real_Activation, 0,
     ], $package;
 }
 
@@ -78,5 +80,15 @@ sub {
     return \$_->[REAL_ACTIVATION];
 }
 };
+
+package SLinkActivation;
+
+my $MODIFIER_NODE_INDEX = $SActivation::MODIFIER_NODE_INDEX;
+
+sub new {
+    my ( $package, $modifier_index ) = @_;
+    my $activation = SActivation->new();
+    $activation->[$MODIFIER_NODE_INDEX] = $modifier_index;
+}
 
 1;

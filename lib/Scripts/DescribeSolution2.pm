@@ -16,6 +16,10 @@ STEP: {
         SCRIPT DescribeRule, { rule => $rule, ruleapp => $ruleapp };
     }
 
+#STEP: {
+#        SLTM->Dump('memory_dump.dat');
+#    }
+
 STEP: {
         main::message("That finishes the description!");
     }
@@ -24,7 +28,7 @@ STEP: {
 CodeletFamily DescribeInitialBlemish( $group ! ) does scripted {
 STEP: {
         if ( my $le = $group->get_left_edge() ) {
-            my @initial_bl = map { $_->get_mag() } (SWorkspace::GetElements())[ 0 .. $le - 1 ];
+            my @initial_bl = map { $_->get_mag() } ( SWorkspace::GetElements() )[ 0 .. $le - 1 ];
             main::message(
                 'There is an initial blemish in the sequence: ' . join( ', ', @initial_bl )
                     . (
@@ -119,7 +123,7 @@ STEP: {
 
 CodeletFamily DescribeRelnCategory( $cat ! ) does scripted {
 STEP: {
-        my $name = $cat->get_name();  
+        my $name = $cat->get_name();
         main::message(
             "Each block is an instance of $name. (Better descriptions of categories will be implemented)",
             1

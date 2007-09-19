@@ -13,6 +13,7 @@ use constant {
     LTM_FOLLOWS        => 1,
     LTM_IS             => 2,
     LTM_CAN_BE_SEEN_AS => 3,
+    LTM_TYPE_COUNT     => 3,
 };
 
 our @PRECALCULATED = @SActivation::PRECALCULATED;
@@ -77,12 +78,35 @@ sub InsertNode {
     return $NodeCount;
 }
 
-sub __InsertLink {
+sub __InsertLinkUnlessPresent {
     my ( $from_index, $to_index, $modifier_index, $type ) = @_;
     my $outgoing_links_ref = ( $LINKS[$from_index][$type] ||= {} );
 
-    # Link non-existence should have been checked.
-    $outgoing_links_ref->{$to_index} = new SLinkActivation($modifier_index);
+    return ($outgoing_links_ref->{$to_index} ||= new SLinkActivation($modifier_index));
+}
+
+sub InsertFollowsLink {
+    @_ == 3 or confess "Need 3 arguments";
+    my ( $from, $to, $relation ) = @_;
+    __InsertLinkUnlessPresent( GetMemoryIndex($from), GetMemoryIndex($to),
+        GetMemoryIndex($relation), LTM_FOLLOWS, );
+}
+
+sub InsertISALink {
+    my ( $from, $to ) = @_;
+    __InsertLinkUnlessPresent( GetMemoryIndex($from), GetMemoryIndex($to), 0, LTM_IS );
+}
+
+sub StrengthenLinkGivenIndex {
+    my ( $from, $to, $type, $amount ) = @_;
+    my $outgoing_links_ref = ( $LINKS[$from][$type] ||= {} );
+    ### require: exists($outgoing_links_ref->{$to})
+    $outgoing_links_ref->{$to}->Spike($amount);
+}
+
+sub StrengthenLinkGivenNodes {
+    my ( $from, $to, $type, $amount ) = @_;
+    StrengthenLinkGivenIndex( GetMemoryIndex($from), GetMemoryIndex($to) );
 }
 
 sub SpreadActivationFrom {
@@ -139,6 +163,24 @@ sub Dump {
         print {$filehandle} "=== ", ref($pure), " $significance $stability\n", $pure->serialize(),
             "\n";
     }
+
+    # Links.
+    print {$filehandle} "^^^^^\n";
+    for my $from_node ( 1 .. $NodeCount ) {
+        my $links_ref = $LINKS[$from_node];
+        for my $type ( 1 .. LTM_TYPE_COUNT ) {
+            my $links_of_this_type = $links_ref->[$type];
+            while ( my ( $to_node, $link ) = each %$links_of_this_type ) {
+                my $modifier_index = $link->[SActivation::MODIFIER_NODE_INDEX] || 0;
+                my ( $significance, $stability ) = (
+                    $link->[SActivation::RAW_SIGNIFICANCE],
+                    $link->[SActivation::STABILITY_RECIPROCAL]
+                );
+                print {$filehandle} "$from $to $type $modifier_index $significance $stability\n";
+            }
+        }
+    }
+
     close $filehandle;
 }
 
@@ -164,6 +206,17 @@ sub Load {
         SetSignificanceAndStabilityForIndex( $index, $significance, $stability );
     }
     ## nodes: @nodes
+
+    my @links = split( /\n+/, $links );
+    for (@links) {
+        s#^\s*##;
+        s#\s*$##;
+        next if m#^$#;
+        my ( $from, $to, $type, $modifier_index, $significance, $stability ) = split( /\s+/, $_ );
+        my $activation = __InsertLinkUnlessPresent($from, $to, $modifier_index, $type);
+        $activation->[$SActivation::RAW_SIGNIFICANCE] = $significance;
+        $activation->[$SActivation::STABILITY_RECIPROCAL] = $stability;
+    }
 
     ## links: $links
 
