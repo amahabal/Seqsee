@@ -206,6 +206,8 @@ multimethod __InsertElement => ('SElement') => sub {
     $LiveAtSomePoint{$element} = 1;
     $SuperGroups_of{$element} = {};
 
+    SLTM::InsertUnlessPresent($element);
+
     $ElementCount++;
 };
 
@@ -258,6 +260,7 @@ sub __DoGroupAddBookkeeping {
     $NonEltObjects{$group}  = $group;
     $SuperGroups_of{$group} = {};
     $LiveAtSomePoint{$group}= 1;
+    SLTM::InsertUnlessPresent($group);
     __UpdateGroup($group);
 }
 

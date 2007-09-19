@@ -43,7 +43,8 @@ our $DECAY_CODE = qq{
 };
 
 our $SPIKE_CODE = qq{
-\$_->[$RAW_ACTIVATION]++;
+\$spike ||=1;
+\$_->[$RAW_ACTIVATION]+= \$spike;
 if (\$_->[$RAW_ACTIVATION] > 99) {
   \$_->[$RAW_SIGNIFICANCE] += 2;
   \$_->[$RAW_ACTIVATION] = 95;

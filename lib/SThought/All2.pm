@@ -172,6 +172,8 @@ FRINGE: {
     }
 
 ACTIONS: {
+        SLTM::SpikeBy(10, $core);
+
         my $metonym            = $core->get_metonym();
         my $metonym_activeness = $core->get_metonym_activeness();
         my $strength           = $core->get_strength();
@@ -292,6 +294,13 @@ INITIAL: {
         };
 
     }
+ACTIONS: {
+        SLTM::SpikeBy(10, $core);
+        #my $index = SLTM::GetMemoryIndex($core);
+        #my ($activation) = @{SLTM::GetRealActivationsForIndices([$index])}; 
+        #main::message("[$index] $core spiked: $activation!");
+}
+
 FRINGE: {
         return get_fringe_for($core);
     }
