@@ -48,10 +48,9 @@ ACTIONS: {
 
         my $new_group;
         eval {
-
-            # I do not see why I had the next line! Effective object are starred!
-            #my @unstarred_items = map { $_->GetEffectiveObject() } @$items;
             my @unstarred_items = map { $_->GetUnstarred() } @$items;
+            ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
+            SWorkspace::__CheckLiveness(@unstarred_items) or return; # dead objects.
             $new_group = SAnchored->create(@unstarred_items);
             if ($new_group) {
                 $new_group->set_underlying_reln($reln);
