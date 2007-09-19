@@ -176,7 +176,7 @@ sub Dump {
                     $link->[SActivation::RAW_SIGNIFICANCE],
                     $link->[SActivation::STABILITY_RECIPROCAL]
                 );
-                print {$filehandle} "$from $to $type $modifier_index $significance $stability\n";
+                print {$filehandle} "$from_node $to_node $type $modifier_index $significance $stability\n";
             }
         }
     }

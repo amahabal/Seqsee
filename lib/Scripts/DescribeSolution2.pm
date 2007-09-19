@@ -16,10 +16,6 @@ STEP: {
         SCRIPT DescribeRule, { rule => $rule, ruleapp => $ruleapp };
     }
 
-#STEP: {
-#        SLTM->Dump('memory_dump.dat');
-#    }
-
 STEP: {
         main::message("That finishes the description!");
     }
