@@ -83,7 +83,7 @@ sub {
 
 package SLinkActivation;
 
-our $MODIFIER_NODE_INDEX = $SActivation::MODIFIER_NODE_INDEX;
+our $MODIFIER_NODE_INDEX = SActivation::MODIFIER_NODE_INDEX();
 
 sub new {
     my ( $package, $modifier_index ) = @_;

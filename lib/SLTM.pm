@@ -21,7 +21,7 @@ our @PRECALCULATED = @SActivation::PRECALCULATED;
 our %MEMORY;                 # Just has the index into @MEMORY.
 our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
 our @ACTIVATIONS;            # Also 1-based, an array of SActivation objects.
-our @LINKS;                  # Also 1-based; Outgoing links from given node.
+our @OUT_LINKS;                  # Also 1-based; Outgoing links from given node.
 our $NodeCount;              # Number of nodes.
 our %_PURE_CLASSES_;         # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
@@ -37,7 +37,7 @@ sub Clear {
     $NodeCount   = 0;
     @MEMORY      = ('!!!');                   # Remember, its 1-based
     @ACTIVATIONS = ( SActivation->new() );    # Remember, this, too, is 1-based
-    @LINKS       = ('!!!');
+    @OUT_LINKS       = ('!!!');
 }
 
 # method GetNodeCount( $package:  ) returns int
@@ -70,7 +70,7 @@ sub InsertNode {
     ## ACTIVATIONS: @ACTIVATIONS
     push @ACTIVATIONS, SActivation->new();
     ## ACTIVATIONS NOW: @ACTIVATIONS
-    push @LINKS, [];
+    push @OUT_LINKS, [];
     $MEMORY{$pure} = $NodeCount;
 
     ## Finished installing: $pure
@@ -80,7 +80,7 @@ sub InsertNode {
 
 sub __InsertLinkUnlessPresent {
     my ( $from_index, $to_index, $modifier_index, $type ) = @_;
-    my $outgoing_links_ref = ( $LINKS[$from_index][$type] ||= {} );
+    my $outgoing_links_ref = ( $OUT_LINKS[$from_index][$type] ||= {} );
 
     return ($outgoing_links_ref->{$to_index} ||= SLinkActivation->new($modifier_index));
 }
@@ -99,7 +99,7 @@ sub InsertISALink {
 
 sub StrengthenLinkGivenIndex {
     my ( $from, $to, $type, $amount ) = @_;
-    my $outgoing_links_ref = ( $LINKS[$from][$type] ||= {} );
+    my $outgoing_links_ref = ( $OUT_LINKS[$from][$type] ||= {} );
     ### require: exists($outgoing_links_ref->{$to})
     $outgoing_links_ref->{$to}->Spike($amount);
 }
@@ -115,7 +115,7 @@ sub SpreadActivationFrom {
           # values are amount of activation pumped into them.
 
     my $activation = $ACTIVATIONS[$root_index][$SActivation::REAL_ACTIVATION];    # is fn faster?
-    for my $link_set ( @{ $LINKS[$root_index] } ) {
+    for my $link_set ( @{ $OUT_LINKS[$root_index] } ) {
         while ( my ( $target_index, $link ) = each %$link_set ) {
             my $amount_to_spread = $link->AmountToSpread($activation);
             $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
@@ -126,7 +126,7 @@ sub SpreadActivationFrom {
     # Now to nodes at distance 2.
     while ( my ( $node, $amount_spiked_by ) = each %nodes_at_distance_below_1 ) {
         next unless $amount_spiked_by > 5;
-        for my $link_set ( @{ $LINKS[$node] } ) {
+        for my $link_set ( @{ $OUT_LINKS[$node] } ) {
             while ( my ( $target_index, $link ) = each %$link_set ) {
                 next if exists $nodes_at_distance_below_1{$target_index};
                 my $amount_to_spread = $link->AmountToSpread($activation);
@@ -167,7 +167,7 @@ sub Dump {
     # Links.
     print {$filehandle} "#####\n";
     for my $from_node ( 1 .. $NodeCount ) {
-        my $links_ref = $LINKS[$from_node];
+        my $links_ref = $OUT_LINKS[$from_node];
         for my $type ( 1 .. LTM_TYPE_COUNT ) {
             my $links_of_this_type = $links_ref->[$type];
             while ( my ( $to_node, $link ) = each %$links_of_this_type ) {
@@ -176,7 +176,7 @@ sub Dump {
                     $link->[SActivation::RAW_SIGNIFICANCE],
                     $link->[SActivation::STABILITY_RECIPROCAL]
                 );
-                print {$filehandle} "$from_node $to_node $type $modifier_index $significance $stability\n";
+                print {$filehandle} sprintf("%4s %4s %2s %4s %7.4f %7.5f\n", $from_node, $to_node, $type, $modifier_index, $significance, $stability);
             }
         }
     }
@@ -217,8 +217,8 @@ sub Load {
         next if m#^$#;
         my ( $from, $to, $type, $modifier_index, $significance, $stability ) = split( /\s+/, $_ );
         my $activation = __InsertLinkUnlessPresent($from, $to, $modifier_index, $type);
-        $activation->[$SActivation::RAW_SIGNIFICANCE] = $significance;
-        $activation->[$SActivation::STABILITY_RECIPROCAL] = $stability;
+        $activation->[SActivation::RAW_SIGNIFICANCE()] = $significance;
+        $activation->[SActivation::STABILITY_RECIPROCAL()] = $stability;
     }
 
     ## links: $links

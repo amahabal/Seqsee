@@ -339,7 +339,7 @@ ACTIONS: {
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };
 
-            SLTM::InsertFollowsLink($core->get_ends(), $core);
+            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5);
         }
 
         {
@@ -440,6 +440,7 @@ ACTIONS: {
                 core      => $core,
                 direction => DIR::RIGHT()
                 };
+            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5);
         }
 
         {
