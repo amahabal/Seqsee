@@ -89,6 +89,7 @@ sub new {
     my ( $package, $modifier_index ) = @_;
     my $activation = SActivation->new();
     $activation->[$MODIFIER_NODE_INDEX] = $modifier_index;
+    return $activation;
 }
 
 1;

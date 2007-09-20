@@ -82,7 +82,7 @@ sub __InsertLinkUnlessPresent {
     my ( $from_index, $to_index, $modifier_index, $type ) = @_;
     my $outgoing_links_ref = ( $LINKS[$from_index][$type] ||= {} );
 
-    return ($outgoing_links_ref->{$to_index} ||= new SLinkActivation($modifier_index));
+    return ($outgoing_links_ref->{$to_index} ||= SLinkActivation->new($modifier_index));
 }
 
 sub InsertFollowsLink {
@@ -160,12 +160,12 @@ sub Dump {
             $activation->[SActivation::RAW_SIGNIFICANCE],
             $activation->[SActivation::STABILITY_RECIPROCAL]
         );
-        print {$filehandle} "=== ", ref($pure), " $significance $stability\n", $pure->serialize(),
+        print {$filehandle} "=== $index: ", ref($pure), " $significance $stability\n", $pure->serialize(),
             "\n";
     }
 
     # Links.
-    print {$filehandle} "^^^^^\n";
+    print {$filehandle} "#####\n";
     for my $from_node ( 1 .. $NodeCount ) {
         my $links_ref = $LINKS[$from_node];
         for my $type ( 1 .. LTM_TYPE_COUNT ) {
@@ -189,9 +189,11 @@ sub Load {
     my ( $package, $filename ) = @_;
     Clear();
     my $string = read_file($filename);
-    my ( $nodes, $links ) = split( q{^^^^^}, $string );
+    my ( $nodes, $links ) = split( q{#####}, $string );
     ## nodes: $nodes
-    my @nodes = split( qr{===}, $nodes );
+    ### links: $links
+
+    my @nodes = split( qr{=== \d+:}, $nodes );
     for (@nodes) {
         s#^\s*##;
         s#\s*$##;
@@ -208,6 +210,7 @@ sub Load {
     ## nodes: @nodes
 
     my @links = split( /\n+/, $links );
+    ### links split: @links
     for (@links) {
         s#^\s*##;
         s#\s*$##;

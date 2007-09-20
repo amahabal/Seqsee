@@ -338,6 +338,8 @@ ACTIONS: {
         if ( not $holey ) {
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };
+
+            SLTM::InsertFollowsLink($core->get_ends(), $core);
         }
 
         {

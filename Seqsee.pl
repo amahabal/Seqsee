@@ -89,6 +89,8 @@ sub INITIALIZE {
         SGUI->ask_seq();
     }
 
+    SLTM->Load('memory_dump.dat');
+
 }
 
 # method: GET_GOING
