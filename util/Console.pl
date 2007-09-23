@@ -29,10 +29,10 @@ my @input_requiring_commands_config = (
               ],
          ["View", 2],
          ["Feature1",
-          "-f=ruleapp",
+          "",
               ],
          ["Feature2",
-          "-f=rules",
+          "",
               ],
          ["Feature3",
           "",
@@ -122,6 +122,12 @@ my @button_config = (
     [CPAN => CreateRunPerlScriptCommand(qw{-MCPAN -e shell})],
     [SVNDiff => CreateRunPerlScriptCommand('util\ShowDiff.pl')],
     [RunTests => CreateRunPerlScriptCommand('c:\Perl\bin\prove.bat', 't\*')],
+    [ClearMemory => sub  {
+         open my $MEMORY_HANDLE, '>', 'memory_dump.dat';
+         print {$MEMORY_HANDLE} ' ';
+         close $MEMORY_HANDLE;
+     }
+         ],
 );
 
 INSERT_BUTTONS: {
