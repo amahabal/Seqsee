@@ -21,7 +21,8 @@ our @PRECALCULATED = @SActivation::PRECALCULATED;
 our %MEMORY;                 # Just has the index into @MEMORY.
 our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
 our @ACTIVATIONS;            # Also 1-based, an array of SActivation objects.
-our @OUT_LINKS;                  # Also 1-based; Outgoing links from given node.
+our @LINKS;                  # List of all links, for decay purposes.
+our @OUT_LINKS;              # Also 1-based; Outgoing links from given node.
 our $NodeCount;              # Number of nodes.
 our %_PURE_CLASSES_;         # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
@@ -37,7 +38,7 @@ sub Clear {
     $NodeCount   = 0;
     @MEMORY      = ('!!!');                   # Remember, its 1-based
     @ACTIVATIONS = ( SActivation->new() );    # Remember, this, too, is 1-based
-    @OUT_LINKS       = ('!!!');
+    @OUT_LINKS   = ('!!!');
 }
 
 # method GetNodeCount( $package:  ) returns int
@@ -82,7 +83,14 @@ sub __InsertLinkUnlessPresent {
     my ( $from_index, $to_index, $modifier_index, $type ) = @_;
     my $outgoing_links_ref = ( $OUT_LINKS[$from_index][$type] ||= {} );
 
-    return ($outgoing_links_ref->{$to_index} ||= SLinkActivation->new($modifier_index));
+    if (my $link = $outgoing_links_ref->{$to_index}) {
+        return $link;
+    } else {
+        my $new_link = SLinkActivation->new($modifier_index);
+        $outgoing_links_ref->{$to_index} = $new_link;
+        push @LINKS, $new_link;
+        return $new_link;
+    }
 }
 
 sub InsertFollowsLink {
@@ -122,7 +130,10 @@ sub SpreadActivationFrom {
             $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
             $nodes_at_distance_below_1{$target_index} += $amount_to_spread;
             my $node_name = $MEMORY[$target_index]->as_text();
-            main::message("distance = 1 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",1);
+            main::message(
+                "distance = 1 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
+                1
+            );
         }
     }
 
@@ -136,7 +147,10 @@ sub SpreadActivationFrom {
                 $amount_to_spread *= 0.3;
                 $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
                 my $node_name = $MEMORY[$target_index]->as_text();
-                main::message("distance = 2 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",1);
+                main::message(
+                    "distance = 2 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
+                    1
+                );
             }
         }
     }
@@ -165,8 +179,8 @@ sub Dump {
             $activation->[SActivation::RAW_SIGNIFICANCE],
             $activation->[SActivation::STABILITY_RECIPROCAL]
         );
-        print {$filehandle} "=== $index: ", ref($pure), " $significance $stability\n", $pure->serialize(),
-            "\n";
+        print {$filehandle} "=== $index: ", ref($pure), " $significance $stability\n",
+            $pure->serialize(), "\n";
     }
 
     # Links.
@@ -181,7 +195,8 @@ sub Dump {
                     $link->[SActivation::RAW_SIGNIFICANCE],
                     $link->[SActivation::STABILITY_RECIPROCAL]
                 );
-                print {$filehandle} sprintf("%4s %4s %2s %4s %7.4f %7.5f\n", $from_node, $to_node, $type, $modifier_index, $significance, $stability);
+                print {$filehandle} sprintf( "%4s %4s %2s %4s %7.4f %7.5f\n",
+                    $from_node, $to_node, $type, $modifier_index, $significance, $stability );
             }
         }
     }
@@ -221,9 +236,9 @@ sub Load {
         s#\s*$##;
         next if m#^$#;
         my ( $from, $to, $type, $modifier_index, $significance, $stability ) = split( /\s+/, $_ );
-        my $activation = __InsertLinkUnlessPresent($from, $to, $modifier_index, $type);
-        $activation->[SActivation::RAW_SIGNIFICANCE()] = $significance;
-        $activation->[SActivation::STABILITY_RECIPROCAL()] = $stability;
+        my $activation = __InsertLinkUnlessPresent( $from, $to, $modifier_index, $type );
+        $activation->[ SActivation::RAW_SIGNIFICANCE() ]     = $significance;
+        $activation->[ SActivation::STABILITY_RECIPROCAL() ] = $stability;
     }
 
     ## links: $links
@@ -279,7 +294,10 @@ sub Load {
 sub SetSignificanceAndStabilityForIndex {
     my ( $index, $significance, $stability ) = @_;
     my $activation_object = $ACTIVATIONS[$index];
-    $activation_object->[SActivation::RAW_SIGNIFICANCE]     = $significance;
+    # The / 5 in next line: too many concepts end up hyperactive o/w. This limits their
+    # influence at load time, yet biases a little bit towards faster activation.
+    # Also, now stability rises only if *for several problems* significance is high.
+    $activation_object->[SActivation::RAW_SIGNIFICANCE]     = int($significance/5);
     $activation_object->[SActivation::STABILITY_RECIPROCAL] = $stability;
 }
 
@@ -297,7 +315,7 @@ sub SpikeBy {
 
 my $DecayString = qq{
     sub {
-        for ( \@ACTIVATIONS ) {
+        for ( \@ACTIVATIONS, \@LINKS ) {
             $SActivation::DECAY_CODE;
         }
     }
