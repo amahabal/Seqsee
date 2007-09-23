@@ -78,7 +78,10 @@ FINAL: {
 
 CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
 RUN: {
-        $obj->describe_as($cat) and SLTM::SpikeBy( 10, $cat );
+        if ($obj->describe_as($cat)) {
+            SLTM::SpikeBy( 10, $cat );
+            SLTM::InsertISALink($obj, $cat)->Spike(5);
+        } 
     }
 }
 

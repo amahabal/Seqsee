@@ -217,6 +217,10 @@ ACTIONS: {
             }
         }
 
+        # Spread activation from corresponding node:
+        # main::message("Spreading activation from $core!");
+        SLTM::SpreadActivationFrom(SLTM::GetMemoryIndex($core));
+
         my $poss_cat;
         $poss_cat = $core->get_underlying_reln()->suggest_cat()
             if $core->get_underlying_reln;

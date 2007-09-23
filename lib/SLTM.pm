@@ -111,6 +111,7 @@ sub StrengthenLinkGivenNodes {
 
 sub SpreadActivationFrom {
     my ($root_index) = @_;
+    my $root_name = $MEMORY[$root_index]->as_text();
     my %nodes_at_distance_below_1 = ( $root_index, 0 );    # Keys are nodes.
           # values are amount of activation pumped into them.
 
@@ -120,6 +121,8 @@ sub SpreadActivationFrom {
             my $amount_to_spread = $link->AmountToSpread($activation);
             $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
             $nodes_at_distance_below_1{$target_index} += $amount_to_spread;
+            my $node_name = $MEMORY[$target_index]->as_text();
+            main::message("distance = 1 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",1);
         }
     }
 
@@ -132,6 +135,8 @@ sub SpreadActivationFrom {
                 my $amount_to_spread = $link->AmountToSpread($activation);
                 $amount_to_spread *= 0.3;
                 $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
+                my $node_name = $MEMORY[$target_index]->as_text();
+                main::message("distance = 2 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",1);
             }
         }
     }

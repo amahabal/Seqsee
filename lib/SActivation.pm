@@ -81,6 +81,20 @@ sub {
 }
 };
 
+#The following is only called on links.
+sub AmountToSpread {
+    my ( $self, $original_amount ) = @_;
+    my $amt1 =  $original_amount * $self->[RAW_SIGNIFICANCE] / $self->[STABILITY_RECIPROCAL];
+    my $modifier = $self->[MODIFIER_NODE_INDEX];
+    if ($modifier) {
+        my $modifier_activation = $SLTM::ACTIVATIONS[$modifier][REAL_ACTIVATION];
+        $amt1 *= (1 + $modifier_activation * 3);
+    }
+    $amt1 /= 100;
+    return $amt1;
+}
+
+
 package SLinkActivation;
 
 our $MODIFIER_NODE_INDEX = SActivation::MODIFIER_NODE_INDEX();
