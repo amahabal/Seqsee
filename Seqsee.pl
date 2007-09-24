@@ -179,8 +179,9 @@ sub init_display {
         }
     };
     my $commentary_displayer_debug = sub {
-        my ( $msg, $no_break ) = @_;
-        $commentary_displayer->(["[DEBUG: $msg]", ['debug']], $no_break);
+        my ( $msg, $no_break, $add_newline ) = @_;
+        my $newline = $add_newline ? "\n" : '';
+        $commentary_displayer->(["[DEBUG: $msg]$newline", ['debug']], $no_break);
     };
 
     my $ask_user_extension_displayer = sub {

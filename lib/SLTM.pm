@@ -130,8 +130,9 @@ sub SpreadActivationFrom {
             $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
             $nodes_at_distance_below_1{$target_index} += $amount_to_spread;
             my $node_name = $MEMORY[$target_index]->as_text();
-            main::message(
+            main::debug_message(
                 "distance = 1 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
+                1,
                 1
             );
         }
@@ -147,8 +148,9 @@ sub SpreadActivationFrom {
                 $amount_to_spread *= 0.3;
                 $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
                 my $node_name = $MEMORY[$target_index]->as_text();
-                main::message(
+                main::debug_message(
                     "distance = 2 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
+                    1,
                     1
                 );
             }
