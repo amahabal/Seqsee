@@ -155,7 +155,10 @@ sub init_display {
             $msg .= "<EMPTY MESSAGE>";
             confess $msg;
         }
-        tkdie($msg);
+        if ($msg eq "_TK_EXIT_(0)\n") {
+            return;
+        }
+        tkdie("tkdie notes: '" . $msg . q{'});
     };
     my $msg_displayer = sub {
         my ($msg, $no_break) = @_;

@@ -17,6 +17,7 @@ t/lib/*/*.pm
 Compiler/*.p[lm]
 Compiler/*/*.p[lm]
 Seqsee.pl
+Config/*.conf
 LOCATIONS
 
 use Tk;

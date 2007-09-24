@@ -25,13 +25,16 @@ sub Update {
 sub Populate {
     my ( $self, $args ) = @_;
     my $tags_ref = delete $args->{-tags_provided};
-    my $font = delete $args->{-font};
+    my $font     = delete $args->{-font};
 
-    $Text =
-      $self->Scrolled( 'ROText', -scrollbars => 'se', -font => $font, %$args )
-      ->pack( -side => 'left' );
-    $Text->bind( '<KeyPress>',   sub { Tk->break() } );
-    $Text->bind( '<KeyPress-q>', sub { $self->grabRelease(); exit(0) } );
+    $Text = $self->Scrolled( 'ROText', -scrollbars => 'se', -font => $font, %$args )
+        ->pack( -side => 'left' );
+    $Text->bind( '<KeyPress>', sub { Tk->break() } );
+    $Text->bind( '<KeyPress-q>',
+        sub { $self->grabRelease(); 
+              print "ATTEMPTING TO EXIT"; 
+              $Response = 100;
+              exit(0) } );
 
     for (@$tags_ref) {
         print "Configuring $_->[0]...";
@@ -42,12 +45,12 @@ sub Populate {
     $ButtonFrame = $self->Frame()->pack( -side => 'right' );
     for my $button_number ( 0 .. 3 ) {
         push @Buttons,
-          $ButtonFrame->Button(
+            $ButtonFrame->Button(
             -text    => '',
             -command => sub { $Response = $button_number },
             -width   => 15,
             -state   => 'disabled',
-          )->pack( -side => 'top' );
+            )->pack( -side => 'top' );
         my $key_to_press_to_activate = $button_number + 1;
         $Text->bind(
             "<KeyPress-$key_to_press_to_activate>",
@@ -90,7 +93,7 @@ sub MessageRequiringAResponse {
         $Buttons[$_]->configure( -text => '', -state => 'disabled' );
     }
     my $response = $response_ref->[$Response];
-    $Text->insert('end', '  ', [], $response, ['user_response'], "\n");
+    $Text->insert( 'end', '  ', [], $response, ['user_response'], "\n" );
     return $response;
 }
 
