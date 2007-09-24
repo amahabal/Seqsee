@@ -157,4 +157,4 @@ open my $OUT2, '>', 'graph.dot';
 print {$OUT2} $g->as_canon;
 close $OUT2;
 # system "ps2pdf graph.ps; rm graph.ps";
-#system 'rundll32.exe c:\Windows\system32\shimgvw.dll,ImageView_Fullscreen D:\seqsee\graph.jpg';
+system 'rundll32.exe c:\Windows\system32\shimgvw.dll,ImageView_Fullscreen D:\seqsee\graph.jpg';
