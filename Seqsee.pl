@@ -123,6 +123,14 @@ sub Interaction_continue {
     );
 }
 
+sub Interaction_step_n {
+    return Seqsee::Interaction_step_n( {
+        %{$_[0]},
+        max_steps => $OPTIONS_ref->{max_steps},
+            });
+}
+
+
 # method: Interaction_step
 # A single step, with update display
 #

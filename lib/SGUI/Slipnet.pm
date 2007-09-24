@@ -27,7 +27,7 @@ my $NetMaxOvalRadius;
 my $NetMaxTextWidth;
 my $NetColumnWidth;
 my $NetRowHeight;
-
+my $NetMinActivationForDisplay;
 
 BEGIN {
     read_config 'config/GUI_ws3.conf' => my %config;
@@ -37,6 +37,7 @@ BEGIN {
     $NetColumnCount      = $NetLayoutOptions->{'ColumnCount'};
     $NetMaxOvalRadius      = $NetLayoutOptions->{'MaxOvalRadius'};
     $NetMaxTextWidth     = $NetLayoutOptions->{'MaxTextWidth'};
+    $NetMinActivationForDisplay = $NetLayoutOptions->{'MinActivationForDisplay'};
 }
 
 sub Setup {
@@ -52,7 +53,8 @@ sub DrawIt {
     my @concepts_with_activation = SLTM::GetTopConcepts(10);
     my ( $row, $col ) = ( -1, 0 );
     for (@concepts_with_activation) {
-        next unless $_->[1] > 0.05;
+        last if $col >= $NetColumnCount;
+        next unless $_->[1] > $NetMinActivationForDisplay;
         $row++;
         if ( $row >= $NetEntriesPerColumn ) {
             $row = 0;
@@ -78,13 +80,15 @@ sub NetDrawNode {
         $top + 2 + $NetMaxOvalRadius - $radius,
         $left + 2 + $NetMaxOvalRadius + $radius,
         $top + 2 + $NetMaxOvalRadius + $radius,
-        Style::NetActivation()
+        Style::NetActivation(int($raw_significance)),
     );
+    my $text = $concept->as_text();
+    $text = substr($text, 0, $NetMaxTextWidth);
     $Canvas->createText(
         $left + 6 + 2 * $NetMaxOvalRadius,
         $top + 2 + $NetMaxOvalRadius,
         -anchor => 'w',
-        -text => $concept->as_text()
+        -text => $text,
     );
 }
 

@@ -51,8 +51,8 @@ outline: {
 width: { 1 + 1 * $hilit }
 }
 
-STYLE NetActivation() is {
-fill: { HSV( 240, 30, 80 ) }
+STYLE NetActivation($raw_significance!) is {
+fill: { HSV( 240, 30, 90 - 0.88 * $raw_significance ) }
 }
 
 STYLE ThoughtBox( $hit_intensity !, $is_current ! ) is {
