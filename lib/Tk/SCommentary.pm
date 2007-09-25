@@ -85,7 +85,13 @@ sub MessageRequiringAResponse {
     $Response = -1;
     $Text->focus();
     $self->grab();
+
+    Tk::Seqsee::AttentionNeeded();
+    Tk::Seqsee::Update();
     $SGUI::MW->waitVariable( \$Response );
+    Tk::Seqsee::AttentionNoLongerNeeded();
+    Tk::Seqsee::Update();
+
     $self->grabRelease();
     $SGUI::Workspace->focus();
     $active_button_count = 0;

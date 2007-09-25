@@ -88,9 +88,10 @@ sub AmountToSpread {
     my $modifier = $self->[MODIFIER_NODE_INDEX];
     if ($modifier) {
         my $modifier_activation = $SLTM::ACTIVATIONS[$modifier][REAL_ACTIVATION];
-        $amt1 *= (1 + $modifier_activation * 3);
+        $amt1 *= ($modifier_activation * 3);
     }
     $amt1 /= 100;
+    $amt1 += 1;
     return $amt1;
 }
 

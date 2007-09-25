@@ -50,9 +50,46 @@ sub SetupParts {
     }
 }
 
+{
+my $AttentionNeeded = 0;
+
+sub AttentionNeeded {
+    $AttentionNeeded = 1;
+}
+
+sub AttentionNoLongerNeeded {
+    $AttentionNeeded = 0;
+}
+
+
+
 sub Update {
     $Canvas->delete('all');
+    DrawAttentionDirectingArrows() if $AttentionNeeded;
     $_->[0]->DrawIt() for @Parts;
+}
+
+
+sub DrawAttentionDirectingArrows {
+    my $arrow_top = 0.8 * $Height;
+    my $arrow_bottom = 0.97 * $Height;
+
+    for (1..9) {
+        my $x_top = $Width * $_ / 10;
+        my $x_bottom = $Width * (0 + $_ / 10 );
+        $Canvas->createLine($x_top, $arrow_top, $x_bottom, $arrow_bottom,
+                            -arrow => 'last',
+                            -width => 10,
+                            -fill => '#FF0000',
+                                );
+    }
+    $Canvas->createText($Width * 0.5, $Height * 0.85,
+                        -text => 'PLEASE SEE BELOW',
+                        -anchor => 'n',
+                        Style::Element(),
+                        -fill => '#0000FF',
+                            );
+}
 }
 
 sub Populate {
