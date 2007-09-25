@@ -29,7 +29,7 @@ my @input_requiring_commands_config = (
               ],
          ["View", 2],
          ["Feature1",
-          "",
+          "-f debug",
               ],
          ["Feature2",
           "",

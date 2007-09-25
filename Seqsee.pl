@@ -186,11 +186,11 @@ sub init_display {
             $SGUI::Commentary->MessageRequiringAResponse(['continue'], @msg);
         }
     };
-    my $commentary_displayer_debug = sub {
+    my $commentary_displayer_debug =  $Global::Feature{debug} ? sub {
         my ( $msg, $no_break, $add_newline ) = @_;
         my $newline = $add_newline ? "\n" : '';
         $commentary_displayer->(["[DEBUG: $msg]$newline", ['debug']], $no_break);
-    };
+    } : sub  {};
 
     my $ask_user_extension_displayer = sub {
         my ( $arr_ref, $msg_suffix ) = @_;
@@ -203,7 +203,9 @@ sub init_display {
           ? "Is the next term @$arr_ref?"
           : "Are the next terms: @$arr_ref?";
 
-        my $ok = $SGUI::Commentary->MessageRequiringBooleanResponse($msg, '', $msg_suffix, ['debug']); 
+        my $ok = $Global::Feature{debug} ? 
+            $SGUI::Commentary->MessageRequiringBooleanResponse($msg, '', $msg_suffix, ['debug'])
+                : $SGUI::Commentary->MessageRequiringBooleanResponse($msg);
         if ($ok) {
             $Global::AtLeastOneUserVerification = 1;
         }
