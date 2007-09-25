@@ -213,7 +213,7 @@ sub Load {
     my $string = read_file($filename);
     my ( $nodes, $links ) = split( q{#####}, $string );
     ## nodes: $nodes
-    ### links: $links
+    ## links: $links
 
     my @nodes = split( qr{=== \d+:}, $nodes );
     for (@nodes) {
@@ -232,7 +232,7 @@ sub Load {
     ## nodes: @nodes
 
     my @links = split( /\n+/, $links );
-    ### links split: @links
+    ## links split: @links
     for (@links) {
         s#^\s*##;
         s#\s*$##;

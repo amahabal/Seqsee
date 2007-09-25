@@ -65,30 +65,37 @@ sub AttentionNoLongerNeeded {
 
 sub Update {
     $Canvas->delete('all');
-    DrawAttentionDirectingArrows() if $AttentionNeeded;
     $_->[0]->DrawIt() for @Parts;
+    DrawAttentionDirectingArrows() if $AttentionNeeded;
 }
 
 
 sub DrawAttentionDirectingArrows {
-    my $arrow_top = 0.8 * $Height;
-    my $arrow_bottom = 0.97 * $Height;
+    my $arrow_top = 0.92 * $Height;
+    my $arrow_bottom = 0.99 * $Height;
 
     for (1..9) {
         my $x_top = $Width * $_ / 10;
         my $x_bottom = $Width * (0 + $_ / 10 );
         $Canvas->createLine($x_top, $arrow_top, $x_bottom, $arrow_bottom,
                             -arrow => 'last',
-                            -width => 10,
+                            -width => 15,
                             -fill => '#FF0000',
                                 );
     }
-    $Canvas->createText($Width * 0.5, $Height * 0.85,
+    $Canvas->createText($Width * 0.5, $Height * 0.88,
                         -text => 'PLEASE SEE BELOW',
                         -anchor => 'n',
                         Style::Element(),
                         -fill => '#0000FF',
                             );
+    $Canvas->createText($Width * 0.5, 20,
+                        -text => 'PLEASE SEE BELOW',
+                        -anchor => 'n',
+                        Style::Element(),
+                        -fill => '#0000FF',
+                            );
+
 }
 }
 
