@@ -218,8 +218,13 @@ ACTIONS: {
         }
 
         # Spread activation from corresponding node:
-        # main::message("Spreading activation from $core!");
         SLTM::SpreadActivationFrom(SLTM::GetMemoryIndex($core));
+        my @active_followers = SLTM::FindActiveFollowers($core, 0.01);
+        if (@active_followers) {
+            for (@active_followers) {
+                main::debug_message($_->as_text(). " appears to be a promising follower of " . $core->as_text());
+            }
+        }
 
         my $poss_cat;
         $poss_cat = $core->get_underlying_reln()->suggest_cat()

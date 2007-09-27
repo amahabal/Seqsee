@@ -110,7 +110,7 @@ sub create{
 sub get_bounds_string {
     my ($self) = @_;
     my $id = ident $self;
-    return " [$left_edge_of{$id}, $right_edge_of{$id}] ";
+    return " <$left_edge_of{$id}, $right_edge_of{$id}> ";
 }
 
 sub get_span {

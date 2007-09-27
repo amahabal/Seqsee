@@ -384,4 +384,14 @@ sub GetTopConcepts {
     } ( 1 .. $NodeCount );
 }
 
+sub FindActiveFollowers {
+    my ( $node, $cutoff ) = @_;
+    $cutoff ||= 0.3;
+
+    my $node_id = GetMemoryIndex($node);
+    my $follows_links_ref = ($OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {});
+    return @MEMORY[ grep { $ACTIVATIONS[$_][SActivation::REAL_ACTIVATION()] > $cutoff } keys %$follows_links_ref];
+}
+
+
 1;
