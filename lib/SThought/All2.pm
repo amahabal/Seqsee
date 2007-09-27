@@ -171,7 +171,7 @@ FRINGE: {
     }
 
 ACTIONS: {
-        SLTM::SpikeBy(10, $core);
+        SLTM::SpikeBy(10, $core) if $Global::Feature{LTM};
 
         my $metonym            = $core->get_metonym();
         my $metonym_activeness = $core->get_metonym_activeness();
@@ -217,12 +217,14 @@ ACTIONS: {
             }
         }
 
-        # Spread activation from corresponding node:
-        SLTM::SpreadActivationFrom(SLTM::GetMemoryIndex($core));
-        my @active_followers = SLTM::FindActiveFollowers($core, 0.01);
-        if (@active_followers) {
-            for (@active_followers) {
-                main::debug_message($_->as_text(). " appears to be a promising follower of " . $core->as_text());
+        if ($Global::Feature{LTM}) {
+            # Spread activation from corresponding node:
+            SLTM::SpreadActivationFrom(SLTM::GetMemoryIndex($core));
+            my @active_followers = SLTM::FindActiveFollowers($core, 0.01);
+            if (@active_followers) {
+                for (@active_followers) {
+                    main::debug_message($_->as_text(). " appears to be a promising follower of " . $core->as_text());
+                }
             }
         }
 
@@ -303,7 +305,7 @@ INITIAL: {
 
     }
 ACTIONS: {
-        SLTM::SpikeBy(10, $core);
+        SLTM::SpikeBy(10, $core) if $Global::Feature{LTM};
         #my $index = SLTM::GetMemoryIndex($core);
         #my ($activation) = @{SLTM::GetRealActivationsForIndices([$index])}; 
         #main::message("[$index] $core spiked: $activation!");
@@ -348,12 +350,12 @@ ACTIONS: {
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };
 
-            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5);
+            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5) if $Global::Feature{LTM};
         }
 
         {
             my $relntype = $core->get_type();
-            my $activation = SLTM::SpikeBy( 5, $relntype );
+            my $activation = SLTM::SpikeBy( 5, $relntype ) if $Global::Feature{LTM};
             if ( SUtil::toss($activation) ) {
 
                 # XXX(Board-it-up): [2007/01/01] should check if rule rejected...
@@ -449,7 +451,7 @@ ACTIONS: {
                 core      => $core,
                 direction => DIR::RIGHT()
                 };
-            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5);
+            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5) if $Global::Feature{LTM};
         }
 
         {

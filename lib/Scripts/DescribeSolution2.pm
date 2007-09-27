@@ -17,7 +17,7 @@ STEP: {
     }
 
   STEP: {
-        SLTM->Dump('memory_dump.dat');
+        SLTM->Dump('memory_dump.dat') if $Global::Feature{LTM};
 }
 STEP: {
         main::message("That finishes the description!");
