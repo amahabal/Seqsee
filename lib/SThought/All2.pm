@@ -223,7 +223,7 @@ ACTIONS: {
             my @active_followers = SLTM::FindActiveFollowers($core, 0.01);
             if (@active_followers) {
                 for (@active_followers) {
-                    main::debug_message($_->as_text(). " appears to be a promising follower of " . $core->as_text());
+                    main::debug_message($_->as_text(). " appears to be a promising follower of " . $core->as_text(), 1,1);
                 }
             }
         }
