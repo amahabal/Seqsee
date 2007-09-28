@@ -291,7 +291,7 @@ multimethod SanityFail => ('$') => sub {
 
 
 multimethod SanityCheck => () => sub {
-    for my $gp (values %SWorkspace::groups) {
+    for my $gp (SWorkspace::GetGroups()) {
         SanityCheck($gp);
     }
     for my $rel (values %SWorkspace::relations) {

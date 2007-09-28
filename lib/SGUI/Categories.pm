@@ -70,7 +70,7 @@ sub DrawIt {
     $SpacePerElement = $WidthForImage / ( $SWorkspace::ElementCount + 1 );
 
     my @sorted_objects =
-      rikeysort { $_->get_span() } values(%SWorkspace::groups);
+      rikeysort { $_->get_span() } SWorkspace::GetGroups();
     push @sorted_objects, SWorkspace::GetElements();
     my %Cat2Objects;
     for my $obj (@sorted_objects) {

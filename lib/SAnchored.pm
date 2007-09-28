@@ -252,6 +252,17 @@ sub Extend {
     # If we get here, all conflicting incumbents are dead.
     @$parts_ref = @parts_of_new_group;
 
+
+    # If there are supergroups, they must die. Kludge, for now:
+    if (my @supergps = SWorkspace->GetSuperGroups($self)) {
+        if (SUtil::toss(0.5)) {
+            for (@supergps) {
+                SWorkspace::__DeleteGroup($_);
+            }
+        } else {
+            return;
+        }
+    }
     $self->Update();
     $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
     return 1;
@@ -269,7 +280,7 @@ sub Update{
             SWorkspace->remove_gp($self);
         }
     }
-    SWorkspace::UpdateGroupsContaining($self);
+    # SWorkspace::UpdateGroupsContaining($self);
     SWorkspace::__UpdateGroup($self);
 }
 

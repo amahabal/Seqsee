@@ -166,7 +166,6 @@ sub DrawElements {
 }
 
 sub DrawGroups {
-#    for my $gp ( rikeysort { $_->get_span() } values %SWorkspace::groups ) {
     for my $gp (SWorkspace->GetGroups()) {
         $gp->draw_ws3();
     }

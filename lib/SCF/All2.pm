@@ -618,8 +618,8 @@ RUN: {
         elsif ( $desperation > 30 ) {
 
             # XXX(Board-it-up): [2007/02/14] should be biased by 100 - strength?
-            # my $gp = SChoose->uniform([values %SWorkspace::groups]);
-            my $gp = $chooser_on_inv_strength->( [ values %SWorkspace::groups ] );
+            # my $gp = SChoose->uniform([SWorkspace::GetGroups()]);
+            my $gp = $chooser_on_inv_strength->( [ SWorkspace::GetGroups() ] );
             if ($gp) {
 
                 # main::message("Deleting group $gp: " . $gp->get_structure_string());

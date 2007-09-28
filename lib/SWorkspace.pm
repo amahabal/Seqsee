@@ -53,6 +53,12 @@ sub GetGroups {
     return rikeysort { $Span_of{$_} } values %NonEltObjects;
 }
 
+sub GetSuperGroups {
+    my ( $package, $group ) = @_;
+    return values %{$SuperGroups_of{$group}};
+}
+
+
 sub __Clear {
     $ElementCount   = 0;
     @Elements       = @ElementMagnitudes = %Objects = %NonEltObjects = ();
@@ -182,6 +188,7 @@ sub __DeleteGroup {
     }
 
     # __RemoveRelations_of($group);
+    $group->RemoveAllRelations();
     delete $LeftEdge_of{$group};
     delete $RightEdge_of{$group};
     delete $Span_of{$group};
@@ -270,6 +277,7 @@ sub __UpdateGroup {
     my ($group) = @_;
 
     # Assume that if $group has changed, $SuperGroups_of{$group} was empty.
+    ### require: not(%{$SuperGroups_of{$group}})
     my @parts = @$group;
     for my $part (@parts) {
         $SuperGroups_of{$part}{$group} = $group;
@@ -523,7 +531,7 @@ our @elements = ();
 
 # variable: %groups
 #    All groups
-our %groups;
+# our %groups;
 
 # variable: $ReadHead
 #    Points just beyond the last object read.
@@ -543,7 +551,7 @@ my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
 sub clear {
     $ElementCount = 0;
     @elements       = ();
-    %groups         = ();
+    # %groups         = ();
     %relations      = ();
     $ReadHead       = 0;
 
@@ -617,7 +625,7 @@ multimethod _insert_element => ('SElement') => sub {
 sub read_object {
     my ($package) = @_;
     my @choose_from;
-    my @all_objects = ( @Elements, values %groups );
+    my @all_objects = ( values %Objects );
     if ( $Global::Feature{choosebiased} ) {
         @choose_from = @all_objects;
         push @choose_from, grep { $_->get_span() > 4 } @all_objects;
@@ -653,7 +661,7 @@ sub read_object {
         my ($idx) = @_;
         my @matching_objects =
             grep { $_->get_left_edge() <= $idx and $_->get_right_edge() >= $idx }
-            ( @Elements, values %groups );
+            ( values %Objects );
 
         return $strength_chooser->( \@matching_objects );
     }
@@ -782,7 +790,7 @@ sub add_group {
         $conflicts->Resolve( { FailIfExact => 1 } ) or return;
     }
 
-    $groups{$gp} = $gp;
+    # $groups{$gp} = $gp;
     $Global::TimeOfNewStructure = $Global::Steps_Finished;
     __DoGroupAddBookkeeping($gp);
     return 1;
@@ -790,25 +798,7 @@ sub add_group {
 
 sub remove_gp {
     my ( $self, $gp ) = @_;
-    DeleteGroupsContaining($gp);
     __DeleteGroup($gp);
-}
-
-sub DeleteGroupsContaining {
-    my ($member_object) = @_;
-    my @groups = values %groups;
-    for my $gp (@groups) {
-        DeleteGroupsContaining($gp) if $gp->HasAsItem($member_object);
-    }
-    $member_object->RemoveAllRelations();
-    delete $groups{$member_object};
-}
-
-sub UpdateGroupsContaining {
-    my ($member_object) = @_;
-    for my $gp ( values %groups ) {
-        $gp->Update() if $gp->HasAsItem($member_object);
-    }
 }
 
 # method: check_at_location
@@ -970,12 +960,10 @@ sub GetSomethingLike {
 
     my @objects_at_that_location;
     if ( $direction eq $DIR::RIGHT ) {
-        @objects_at_that_location =
-            grep { $_->get_left_edge() eq $start_pos } (values %Objects);
+        @objects_at_that_location = __GetObjectsWithEndsExactly($start_pos, undef);
     }
     elsif ( $direction eq $DIR::LEFT ) {
-        @objects_at_that_location =
-            grep { $_->get_right_edge() eq $start_pos } (values %Objects);
+        @objects_at_that_location = __GetObjectsWithEndsExactly(undef, $start_pos);
     }
 
     my $expected_structure_string = $object->get_structure_string();
@@ -1011,7 +999,13 @@ sub GetSomethingLike {
 
     if ($is_object_literally_present) {
         my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object );
-        confess "Plonk failed. Shouldn't have." unless $plonk_result->PlonkWasSuccessful();
+        unless ($plonk_result->PlonkWasSuccessful()) {
+            print "In GetSomethingLike(), unusual plonk failure! plonk_result: $plonk_result\n";
+            print "Start Position: $opts_ref->{start}\n";
+            print "Expected Structure String: $expected_structure_string\n";
+            print "is_object_literally_present: $is_object_literally_present\n";
+            confess "{SEE MESSAGE} Plonk unexpectedly failed.\n";
+        }
         my $present_object = $plonk_result->get_resultant_object();
         if ( SUtil::toss(0.5) ) {
             return $present_object;
@@ -1123,9 +1117,9 @@ sub DeleteObjectsInconsistentWith {
         $rel->uninsert();
     }
 
-    my @groups = values %groups;
+    my @groups = values %NonEltObjects;
     for my $gp (@groups) {
-        next unless exists $groups{$gp};
+        next unless __CheckLiveness($gp);
         my $is_consistent = $ruleapp->CheckConsitencyOfGroup($gp);
         SWorkspace->remove_gp($gp) unless $is_consistent;
     }
