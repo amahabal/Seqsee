@@ -89,9 +89,10 @@ sub SElement::draw_ws3 {
 }
 
 sub SAnchored::draw_ws3 {
-    my ($self) = @_;
+    my ($self, $is_largest) = @_;
     my @items  = @$self;
     my @edges  = $self->get_edges();
+    $is_largest ||= 0;
 
     my $howmany = scalar(@items);
     for ( 0 .. $howmany - 2 ) {
@@ -121,7 +122,7 @@ sub SAnchored::draw_ws3 {
     my $is_hilit = $Global::Hilit{$self} || 0;
     my $tags = $is_hilit ? ['hilit'] : [];
     my $canvas_obj = $Canvas->createOval( $leftx, $top, $rightx, $bottom,
-        Style::Group( $is_meto, $is_hilit, $strength ),
+        Style::Group( $is_meto, $is_hilit, $strength, $is_largest ),
     );
 
     $Canvas->createOval($leftx, $top, $rightx, $bottom,
@@ -166,7 +167,11 @@ sub DrawElements {
 }
 
 sub DrawGroups {
-    for my $gp (SWorkspace->GetGroups()) {
+    my @groups = SWorkspace->GetGroups() or return;
+    my $largest_group = shift(@groups);
+    $largest_group->draw_ws3(1); # Argument is: $is_largest
+
+    for my $gp (@groups) {
         $gp->draw_ws3();
     }
     for my $elt (SWorkspace::GetElements()) {
@@ -201,9 +206,9 @@ sub DrawMetonym {
 
 {
     my @grp_str =
-      map { my %f = Style::Group( 0, 0, $_ * 10 ); $f{-fill} } 0 .. 10;
+      map { my %f = Style::Group( 0, 0, $_ * 10,0 ); $f{-fill} } 0 .. 10;
     my @star_str =
-      map { my %f = Style::Group( 1, 0, $_ * 10 ); $f{-fill} } 0 .. 10;
+      map { my %f = Style::Group( 1, 0, $_ * 10,0 ); $f{-fill} } 0 .. 10;
     my @reln_str =
       map { my %f = Style::Relation( $_ * 10 ); $f{-fill} } 0 .. 10;
 
