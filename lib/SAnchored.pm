@@ -249,9 +249,6 @@ sub Extend {
         $conflicts->Resolve({IgnoreConflictWith => $self}) or return;
     }
 
-    # If we get here, all conflicting incumbents are dead.
-    @$parts_ref = @parts_of_new_group;
-
 
     # If there are supergroups, they must die. Kludge, for now:
     if (my @supergps = SWorkspace->GetSuperGroups($self)) {
@@ -263,6 +260,10 @@ sub Extend {
             return;
         }
     }
+
+    # If we get here, all conflicting incumbents are dead.
+    @$parts_ref = @parts_of_new_group;
+
     $self->Update();
     $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
     return 1;

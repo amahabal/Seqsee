@@ -197,6 +197,7 @@ sub next_available_file_number {
 
 sub toss {
     my ($prob) = @_;
+    confess "uninitialized prob as argument!" unless defined $prob;
     rand() <= $prob ? 1 : 0;
 }
 

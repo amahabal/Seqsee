@@ -1002,7 +1002,9 @@ sub GetSomethingLike {
         unless ($plonk_result->PlonkWasSuccessful()) {
             print "In GetSomethingLike(), unusual plonk failure! plonk_result: $plonk_result\n";
             print "Start Position: $opts_ref->{start}\n";
+            print "Direction: $direction->{text}\n";
             print "Expected Structure String: $expected_structure_string\n";
+            print "Object as text: ", $object->as_text(), "\n";
             print "is_object_literally_present: $is_object_literally_present\n";
             confess "{SEE MESSAGE} Plonk unexpectedly failed.\n";
         }

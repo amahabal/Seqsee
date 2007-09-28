@@ -355,7 +355,7 @@ ACTIONS: {
 
         {
             my $relntype = $core->get_type();
-            my $activation = SLTM::SpikeBy( 5, $relntype ) if $Global::Feature{LTM};
+            my $activation = SLTM::SpikeBy( 5, $relntype );
             if ( SUtil::toss($activation) ) {
 
                 # XXX(Board-it-up): [2007/01/01] should check if rule rejected...
