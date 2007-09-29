@@ -28,7 +28,7 @@ fill: { HSV( 240, 50, 50 ) }
 STYLE Relation( $strength ! ) is {
 arrow: {'last'}
 width: {3}
-fill: { HSV( 180, 40, 80 - 0.5 * $strength ) }
+fill: { HSV( 60, 40, 80 - 0.5 * $strength ) }
 smooth: {1}
 }
 
