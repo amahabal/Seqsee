@@ -144,6 +144,7 @@ RUN: {
         }
 
         if ( SWorkspace->are_there_holes_here( $obj1, $obj2 ) ) {
+
             # main::message("A relation had holes! Launching a AttemptExtensionOfLongRelation");
             CODELET 100, AttemptExtensionOfLongRelation, {
                 effective_relation     => $reln,        # Already flipped if needed.
@@ -155,6 +156,7 @@ RUN: {
             };
             return;
         }
+
         #main::message("AttemptExtensionOfRelation called (and no holes seen):" .
         #                  $obj1->as_text(). ', '. $obj2->as_text() . ' ==> '.
         #                  $core->as_text());
@@ -189,7 +191,8 @@ FINAL: {
                 ### $obj2
                 exit;
             }
-            #main::message("While extending, what_next is " . $what_next->get_structure_string(), 1);
+
+           #main::message("While extending, what_next is " . $what_next->get_structure_string(), 1);
             return unless @$what_next;    # Zero elements, hopeless!
                                           # Check that this is what is present...
             my $is_this_what_is_present;
@@ -226,6 +229,7 @@ FINAL: {
                 }
             }
             if ($is_this_what_is_present) {
+
                 #main::message("And that was what was present", 1);
                 my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
                 return unless $plonk_result->PlonkWasSuccessful();
@@ -306,7 +310,8 @@ FINAL: {
 CodeletFamily AttemptExtensionOfLongRelation( $core !, $effective_relation !,
     $obj1 !, $obj2 !, $direction_to_extend_in ! ) does {
 RUN: {
-            #main::message("AttemptExtensionOfLongRelation run!");
+
+        #main::message("AttemptExtensionOfLongRelation run!");
         my $direction_of_core = $effective_relation->get_direction();
         ### require: $direction_of_core eq $direction_to_extend_in
         # but not necessarily $core->get_direction() eq $direction_to_extend_in
@@ -318,17 +323,18 @@ RUN: {
             print $obj1->as_text(), "\n", $obj2->as_text(), "\n";
             confess "distance undef/0 in AttemptExtensionOfLongRelation\n";
         }
-            my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
-                {   from_object => $obj2,    # Assumption: We are called by AttemptExtensionOfRelation,
-                    # and direction_of_core == direction_to_extend_in
-                    direction => $direction_to_extend_in,
-                    distance  => $distance,
-                }
-                    );
+        my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
+            {   from_object => $obj2,    # Assumption: We are called by AttemptExtensionOfRelation,
+                                         # and direction_of_core == direction_to_extend_in
+                direction => $direction_to_extend_in,
+                distance  => $distance,
+            }
+        );
         return unless defined $next_pos;
         return if $next_pos > $SWorkspace::ElementCount;
         SCF::AttemptExtensionOfRelation::DoTheExtension( $next_pos, $direction_to_extend_in,
             $effective_relation, $obj2, $core, );
+
         #main::message("While extending " . $core->as_text() . " with end object ".
         #                  $obj2->as_text() . ' in direction ' . $direction_to_extend_in->as_text().
         #                      " the distance was $distance, and next position $next_pos."
@@ -716,7 +722,8 @@ FINAL: {
 CodeletFamily WorthAskingForExtendingReln( $core !, $direction !, $already_matched !,
     $ask_if_what !, $err ! ) does {
 RUN: {
-            #main::message("WorthAskingForExtendingReln called with " . join(', ', @$ask_if_what), 1);
+
+        #main::message("WorthAskingForExtendingReln called with " . join(', ', @$ask_if_what), 1);
         my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
         if ( $type_activation < 0.3 or SUtil::toss( 1 - $type_activation ) ) {
             $SGUI::Commentary->MessageRequiringNoResponse(
@@ -734,8 +741,9 @@ RUN: {
             my $matched_elements_fraction = $matched_elements_count / $element_count;
             my $preceding_group_fraction  = $largest_preceding_group->get_span() / $element_count;
             my $core_span_ratio           = $core->get_span() / $element_count;
-            #main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
-            #                  "preceding_group_fraction: $preceding_group_fraction", 1);
+
+#main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
+#                  "preceding_group_fraction: $preceding_group_fraction", 1);
 
             unless (
                    $core_span_ratio >= 0.5
@@ -747,6 +755,7 @@ RUN: {
                 return;
             }
             my $trust = 0.7 - ( 1 - $type_activation ) * ( 1 - $core_span_ratio );
+
             #main::message("trust: $trust");
             return if $trust < $Global::AcceptableTrustLevel;
         }
