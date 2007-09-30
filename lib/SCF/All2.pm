@@ -28,11 +28,11 @@ FINAL: {
 
         sub ReadSamenessAroundReadHead {
             my $readheadpos = $SWorkspace::ReadHead;
-            my $magnitude   = (SWorkspace::GetElements())[$readheadpos]->get_mag();
+            my $magnitude   = ( SWorkspace::GetElements() )[$readheadpos]->get_mag();
             my ( $left_margin_of_sameness_gp, $right_margin_of_sameness_gp )
                 = ( $readheadpos, $readheadpos );
             while ( $left_margin_of_sameness_gp > 0 ) {
-                if ( (SWorkspace::GetElements())[ $left_margin_of_sameness_gp - 1 ]->get_mag()
+                if ( ( SWorkspace::GetElements() )[ $left_margin_of_sameness_gp - 1 ]->get_mag()
                     == $magnitude )
                 {
                     $left_margin_of_sameness_gp--;
@@ -42,7 +42,7 @@ FINAL: {
                 }
             }
             while ( $right_margin_of_sameness_gp <= $SWorkspace::ElementCount - 2 ) {
-                if ( (SWorkspace::GetElements())[ $right_margin_of_sameness_gp + 1 ]->get_mag()
+                if ( ( SWorkspace::GetElements() )[ $right_margin_of_sameness_gp + 1 ]->get_mag()
                     == $magnitude )
                 {
                     $right_margin_of_sameness_gp++;
@@ -59,9 +59,8 @@ FINAL: {
                 )
             );
             return if $is_covering;
-            my @items
-                = (SWorkspace::GetElements())[ $left_margin_of_sameness_gp .. $right_margin_of_sameness_gp
-                ];
+            my @items = ( SWorkspace::GetElements() )
+                [ $left_margin_of_sameness_gp .. $right_margin_of_sameness_gp ];
             for (@items) {
                 return if $_->get_metonym_activeness();
             }
@@ -78,12 +77,12 @@ FINAL: {
 
 CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
 RUN: {
-        if ($obj->describe_as($cat)) {
-            if ($Global::Feature{LTM}) {
+        if ( $obj->describe_as($cat) ) {
+            if ( $Global::Feature{LTM} ) {
                 SLTM::SpikeBy( 10, $cat );
-                SLTM::InsertISALink($obj, $cat)->Spike(5);
+                SLTM::InsertISALink( $obj, $cat )->Spike(5);
             }
-        } 
+        }
     }
 }
 
@@ -136,7 +135,7 @@ RUN: {
 
         ## $direction, $direction_of_core, $type
 
-        my ( $reln, $obj1, $obj2, $next_pos, $what_next );
+        my ( $reln, $obj1, $obj2, $next_pos );
         if ( $direction eq $direction_of_core ) {
             ( $reln, $obj1, $obj2 ) = ( $core, $core->get_ends );
         }
@@ -144,110 +143,138 @@ RUN: {
             ( $reln, $obj2, $obj1 ) = ( $core->FlippedVersion(), $core->get_ends );
         }
 
-        return if SWorkspace->are_there_holes_here( $obj1, $obj2 );
+        if ( SWorkspace->are_there_holes_here( $obj1, $obj2 ) ) {
+            # main::message("A relation had holes! Launching a AttemptExtensionOfLongRelation");
+            CODELET 100, AttemptExtensionOfLongRelation, {
+                effective_relation     => $reln,        # Already flipped if needed.
+                obj1                   => $obj1,
+                obj2                   => $obj2,
+                direction_to_extend_in => $direction,
+                core                   => $core,        # The real relation we are extending
+
+            };
+            return;
+        }
+        #main::message("AttemptExtensionOfRelation called (and no holes seen):" .
+        #                  $obj1->as_text(). ', '. $obj2->as_text() . ' ==> '.
+        #                  $core->as_text());
 
         $next_pos = $obj2->get_next_pos_in_dir($direction);
         return unless defined($next_pos);
-        if ( $next_pos == $SWorkspace::ElementCount ) {
-            return unless SUtil::toss(0.15);
-        }
-
-        eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() ) }
-            or return;
-        if ($EVAL_ERROR) {
-            ### eval error in apply reln!
-            ### $reln
-            ### $obj2
-            exit;
-        }
-        return unless @$what_next;    # Zero elements, hopeless!
-
         my $core_span = $core->get_span;
-
-        # Check that this is what is present...
-        my $is_this_what_is_present;
-        eval {
-            $is_this_what_is_present = SWorkspace->check_at_location(
-                {   start     => $next_pos,
-                    direction => $direction,
-                    what      => $what_next,
-                }
-            );
-        };
-
-        if ($EVAL_ERROR) {
-            my $err = $EVAL_ERROR;
-
-            # main::message("Good! Error caught");
-            if ( UNIVERSAL::isa( $err, "SErr::AskUser" ) ) {
-                my $already_matched = $err->already_matched();
-                my $ask_if_what     = $err->next_elements();
-
-                # return unless worth_asking( $already_matched, $ask_if_what, $core_span );
-
-                CODELET 100, WorthAskingForExtendingReln, {
-                    core            => $core,
-                    direction       => $direction,
-                    already_matched => $already_matched,
-                    ask_if_what     => $ask_if_what,
-                    err             => $err,               # so that we can call $err->Ask()
-                };
-                return;
-            }
-            else {
-                $err->rethrow;
-            }
-        }
-        if ($is_this_what_is_present) {
-            my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
-            return unless $plonk_result->PlonkWasSuccessful();
-            my $wso = $plonk_result->get_resultant_object();
-
-            if ( $reln->isa('SReln::Compound') ) {
-                my $type = $reln->get_base_category;
-                ## Describe as: $type
-                $wso->describe_as($type) or return;
-            }
-
-            ## $wso, $wso->get_structure
-            ## $direction, $direction_of_core
-            ## $obj2->get_structure
-
-            my $reln_to_add;
-            if ( $direction eq $direction_of_core ) {
-                $reln_to_add = find_reln( $obj2, $wso );
-            }
-            else {
-                $reln_to_add = find_reln( $wso, $obj2 );
-            }
-
-            if ($reln_to_add) {
-                $reln_to_add->insert;
-            }
-            else {
-
-                # ToDo: [2006/09/27] For ad_hoc, the constucted object has type ad_hoc, but it's
-                # constituents are not correctly typed
-                #   main::message("No relation found to insert!");
-            }
-        }
-        else {
-
-            # maybe attempt extension
-            if ( SUtil::toss(0.5) ) {
-                return;
-            }
-            else {
-                THOUGHT AreTheseGroupable,
-                    {
-                    items => [ $core->get_ends() ],
-                    reln  => $core
-                    };
-            }
-        }
-
+        DoTheExtension( $next_pos, $direction, $reln, $obj2, $core );
     }
 FINAL: {
+
+        sub DoTheExtension {
+            my ($next_pos,     # Position where we expect to find next object.
+                $direction,    # The direction we are extending in.
+                $reln,         # The *effective* relation we are extending. If extending left from a
+                               # rightward reln, this is a flip.
+                $obj2,         # if direction to extend in is the same as direction of core,
+                               # This is $core->second(), else its $core->first()
+                $core,         # The actual relation being extended.
+            ) = @_;
+            my $what_next;
+            my $direction_of_core = $core->get_direction();
+            if ( $next_pos >= $SWorkspace::ElementCount ) {
+                return unless SUtil::toss(0.15);
+            }
+
+            eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() ) }
+                or return;
+            if ($EVAL_ERROR) {
+                ### eval error in apply reln!
+                ### $reln
+                ### $obj2
+                exit;
+            }
+            #main::message("While extending, what_next is " . $what_next->get_structure_string(), 1);
+            return unless @$what_next;    # Zero elements, hopeless!
+                                          # Check that this is what is present...
+            my $is_this_what_is_present;
+            eval {
+                $is_this_what_is_present = SWorkspace->check_at_location(
+                    {   start     => $next_pos,
+                        direction => $direction,
+                        what      => $what_next,
+                    }
+                );
+            };
+
+            if ($EVAL_ERROR) {
+                my $err = $EVAL_ERROR;
+
+                # main::message("Good! Error caught");
+                if ( UNIVERSAL::isa( $err, "SErr::AskUser" ) ) {
+                    my $already_matched = $err->already_matched();
+                    my $ask_if_what     = $err->next_elements();
+
+                    # return unless worth_asking( $already_matched, $ask_if_what, $core_span );
+
+                    CODELET 100, WorthAskingForExtendingReln, {
+                        core            => $core,
+                        direction       => $direction,
+                        already_matched => $already_matched,
+                        ask_if_what     => $ask_if_what,
+                        err             => $err,               # so that we can call $err->Ask()
+                    };
+                    return;
+                }
+                else {
+                    $err->rethrow;
+                }
+            }
+            if ($is_this_what_is_present) {
+                #main::message("And that was what was present", 1);
+                my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
+                return unless $plonk_result->PlonkWasSuccessful();
+                my $wso = $plonk_result->get_resultant_object();
+
+                if ( $reln->isa('SReln::Compound') ) {
+                    my $type = $reln->get_base_category;
+                    ## Describe as: $type
+                    $wso->describe_as($type) or return;
+                }
+
+                ## $wso, $wso->get_structure
+                ## $direction, $direction_of_core
+                ## $obj2->get_structure
+
+                my $reln_to_add;
+                if ( $direction eq $direction_of_core ) {
+                    $reln_to_add = find_reln( $obj2, $wso );
+                }
+                else {
+                    $reln_to_add = find_reln( $wso, $obj2 );
+                }
+
+                if ($reln_to_add) {
+                    $reln_to_add->insert;
+                }
+                else {
+
+                    # ToDo: [2006/09/27] For ad_hoc, the constucted object has type ad_hoc, but it's
+                    # constituents are not correctly typed
+                    #   main::message("No relation found to insert!");
+                }
+            }
+            else {
+
+                # maybe attempt extension
+                if ( SUtil::toss(0.5) ) {
+                    return;
+                }
+                else {
+                    THOUGHT AreTheseGroupable,
+                        {
+                        items => [ $core->get_ends() ],
+                        reln  => $core
+                        };
+                }
+            }
+
+        }
 
         sub worth_asking {
             my ( $matched, $unmatched, $extension_from_span ) = @_;
@@ -273,6 +300,39 @@ FINAL: {
             return;
         }
 
+    }
+}
+
+CodeletFamily AttemptExtensionOfLongRelation( $core !, $effective_relation !,
+    $obj1 !, $obj2 !, $direction_to_extend_in ! ) does {
+RUN: {
+            #main::message("AttemptExtensionOfLongRelation run!");
+        my $direction_of_core = $effective_relation->get_direction();
+        ### require: $direction_of_core eq $direction_to_extend_in
+        # but not necessarily $core->get_direction() eq $direction_to_extend_in
+
+        #return unless $direction_of_core->PotentiallyExtendible();
+        my $distance = SWorkspace::__FindDistance( $obj1, $obj2 );
+        unless ($distance) {
+            print "distance undef/0 in AttemptExtensionOfLongRelation\n";
+            print $obj1->as_text(), "\n", $obj2->as_text(), "\n";
+            confess "distance undef/0 in AttemptExtensionOfLongRelation\n";
+        }
+            my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
+                {   from_object => $obj2,    # Assumption: We are called by AttemptExtensionOfRelation,
+                    # and direction_of_core == direction_to_extend_in
+                    direction => $direction_to_extend_in,
+                    distance  => $distance,
+                }
+                    );
+        return unless defined $next_pos;
+        return if $next_pos > $SWorkspace::ElementCount;
+        SCF::AttemptExtensionOfRelation::DoTheExtension( $next_pos, $direction_to_extend_in,
+            $effective_relation, $obj2, $core, );
+        #main::message("While extending " . $core->as_text() . " with end object ".
+        #                  $obj2->as_text() . ' in direction ' . $direction_to_extend_in->as_text().
+        #                      " the distance was $distance, and next position $next_pos."
+        #                  );
     }
 }
 
@@ -581,7 +641,7 @@ RUN: {
             $application->ExtendLeftMaximally();
             my $new_group = SAnchored->create( @{ $application->get_items() } );
             SWorkspace->add_group($new_group) or return;
-            THOUGHT AreWeDone, { group => $new_group};
+            THOUGHT AreWeDone, { group => $new_group };
         }
         else {
 
@@ -656,6 +716,7 @@ FINAL: {
 CodeletFamily WorthAskingForExtendingReln( $core !, $direction !, $already_matched !,
     $ask_if_what !, $err ! ) does {
 RUN: {
+            #main::message("WorthAskingForExtendingReln called with " . join(', ', @$ask_if_what), 1);
         my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
         if ( $type_activation < 0.3 or SUtil::toss( 1 - $type_activation ) ) {
             $SGUI::Commentary->MessageRequiringNoResponse(
@@ -673,16 +734,20 @@ RUN: {
             my $matched_elements_fraction = $matched_elements_count / $element_count;
             my $preceding_group_fraction  = $largest_preceding_group->get_span() / $element_count;
             my $core_span_ratio           = $core->get_span() / $element_count;
+            #main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
+            #                  "preceding_group_fraction: $preceding_group_fraction", 1);
+
             unless (
-                   $core_span_ratio > 0.6
-                or $matched_elements_fraction > 0.3
-                or (    $matched_elements_fraction + $preceding_group_fraction > 0.5
+                   $core_span_ratio >= 0.5
+                or $matched_elements_fraction > 0.2
+                or (    $matched_elements_fraction + $preceding_group_fraction > 0.4
                     and $matched_elements_fraction < $preceding_group_fraction )
                 )
             {
                 return;
             }
             my $trust = 0.7 - ( 1 - $type_activation ) * ( 1 - $core_span_ratio );
+            #main::message("trust: $trust");
             return if $trust < $Global::AcceptableTrustLevel;
         }
 

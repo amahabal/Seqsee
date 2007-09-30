@@ -346,12 +346,12 @@ BUILD: {
 ACTIONS: {
         my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
-        if ( not $holey ) {
+        #if ( not $holey ) {
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
             ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };
 
             SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5) if $Global::Feature{LTM};
-        }
+        #}
 
         {
             my $relntype = $core->get_type();
@@ -445,7 +445,7 @@ ACTIONS: {
         }
 
         {
-            last if $holey;
+            # last if $holey;
             CODELET 100, AttemptExtensionOfRelation,
                 {
                 core      => $core,

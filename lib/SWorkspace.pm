@@ -55,9 +55,8 @@ sub GetGroups {
 
 sub GetSuperGroups {
     my ( $package, $group ) = @_;
-    return values %{$SuperGroups_of{$group}};
+    return values %{ $SuperGroups_of{$group} };
 }
-
 
 sub __Clear {
     $ElementCount   = 0;
@@ -67,13 +66,12 @@ sub __Clear {
 }
 
 sub __CheckLiveness {
-    return List::MoreUtils::all { exists $Objects{ $_ } } @_;
+    return List::MoreUtils::all { exists $Objects{$_} } @_;
 }
 
 sub __CheckLivenessAtSomePoint {
     return List::MoreUtils::all { exists $LiveAtSomePoint{$_} } @_;
 }
-
 
 sub __CheckLivenessAndDiagnose {
     my $problems_so_far = 0;
@@ -82,7 +80,7 @@ sub __CheckLivenessAndDiagnose {
 
         # So a dead object!
         print "NON_LIVE OBJECT!\n";
-        if (exists $LiveAtSomePoint{$object}) {
+        if ( exists $LiveAtSomePoint{$object} ) {
             print "But was live once!\n";
         }
         my $unstarred = $object->GetUnstarred();
@@ -206,12 +204,12 @@ multimethod __InsertElement => ('SElement') => sub {
     push @ElementMagnitudes, $magnitude;
     Global::UpdateExtensionsRejectedByUser($magnitude);
 
-    $LeftEdge_of{$element}    = $ElementCount;
-    $RightEdge_of{$element}   = $ElementCount;
-    $Span_of{$element}        = 1;
-    $Objects{$element}        = $element;
+    $LeftEdge_of{$element}     = $ElementCount;
+    $RightEdge_of{$element}    = $ElementCount;
+    $Span_of{$element}         = 1;
+    $Objects{$element}         = $element;
     $LiveAtSomePoint{$element} = 1;
-    $SuperGroups_of{$element} = {};
+    $SuperGroups_of{$element}  = {};
 
     SLTM::InsertUnlessPresent($element);
 
@@ -263,10 +261,10 @@ sub __DoGroupAddBookkeeping {
     my ($group) = @_;
 
     # Assuming sanity checks passed.
-    $Objects{$group}        = $group;
-    $NonEltObjects{$group}  = $group;
-    $SuperGroups_of{$group} = {};
-    $LiveAtSomePoint{$group}= 1;
+    $Objects{$group}         = $group;
+    $NonEltObjects{$group}   = $group;
+    $SuperGroups_of{$group}  = {};
+    $LiveAtSomePoint{$group} = 1;
     SLTM::InsertUnlessPresent($group);
     __UpdateGroup($group);
 }
@@ -523,6 +521,104 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
 
 };
 
+sub __GetLongestNonAdHocWithEndsExactly {
+    my ( $left, $right ) = @_;
+    if ( defined($left) and not( defined($right) ) ) {
+        for my $gp ( __SortRtoLByRightEdge( __GetObjectsWithEndsExactly( $left, undef ) ) ) {
+            return $gp if $gp->HasNonAdHocCategory();
+        }
+        return $Elements[$left];
+    }
+    elsif ( defined($right) and not( defined($left) ) ) {
+        for my $gp ( __SortLtoRByLeftEdge( __GetObjectsWithEndsExactly( undef, $right ) ) ) {
+            return $gp if $gp->HasNonAdHocCategory();
+        }
+        return $Elements[$right];
+    }
+    else {
+        confess
+            "__GetLongestNonAdHocWithEndsExactly needs exactly one defined argument. Got '$left' and '$right'";
+    }
+}
+
+# Non-ad-hoc, with left=$left, right<=$right
+sub __GetLongestNonAdHocWithLeftExactRightBelow {
+    my ( $left, $right ) = @_;
+    # main::message("__GetLongestNonAdHocWithLeftExactRightBelow($left, $right)");
+    for my $gp ( __SortRtoLByRightEdge( __GetObjectsWithEndsExactly( $left, undef ) ) ) {
+        next       if $RightEdge_of{$gp} > $right;
+        return $gp if $gp->HasNonAdHocCategory();
+    }
+    return $Elements[$left];
+}
+
+# Distance, where each non-ad-hoc counts as 1
+sub __FindDistance {
+    my ( $object1, $object2 ) = @_;
+    my $min_right = List::Util::min( $RightEdge_of{$object1}, $RightEdge_of{$object2} );
+    my $max_left  = List::Util::max( $LeftEdge_of{$object1},  $LeftEdge_of{$object2} );
+    #main::message("Finding distance: " . $object1->as_text() . ' to ' . $object2->as_text(),1 );
+    if ( $max_left <= $min_right + 1 ) {    # Adjacent or overlapping.
+        return 0;
+    }
+
+    # Find distance now.
+    return __FindDistanceHelper_( $min_right + 1, $max_left - 1 );
+}
+
+sub __FindDistanceHelper_ {
+    my ( $left_end_of_gap, $right_end_of_gap ) = @_;
+    #main::message("__FindDistanceHelper_: Filling gap $left_end_of_gap to $right_end_of_gap", 1);
+
+    # A Simple Greedy Algo.
+    my $intermediate_groups_seen = 0;
+    while ($left_end_of_gap <= $right_end_of_gap) {
+        if ($left_end_of_gap == $right_end_of_gap) {
+            $intermediate_groups_seen++;
+            last;
+        }
+        my $longest_first_group = __GetLongestNonAdHocWithLeftExactRightBelow($left_end_of_gap, $right_end_of_gap);
+        $left_end_of_gap = $LeftEdge_of{$longest_first_group} + 1;
+        $intermediate_groups_seen++;
+        #main::message("__FindDistanceHelper_: Group seen ". $longest_first_group->as_text(), 1);
+        #main::message("Gap now: $left_end_of_gap -> $right_end_of_gap", 1);
+    }
+    #main::message("Returning $intermediate_groups_seen as the answer");
+    return $intermediate_groups_seen;
+}
+
+sub __GetPositionInDirectionAtDistance {
+    my ( $opts_ref ) = @_;
+    my $from_object = $opts_ref->{from_object} or confess "Need from_object";
+    my $direction = $opts_ref->{direction} or confess "Need direction";
+    my $distance = $opts_ref->{distance} or confess "Need distance";
+
+    if ($direction eq $DIR::RIGHT) {
+        my $end = $RightEdge_of{$from_object} + 1;
+        for (1..$distance) {
+            my $next_object = __GetLongestNonAdHocWithEndsExactly($end, undef);
+            return unless $next_object;
+            $end = 1 + $RightEdge_of{$next_object};
+        }
+        return $end;
+    } elsif ($direction eq $DIR::LEFT) {
+        my $end = $LeftEdge_of{$from_object} - 1;
+        for (1..$distance) {
+            if ($end < 0) {
+                return;
+            }
+            my $next_object = __GetLongestNonAdHocWithEndsExactly(undef, $end);
+            return unless $next_object;
+            $end = $LeftEdge_of{$next_object} - 1;
+        }
+        return if $end < 0;
+        return $end;
+    } else {
+        confess "HUH?";
+    }    
+}
+
+
 #=============================================
 #=============================================
 
@@ -550,10 +646,11 @@ my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
 
 sub clear {
     $ElementCount = 0;
-    @elements       = ();
+    @elements     = ();
+
     # %groups         = ();
-    %relations      = ();
-    $ReadHead       = 0;
+    %relations = ();
+    $ReadHead  = 0;
 
     __Clear();
 }
@@ -707,7 +804,8 @@ sub RemoveRelation {
 
 sub get_longest_non_adhoc_object_starting_at {
     my ( $self, $left ) = @_;
-    for my $gp ( __SortRtoLByRightEdge(__GetObjectsWithEndsExactly($left, undef))) { 
+    for my $gp ( __SortRtoLByRightEdge( __GetObjectsWithEndsExactly( $left, undef ) ) ) {
+
         # That gives us longest first.
     INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
@@ -728,7 +826,8 @@ sub get_longest_non_adhoc_object_starting_at {
 
 sub get_longest_non_adhoc_object_ending_at {
     my ( $self, $right ) = @_;
-    for my $gp ( __SortLtoRByLeftEdge(__GetObjectsWithEndsExactly(undef, $right)) ) {
+    for my $gp ( __SortLtoRByLeftEdge( __GetObjectsWithEndsExactly( undef, $right ) ) ) {
+
         # That gives us longest first.
     INNER: for my $cat ( @{ $gp->get_categories() } ) {
             if ( $cat->get_name() !~ m#ad_hoc_# ) {
@@ -960,10 +1059,10 @@ sub GetSomethingLike {
 
     my @objects_at_that_location;
     if ( $direction eq $DIR::RIGHT ) {
-        @objects_at_that_location = __GetObjectsWithEndsExactly($start_pos, undef);
+        @objects_at_that_location = __GetObjectsWithEndsExactly( $start_pos, undef );
     }
     elsif ( $direction eq $DIR::LEFT ) {
-        @objects_at_that_location = __GetObjectsWithEndsExactly(undef, $start_pos);
+        @objects_at_that_location = __GetObjectsWithEndsExactly( undef, $start_pos );
     }
 
     my $expected_structure_string = $object->get_structure_string();
@@ -999,7 +1098,7 @@ sub GetSomethingLike {
 
     if ($is_object_literally_present) {
         my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object );
-        unless ($plonk_result->PlonkWasSuccessful()) {
+        unless ( $plonk_result->PlonkWasSuccessful() ) {
             print "In GetSomethingLike(), unusual plonk failure! plonk_result: $plonk_result\n";
             print "Start Position: $opts_ref->{start}\n";
             print "Direction: $direction->{text}\n";
@@ -1067,7 +1166,7 @@ sub SErr::AskUser::Ask {
 
         if ( defined $object_being_looked_for ) {
             __PlonkIntoPlace( $position_it_is_being_looked_from,
-                              $direction_to_look_in, $object_being_looked_for );
+                $direction_to_look_in, $object_being_looked_for );
         }
 
     }

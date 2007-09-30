@@ -84,6 +84,7 @@ sub SElement::draw_ws3 {
         -tags => [ $self, 'element', $idx ],
         Style::Element(),
     );
+    $Canvas->createText($_[0]+5, $_[1]+10, -text => $idx);
     $AnchorsForRelations{$self} ||= [ $_[0], $_[1] - 10 ];
     return $id;
 }

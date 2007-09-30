@@ -280,5 +280,14 @@ sub categories_as_insertlist {
     return $list;
 }
 
+sub HasNonAdHocCategory {
+    my ( $item ) = @_;
+    for (keys %{$cats_of_of{ident $item}}) {
+        return 1 unless $_ =~ m#ad_hoc_#;
+    }
+    return 0;
+}
+
+
 1;
 
