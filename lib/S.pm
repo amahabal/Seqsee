@@ -46,6 +46,7 @@ use SElement;
 use SWorkspace;
 
 use ResultOfCanBeSeenAs;
+
 # Need to convert the next four
 #use SCat::Derive::assuming;
 #use SCat::Derive::blemished;
@@ -74,6 +75,7 @@ use SLTM;
 
 use SRule;
 use SRuleApp;
+
 # use SUtil;
 
 our $ASCENDING  = $SCat::ascending::ascending;
@@ -109,9 +111,9 @@ sub RIGHT   {$RIGHT}
 sub UNKNOWN {$UNKNOWN}
 sub NEITHER {$NEITHER}
 
-sub Flip{
-    my ( $self ) = @_;
-    return $LEFT if $self eq $RIGHT;
+sub Flip {
+    my ($self) = @_;
+    return $LEFT  if $self eq $RIGHT;
     return $RIGHT if $self eq $LEFT;
     confess "Flip called on weird direction";
 }
@@ -220,11 +222,12 @@ sub deserialize {
 }
 
 package EXTENDIBILE;
+
 # XXX(Board-it-up): [2007/04/09] Keeping in case I bring extendibility of relations back.
 
 use strict;
 use warnings;
-our $NO      = bless { mode => 'NO' }, 'EXTENDIBILE';
+our $NO      = bless { mode => 'NO' },      'EXTENDIBILE';
 our $PERHAPS = bless { mode => 'PERHAPS' }, 'EXTENDIBILE';
 our $UNKNOWN = bless { mode => 'UNKNOWN' }, 'EXTENDIBILE';
 sub NO      {$NO}
@@ -238,11 +241,11 @@ sub as_insertlist {
 
 use overload (
     q{bool} => sub {
-        my ( $self ) = @_;
-        return ($self->{mode} eq 'NO') ? 0 : 1;
+        my ($self) = @_;
+        return ( $self->{mode} eq 'NO' ) ? 0 : 1;
     },
     fallback => 1,
-        );
+);
 
 package RELN_SCHEME;
 use strict;
@@ -251,5 +254,66 @@ our $NONE = 0;
 our $CHAIN = bless { type => 'CHAIN' }, 'RELN_SCHEME';
 sub NONE  {$NONE}
 sub CHAIN {$CHAIN}
+
+package DISTANCE_MODE;
+use strict;
+use warnings;
+our $GROUP   = bless { mode => 'group' },   'DISTANCE_MODE';
+our $ELEMENT = bless { mode => 'element' }, 'DISTANCE_MODE';
+
+sub GROUP   {$GROUP}
+sub ELEMENT {$ELEMENT}
+
+# Can/should be influenced by activations.
+sub PickOne {
+    if (SUtil::toss(0.8)) {
+        return $GROUP;
+    } else {
+        return $ELEMENT;
+    }
+}
+
+sub IsUnitGroups {
+    my ( $mode ) = @_;
+    return ($mode eq $GROUP) ? 1 : 0;
+}
+
+
+
+package DISTANCE;
+use strict;
+use warnings;
+
+sub InElements {
+    my ( $distance ) = @_;
+    bless [$distance, $DISTANCE_MODE::ELEMENT], 'DISTANCE';
+}
+
+sub InGroups {
+    my ( $distance ) = @_;
+    bless [$distance, $DISTANCE_MODE::GROUP], 'DISTANCE';
+}
+
+sub Zero {
+    bless [0, $DISTANCE_MODE::GROUP], 'DISTANCE';
+}
+
+
+sub IsUnitGroups {
+    my ( $self ) = @_;
+    return $self->[1]->IsUnitGroups();
+}
+
+sub GetMagnitude {
+    my ( $self ) = @_;
+    return $self->[0];
+}
+
+sub as_text {
+    my ( $self ) = @_;
+    return "$self->[0] ". $self->[1]->{mode};
+}
+
+
 
 1;

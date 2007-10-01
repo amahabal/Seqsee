@@ -554,20 +554,28 @@ sub __GetLongestNonAdHocWithLeftExactRightBelow {
 
 # Distance, where each non-ad-hoc counts as 1
 sub __FindDistance {
-    my ( $object1, $object2 ) = @_;
+    my ( $object1, $object2, $mode ) = @_;
+
+    $mode ||= DISTANCE_MODE::PickOne();
+
     my $min_right = List::Util::min( $RightEdge_of{$object1}, $RightEdge_of{$object2} );
     my $max_left  = List::Util::max( $LeftEdge_of{$object1},  $LeftEdge_of{$object2} );
     #main::message("Finding distance: " . $object1->as_text() . ' to ' . $object2->as_text(),1 );
     if ( $max_left <= $min_right + 1 ) {    # Adjacent or overlapping.
-        return 0;
+        return DISTANCE::Zero();
     }
 
     # Find distance now.
-    return __FindDistanceHelper_( $min_right + 1, $max_left - 1 );
+    return __FindDistanceHelper_( $min_right + 1, $max_left - 1, $mode );
 }
 
 sub __FindDistanceHelper_ {
-    my ( $left_end_of_gap, $right_end_of_gap ) = @_;
+    my ( $left_end_of_gap, $right_end_of_gap, $mode ) = @_;
+    if (!$mode->IsUnitGroups()) {
+        # main::message("Distance in element units!");
+        return DISTANCE::InElements(1 + $right_end_of_gap - $left_end_of_gap);
+    }
+
     #main::message("__FindDistanceHelper_: Filling gap $left_end_of_gap to $right_end_of_gap", 1);
 
     # A Simple Greedy Algo.
@@ -584,7 +592,7 @@ sub __FindDistanceHelper_ {
         #main::message("Gap now: $left_end_of_gap -> $right_end_of_gap", 1);
     }
     #main::message("Returning $intermediate_groups_seen as the answer");
-    return $intermediate_groups_seen;
+    return DISTANCE::InGroups($intermediate_groups_seen);
 }
 
 sub __GetPositionInDirectionAtDistance {
@@ -592,9 +600,14 @@ sub __GetPositionInDirectionAtDistance {
     my $from_object = $opts_ref->{from_object} or confess "Need from_object";
     my $direction = $opts_ref->{direction} or confess "Need direction";
     my $distance = $opts_ref->{distance} or confess "Need distance";
+    ### require: $distance->isa("DISTANCE");
 
     if ($direction eq $DIR::RIGHT) {
         my $end = $RightEdge_of{$from_object} + 1;
+        if (!$distance->IsUnitGroups()) {
+            return $end + $distance;
+        }
+        $distance = $distance->GetMagnitude();
         for (1..$distance) {
             my $next_object = __GetLongestNonAdHocWithEndsExactly($end, undef);
             return unless $next_object;
@@ -603,6 +616,14 @@ sub __GetPositionInDirectionAtDistance {
         return $end;
     } elsif ($direction eq $DIR::LEFT) {
         my $end = $LeftEdge_of{$from_object} - 1;
+        if (!$distance->IsUnitGroups()) {
+            if ($end >= $distance) {
+                return $end - $distance;
+            } else {
+                return;
+            }
+        }
+        $distance = $distance->GetMagnitude();
         for (1..$distance) {
             if ($end < 0) {
                 return;

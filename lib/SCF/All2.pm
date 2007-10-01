@@ -192,17 +192,19 @@ FINAL: {
                 exit;
             }
 
-           #main::message("While extending, what_next is " . $what_next->get_structure_string(), 1);
+            # main::message("While extending, what_next is " . $what_next->get_structure_string(), 1);
             return unless @$what_next;    # Zero elements, hopeless!
                                           # Check that this is what is present...
             my $is_this_what_is_present;
             eval {
+                # main::message("Will check at location: $next_pos, ". join(", ", @$what_next), 1);
                 $is_this_what_is_present = SWorkspace->check_at_location(
                     {   start     => $next_pos,
                         direction => $direction,
                         what      => $what_next,
                     }
                 );
+                # main::message("is_this_what_is_present is $is_this_what_is_present", 1);
             };
 
             if ($EVAL_ERROR) {
@@ -337,7 +339,7 @@ RUN: {
 
         #main::message("While extending " . $core->as_text() . " with end object ".
         #                  $obj2->as_text() . ' in direction ' . $direction_to_extend_in->as_text().
-        #                      " the distance was $distance, and next position $next_pos."
+        #                      " the distance was " . $distance->as_text() . ", and next position $next_pos."
         #                  );
     }
 }
@@ -742,8 +744,8 @@ RUN: {
             my $preceding_group_fraction  = $largest_preceding_group->get_span() / $element_count;
             my $core_span_ratio           = $core->get_span() / $element_count;
 
-#main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
-#                  "preceding_group_fraction: $preceding_group_fraction", 1);
+            #main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
+            #      "preceding_group_fraction: $preceding_group_fraction", 1);
 
             unless (
                    $core_span_ratio >= 0.5
@@ -756,7 +758,7 @@ RUN: {
             }
             my $trust = 0.7 - ( 1 - $type_activation ) * ( 1 - $core_span_ratio );
 
-            #main::message("trust: $trust");
+            # main::message("trust: $trust");
             return if $trust < $Global::AcceptableTrustLevel;
         }
 
