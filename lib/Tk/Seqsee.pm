@@ -14,6 +14,7 @@ use SGUI::Workspace;
 use SGUI::Slipnet;
 use SGUI::Categories;
 use SGUI::Stream;
+use SGUI::Coderack;
 
 my $Canvas;
 my ( $Width, $Height );
@@ -32,6 +33,10 @@ my @ViewOptions = (
     ['Workspace + Categories', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Categories', 0, 50, 100, 50 ],
+            ]],
+    ['Workspace + Coderack', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ 'SGUI::Coderack', 0, 50, 100, 50 ],
             ]],
         );
 
