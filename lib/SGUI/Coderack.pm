@@ -127,11 +127,20 @@ sub DrawIt {
             $y_pos + 0.8 * $RowHeight,
         );
 
-        unless ($rows_displayed % 3) {
+        unless ($rows_displayed % 2) {
             my $y = $YOffset + (2 + $rows_displayed) * $RowHeight - 3;
-            $Canvas->createLine($base_x_offset, $y,
-                                $base_x_offset + $EffectiveWidth, $y,
-                                    );
+            #$Canvas->createLine($base_x_offset, $y,
+            #                    $base_x_offset + $EffectiveWidth, $y,
+            #                        );
+            unless ($rows_displayed % 4) {
+                my $y2 = $YOffset + (4 + $rows_displayed) * $RowHeight - 3;
+                my $id = $Canvas->createRectangle($base_x_offset, $y,
+                                                  $base_x_offset + $EffectiveWidth, $y2,
+                                                  -fill => '#CCFFDD',
+                                                  -outline => '',
+                                                      );
+                $Canvas->lower($id);
+            }
         }
         $rows_displayed++;
     }
