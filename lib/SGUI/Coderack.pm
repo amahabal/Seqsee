@@ -85,6 +85,9 @@ sub DrawIt {
         -text   => "% OF ALL RUN",
     );
 
+    for (keys %count) {
+        $SCoderack::HistoryOfRunnable{$_} ||= 0;
+    }
     while ( my ( $family, $historical_count ) = each %SCoderack::HistoryOfRunnable ) {
         last if $rows_displayed > $MaxRows;
         my $y_pos = $YOffset + $Margin + $rows_displayed * $RowHeight;
@@ -106,7 +109,7 @@ sub DrawIt {
             -fill => '#0000FF',
         );
         $Canvas->createRectangle(
-            $base_x_offset + $UrgencyOffset,
+            $base_x_offset + $UrgencyOffset + 99,
             $y_pos,
             $base_x_offset + $UrgencyOffset + 100,
             $y_pos + 0.8 * $RowHeight,
@@ -119,26 +122,34 @@ sub DrawIt {
                 / $total_run_so_far,
             $y_pos + 0.8 * $RowHeight,
             -fill => '#FF0000',
+        ) if $total_run_so_far;
+        $Canvas->createText(
+            $base_x_offset + $HistoricalFractionOffset + 120,
+            $y_pos,
+            -text   => $historical_count,
+            -anchor => 'nw'
         );
         $Canvas->createRectangle(
-            $base_x_offset + $HistoricalFractionOffset,
+            $base_x_offset + $HistoricalFractionOffset + 99,
             $y_pos,
             $base_x_offset + $HistoricalFractionOffset + 100,
             $y_pos + 0.8 * $RowHeight,
         );
 
-        unless ($rows_displayed % 2) {
-            my $y = $YOffset + (2 + $rows_displayed) * $RowHeight - 3;
+        unless ( $rows_displayed % 2 ) {
+            my $y = $YOffset + ( 2 + $rows_displayed ) * $RowHeight - 3;
+
             #$Canvas->createLine($base_x_offset, $y,
             #                    $base_x_offset + $EffectiveWidth, $y,
             #                        );
-            unless ($rows_displayed % 4) {
-                my $y2 = $YOffset + (4 + $rows_displayed) * $RowHeight - 3;
-                my $id = $Canvas->createRectangle($base_x_offset, $y,
-                                                  $base_x_offset + $EffectiveWidth, $y2,
-                                                  -fill => '#CCFFDD',
-                                                  -outline => '',
-                                                      );
+            unless ( $rows_displayed % 4 ) {
+                my $y2 = $YOffset + ( 4 + $rows_displayed ) * $RowHeight - 3;
+                my $id = $Canvas->createRectangle(
+                    $base_x_offset,                   $y,
+                    $base_x_offset + $EffectiveWidth, $y2,
+                    -fill    => '#CCFFDD',
+                    -outline => '',
+                );
                 $Canvas->lower($id);
             }
         }
