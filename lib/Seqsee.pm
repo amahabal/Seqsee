@@ -26,6 +26,11 @@ sub run{
 {
     my $TimeLastProgressCheckerLaunched = 0;
     sub do_background_activity{
+        
+        if ($Global::Feature{CodeletTree}) {
+            print {$Global::CodeletTreeLogHandle} "Background\n";
+        }
+
         SCoderack->add_codelet( SCodelet->new( "Reader",
                                                50, {}
                                                    ));

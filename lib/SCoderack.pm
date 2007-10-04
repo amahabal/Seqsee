@@ -78,7 +78,7 @@ sub init {
         $| = 1;
         $Global::CodeletTreeLogHandle = $handle;
         #print "Handle: $handle\n";
-        #print {$Global::CodeletTreeLogHandle} "Handle: $handle\n";
+        print {$Global::CodeletTreeLogHandle} "Initial\n";
     }
 
     $UseScheduledThoughtProb    = $OPTIONS_ref->{UseScheduledThoughtProb};
@@ -239,6 +239,10 @@ sub schedule_thought {
     if ( LOGGING_DEBUG() ) {
         $logger->debug( ": scheduled thought: ", $thought->as_text() );
     }
+    if ($Global::Feature{CodeletTree}) {
+        print {$Global::CodeletTreeLogHandle} "\t$thought\n";
+    }
+
 }
 
 # method: expunge_codelet

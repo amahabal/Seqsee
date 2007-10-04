@@ -210,9 +210,6 @@ sub _think_the_current_thought{
         } else {
             confess "Huh? non-thought '$x' returned by get_actions"
                 unless UNIVERSAL::isa($x, "SThought");
-            if ($Global::Feature{CodeletTree}) {
-                print {$Global::CodeletTreeLogHandle} "\t$x\n";
-            }
             push @_thoughts, $x;
         }
     }
