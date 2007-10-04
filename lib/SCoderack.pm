@@ -68,6 +68,18 @@ sub clear {
 sub init {
     my $package     = shift;    # $package
     my $OPTIONS_ref = shift;
+    print "Initializing Coderack...\n";
+
+    if ($Global::Feature{CodeletTree}) {
+        open my $handle, '>', $Global::CodeletTreeLogfile;
+        select($handle);
+        $| = 1;
+        select(*STDOUT);
+        $| = 1;
+        $Global::CodeletTreeLogHandle = $handle;
+        #print "Handle: $handle\n";
+        #print {$Global::CodeletTreeLogHandle} "Handle: $handle\n";
+    }
 
     $UseScheduledThoughtProb    = $OPTIONS_ref->{UseScheduledThoughtProb};
     $ScheduledThoughtVanishProb = $OPTIONS_ref->{ScheduledThoughtVanishProb};
@@ -103,6 +115,9 @@ sub add_codelet {
     }
     $CODELET_COUNT++;
     push( @CODELETS, $codelet );
+    if ($Global::Feature{CodeletTree}) {
+        print {$Global::CodeletTreeLogHandle} "\t$codelet\t$codelet->[0]\n";
+    }
     $URGENCIES_SUM += $codelet->[1];
     if ( $CODELET_COUNT > $MAX_CODELETS ) {
         expunge_codelet();

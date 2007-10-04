@@ -90,9 +90,15 @@ sub Seqsee_Step{
 
     eval {
         if ($runnable->isa("SCodelet")) {
+            if ($Global::Feature{CodeletTree}) {
+                print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
+            }
             $Global::CurrentRunnableString = "SCF::". $runnable->[0];
             $runnable->run();
         } elsif ($runnable->isa("SThought")) {
+            if ($Global::Feature{CodeletTree}) {
+                print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
+            }
             $Global::CurrentRunnableString = ref($runnable);
             ## $runnable
             SStream->add_thought( $runnable );

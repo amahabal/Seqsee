@@ -42,7 +42,9 @@ sub conditionally_run {
     my $id = ident $self;
 
     return unless ( SUtil::toss( $urgency_of{$id} / 100 ) );
-
+    if ($Global::Feature{CodeletTree}) {
+        print {$Global::CodeletTreeLogHandle} "acted $self\n";
+    }
     no strict;
     my $family = $family_of{$id};
     $SCoderack::HistoryOfRunnable{"SCF::$family"}++;

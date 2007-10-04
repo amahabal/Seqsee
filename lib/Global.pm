@@ -32,7 +32,11 @@ our %GroupStrengthByConsistency;    # Strength confered on groups by consistency
 our $AcceptableTrustLevel = 0.5;    # Trust level above which questions can be asked.
                                     # Gets adjusted programatically ..
 
-%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd choosebiased debug LTM);
+our $CodeletTreeLogfile = 'codelet_tree.log';
+our $CodeletTreeLogHandle;
+%PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd choosebiased debug LTM
+                                       CodeletTree
+                                           );
 # Feature description:
 # choosebiased: Choose biased by recency etc.
 # onlyfwd: If set, _describe_position only describes position as going forward.
