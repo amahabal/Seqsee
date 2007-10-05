@@ -150,7 +150,7 @@ INITIAL: {
                 FRINGE 50, $rel;
             }
 
-            for my $category ( @{ $core->get_cats() } ) {
+            for my $category ( @{ $core->get_categories() } ) {
                 next if $category eq $S::RELN_BASED;
                 SLTM::SpikeBy( 5, $category );
                 FRINGE 100, $category;

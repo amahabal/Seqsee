@@ -312,7 +312,7 @@ sub CheckSquintabilityForCategory {
         return $squintability_checker->( $self, $intended_structure_string );
     }
 
-    my $bindings = $self->get_cat_bindings($category)
+    my $bindings = $self->GetBindingForCategory($category)
       or confess
 "CheckSquintabilityForCategory called on object not an instance of the category";
 

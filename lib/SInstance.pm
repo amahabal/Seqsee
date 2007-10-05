@@ -16,16 +16,11 @@ use Smart::Comments;
 use base qw{};
 
 my %cats_of_of : ATTR( :get<cats_hash> );    # Keys categories, values bindings.
-my %non_cats_of_of : ATTR();                 # Non memberships. Keys categories,
-                                             # values $Steps_Finished when decision made.
-my %property_of_of : ATTR();                 # Unused so far.
 
 # Called automatically by new() of derivative classes
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $cats_of_of{$id}     = {};
-    $non_cats_of_of{$id} = {};
-    $property_of_of{$id} = {};
 }
 
 #
@@ -35,7 +30,6 @@ sub BUILD {
 # Adds a category to a given object.
 #
 #    * If the category is already present, it is overwritten.
-#    * If it is present as a non-category, that info is erased.
 #
 #    Parameters:
 #      $self - The object
@@ -51,11 +45,6 @@ sub add_category {
     $cat->isa("SCat::OfObj")    or die "Need SCat";
 
     my $cat_ref     = $cats_of_of{$id};
-    my $non_cat_ref = $non_cats_of_of{$id};
-
-    if ( exists $non_cat_ref->{$cat} ) {
-        delete $non_cat_ref->{$cat};
-    }
 
     $self->AddHistory( "Added category " . $cat->get_name );
 
@@ -63,7 +52,6 @@ sub add_category {
     $S::Str2Cat{$cat} = $cat;
 
     $cat_ref->{$cat} = $bindings;
-
 }
 
 sub remove_category {
@@ -73,7 +61,6 @@ sub remove_category {
     $cat->isa("SCat::OfObj") or die "Need SCat";
 
     my $cat_ref     = $cats_of_of{$id};
-    my $non_cat_ref = $non_cats_of_of{$id};
 
     if ( exists $cat_ref->{$cat} ) {
         $self->AddHistory( "Removed category " . $cat->get_name );
@@ -82,60 +69,6 @@ sub remove_category {
 
     # make string to object mapping
     $S::Str2Cat{$cat} = $cat;
-
-    $non_cat_ref->{$cat} = 1;
-
-}
-
-# sub add_cat {
-#     ( @_ == 3 ) or croak "add cat requires three args";
-#     my ( $self, $cat, $bindings ) = @_;
-#     UNIVERSAL::isa( $cat, "SCat" )
-#         or croak "cat passed to add_cat ain't a cat";
-
-#     foreach ( keys %$bindings ) {
-#         $cat->has_attribute($_) or croak "$cat doesn't have attribute $_";
-#     }
-#     $S::Str2Cat{$cat} = $cat;
-#     $cats_of_of{ ident $self}{$cat} = $bindings;
-#     return $self;
-# }
-
-# method: add_non_category
-# Specifies that this object is not of this category
-#
-#  If it is already a member of that category, nothing happens.
-#
-#    TODO:
-#      * Should remember the time this was set.
-#
-#    Parameters:
-#    $self - object
-#    $cat - the category it does not belong to
-
-sub add_non_category {
-    my ( $self, $cat ) = @_;
-    my $id = ident $self;
-
-    return if exists $cats_of_of{$id}{$cat};
-
-    $non_cats_of_of{$id}{$cat} = 1;    #XXX needs change
-}
-
-# method: add_property
-# adds a property to an object
-#
-#    Parameters:
-#    $self - the object
-#    $property - the property
-#    $value - the value of the property
-
-sub add_property {
-    my ( $self, $property, $value ) = @_;
-    my $id = ident $self;
-
-    $property_of_of{$id}{$property} = $value;
-
 }
 
 # method: get_categories
@@ -170,9 +103,6 @@ sub is_of_category_p {
 
     if ( exists $cats_of_of{$id}{$cat} ) {
         return [ 1, $cats_of_of{$id}{$cat} ];
-    }
-    elsif ( exists $non_cats_of_of{$id}{$cat} ) {
-        return [ 0, $non_cats_of_of{$id}{$cat} ];
     }
     else {
         return [undef];
@@ -223,20 +153,6 @@ sub get_common_categories {
 # subsection: leftover from earlier implementation
 # Will update later
 
-sub get_cat_bindings {
-    my ( $self, $cat ) = @_;
-    return unless exists $cats_of_of{ ident $self}{$cat};
-    return $cats_of_of{ ident $self}{$cat};
-}
-
-sub get_cats {
-    my $self        = shift;
-    my $id          = ident $self;
-    my @cat_strings = keys %{ $cats_of_of{$id} };
-    return [] unless @cat_strings;
-    return [ map { $S::Str2Cat{$_} } @cat_strings ];
-}
-
 sub get_blemish_cats {
     my $self = shift;
     my %ret;
@@ -246,12 +162,6 @@ sub get_blemish_cats {
         }
     }
     return \%ret;
-}
-
-sub instance_of_cat {
-    my ( $self, $cat ) = @_;
-    UNIVERSAL::isa( $cat, "SCat::OfObj" ) or confess "Need SCat";
-    return exists $cats_of_of{ ident $self}{$cat};
 }
 
 sub categories_as_insertlist {
@@ -268,14 +178,6 @@ sub categories_as_insertlist {
             $list->concat( $bindings->as_insertlist($verbosity)->indent(2) );
         }
     }
-
-    $list->append( "Non Categories: ", "heading2", "\n" );
-    while ( my ( $c, $bindings ) = each %{ $non_cats_of_of{$id} } ) {
-        my $cat = $S::Str2Cat{$c};
-        $list->concat( $cat->as_insertlist(0)->indent(1) );
-    }
-
-    # $list->append( "Properties: ", "heading2", "\n  Not currently used\n" );
 
     return $list;
 }
