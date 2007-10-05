@@ -440,12 +440,17 @@ RUN: {
         # or it could be that bs=af, in which case their roles will need to be switched
 
         if ( $af eq $bf or $as eq $bs ) {
+            # If they are in the same direction, they are unrelated.
+            my $da = $a->get_direction();
+            my $db = $b->get_direction();
+            return if(!$da->IsLeftOrRight() or !$db->IsLeftOrRight());
+            return if $da eq $db;
 
             # choose one of these to flip
             # XXX weaker!!
             my $maybe_check_flippability = SChoose->choose( [ $a, $b ] );
-            my $tht = SThought::ShouldIFlip->new( { reln => $maybe_check_flippability } );
-            SErr::NeedMoreData->new( payload => $tht )->throw();
+            my $tht = CODELET 100, ShouldIFlip, { reln => $maybe_check_flippability };
+            return;
         }
 
         if ( $af eq $bs ) {    # need to flip roles!

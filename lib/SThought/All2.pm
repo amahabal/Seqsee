@@ -531,8 +531,8 @@ ACTIONS: {
     }
 }
 
-ThoughtType ShouldIFlip( $reln ! ) does {
-ACTIONS: {
+CodeletFamily ShouldIFlip( $reln ! ) does {
+RUN: {
         return unless $Global::Feature{AllowLeftwardRelations};
 
         #if this is part of a group, the answer is NO, don't flip!
@@ -543,7 +543,7 @@ ACTIONS: {
         else {
 
             #okay, so we *may* switch... lets go ahead for now
-            ACTION 100, flipReln, { reln => $reln };
+            CODELET 100, flipReln, { reln => $reln };
         }
 
     }
