@@ -232,7 +232,7 @@ ACTIONS: {
         $poss_cat = $core->get_underlying_reln()->suggest_cat()
             if $core->get_underlying_reln;
         if ($poss_cat) {
-            my $is_inst = $core->is_of_category_p($poss_cat)->[0];
+            my $is_inst = $core->is_of_category_p($poss_cat);
 
             # main::message("$core is of $poss_cat? '$is_inst'");
             unless ($is_inst) {    #XXX if it already known, skip!
@@ -257,7 +257,7 @@ ACTIONS: {
                         join( "; ", @{ $core->get_underlying_reln()->get_items() } );
                     confess "$_ is not anchored!";
                 }
-                my $is_inst = $_->is_of_category_p($possible_category_for_ends)->[0];
+                my $is_inst = $_->is_of_category_p($possible_category_for_ends);
                 unless ($is_inst) {
                     CODELET 100, CheckIfInstance,
                         {

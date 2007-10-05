@@ -55,11 +55,7 @@ sub BUILD{
 #    It works simply: uses is_of_category_p
 sub is_instance{
     my ( $self, $other ) = @_;
-    my $p = $other->is_of_category_p( $self );
-    if ($p->[0]) {
-        return $p->[1]; # these are the bindings
-    }
-    return;
+    return $other->is_of_category_p( $self );
 }
 
 

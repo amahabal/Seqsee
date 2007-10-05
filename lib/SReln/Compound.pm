@@ -132,13 +132,9 @@ multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     $opts_ref->{second} = $o2;
 
     # Base category
-    my $b1 = $o1->is_of_category_p($cat);
-    return unless $b1->[0];
-    $b1 = $b1->[1];
+    my $b1 = $o1->is_of_category_p($cat) or return;
 
-    my $b2 = $o2->is_of_category_p($cat);
-    return unless $b2->[0];
-    $b2 = $b2->[1];
+    my $b2 = $o2->is_of_category_p($cat) or return;
 
     $opts_ref->{base_category} = $cat;
 

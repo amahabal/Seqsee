@@ -570,19 +570,7 @@ sub describe_as {
     my ( $self, $cat ) = @_;
     my $is_of_cat = $self->is_of_category_p($cat);
 
-    ## describe_as called on: $self->get_structure, $cat->get_name
-    if ( $is_of_cat->[0] ) {
-
-        # okay, already a member
-        return $is_of_cat->[1];
-    }
-
-    if ( defined $is_of_cat->[0] ) {
-
-        # So: was not a member last we saw...
-        #XXX should check using how old that decision was..
-        ## and maybe return undef
-    }
+    return $is_of_cat if $is_of_cat;
 
     my $bindings = $cat->is_instance($self);
     if ($bindings) {
@@ -591,7 +579,6 @@ sub describe_as {
     }
 
     return $bindings;
-
 }
 
 # method: describe_as
@@ -813,9 +800,9 @@ sub GetUnstarred{
 
 sub AnnotateWithMetonym {
     my ( $self, $cat, $name ) = @_;
-    my $is_of_cat_ref = $self->is_of_category_p($cat);
+    my $is_of_cat = $self->is_of_category_p($cat);
 
-    unless ( $is_of_cat_ref->[0] ) {
+    unless ( $is_of_cat ) {
         $self->annotate_with_cat($cat);
     }
 

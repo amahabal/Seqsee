@@ -101,12 +101,8 @@ sub is_of_category_p {
     my ( $self, $cat ) = @_;
     my $id = ident $self;
 
-    if ( exists $cats_of_of{$id}{$cat} ) {
-        return [ 1, $cats_of_of{$id}{$cat} ];
-    }
-    else {
-        return [undef];
-    }
+    return $cats_of_of{$id}{$cat} if exists $cats_of_of{$id}{$cat};
+    return;
 }
 
 # method: GetBindingForCategory
@@ -129,8 +125,7 @@ sub GetBindingForCategory {
 #
 sub is_of_category_ok {
     my ( $self, $cat ) = @_;
-    my $ret_ref = $self->is_of_category_p($cat);
-    Test::More::ok( $ret_ref->[0] );
+    Test::More::ok( $self->is_of_category_p($cat) );
 }
 
 # method: get_common_categories
