@@ -194,7 +194,11 @@ sub get_next_runnable {
     ## get_next_runnable, NOT using scheduled
     # If I reach here, return some codelet
     unless ($CODELET_COUNT) {
-        confess "No scheduled though or any codelets. Don't know what to do";
+        my $new_reader = SCodelet->new('Reader', 100, {});
+        if ($Global::Feature{CodeletTree}) {
+            print {$Global::CodeletTreeLogHandle} "Background\n\t$new_reader\tReader\n";
+        }
+        return $new_reader;
     }
 
     my $idx = _choose_codelet();

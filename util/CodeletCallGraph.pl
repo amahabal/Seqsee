@@ -16,7 +16,7 @@ our %SeenCount;
 
 my $MW = new MainWindow();
 my $text = $MW->Scrolled('Text', -scrollbars => 'se',
-                         -width => 130, -height => 40,
+                         -width => 100, -height => 40,
                              )->pack();
 $text->tagConfigure('was_executed',);
 $text->tagConfigure('wasnt_executed', -overstrike => 1);

@@ -33,7 +33,7 @@ sub run{
 
         SCoderack->add_codelet( SCodelet->new( "Reader",
                                                50, {}
-                                                   ));
+                                                   )) if SUtil::toss(0.3);
 
         my $time_since_last_addn = $Global::Steps_Finished - $Global::TimeOfNewStructure;
         my $time_since_last_checker = $Global::Steps_Finished - $TimeLastProgressCheckerLaunched;

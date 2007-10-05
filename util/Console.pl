@@ -128,6 +128,7 @@ my @button_config = (
          close $MEMORY_HANDLE;
      }
          ],
+    [ShowCodeletGraph => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl')],
 );
 
 INSERT_BUTTONS: {
