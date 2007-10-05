@@ -15,9 +15,11 @@ our %AlreadyPrinted;
 our %SeenCount;
 
 my $MW = new MainWindow();
+$MW->focusmodel('active');
 my $text = $MW->Scrolled('Text', -scrollbars => 'se',
                          -width => 100, -height => 40,
                              )->pack();
+$text->focus();
 $text->tagConfigure('was_executed',);
 $text->tagConfigure('wasnt_executed', -overstrike => 1);
 $text->tagConfigure('Codelet', -background => '#FFAAAA');

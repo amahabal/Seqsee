@@ -116,7 +116,7 @@ sub add_codelet {
     $CODELET_COUNT++;
     push( @CODELETS, $codelet );
     if ($Global::Feature{CodeletTree}) {
-        print {$Global::CodeletTreeLogHandle} "\t$codelet\t$codelet->[0]\n";
+        print {$Global::CodeletTreeLogHandle} "\t$codelet\t$codelet->[0]\t$codelet->[1]\n";
     }
     $URGENCIES_SUM += $codelet->[1];
     if ( $CODELET_COUNT > $MAX_CODELETS ) {

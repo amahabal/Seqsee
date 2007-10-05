@@ -204,7 +204,8 @@ sub _think_the_current_thought{
             # main::message("Action of family ", $x->get_family());
             if ($Global::Feature{CodeletTree}) {
                 my $family = $x->get_family;
-                print {$Global::CodeletTreeLogHandle} "\t$x\t$family\n";
+                my $probability = $x->get_urgency;
+                print {$Global::CodeletTreeLogHandle} "\t$x\t$family\t$probability\n";
             }
             $x->conditionally_run();
         } else {
