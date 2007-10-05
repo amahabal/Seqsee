@@ -25,13 +25,8 @@ ACTIONS: {
     }
 }
 
-ThoughtType AreTheseGroupable( $items !, $reln ! ) does {
-FRINGE: {
-        foreach (@$items) {
-            FRINGE 20, $_;
-        }
-    }
-ACTIONS: {
+CodeletFamily AreTheseGroupable( $items !, $reln ! ) does {
+RUN: {
 
         # Check if these are already grouped...
         # to do that, we need to find the left and right edges
@@ -40,8 +35,8 @@ ACTIONS: {
             push @left_edges,  $_->get_left_edge;
             push @right_edges, $_->get_right_edge;
         }
-        my $left_edge  = min(@left_edges);
-        my $right_edge = max(@right_edges);
+        my $left_edge  = List::Util::min(@left_edges);
+        my $right_edge = List::Util::max(@right_edges);
         my $is_covering
             = scalar( SWorkspace::__GetObjectsWithEndsBeyond( $left_edge, $right_edge ) );
         return if $is_covering;
@@ -68,7 +63,7 @@ ACTIONS: {
             elsif ( UNIVERSAL::isa( $e, 'SErr::ConflictingGroups' ) ) {
                 return;
             }
-            print "HERE IN SThought::AreTheseGroupable, error is $e of type ", ref($e), "\n";
+            print "HERE IN SCF::AreTheseGroupable, error is $e of type ", ref($e), "\n";
             confess $e;
         }
 
@@ -430,14 +425,14 @@ ACTIONS: {
         my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
         if ( $str eq "same" ) {
-            THOUGHT AreTheseGroupable,
+            CODELET 100, AreTheseGroupable,
                 {
                 items => [ $core->get_first(), $core->get_second(), ],
                 reln  => $core,
                 };
         }
         elsif ( not( SWorkspace::__GetObjectsWithEndsBeyond( $core->get_extent() ) ) ) {
-            THOUGHT AreTheseGroupable,
+            CODELET 100, AreTheseGroupable,
                 {
                 items => [ $core->get_first(), $core->get_second(), ],
                 reln  => $core,

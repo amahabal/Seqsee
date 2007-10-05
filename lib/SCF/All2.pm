@@ -272,7 +272,7 @@ FINAL: {
                     return;
                 }
                 else {
-                    THOUGHT AreTheseGroupable,
+                    CODELET 100, AreTheseGroupable,
                         {
                         items => [ $core->get_ends() ],
                         reln  => $core
@@ -460,12 +460,11 @@ RUN: {
         # Must be teh case that as is bf. Now we need to see if they are compatible
         my $compatibility = are_relns_compatible( $a, $b );
         if ($compatibility) {
-            my $tht = SThought::AreTheseGroupable->new(
+            CODELET 100, AreTheseGroupable,
                 {   items => [ $af, $as, $bs ],
                     reln  => $a,
-                }
-            );
-            SErr::NeedMoreData->new( payload => $tht )->throw();
+                };
+            return;
         }
 
     }
