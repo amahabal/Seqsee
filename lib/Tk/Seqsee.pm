@@ -79,7 +79,7 @@ sub DrawAttentionDirectingArrows {
     my $arrow_top = 0.92 * $Height;
     my $arrow_bottom = 0.99 * $Height;
 
-    for (1..9) {
+    for (5) {
         my $x_top = $Width * $_ / 10;
         my $x_bottom = $Width * (0 + $_ / 10 );
         $Canvas->createLine($x_top, $arrow_top, $x_bottom, $arrow_bottom,
@@ -92,15 +92,8 @@ sub DrawAttentionDirectingArrows {
                         -text => 'PLEASE SEE BELOW',
                         -anchor => 'n',
                         Style::Element(),
-                        -fill => '#0000FF',
+                        -fill => '#FF0000',
                             );
-    $Canvas->createText($Width * 0.5, 20,
-                        -text => 'PLEASE SEE BELOW',
-                        -anchor => 'n',
-                        Style::Element(),
-                        -fill => '#0000FF',
-                            );
-
 }
 }
 
