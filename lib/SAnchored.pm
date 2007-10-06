@@ -86,7 +86,7 @@ sub create{
 
     SErr::HolesHere->throw('Holes here') if SWorkspace->are_there_holes_here(@items);
     # I assume @items are live.
-    my $direction = SWorkspace::FindDirectionOfObjectSet(@items);
+    my $direction = SWorkspace::__FindObjectSetDirection(@items);
     return unless $direction->IsLeftOrRight();
 
     my $object = $package->new(

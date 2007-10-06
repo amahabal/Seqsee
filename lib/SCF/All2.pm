@@ -364,9 +364,9 @@ INITIAL: {
     }
 RUN: {
         return if ( $a->overlaps($b) );
-
+        return unless SWorkspace::__CheckLiveness($a, $b);
         unless ( $Global::Feature{AllowLeftwardRelations} ) {
-            ( $a, $b ) = SWorkspace::SortLeftToRight( $a, $b );
+            ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
         }
 
         my $reln;
