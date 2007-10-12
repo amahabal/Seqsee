@@ -1,77 +1,14 @@
 CodeletFamily Reader() does {
 RUN: {
-        if ( SUtil::toss(0.05) ) {
-            ReadSamenessAroundReadHead();
+        if ( SUtil::toss(0.1) ) {
+            SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
             return;
         }
-        my $object;
-        if ( SUtil::toss(0.5) ) {
-            $object = SWorkspace->read_object();
-        }
-        else {
-            $object = SWorkspace->read_relation();
+        my $object = SUtil::toss(0.5) ? SWorkspace->read_object() : SWorkspace->read_relation();
+        return unless $object;
 
-            # $logger->info("* Read Relation \n");
-        }
-        if ($object) {
-
-            # main::message("read an SAnchored!") if (ref $object) eq "SAnchored";
-            my $strength = $object->get_strength();
-
-            # $logger->info("\tstrength: $strength\n");
-            SThought->create($object)->schedule();
-        }
-
-    }
-
-FINAL: {
-
-        sub ReadSamenessAroundReadHead {
-            my $readheadpos = $SWorkspace::ReadHead;
-            my $magnitude   = ( SWorkspace::GetElements() )[$readheadpos]->get_mag();
-            my ( $left_margin_of_sameness_gp, $right_margin_of_sameness_gp )
-                = ( $readheadpos, $readheadpos );
-            while ( $left_margin_of_sameness_gp > 0 ) {
-                if ( ( SWorkspace::GetElements() )[ $left_margin_of_sameness_gp - 1 ]->get_mag()
-                    == $magnitude )
-                {
-                    $left_margin_of_sameness_gp--;
-                }
-                else {
-                    last;
-                }
-            }
-            while ( $right_margin_of_sameness_gp <= $SWorkspace::ElementCount - 2 ) {
-                if ( ( SWorkspace::GetElements() )[ $right_margin_of_sameness_gp + 1 ]->get_mag()
-                    == $magnitude )
-                {
-                    $right_margin_of_sameness_gp++;
-                }
-                else {
-                    last;
-                }
-            }
-            my $span = $right_margin_of_sameness_gp - $left_margin_of_sameness_gp + 1;
-            return if $span < 2;
-            my $is_covering = scalar(
-                SWorkspace::__GetObjectsWithEndsBeyond(
-                    $left_margin_of_sameness_gp, $right_margin_of_sameness_gp
-                )
-            );
-            return if $is_covering;
-            my @items = ( SWorkspace::GetElements() )
-                [ $left_margin_of_sameness_gp .. $right_margin_of_sameness_gp ];
-            for (@items) {
-                return if $_->get_metonym_activeness();
-            }
-
-            my $new_group = SAnchored->create(@items);
-            eval { SWorkspace->add_group($new_group) };
-            if ( my $e = $EVAL_ERROR ) {
-                return if UNIVERSAL::isa( $e, 'SErr::ConflictingGroups' );
-                confess $e;
-            }
-        }
+        my $strength = $object->get_strength();
+        SThought->create($object)->schedule() if SUtil::toss($strength / 100);
     }
 }
 

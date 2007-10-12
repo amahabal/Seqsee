@@ -636,6 +636,53 @@ sub __GetPositionInDirectionAtDistance {
     }    
 }
 
+sub __GetSamenessAround {
+    my ( $pos ) = @_;
+    my $magnitude = $ElementMagnitudes[$pos];
+    my ($left_margin, $right_margin) = ($pos, $pos);
+    while ($left_margin > 0) {
+        last unless $ElementMagnitudes[$left_margin - 1] == $magnitude;
+        $left_margin--;
+    }
+    while ($right_margin < $ElementCount - 1) {
+        last unless $ElementMagnitudes[$right_margin + 1] == $magnitude;
+        $right_margin++;
+    }
+    return ($left_margin, $right_margin);
+}
+
+sub __CreateSamenessGroupAround {
+    my ( $pos ) = @_;
+    my ($left_margin, $right_margin) = __GetSamenessAround($pos);
+    my $span = $right_margin - $left_margin + 1;
+    return if $span < 2;
+
+    my @covering = __GetObjectsWithEndsBeyond($left_margin, $right_margin);
+    return if (@covering and SUtil::toss(0.5));
+
+    my @items = @Elements[$left_margin..$right_margin];
+    for (@items) {
+        return if $_->get_metonym_activeness();
+    }
+
+    my $new_group = SAnchored->create(@items);
+    return __AddGroup($new_group);
+}
+
+sub __AddGroup {
+    my ( $gp ) = @_;
+    my $conflicts = __FindGroupsConflictingWith($gp);
+    if ($conflicts) {
+        $conflicts->Resolve( { FailIfExact => 1 } ) or return;
+    }
+
+    # $groups{$gp} = $gp;
+    $Global::TimeOfNewStructure = $Global::Steps_Finished;
+    __DoGroupAddBookkeeping($gp);
+    return 1;
+    
+}
+
 
 #=============================================
 #=============================================
