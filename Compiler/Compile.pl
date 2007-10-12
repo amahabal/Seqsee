@@ -15,10 +15,10 @@ use Compiler::Filters::TryCatch;
 
 my @FILTERS;
 push @FILTERS, Compiler::Filters::Formula::GetFilter();
+push @FILTERS, Compiler::Filters::TryCatch::GetFilter();
 push @FILTERS, Compiler::Filters::CodeletFamily::GetFilter();
 push @FILTERS, Compiler::Filters::ThoughtType::GetFilter();
 push @FILTERS, Compiler::Filters::Style::GetFilter();
-push @FILTERS, Compiler::Filters::TryCatch::GetFilter();
 
 
 sub CompileAllFiles {

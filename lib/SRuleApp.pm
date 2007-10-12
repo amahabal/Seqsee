@@ -103,7 +103,9 @@ sub ExtendInDirection {
       apply_reln( $relation, $object_at_end->GetEffectiveObject() );
     ## next_object: $next_object, $next_object->get_structure_string()
 
-    my $is_this_what_is_present = eval {
+    my $is_this_what_is_present;
+    TRY {
+        $is_this_what_is_present = 
         SWorkspace->check_at_location(
             {
                 start     => $next_pos,
@@ -111,17 +113,16 @@ sub ExtendInDirection {
                 what      => $next_object
             }
         );
-    };
-    if ( my $e = $EVAL_ERROR ) {
-        die $e unless UNIVERSAL::isa( $e, 'SErr::AskUser' );
-
-        my $trust_level = ($self->get_span() / $SWorkspace::ElementCount) * 0.5;
-        ### span: $self->get_span()
-        ### count: $SWorkspace::ElementCount
-        ### trust: $trust_level
-        # log(scalar(@{$self->get_items})) / log(3);
-        if ( $e->WorthAsking($trust_level) ) {
-            $is_this_what_is_present = $e->Ask('(while extending rule)');
+    } CATCH {
+        ElementsBeyondKnownSought: {
+            my $trust_level = ($self->get_span() / $SWorkspace::ElementCount) * 0.5;
+            ### span: $self->get_span()
+            ### count: $SWorkspace::ElementCount
+            ### trust: $trust_level
+            # log(scalar(@{$self->get_items})) / log(3);
+            if ( SUtil::toss($trust_level) ) { # kludge
+                $is_this_what_is_present = $err->Ask('(while extending rule) ');
+            }
         }
     }
     ## is_this_what_is_present: $is_this_what_is_present

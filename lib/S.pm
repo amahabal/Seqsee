@@ -13,6 +13,7 @@ use SLog;
 use SInsertList;
 
 use SErr;
+use UserInteraction;
 use SChoose;
 use SBindings;
 use SInstance;

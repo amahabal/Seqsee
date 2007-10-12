@@ -360,10 +360,7 @@ sub __CheckMagnitudesRightwards {
         if ( $next_position_to_check >= $ElementCount ) {
 
             # throw!
-            SErr::AskUser->throw(
-                already_matched => \@already_validated,
-                next_elements   => \@expected_magnitudes,
-            );
+            SErr::ElementsBeyondKnownSought->throw(next_elements => \@expected_magnitudes);
         }
         elsif ( $ElementMagnitudes[$next_position_to_check] == $next_magnitude_expected ) {
             $next_position_to_check++;
@@ -967,14 +964,7 @@ sub CheckElementsRightwardFromLocation {
         if ( $current_pos >= $ElementCount ) {
 
             # already out of range!
-            my $err = SErr::AskUser->new(
-                already_matched => [@already_validated],
-                next_elements   => [@flattened],
-                object          => $object_being_looked_for,
-                from_position   => $position_it_is_being_looked_from,
-                direction       => $direction_to_look_in
-            );
-            $err->throw();
+            SErr::ElementsBeyondKnownSought->throw(next_elements => [@flattened]);
         }
         else {
             ## expecting: $flattened[0]
@@ -1098,22 +1088,17 @@ sub GetSomethingLike {
         }
     }
 
-    my $is_object_literally_present = eval {
-        SWorkspace->check_at_location(
+    my $is_object_literally_present;
+
+    TRY {
+        $is_object_literally_present = SWorkspace->check_at_location(
             { direction => $direction, start => $start_pos, what => $object } );
-    };
-
-    if ( my $e = $EVAL_ERROR ) {
-        if ( UNIVERSAL::isa( $e, 'SErr::AskUser' ) ) {
-
-            # XXX(Board-it-up): [2006/12/18]
+    } CATCH {
+        ElementsBeyondKnownSought: {
             $trust_level *= 0.02;    # had multiplied by 50 for toss...
-            if ( $e->WorthAsking($trust_level) ) {
-                $e->Ask("<trust: $trust_level> $reason");
+            if ( SUtil::toss($trust_level) ) { # Kludge.
+                $err->Ask("$reason. ", '');
             }
-        }
-        else {
-            die $e;
         }
     }
 

@@ -196,40 +196,22 @@ FINAL: {
             return unless @$what_next;    # Zero elements, hopeless!
                                           # Check that this is what is present...
             my $is_this_what_is_present;
-            eval {
-                # main::message("Will check at location: $next_pos, ". join(", ", @$what_next), 1);
+            TRY {
                 $is_this_what_is_present = SWorkspace->check_at_location(
                     {   start     => $next_pos,
                         direction => $direction,
                         what      => $what_next,
                     }
                 );
-                # main::message("is_this_what_is_present is $is_this_what_is_present", 1);
-            };
-
-            if ($EVAL_ERROR) {
-                my $err = $EVAL_ERROR;
-
-                # main::message("Good! Error caught");
-                if ( UNIVERSAL::isa( $err, "SErr::AskUser" ) ) {
-                    my $already_matched = $err->already_matched();
-                    my $ask_if_what     = $err->next_elements();
-
-                    # return unless worth_asking( $already_matched, $ask_if_what, $core_span );
-
-                    CODELET 100, WorthAskingForExtendingReln, {
-                        core            => $core,
-                        direction       => $direction,
-                        already_matched => $already_matched,
-                        ask_if_what     => $ask_if_what,
-                        err             => $err,               # so that we can call $err->Ask()
-                    };
-                    return;
-                }
-                else {
-                    $err->rethrow;
+            } CATCH {
+                ElementsBeyondKnownSought: {
+                      if (SUtil::toss($core->get_strength())) {
+                          $err->Ask('Extending relation. ') or return;
+                          $is_this_what_is_present = 1;
+                      }
                 }
             }
+
             if ($is_this_what_is_present) {
 
                 #main::message("And that was what was present", 1);
@@ -767,7 +749,7 @@ RUN: {
         }
 
         # So worth asking?
-        $err->Ask('extending relation') or return;
+        $err->Ask('Extending relation. ') or return;
         CODELET 100, AttemptExtensionOfRelation,
             {
             core      => $core,

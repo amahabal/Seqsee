@@ -29,7 +29,7 @@ sub GenerateCatchBlock {
         if ($name eq 'DEFAULT') {
             $ret .= qq{ $code; last CATCH_BLOCK; };
         } else {
-            $ret .= qq{if (isa(\$err, 'SErr::$name')) { $code; last CATCH_BLOCK; }};
+            $ret .= qq{if (UNIVERSAL::isa(\$err, 'SErr::$name')) { $code; last CATCH_BLOCK; }};
         }
     }
     $ret .= qq{die \$err};

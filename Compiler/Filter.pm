@@ -42,8 +42,8 @@ NamedBlocksArr: NamedBlock(s) {
     $return = $item[1]
 }
 
-NamedBlock: Identifier ':' CodeBlock {
-    $return = [ $item{Identifier}, $item{CodeBlock} ]
+NamedBlock: FullIdentifier ':' CodeBlock {
+    $return = [ $item{FullIdentifier}, $item{CodeBlock} ]
 }
 
 
