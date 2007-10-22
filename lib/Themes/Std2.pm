@@ -16,7 +16,7 @@ use Carp;
 STYLE Element( $hilit ! ) is {
 font: {
         $hilit
-            ? '-adobe-helvetica-bold-r-normal--24-140-100-100-p-105-iso8859-4'
+            ? '-adobe-helvetica-bold-r-normal--28-140-100-100-p-105-iso8859-4'
             : '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4';
     }
 anchor: {'center'}

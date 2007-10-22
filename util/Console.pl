@@ -20,34 +20,9 @@ $SB->addLabel(-textvariable => \$StatusMsg);
 my $button_frame = $MW->Frame()->pack(-side => 'bottom');
 my $buttons_per_row = 3;
 
+CreateSeqseeLaunchingFrame();
+
 my @input_requiring_commands_config = (
-    ["Seqsee", #command name
-     [ # inputs
-         ["Sequence", #input name
-          #"1 1 1 2 3 1 2 2 2 3 4 1 2 3 3 3 4 5", # default
-          "1 7 2 8 3 9",
-              ],
-         ["View", 2],
-         ["Feature1",
-          "-f debug",
-              ],
-         ["Feature2",
-          "",
-              ],
-         ["Feature3",
-          "",
-              ],
-             ],
-     [ # Command constructor
-         'CreateRunPerlScriptCommand',
-         qw{Seqsee.pl},
-         qq{--view="\$View"},
-         qq{"\$Feature1"},
-         qq{"\$Feature2"},
-         qq{"\$Feature3"},
-         qq{--seq="\$Sequence"}, 
-             ],
-         ],
     [ "RunMultipleTimes",
       [
           [ "Terms",
@@ -167,4 +142,57 @@ sub CreateRunSystemCommand {
 sub CreateRunPerlScriptCommand {
     my ( @args ) = @_;
     return CreateRunSystemCommand('c:\Perl\bin\perl', @args);
+}
+
+sub CreateSeqseeLaunchingFrame {
+    my $frame = $MW->LabFrame(-label => 'Run Seqsee',
+                              -labelside => 'acrosstop'
+                                  )->pack(-side => 'top');
+    my $Sequence;
+    {
+        my $subframe = $frame->Frame()->pack(-side => 'top');
+        $subframe->Label(-text => "Sequence: ")->pack(-side=> 'left');
+        $subframe->Entry(-textvariable => \$Sequence)->pack(-side=>'left');
+    }
+    my $View;
+    {   # Should be a pulldown!
+        my $subframe = $frame->Frame()->pack(-side => 'top');
+        $subframe->Label(-text => "View: ")->pack(-side=> 'left');
+        $subframe->Entry(-textvariable => \$View)->pack(-side=>'left');
+    }
+    use lib 'genlib';
+    use Global;
+    my %PossibleFeatures = %Global::PossibleFeatures;
+    my %FeatureValues = map { $_ => 0 } keys %PossibleFeatures;
+    {
+        my $subframe = $frame->LabFrame(-label => 'Optional Features',
+                                        -labelside => 'acrosstop'
+                                            )->pack(-side=> 'top');
+        my @features = sort keys %FeatureValues;
+        my $space_left_in_current_row=0;
+        my $subsubframe;
+        while (@features) {
+            if (!$space_left_in_current_row) {
+                $subsubframe = $subframe->Frame()->pack(-side=>'top');
+                $space_left_in_current_row = 3;
+            }
+            my $feature = shift(@features);
+            $subsubframe->Checkbutton(-variable => \$FeatureValues{$feature},
+                                      -text => $feature,
+                                          )->pack(-side => 'left');
+        }
+    }
+    $frame->Button(-text => 'RUN SEQSEE',
+                   -command => sub  {
+                       my @features_turned_on = grep { $FeatureValues{$_}} keys %FeatureValues;
+                       my @feature_related_arguments = map { "-f=$_" } @features_turned_on;
+                       my @cmds = ( "Seqsee.pl",
+                                    qq{--seq=$Sequence},
+                                   qq{--view=$View},
+                                   @feature_related_arguments,
+                                       );
+                       my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
+                       $subprocess_cmd->();
+                   }
+                       )->pack(-side=>'top');
 }
