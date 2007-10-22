@@ -8,7 +8,7 @@ RUN: {
         return unless $object;
 
         my $strength = $object->get_strength();
-        SThought->create($object)->schedule() if SUtil::toss($strength / 100);
+        SThought->create($object)->schedule();
     }
 }
 
@@ -62,143 +62,79 @@ INITIAL: {
     }
 RUN: {
         my $direction_of_core = $core->get_direction;
-        return
-            unless $direction_of_core->PotentiallyExtendible();    # i.e., is LEFT or RIGHT
-        my $type = $core->isa('SObject') ? "object" : "reln";
+        return unless $direction_of_core->IsLeftOrRight;
 
-        if ( $type eq "object" ) {
-            confess "The functionality of extending objects now done by AttemptExtensionOfGroup.";
-        }
-
-        ## $direction, $direction_of_core, $type
-
-        my ( $reln, $obj1, $obj2, $next_pos );
+        my ( $relation_to_consider, $obj1, $obj2 );
         if ( $direction eq $direction_of_core ) {
-            ( $reln, $obj1, $obj2 ) = ( $core, $core->get_ends );
+            ( $relation_to_consider, $obj1, $obj2 ) = ( $core, $core->get_ends );
         }
         else {
-            ( $reln, $obj2, $obj1 ) = ( $core->FlippedVersion(), $core->get_ends );
+            ( $relation_to_consider, $obj2, $obj1 ) = ( $core->FlippedVersion(), $core->get_ends );
         }
 
-        if ( SWorkspace->are_there_holes_here( $obj1, $obj2 ) ) {
+        my $distance = SWorkspace::__FindDistance( $obj1, $obj2 );
+        my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
+            {   from_object => $obj2,
+                direction   => $direction,
+                distance    => $distance,
+            }
+        );
+        return unless ( defined($next_pos) and $next_pos <= $SWorkspace::ElementCount );
+        my $what_next;
+        TRY { $what_next = apply_reln( $relation_to_consider, $obj2->GetEffectiveObject() ); }
+        CATCH {
+        DEFAULT: { $err->rethrow(); }
+        };
+        return unless @$what_next;    # 0 elts also not okay
 
-            # main::message("A relation had holes! Launching a AttemptExtensionOfLongRelation");
-            CODELET 100, AttemptExtensionOfLongRelation, {
-                effective_relation     => $reln,        # Already flipped if needed.
-                obj1                   => $obj1,
-                obj2                   => $obj2,
-                direction_to_extend_in => $direction,
-                core                   => $core,        # The real relation we are extending
-
-            };
-            return;
+        my $is_this_what_is_present;
+        TRY {
+            $is_this_what_is_present = SWorkspace->check_at_location(
+                {   start     => $next_pos,
+                    direction => $direction,
+                    what      => $what_next
+                }
+            );
         }
-
-        #main::message("AttemptExtensionOfRelation called (and no holes seen):" .
-        #                  $obj1->as_text(). ', '. $obj2->as_text() . ' ==> '.
-        #                  $core->as_text());
-
-        $next_pos = $obj2->get_next_pos_in_dir($direction);
-        return unless defined($next_pos);
-        my $core_span = $core->get_span;
-        DoTheExtension( $next_pos, $direction, $reln, $obj2, $core );
-    }
-FINAL: {
-
-        sub DoTheExtension {
-            my ($next_pos,     # Position where we expect to find next object.
-                $direction,    # The direction we are extending in.
-                $reln,         # The *effective* relation we are extending. If extending left from a
-                               # rightward reln, this is a flip.
-                $obj2,         # if direction to extend in is the same as direction of core,
-                               # This is $core->second(), else its $core->first()
-                $core,         # The actual relation being extended.
-            ) = @_;
-            my $what_next;
-            my $direction_of_core = $core->get_direction();
-            if ( $next_pos >= $SWorkspace::ElementCount ) {
-                return unless SUtil::toss(0.15);
+        CATCH {
+        ElementsBeyondKnownSought: {
+                return unless EstimateAskability($core);
+                $err->Ask() or return;
+                $is_this_what_is_present = 1;
             }
+        };
+        if ($is_this_what_is_present) {
+            my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
+            return unless $plonk_result->PlonkWasSuccessful();
+            my $wso = $plonk_result->get_resultant_object();
 
-            eval { $what_next = apply_reln( $reln, $obj2->GetEffectiveObject() ) }
-                or return;
-            if ($EVAL_ERROR) {
-                ### eval error in apply reln!
-                ### $reln
-                ### $obj2
-                exit;
+            if ( $core->isa('SReln::Compound') ) {
+                my $type = $core->get_base_category;
+                ## Describe as: $type
+                $wso->describe_as($type) or return;
             }
-
-            # main::message("While extending, what_next is " . $what_next->get_structure_string(), 1);
-            return unless @$what_next;    # Zero elements, hopeless!
-                                          # Check that this is what is present...
-            my $is_this_what_is_present;
-            TRY {
-                $is_this_what_is_present = SWorkspace->check_at_location(
-                    {   start     => $next_pos,
-                        direction => $direction,
-                        what      => $what_next,
-                    }
-                );
-            } CATCH {
-                ElementsBeyondKnownSought: {
-                      if (SUtil::toss($core->get_strength())) {
-                          $err->Ask('Extending relation. ') or return;
-                          $is_this_what_is_present = 1;
-                      }
-                }
+            my $reln_to_add;
+            if ($direction eq $direction_of_core) {
+                $reln_to_add = find_reln( $obj2, $wso);
+            } else {
+                $reln_to_add = find_reln($wso, $obj2);
             }
-
-            if ($is_this_what_is_present) {
-
-                #main::message("And that was what was present", 1);
-                my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
-                return unless $plonk_result->PlonkWasSuccessful();
-                my $wso = $plonk_result->get_resultant_object();
-
-                if ( $reln->isa('SReln::Compound') ) {
-                    my $type = $reln->get_base_category;
-                    ## Describe as: $type
-                    $wso->describe_as($type) or return;
-                }
-
-                ## $wso, $wso->get_structure
-                ## $direction, $direction_of_core
-                ## $obj2->get_structure
-
-                my $reln_to_add;
-                if ( $direction eq $direction_of_core ) {
-                    $reln_to_add = find_reln( $obj2, $wso );
-                }
-                else {
-                    $reln_to_add = find_reln( $wso, $obj2 );
-                }
-
-                if ($reln_to_add) {
-                    $reln_to_add->insert;
-                }
-                else {
-
-                    # ToDo: [2006/09/27] For ad_hoc, the constucted object has type ad_hoc, but it's
-                    # constituents are not correctly typed
-                    #   main::message("No relation found to insert!");
-                }
-            }
-            else {
-
-                # maybe attempt extension
-                if ( SUtil::toss(0.5) ) {
-                    return;
-                }
-                else {
-                    CODELET 100, AreTheseGroupable,
-                        {
+            $reln_to_add->insert() if $reln_to_add;
+        } else {
+            if (SUtil::toss(0.5)) {
+                CODELET 100, AreTheseGroupable,
+                    {
                         items => [ $core->get_ends() ],
                         reln  => $core
-                        };
-                }
+                            };
             }
-
+        }
+    }
+FINAL: {
+        sub EstimateAskability {
+            my ( $core ) = @_;
+            my $type_activation = SLTM::SpikeBy(10, $core->get_type() );
+            return SUtil::toss($type_activation);
         }
 
         sub worth_asking {
@@ -256,10 +192,10 @@ RUN: {
         SCF::AttemptExtensionOfRelation::DoTheExtension( $next_pos, $direction_to_extend_in,
             $effective_relation, $obj2, $core, );
 
-        #main::message("While extending " . $core->as_text() . " with end object ".
-        #                  $obj2->as_text() . ' in direction ' . $direction_to_extend_in->as_text().
-        #                      " the distance was " . $distance->as_text() . ", and next position $next_pos."
-        #                  );
+#main::message("While extending " . $core->as_text() . " with end object ".
+#                  $obj2->as_text() . ' in direction ' . $direction_to_extend_in->as_text().
+#                      " the distance was " . $distance->as_text() . ", and next position $next_pos."
+#                  );
     }
 }
 
@@ -283,7 +219,7 @@ INITIAL: {
     }
 RUN: {
         return if ( $a->overlaps($b) );
-        return unless SWorkspace::__CheckLiveness($a, $b);
+        return unless SWorkspace::__CheckLiveness( $a, $b );
         unless ( $Global::Feature{AllowLeftwardRelations} ) {
             ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
         }
@@ -359,10 +295,11 @@ RUN: {
         # or it could be that bs=af, in which case their roles will need to be switched
 
         if ( $af eq $bf or $as eq $bs ) {
+
             # If they are in the same direction, they are unrelated.
             my $da = $a->get_direction();
             my $db = $b->get_direction();
-            return if(!$da->IsLeftOrRight() or !$db->IsLeftOrRight());
+            return if ( !$da->IsLeftOrRight() or !$db->IsLeftOrRight() );
             return if $da eq $db;
 
             # choose one of these to flip
@@ -380,8 +317,9 @@ RUN: {
         my $compatibility = are_relns_compatible( $a, $b );
         if ($compatibility) {
             CODELET 100, AreTheseGroupable,
-                {   items => [ $af, $as, $bs ],
-                    reln  => $a,
+                {
+                items => [ $af, $as, $bs ],
+                reln  => $a,
                 };
             return;
         }
@@ -667,8 +605,8 @@ RUN: {
             my $preceding_group_fraction  = $largest_preceding_group->get_span() / $element_count;
             my $core_span_ratio           = $core->get_span() / $element_count;
 
-            #main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
-            #      "preceding_group_fraction: $preceding_group_fraction", 1);
+#main::message("Core Span Ratio: $core_span_ratio, matched_elements_fraction: $matched_elements_fraction, ".
+#      "preceding_group_fraction: $preceding_group_fraction", 1);
 
             unless (
                    $core_span_ratio >= 0.5

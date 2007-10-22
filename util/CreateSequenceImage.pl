@@ -4,6 +4,7 @@ use Smart::Comments;
 use Tk;
 use Carp;
 use Sort::Key qw(rikeysort);
+use Tk::JFileDialog;
 
 use constant {
     WIDTH      => 500,
@@ -36,40 +37,66 @@ $MW->bind(
 );
 $MW->focusmodel('active');
 
-my $SequenceString = '{(1 1) 2 3} {1 (2 2) 3}{1 2 (3 3)}{1 ( 2 2 )3}';
+my $SequenceString = '{(1 1) 2 3} {1 (2 2) 3}{1 2 (3 3)}{1 ( 2 2 )3}{(1 1) 2 3}';
 my $SaveFilename;
-my $Entry = $MW->Entry( -width => 100, -textvariable => \$SequenceString )->pack();
+
+my $frame1 = $MW->Frame()->pack();
+my $frame2 = $MW->Frame()->pack();
+my $Entry
+    = $frame1->Entry( -width => 100, -textvariable => \$SequenceString )->pack( -side => 'left' );
+my $FileEntry
+    = $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )->pack( -side => 'left' );
+my $fileDialog = $MW->JFileDialog(
+    -Title => 'Select File To Save Image In',
+    -FPat  => '*.eps',
+    -HistFile => 'graveyard/history',
+    # -HistUsePath => 1,
+    -Path => 'D:/DISSERTATION/Chapters/SequenceEPS',
+);
+$frame2->Button(
+    -text    => '...',
+    -command => sub {
+        $SaveFilename = undef;
+        $SaveFilename = $fileDialog->Show();
+        if ( defined($SaveFilename) ) {
+            $SaveFilename .= '.eps' unless $SaveFilename =~ m#\.eps$#;
+        }
+        else {
+            $SaveFilename = '';
+        }
+    }
+)->pack(-side=>'left');
+$frame2->Button(
+    -text    => 'Save',
+    -command => sub {
+        Save() if $SaveFilename;
+    }
+)->pack(-side=> 'left');
+
 $Entry->focus();
 
 $Entry->bind(
     '<Return>' => sub {
         Show();
-        }
+    }
 );
 $Entry->bind(
     '<KeyPress-,>' => sub {
         $OVAL_MINOR_AXIS_FRACTION--;
         Show();
-        }
+    }
 );
 $Entry->bind(
     '<KeyPress-.>' => sub {
         $OVAL_MINOR_AXIS_FRACTION++;
         Show();
-        }
+    }
 );
 
-$MW->Button(
+$frame1->Button(
     -text    => 'Draw',
     -command => sub {
         Show();
-    }
-)->pack();
-
-$MW->Button(
-    -text    => 'Save',
-    -command => sub {
-        Save();
     }
 )->pack();
 
@@ -81,8 +108,8 @@ $MW->Scale(
     -tickinterval => 1,
     -variable     => \$OVAL_MINOR_AXIS_FRACTION,
 )->pack();
-my $Canvas
-    = $MW->Canvas( -height => HEIGHT()-3, -width => WIDTH(), -background => BACKGROUND() )->pack();
+my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -background => BACKGROUND() )
+    ->pack();
 MainLoop();
 
 sub Show {
@@ -130,7 +157,7 @@ sub DrawElements {
 sub DrawGroup {
     my ( $start, $end, $options_ref ) = @_;
     my $span = $end - $start;
-    my ( $x1, $x2 ) = ( $WIDTH_PER_TERM * ($start + 0.1), $WIDTH_PER_TERM * ($end - 0.1));
+    my ( $x1, $x2 ) = ( $WIDTH_PER_TERM * ( $start + 0.1 ), $WIDTH_PER_TERM * ( $end - 0.1 ) );
     my $y_delta = $span * $Y_DELTA_PER_UNIT_SPAN;
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
     $Canvas->createOval( $x1, $y1, $x2, $y2, @$options_ref );
@@ -201,5 +228,6 @@ sub DrawGroup {
 
 sub Save {
     my $filename = $SaveFilename;
-    $Canvas->postscript( -file => 'foo.eps', -pageheight => PAGEHEIGHT, -height => HEIGHT );
+    die "File exists. Fix this bug first." if -e $filename;
+    $Canvas->postscript( -file => $filename, -pageheight => PAGEHEIGHT, -height => HEIGHT );
 }
