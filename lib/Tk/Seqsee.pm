@@ -91,7 +91,7 @@ sub DrawAttentionDirectingArrows {
     $Canvas->createText($Width * 0.5, $Height * 0.88,
                         -text => 'PLEASE SEE BELOW',
                         -anchor => 'n',
-                        Style::Element(),
+                        Style::Element(0),
                         -fill => '#FF0000',
                             );
 }

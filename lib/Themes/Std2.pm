@@ -13,10 +13,24 @@ use Carp;
 
 *HSV = \&SColor::HSV2Color;
 
-STYLE Element() is {
-font: {'-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4'}
+STYLE Element( $hilit ! ) is {
+font: {
+        $hilit
+            ? '-adobe-helvetica-bold-r-normal--24-140-100-100-p-105-iso8859-4'
+            : '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4';
+    }
 anchor: {'center'}
-fill: { HSV( 160, 20, 20 ) }
+fill: {
+        if ( $hilit == 1 ) {
+            '#00FF00';
+        }
+        elsif ( $hilit == 2 ) {
+            '#0000FF';
+        }
+        else {
+            HSV( 160, 20, 20 );
+        }
+    }
 }
 
 STYLE Starred() is {
@@ -43,9 +57,10 @@ width: {0}
 STYLE GroupBorder( $meto !, $hilit !, $strength ! ) is {
 outline: {
         my ( $s, $v ) = ( 50, 70 - 0.5 * $strength );
-        if ($hilit == 1) {
+        if ( $hilit == 1 ) {
             '#00FF00';
-        } elsif ($hilit == 2) {
+        }
+        elsif ( $hilit == 2 ) {
             '#0000FF';
         }
         else { $meto ? HSV( 240, $s, $v ) : HSV( 160, $s, $v ); }
@@ -53,7 +68,7 @@ outline: {
 width: { 2 + 2 * $hilit }
 }
 
-STYLE NetActivation($raw_significance!) is {
+STYLE NetActivation( $raw_significance ! ) is {
 fill: { HSV( 240, 30, 90 - 0.88 * $raw_significance ) }
 }
 
@@ -70,11 +85,12 @@ width: {
     }
 }
 
-STYLE ThoughtComponent($presence_level!, $component_importance!) is {
-  fill: {    my ($s, $v) = (70, 80 - 0.5 * $component_importance);
-    print "$component_importance => $v\n";
-    HSV(30, $s, $v)
-}
+STYLE ThoughtComponent( $presence_level !, $component_importance ! ) is {
+fill: {
+        my ( $s, $v ) = ( 70, 80 - 0.5 * $component_importance );
+        print "$component_importance => $v\n";
+        HSV( 30, $s, $v );
+    }
 }
 
 STYLE ThoughtHead() is {

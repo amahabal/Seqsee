@@ -78,11 +78,12 @@ sub SElement::draw_ws3 {
     my $self = shift;
     my $idx  = shift;
     ## drawing element: $self
+    my $is_hilit = $Global::Hilit{$self} || 0;
     my $id = $Canvas->createText(
         @_,
         -text => $self->get_mag(),
         -tags => [ $self, 'element', $idx ],
-        Style::Element(),
+        Style::Element($is_hilit),
     );
     $Canvas->createText($_[0]+5, $_[1]+10, -text => $idx);
     $AnchorsForRelations{$self} ||= [ $_[0], $_[1] - 10 ];
@@ -192,7 +193,7 @@ sub DrawMetonym {
     my $id = $Canvas->createText(
         ( $opts_ref->{x1} + $opts_ref->{x2} ) / 2,
         $MetoY + 20,
-        Style::Element(), -text => $opts_ref->{actual_string},
+        Style::Element(0), -text => $opts_ref->{actual_string},
     );
     my @bbox = $Canvas->bbox($id);
     $Canvas->createLine( @bbox, );
