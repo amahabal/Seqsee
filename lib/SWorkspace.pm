@@ -1113,6 +1113,7 @@ sub GetSomethingLike {
     my $direction   = $opts_ref->{direction} or confess;
     my $reason      = $opts_ref->{reason} || '';              # used for message for ask_user
     my $trust_level = $opts_ref->{trust_level} or confess;    # used if ask_user
+    my $hilit_set = $opts_ref->{hilit_set};
     defined($start_pos) or confess;
 
     my @objects_at_that_location;
@@ -1144,7 +1145,7 @@ sub GetSomethingLike {
         ElementsBeyondKnownSought: {
             $trust_level *= 0.02;    # had multiplied by 50 for toss...
             if ( SUtil::toss($trust_level) ) { # Kludge.
-                Global::Hilit(1, @$object);
+                Global::Hilit(1, @$hilit_set);
                 $err->Ask("$reason. ", '');
                 Global::ClearHilit();
             }

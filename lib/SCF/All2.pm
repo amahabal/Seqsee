@@ -99,7 +99,7 @@ RUN: {
         CATCH {
         ElementsBeyondKnownSought: {
                 return unless EstimateAskability($core);
-                Global::Hilit(1, $obj1, $obj2);
+                Global::Hilit(1, $obj1, $obj2, $core);
                 my $reply =  $err->Ask();
                 Global::ClearHilit();
                 $reply  or return;

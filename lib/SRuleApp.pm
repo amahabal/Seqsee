@@ -233,7 +233,7 @@ sub FindExtension {
         return;
     }
 
-    return SWorkspace->GetSomethingLike(
+    return SWorkspace->GetSomethingLike( # This is crazy! Fix workflow.
         {
             object      => $expected_next_object,
             start       => $next_pos,
@@ -242,6 +242,7 @@ sub FindExtension {
               $self->get_span() /
               ( $SWorkspace::ElementCount + 1 ),    # !!
             reason => 'Extension attempted for: ' . $rule->as_text(),
+            hilit_set => [@$items_ref],
         }
     );
 }

@@ -138,6 +138,7 @@ sub SReln::draw_ws3 {
     my ($self) = @_;
     my @ends = $self->get_ends();
     return if $RelationsToHide{ join( '', @ends ) };
+    my $is_hilit = $Global::Hilit{$self} || 0;
     my ( $x1, $y1 ) = @{ $AnchorsForRelations{ $ends[0] } || [] };
     my ( $x2, $y2 ) = @{ $AnchorsForRelations{ $ends[1] } || [] };
     my $strength = $self->get_strength();
@@ -148,7 +149,7 @@ sub SReln::draw_ws3 {
         $x1, $y1,
         ( $x1 + $x2 ) / 2,
         $YOffset +$Margin + $RelnZenithFraction * $EffectiveHeight,
-        $x2, $y2, Style::Relation($strength),
+        $x2, $y2, Style::Relation($strength, $is_hilit),
     );
 }
 
@@ -212,7 +213,7 @@ sub DrawMetonym {
     my @star_str =
       map { my %f = Style::Group( 1, 0, $_ * 10,0 ); $f{-fill} } 0 .. 10;
     my @reln_str =
-      map { my %f = Style::Relation( $_ * 10 ); $f{-fill} } 0 .. 10;
+      map { my %f = Style::Relation( $_ * 10, 0 ); $f{-fill} } 0 .. 10;
 
     sub DrawLegend {
         my ( $x, $y ) = @_;
