@@ -137,7 +137,7 @@ sub SAnchored::draw_ws3 {
 sub SReln::draw_ws3 {
     my ($self) = @_;
     my @ends = $self->get_ends();
-    return if $RelationsToHide{ join( '', @ends ) };
+    return if ($RelationsToHide{ join( '', @ends ) } and not($Global::Hilit{$self}));
     my $is_hilit = $Global::Hilit{$self} || 0;
     my ( $x1, $y1 ) = @{ $AnchorsForRelations{ $ends[0] } || [] };
     my ( $x2, $y2 ) = @{ $AnchorsForRelations{ $ends[1] } || [] };
