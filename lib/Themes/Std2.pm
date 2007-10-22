@@ -43,12 +43,14 @@ width: {0}
 STYLE GroupBorder( $meto !, $hilit !, $strength ! ) is {
 outline: {
         my ( $s, $v ) = ( 50, 70 - 0.5 * $strength );
-        if ($hilit) {
-            '#FF0000';
+        if ($hilit == 1) {
+            '#00FF00';
+        } elsif ($hilit == 2) {
+            '#0000FF';
         }
         else { $meto ? HSV( 240, $s, $v ) : HSV( 160, $s, $v ); }
     }
-width: { 1 + 1 * $hilit }
+width: { 2 + 2 * $hilit }
 }
 
 STYLE NetActivation($raw_significance!) is {

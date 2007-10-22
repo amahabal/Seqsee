@@ -121,7 +121,9 @@ sub ExtendInDirection {
             ### trust: $trust_level
             # log(scalar(@{$self->get_items})) / log(3);
             if ( SUtil::toss($trust_level) ) { # kludge
+                Global::Hilit(1, @{$self->get_items});
                 $is_this_what_is_present = $err->Ask('(while extending rule) ');
+                Global::ClearHilit();
             }
         }
     }

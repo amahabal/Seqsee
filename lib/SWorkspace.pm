@@ -1144,7 +1144,9 @@ sub GetSomethingLike {
         ElementsBeyondKnownSought: {
             $trust_level *= 0.02;    # had multiplied by 50 for toss...
             if ( SUtil::toss($trust_level) ) { # Kludge.
+                Global::Hilit(1, @$object);
                 $err->Ask("$reason. ", '');
+                Global::ClearHilit();
             }
         }
     }

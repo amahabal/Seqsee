@@ -99,7 +99,10 @@ RUN: {
         CATCH {
         ElementsBeyondKnownSought: {
                 return unless EstimateAskability($core);
-                $err->Ask() or return;
+                Global::Hilit(1, $obj1, $obj2);
+                my $reply =  $err->Ask();
+                Global::ClearHilit();
+                $reply  or return;
                 $is_this_what_is_present = 1;
             }
         };
@@ -585,7 +588,7 @@ FINAL: {
 CodeletFamily WorthAskingForExtendingReln( $core !, $direction !, $already_matched !,
     $ask_if_what !, $err ! ) does {
 RUN: {
-
+            confess "AM I STILL USING WorthAskingForExtendingReln?";
         #main::message("WorthAskingForExtendingReln called with " . join(', ', @$ask_if_what), 1);
         my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
         if ( $type_activation < 0.3 or SUtil::toss( 1 - $type_activation ) ) {
