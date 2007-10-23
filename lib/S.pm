@@ -27,19 +27,7 @@ use SCoderack;
 use SMetonym;
 use SMetonymType;
 
-use SCat;
-use SCat::OfObj;
-use SCat::OfCat;
-use SCat::ascending;
-use SCat::descending;
-use SCat::mountain;
-use SCat::sameness;
-use SCat::Number;
-
-#use SCat::number;
-use SCat::literal;
-use SCat::reln_based;
-use SCat::ad_hoc;
+use SCat::Load;
 
 use SObject;
 use SAnchored;
@@ -66,10 +54,9 @@ use SThought;
 use SStream;
 use SWorkspace;
 
-use SCF::All2;
-use SThought::All2;
-use SThought::LargeGp2;
-use Scripts::DescribeSolution2;
+use SCF::Load;
+use SThought::Load;
+use Scripts::Load;
 
 use SActivation;
 use SLTM;
@@ -267,7 +254,7 @@ sub ELEMENT {$ELEMENT}
 
 # Can/should be influenced by activations.
 sub PickOne {
-    if (SUtil::toss(0.8)) {
+    if (SUtil::toss(0.25)) {
         return $GROUP;
     } else {
         return $ELEMENT;

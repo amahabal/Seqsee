@@ -95,7 +95,9 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
 my @button_config = (
     [Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl')],
     [DeleteGenlib => sub  {
-         unlink('genlib');
+         unlink(<genlib/*.pm>);
+         unlink(<genlib/*/*.pm>);
+         unlink(<genlib/*/*.pm>);
      }
          ],
     [CPAN => CreateRunPerlScriptCommand(qw{-MCPAN -e shell})],
