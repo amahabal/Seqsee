@@ -152,6 +152,18 @@ sub __GetExactObjectIfPresent {
     return $matching[0];    # There can be only one.
 }
 
+sub __GetGroupsThatPartiallyOverlap { # i.e., the set difference is non empty both ways
+    my ( $object ) = @_;
+    my ( $left, $right ) = $object->get_edges();
+    # main::message("__GetGroupsThatOverlap called!");
+    return grep {
+        my $obj_left = $LeftEdge_of{$_};
+        my $obj_right = $RightEdge_of{$_};
+        ($obj_left < $left and $left <= $obj_right and $obj_right < $right) or
+            ($left < $obj_left and $obj_left <= $right and $right < $obj_right)
+    } values %NonEltObjects;
+}
+
 sub __SortLtoRByLeftEdge {
     ### require: __CheckLivenessAndDiagnose(@_)
     return ikeysort { $LeftEdge_of{$_} } @_;
@@ -387,7 +399,12 @@ sub __FindGroupsConflictingWith {
     my @conflicting =
         grep { $_ ne $exact_conflict }
         grep { __CheckTwoGroupsForConflict( $object, $_ ) }
-        ( __GetObjectsWithEndsBeyond( $l, $r ), __GetObjectsWithEndsNotBeyond( $l, $r ) );
+            ( __GetObjectsWithEndsBeyond( $l, $r ),
+              __GetObjectsWithEndsNotBeyond( $l, $r ) );
+    if ($Global::Feature{NoGpOverlap}) {
+        push @conflicting, __GetGroupsThatPartiallyOverlap($object);
+    }
+
     ## @conflicting: @conflicting
     return ResultOfGetConflicts->new(
         {   original => $object,
