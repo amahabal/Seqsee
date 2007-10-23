@@ -16,9 +16,9 @@ STEP: {
         SCRIPT DescribeRule, { rule => $rule, ruleapp => $ruleapp };
     }
 
-  STEP: {
+STEP: {
         SLTM->Dump('memory_dump.dat') if $Global::Feature{LTM};
-}
+    }
 STEP: {
         main::message("That finishes the description!");
     }

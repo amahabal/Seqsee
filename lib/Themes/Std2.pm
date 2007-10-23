@@ -41,8 +41,8 @@ fill: { HSV( 240, 50, 50 ) }
 
 STYLE Relation( $strength !, $hilit ! ) is {
 arrow: {'last'}
-width: {$hilit ? 5 : 3}
-fill: { $hilit ? "#00FF00" :HSV( 60, 40, 80 - 0.5 * $strength ) }
+width: { $hilit ? 5 : 3 }
+fill: { $hilit ? "#00FF00" : HSV( 60, 40, 80 - 0.5 * $strength ) }
 smooth: {1}
 }
 

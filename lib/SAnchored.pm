@@ -19,8 +19,7 @@ use List::Util qw(min max sum);
 use Class::Multimethods;
 multimethod 'apply_reln';
 
-my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>)
-  ;    # Left edge. 0 is leftmost.
+my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);       # Left edge. 0 is leftmost.
 my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
 
 use overload fallback => 1;
@@ -37,16 +36,16 @@ sub recalculate_edges {
     my %slots_taken;
     for my $item ( @{ $self->get_parts_ref } ) {
         confess "SAnchored->create called with a non anchored object"
-          unless UNIVERSAL::isa( $item, "SAnchored" );
+            unless UNIVERSAL::isa( $item, "SAnchored" );
         my ( $left, $right ) = $item->get_edges();
         @slots_taken{ $left .. $right } = ( $left .. $right );
     }
 
     my @keys = values %slots_taken;
     ## @keys
-    my ( $left, $right ) =
-      List::MoreUtils::minmax( $keys[0], @keys )
-      ; #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+    my ( $left, $right )
+        = List::MoreUtils::minmax( $keys[0], @keys )
+        ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
     $left_edge_of{$id}  = $left;
     $right_edge_of{$id} = $right;
     ### insist: scalar(@keys) == $right - $left + 1
@@ -76,25 +75,25 @@ sub get_edges {
     return ( $left_edge_of{$id}, $right_edge_of{$id} );
 }
 
-sub create{
+sub create {
     my ( $package, @items ) = @_;
     SErr::EmptyCreate->throw() unless @items;
-    if (@items == 1) {
-        return $items[0] if UNIVERSAL::isa($items[0], 'SAnchored');
+    if ( @items == 1 ) {
+        return $items[0] if UNIVERSAL::isa( $items[0], 'SAnchored' );
         confess "Unanchored object!";
     }
 
     SErr::HolesHere->throw('Holes here') if SWorkspace->are_there_holes_here(@items);
+
     # I assume @items are live.
     my $direction = SWorkspace::__FindObjectSetDirection(@items);
     return unless $direction->IsLeftOrRight();
 
     my $object = $package->new(
-        {
-            items      => [@items],
+        {   items      => [@items],
             group_p    => 1,
-            left_edge  => -1, # Will shortly be reset
-            right_edge => -1, # Will shortly be reset
+            left_edge  => -1,           # Will shortly be reset
+            right_edge => -1,           # Will shortly be reset
             direction  => $direction,
         }
     );
@@ -120,8 +119,8 @@ sub get_span {
 }
 
 sub as_text {
-    my ($self) = @_;
-    my $bounds_string = $self->get_bounds_string();
+    my ($self)           = @_;
+    my $bounds_string    = $self->get_bounds_string();
     my $structure_string = $self->get_structure_string();
     return "SAnchored $bounds_string $structure_string";
 }
@@ -132,34 +131,20 @@ sub as_insertlist {
     my ( $l, $r ) = $self->get_edges;
 
     if ( $verbosity == 0 ) {
-        return new SInsertList( "SAnchored", "heading", "[$l, $r] ", "range",
-            "\n" );
+        return new SInsertList( "SAnchored", "heading", "[$l, $r] ", "range", "\n" );
     }
 
     if ( $verbosity == 1 or $verbosity == 2 ) {
         my $list = $self->as_insertlist(0);
-        $list->concat(
-            $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
-        $list->append( "Extendibility: ", 'heading' );
-        $list->append( "Direction: ", 'heading', $self->get_direction->as_text,
-            "", "\n" );
-        $list->append(
-            "Meto activeness: ",
-            'heading', $self->get_metonym_activeness(),
-            "", "\n"
-        );
+        $list->concat( $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
+        $list->append( "Extendibility: ",    'heading' );
+        $list->append( "Direction: ",        'heading', $self->get_direction->as_text, "", "\n" );
+        $list->append( "Meto activeness: ",  'heading', $self->get_metonym_activeness(), "", "\n" );
         $list->append( "Self:             ", 'heading', $self, '', "\n" );
-        $list->append(
-            "Effective object: ",
-            'heading', $self->GetEffectiveObject(),
-            '', "\n"
-        );
-        $list->append( "Flattened: ", 'heading',
-            join( ", ", @{ $self->get_flattened() } ),
+        $list->append( "Effective object: ", 'heading', $self->GetEffectiveObject(), '', "\n" );
+        $list->append( "Flattened: ", 'heading', join( ", ", @{ $self->get_flattened() } ),
             '', "\n" );
-        $list->append( "Items: ", 'heading',
-            join( ", ", @{ $self->get_parts_ref } ),
-            '', "\n" );
+        $list->append( "Items: ", 'heading', join( ", ", @{ $self->get_parts_ref } ), '', "\n" );
         $list->append( "Fringe: ", 'heading', "\n" );
 
         for ( @{ SThought->create($self)->get_fringe } ) {
@@ -214,10 +199,10 @@ sub overlaps {
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength_from_parts =
-      20 + 0.2 * (sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0);
-    my $strength_from_categories =
-        30 * (sum( @{SLTM::GetRealActivationsForConcepts($self->get_categories())}) || 0);
+    my $strength_from_parts
+        = 20 + 0.2 * ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
+    my $strength_from_categories
+        = 30 * ( sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } ) || 0 );
     my $strength = $strength_from_parts + $strength_from_categories;
     $strength += $Global::GroupStrengthByConsistency{$self};
     $strength = 100 if $strength > 100;
@@ -229,7 +214,7 @@ sub Extend {
     scalar(@_) == 3 or confess "Need 3 arguments";
     my ( $self, $to_insert, $insert_at_end_p ) = @_;
 
-# $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
+    # $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
 
     my $id        = ident $self;
     my $parts_ref = $self->get_parts_ref();    # It's in SObject...
@@ -246,17 +231,17 @@ sub Extend {
         or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")->throw();
     my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);
     if ($conflicts) {
-        $conflicts->Resolve({IgnoreConflictWith => $self}) or return;
+        $conflicts->Resolve( { IgnoreConflictWith => $self } ) or return;
     }
 
-
     # If there are supergroups, they must die. Kludge, for now:
-    if (my @supergps = SWorkspace->GetSuperGroups($self)) {
-        if (SUtil::toss(0.5)) {
+    if ( my @supergps = SWorkspace->GetSuperGroups($self) ) {
+        if ( SUtil::toss(0.5) ) {
             for (@supergps) {
                 SWorkspace::__DeleteGroup($_);
             }
-        } else {
+        }
+        else {
             return;
         }
     }
@@ -269,41 +254,39 @@ sub Extend {
     return 1;
 }
 
-sub Update{
-    my ( $self ) = @_;
+sub Update {
+    my ($self) = @_;
     $self->recalculate_edges();
     $self->recalculate_categories();
     $self->recalculate_relations();
     $self->UpdateStrength();
-    if (my $underlying_reln = $self->get_underlying_reln()) {
-        eval { $self->set_underlying_reln( $underlying_reln->get_rule()) };
+    if ( my $underlying_reln = $self->get_underlying_reln() ) {
+        eval { $self->set_underlying_reln( $underlying_reln->get_rule() ) };
         if ($EVAL_ERROR) {
             SWorkspace->remove_gp($self);
         }
     }
+
     # SWorkspace::UpdateGroupsContaining($self);
     SWorkspace::__UpdateGroup($self);
 }
 
-
-sub FindExtension{
+sub FindExtension {
     @_ == 3 or confess "FindExtension for an object requires 3 args";
     my ( $self, $direction_to_extend_in, $skip ) = @_;
     my $direction_of_self = $self->get_direction();
     return unless $direction_of_self->PotentiallyExtendible();
 
     my $underlying_ruleapp = $self->get_underlying_reln() or return;
-    return $underlying_ruleapp->FindExtension($direction_to_extend_in, 
-                                                  { skip => $skip });
+    return $underlying_ruleapp->FindExtension( $direction_to_extend_in, { skip => $skip } );
 }
-
 
 sub CheckSquintability {
     my ( $self, $intended ) = @_;
     my $intended_structure_string = $intended->get_structure_string();
-    return map {
-        $self->CheckSquintabilityForCategory( $intended_structure_string, $_ )
-    } @{$self->get_categories()};
+    return
+        map { $self->CheckSquintabilityForCategory( $intended_structure_string, $_ ) }
+        @{ $self->get_categories() };
 }
 
 sub CheckSquintabilityForCategory {
@@ -313,8 +296,7 @@ sub CheckSquintabilityForCategory {
     }
 
     my $bindings = $self->GetBindingForCategory($category)
-      or confess
-"CheckSquintabilityForCategory called on object not an instance of the category";
+        or confess "CheckSquintabilityForCategory called on object not an instance of the category";
 
     my @meto_types = $category->get_meto_types();
     my @return;
@@ -322,22 +304,20 @@ sub CheckSquintabilityForCategory {
         my $finder = $category->get_meto_finder($name);
         my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
         next
-          unless $squinted->get_starred()->get_structure_string() eq
-          $intended_structure_string;
+            unless $squinted->get_starred()->get_structure_string() eq $intended_structure_string;
         push @return, [ $category, $name ];
     }
     return @return;
 }
 
-sub IsFlushRight{
-    my ( $self ) = @_;
-    $right_edge_of{ident $self} == $SWorkspace::ElementCount - 1 ? 1 : 0;
+sub IsFlushRight {
+    my ($self) = @_;
+    $right_edge_of{ ident $self} == $SWorkspace::ElementCount - 1 ? 1 : 0;
 }
 
-sub IsFlushLeft{
-    my ( $self ) = @_;
-    $left_edge_of{ident $self} == 0 ? 1 : 0;
+sub IsFlushLeft {
+    my ($self) = @_;
+    $left_edge_of{ ident $self} == 0 ? 1 : 0;
 }
-
 
 1;

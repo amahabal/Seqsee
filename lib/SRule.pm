@@ -15,14 +15,14 @@ use base qw{};
 use Smart::Comments;
 use English qw(-no_match_vars);
 
-our %StateCount_of : ATTR(:get<state_count>);# How many states?
-our %TransitionFunction_of : ATTR;           # state->state
-our %Relations_of : ATTR(:get<relations>);   # state->reln
-our %FlippedRelations_of : ATTR;             # Fliped versions, if needed.
-our %InverseTransitionFunction_of : ATTR;    # To move left. state->[state]
-our %ReverseRelations_of : ATTR;             # To move left. state->reln.
+our %StateCount_of : ATTR(:get<state_count>);    # How many states?
+our %TransitionFunction_of : ATTR;               # state->state
+our %Relations_of : ATTR(:get<relations>);       # state->reln
+our %FlippedRelations_of : ATTR;                 # Fliped versions, if needed.
+our %InverseTransitionFunction_of : ATTR;        # To move left. state->[state]
+our %ReverseRelations_of : ATTR;                 # To move left. state->reln.
 
-our %Rejects_of :ATTR; # When has this rule been rejected?
+our %Rejects_of : ATTR;                          # When has this rule been rejected?
 
 multimethod 'apply_reln';
 
@@ -64,8 +64,8 @@ sub BUILD {
 
 }
 
-sub FindTypeOfFlippedRelation{
-    my ( $reln ) = @_;
+sub FindTypeOfFlippedRelation {
+    my ($reln) = @_;
     my $flipped_version = $reln->FlippedVersion();
     unless ($flipped_version) {
         ### Unable to flip relation!
@@ -78,7 +78,6 @@ sub FindTypeOfFlippedRelation{
     }
     return $flipped_version->get_type();
 }
-
 
 {
     my %MEMO = ();
@@ -109,11 +108,10 @@ sub FindTypeOfFlippedRelation{
     };
 }
 
-sub create{
-    my ( $package ) = shift;
+sub create {
+    my ($package) = shift;
     createRule(@_);
 }
-
 
 # method CreateApplication( $self: SObject +$start, Int +$state ) returns SRuleApp
 sub CreateApplication {
@@ -124,8 +122,7 @@ sub CreateApplication {
     confess unless defined $state;
 
     return SRuleApp->new(
-        {
-            rule      => $self,
+        {   rule      => $self,
             items     => [$start],
             states    => [$state],
             direction => $direction
@@ -167,69 +164,62 @@ sub GetReverseRelationAndTransition {
     return ( $rev_reln, $prev_state );
 }
 
-sub CheckApplicability{
+sub CheckApplicability {
     my ( $self, $opts_ref ) = @_;
     my $id = ident $self;
 
-    my $objects_ref = $opts_ref->{objects} or confess;
-    my $direction = $opts_ref->{direction} or confess;
-    my $from_state  = $opts_ref->{from_state};   # If undefined, try all states.
+    my $objects_ref = $opts_ref->{objects}   or confess;
+    my $direction   = $opts_ref->{direction} or confess;
+    my $from_state  = $opts_ref->{from_state};    # If undefined, try all states.
     my $state_count = $StateCount_of{$id};
 
-    my @states_to_check_from =
-      ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
+    my @states_to_check_from = ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
 
 LOOP_INITIAL_OBJECT:
-for my $first_object ( $objects_ref->[0]->GetEffectiveObject(),
-    $objects_ref->[0] )
-{
-  LOOP: for my $start_state (@states_to_check_from) {
-        my @objects_to_account_for = @$objects_ref;
-        my @accounted_for          = shift(@objects_to_account_for);
-        my @states                 = ($start_state);
+    for my $first_object ( $objects_ref->[0]->GetEffectiveObject(), $objects_ref->[0] ) {
+    LOOP: for my $start_state (@states_to_check_from) {
+            my @objects_to_account_for = @$objects_ref;
+            my @accounted_for          = shift(@objects_to_account_for);
+            my @states                 = ($start_state);
 
-        my ( $last_object, $last_state ) =
-          ( $first_object, $states[0] );
-        while (@objects_to_account_for) {
-            my ( $reln, $next_state ) =
-              $self->GetRelationAndTransition($last_state);
-            my $expected_next = apply_reln( $reln, $last_object )
-              or confess('Apply relation failed');
-            my $actual_next = shift(@objects_to_account_for);
-            if ( $expected_next->get_structure_string() eq
-                $actual_next->GetEffectiveObject()->get_structure_string() )
-            {
-                push @accounted_for, $actual_next;
-                push @states,        $next_state;
-                ( $last_object, $last_state ) =
-                  ( $actual_next->GetEffectiveObject(), $next_state );
+            my ( $last_object, $last_state ) = ( $first_object, $states[0] );
+            while (@objects_to_account_for) {
+                my ( $reln, $next_state ) = $self->GetRelationAndTransition($last_state);
+                my $expected_next = apply_reln( $reln, $last_object )
+                    or confess('Apply relation failed');
+                my $actual_next = shift(@objects_to_account_for);
+                if ( $expected_next->get_structure_string() eq
+                    $actual_next->GetEffectiveObject()->get_structure_string() )
+                {
+                    push @accounted_for, $actual_next;
+                    push @states,        $next_state;
+                    ( $last_object, $last_state )
+                        = ( $actual_next->GetEffectiveObject(), $next_state );
+                }
+                elsif (
+                    $expected_next->get_structure_string() eq $actual_next->get_structure_string() )
+                {
+                    push @accounted_for, $actual_next;
+                    push @states,        $next_state;
+                    ( $last_object, $last_state ) = ( $actual_next, $next_state );
+                    ## XXX(Board-it-up): [2007/02/13] I hope this is good...
+                    $actual_next->SetMetonymActiveness(0);
+                }
+                else {
+                    next LOOP;
+                }
             }
-            elsif ( $expected_next->get_structure_string() eq
-                $actual_next->get_structure_string() )
-            {
-                push @accounted_for, $actual_next;
-                push @states,        $next_state;
-                ( $last_object, $last_state ) = ( $actual_next, $next_state );
-                ## XXX(Board-it-up): [2007/02/13] I hope this is good...
-                $actual_next->SetMetonymActiveness(0);
-            }
-            else {
-                next LOOP;
-            }
+            return SRuleApp->new(
+                {   rule      => $self,
+                    items     => \@accounted_for,
+                    states    => \@states,
+                    direction => $direction,
+                }
+            );
         }
-        return SRuleApp->new(
-            {
-                rule      => $self,
-                items     => \@accounted_for,
-                states    => \@states,
-                direction => $direction,
-            }
-        );
     }
-}
     return;
 }
-
 
 sub AttemptApplication {
     my ( $self, $opts_ref ) = @_;
@@ -238,18 +228,15 @@ sub AttemptApplication {
     my $start     = $opts_ref->{start}     or confess;
     my $terms     = $opts_ref->{terms}     or confess;
     my $direction = $opts_ref->{direction} or confess;
-    my $from_state  = $opts_ref->{from_state};   # If undefined, try all states.
+    my $from_state  = $opts_ref->{from_state};    # If undefined, try all states.
     my $state_count = $StateCount_of{$id};
 
-    my @states_to_check_from =
-      ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
+    my @states_to_check_from = ( defined $from_state ) ? ($from_state) : ( 0 .. $state_count - 1 );
 
     for my $start_state (@states_to_check_from) {
         ## Checking state: $start_state
-        my $ruleapp =
-          $self->CreateApplication(
-            { start => $start, state => $start_state, direction => $direction }
-          );
+        my $ruleapp = $self->CreateApplication(
+            { start => $start, state => $start_state, direction => $direction } );
         return $ruleapp if ( $terms == 1 );
         ## ruleapp: $ruleapp
         my $extension_works = eval { $ruleapp->ExtendForward( $terms - 1 ) };
@@ -264,35 +251,33 @@ sub AttemptApplication {
         }
     }
 
-    return;                                       # Failed!
+    return;    # Failed!
 }
 
 sub has_been_rejected {
-    my ($self)       = @_;
-    my $id           = ident $self;
+    my ($self) = @_;
+    my $id = ident $self;
     my @reject_times = @{ $Rejects_of{$id} ||= [] };
     return unless @reject_times;
     return 1 + ( $Global::Steps_Finished - $reject_times[0] );
 }
 
-sub suitability{
-    my ( $self ) = @_;
+sub suitability {
+    my ($self) = @_;
     my $id = ident $self;
     my @reject_times = @{ $Rejects_of{$id} ||= [] };
     my $epoch = $Global::Steps_Finished;
-    return 1 - List::Util::sum(map { 20 / (1 + $epoch - $_) } @reject_times);
+    return 1 - List::Util::sum( map { 20 / ( 1 + $epoch - $_ ) } @reject_times );
 }
-
 
 sub Reject {
     my ($self) = @_;
     unshift @{ $Rejects_of{ ident $self} }, $Global::Steps_Finished;
 }
 
-sub as_text{
-    my ( $self ) = @_;
-    return "Rule: {" . join('}; {', map { $_->as_text() } @{$Relations_of{ident $self}}) . '}'
+sub as_text {
+    my ($self) = @_;
+    return "Rule: {" . join( '}; {', map { $_->as_text() } @{ $Relations_of{ ident $self} } ) . '}';
 }
-
 
 1;

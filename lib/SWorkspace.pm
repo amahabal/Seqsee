@@ -155,15 +155,16 @@ sub __GetExactObjectIfPresent {
     return $matching[0];    # There can be only one.
 }
 
-sub __GetGroupsThatPartiallyOverlap { # i.e., the set difference is non empty both ways
-    my ( $object ) = @_;
+sub __GetGroupsThatPartiallyOverlap {    # i.e., the set difference is non empty both ways
+    my ($object) = @_;
     my ( $left, $right ) = $object->get_edges();
+
     # main::message("__GetGroupsThatOverlap called!");
     return grep {
-        my $obj_left = $LeftEdge_of{$_};
+        my $obj_left  = $LeftEdge_of{$_};
         my $obj_right = $RightEdge_of{$_};
-        ($obj_left < $left and $left <= $obj_right and $obj_right < $right) or
-            ($left < $obj_left and $obj_left <= $right and $right < $obj_right)
+        ( $obj_left < $left        and $left <= $obj_right and $obj_right < $right )
+            or ( $left < $obj_left and $obj_left <= $right and $right < $obj_right )
     } values %NonEltObjects;
 }
 
@@ -375,7 +376,7 @@ sub __CheckMagnitudesRightwards {
         if ( $next_position_to_check >= $ElementCount ) {
 
             # throw!
-            SErr::ElementsBeyondKnownSought->throw(next_elements => \@expected_magnitudes);
+            SErr::ElementsBeyondKnownSought->throw( next_elements => \@expected_magnitudes );
         }
         elsif ( $ElementMagnitudes[$next_position_to_check] == $next_magnitude_expected ) {
             $next_position_to_check++;
@@ -402,9 +403,8 @@ sub __FindGroupsConflictingWith {
     my @conflicting =
         grep { $_ ne $exact_conflict }
         grep { __CheckTwoGroupsForConflict( $object, $_ ) }
-            ( __GetObjectsWithEndsBeyond( $l, $r ),
-              __GetObjectsWithEndsNotBeyond( $l, $r ) );
-    if ($Global::Feature{NoGpOverlap}) {
+        ( __GetObjectsWithEndsBeyond( $l, $r ), __GetObjectsWithEndsNotBeyond( $l, $r ) );
+    if ( $Global::Feature{NoGpOverlap} ) {
         push @conflicting, __GetGroupsThatPartiallyOverlap($object);
     }
 
@@ -561,6 +561,7 @@ sub __GetLongestNonAdHocWithEndsExactly {
 # Non-ad-hoc, with left=$left, right<=$right
 sub __GetLongestNonAdHocWithLeftExactRightBelow {
     my ( $left, $right ) = @_;
+
     # main::message("__GetLongestNonAdHocWithLeftExactRightBelow($left, $right)");
     for my $gp ( __SortRtoLByRightEdge( __GetObjectsWithEndsExactly( $left, undef ) ) ) {
         next       if $RightEdge_of{$gp} > $right;
@@ -578,18 +579,20 @@ sub __FindDistance {
 
     my $min_right = List::Util::min( $RightEdge_of{$object1}, $RightEdge_of{$object2} );
     my $max_left  = List::Util::max( $LeftEdge_of{$object1},  $LeftEdge_of{$object2} );
+
     #main::message("Finding distance: " . $object1->as_text() . ' to ' . $object2->as_text(),1 );
     if ( $max_left <= $min_right + 1 ) {    # Adjacent or overlapping.
         return DISTANCE::Zero();
     }
 
     # Find distance now.
-    my $distance =  __FindDistanceHelper_( $min_right + 1, $max_left - 1, $mode );
-    if ($mode->IsUnitGroups() and !$requested_mode) {
+    my $distance = __FindDistanceHelper_( $min_right + 1, $max_left - 1, $mode );
+    if ( $mode->IsUnitGroups() and !$requested_mode ) {
+
         # Is what we got really elements? If so, change unit.
         my $magnitude = $distance->GetMagnitude;
-        if ($max_left - $min_right - 1 == $magnitude ) {
-            $distance = DISTANCE::InElements($magnitude); # change units.
+        if ( $max_left - $min_right - 1 == $magnitude ) {
+            $distance = DISTANCE::InElements($magnitude);    # change units.
         }
     }
     return $distance;
@@ -597,99 +600,106 @@ sub __FindDistance {
 
 sub __FindDistanceHelper_ {
     my ( $left_end_of_gap, $right_end_of_gap, $mode ) = @_;
-    if (!$mode->IsUnitGroups()) {
+    if ( !$mode->IsUnitGroups() ) {
+
         # main::message("Distance in element units!");
-        return DISTANCE::InElements(1 + $right_end_of_gap - $left_end_of_gap);
+        return DISTANCE::InElements( 1 + $right_end_of_gap - $left_end_of_gap );
     }
 
     #main::message("__FindDistanceHelper_: Filling gap $left_end_of_gap to $right_end_of_gap", 1);
 
     # A Simple Greedy Algo.
     my $intermediate_groups_seen = 0;
-    while ($left_end_of_gap <= $right_end_of_gap) {
-        if ($left_end_of_gap == $right_end_of_gap) {
+    while ( $left_end_of_gap <= $right_end_of_gap ) {
+        if ( $left_end_of_gap == $right_end_of_gap ) {
             $intermediate_groups_seen++;
             last;
         }
-        my $longest_first_group = __GetLongestNonAdHocWithLeftExactRightBelow($left_end_of_gap, $right_end_of_gap);
+        my $longest_first_group
+            = __GetLongestNonAdHocWithLeftExactRightBelow( $left_end_of_gap, $right_end_of_gap );
         $left_end_of_gap = $LeftEdge_of{$longest_first_group} + 1;
         $intermediate_groups_seen++;
+
         #main::message("__FindDistanceHelper_: Group seen ". $longest_first_group->as_text(), 1);
         #main::message("Gap now: $left_end_of_gap -> $right_end_of_gap", 1);
     }
+
     #main::message("Returning $intermediate_groups_seen as the answer");
     return DISTANCE::InGroups($intermediate_groups_seen);
 }
 
 sub __GetPositionInDirectionAtDistance {
-    my ( $opts_ref ) = @_;
+    my ($opts_ref) = @_;
     my $from_object = $opts_ref->{from_object} or confess "Need from_object";
-    my $direction = $opts_ref->{direction} or confess "Need direction";
-    my $distance = $opts_ref->{distance} or confess "Need distance";
+    my $direction   = $opts_ref->{direction}   or confess "Need direction";
+    my $distance    = $opts_ref->{distance}    or confess "Need distance";
     ### require: $distance->isa("DISTANCE");
 
-    if ($direction eq $DIR::RIGHT) {
+    if ( $direction eq $DIR::RIGHT ) {
         my $end = $RightEdge_of{$from_object} + 1;
-        if (!$distance->IsUnitGroups()) {
+        if ( !$distance->IsUnitGroups() ) {
             return $end + $distance;
         }
         $distance = $distance->GetMagnitude();
-        for (1..$distance) {
-            my $next_object = __GetLongestNonAdHocWithEndsExactly($end, undef);
+        for ( 1 .. $distance ) {
+            my $next_object = __GetLongestNonAdHocWithEndsExactly( $end, undef );
             return unless $next_object;
             $end = 1 + $RightEdge_of{$next_object};
         }
         return $end;
-    } elsif ($direction eq $DIR::LEFT) {
+    }
+    elsif ( $direction eq $DIR::LEFT ) {
         my $end = $LeftEdge_of{$from_object} - 1;
-        if (!$distance->IsUnitGroups()) {
-            if ($end >= $distance) {
+        if ( !$distance->IsUnitGroups() ) {
+            if ( $end >= $distance ) {
                 return $end - $distance;
-            } else {
+            }
+            else {
                 return;
             }
         }
         $distance = $distance->GetMagnitude();
-        for (1..$distance) {
-            if ($end < 0) {
+        for ( 1 .. $distance ) {
+            if ( $end < 0 ) {
                 return;
             }
-            my $next_object = __GetLongestNonAdHocWithEndsExactly(undef, $end);
+            my $next_object = __GetLongestNonAdHocWithEndsExactly( undef, $end );
             return unless $next_object;
             $end = $LeftEdge_of{$next_object} - 1;
         }
         return if $end < 0;
         return $end;
-    } else {
+    }
+    else {
         confess "HUH?";
-    }    
+    }
 }
 
 sub __GetSamenessAround {
-    my ( $pos ) = @_;
+    my ($pos) = @_;
     my $magnitude = $ElementMagnitudes[$pos];
-    my ($left_margin, $right_margin) = ($pos, $pos);
-    while ($left_margin > 0) {
-        last unless $ElementMagnitudes[$left_margin - 1] == $magnitude;
+    my ( $left_margin, $right_margin ) = ( $pos, $pos );
+    while ( $left_margin > 0 ) {
+        last unless $ElementMagnitudes[ $left_margin - 1 ] == $magnitude;
         $left_margin--;
     }
-    while ($right_margin < $ElementCount - 1) {
-        last unless $ElementMagnitudes[$right_margin + 1] == $magnitude;
+    while ( $right_margin < $ElementCount - 1 ) {
+        last unless $ElementMagnitudes[ $right_margin + 1 ] == $magnitude;
         $right_margin++;
     }
-    return ($left_margin, $right_margin);
+    return ( $left_margin, $right_margin );
 }
 
 sub __CreateSamenessGroupAround {
-    my ( $pos ) = @_;
-    my ($left_margin, $right_margin) = __GetSamenessAround($pos);
+    my ($pos) = @_;
+    my ( $left_margin, $right_margin ) = __GetSamenessAround($pos);
     my $span = $right_margin - $left_margin + 1;
     return if $span < 2;
 
-    my @covering = __GetObjectsWithEndsBeyond($left_margin, $right_margin);
-    return if (@covering and SUtil::toss(0.5));
+    my @covering = __GetObjectsWithEndsBeyond( $left_margin, $right_margin );
+    return if ( @covering and SUtil::toss(0.5) );
 
-    my @items = @Elements[$left_margin..$right_margin];
+    my @items = @Elements[ $left_margin .. $right_margin ];
     for (@items) {
         return if $_->get_metonym_activeness();
     }
@@ -699,7 +709,7 @@ sub __CreateSamenessGroupAround {
 }
 
 sub __AddGroup {
-    my ( $gp ) = @_;
+    my ($gp) = @_;
     my $conflicts = __FindGroupsConflictingWith($gp);
     if ($conflicts) {
         $conflicts->Resolve( { FailIfExact => 1 } ) or return;
@@ -709,20 +719,20 @@ sub __AddGroup {
     $Global::TimeOfNewStructure = $Global::Steps_Finished;
     __DoGroupAddBookkeeping($gp);
     return 1;
-    
+
 }
 
 #############################################
 # BAR LINES
 #############################################
 sub __ClearBarLines {
-    @BarLines = ();
+    @BarLines     = ();
     $BarLineCount = 0;
 }
 
 sub __AddBarLines {
-    my ( @indices ) = @_;
-    @BarLines = sort { $a <=> $b } (@BarLines, @indices);
+    my (@indices) = @_;
+    @BarLines = sort { $a <=> $b } ( @BarLines, @indices );
     $BarLineCount = scalar(@BarLines);
 }
 
@@ -730,30 +740,27 @@ sub GetBarLines {
     return @BarLines;
 }
 
-
 sub __ClosestBarLineToLeftGivenIndex {
-    my ( $index ) = @_;
+    my ($index) = @_;
     return unless $BarLineCount;
     return if $BarLines[0] > $index;
     my $count = 1;
-    while ($count < $BarLineCount and $BarLines[$count] <= $index) {
+    while ( $count < $BarLineCount and $BarLines[$count] <= $index ) {
         $count++;
     }
-    return $BarLines[$count - 1];
+    return $BarLines[ $count - 1 ];
 }
 
 sub __ClosestBarLineToRightGivenIndex {
-    my ( $index ) = @_;
+    my ($index) = @_;
     return unless $BarLineCount;
     return if $BarLines[-1] <= $index;
     my $count = $BarLineCount - 2;
-    while ($count > -1 and $BarLines[$count] > $index) {
+    while ( $count > -1 and $BarLines[$count] > $index ) {
         $count--;
     }
-    return $BarLines[$count + 1];
+    return $BarLines[ $count + 1 ];
 }
-
-
 
 #=============================================
 #=============================================
@@ -1082,7 +1089,7 @@ sub CheckElementsRightwardFromLocation {
         if ( $current_pos >= $ElementCount ) {
 
             # already out of range!
-            SErr::ElementsBeyondKnownSought->throw(next_elements => [@flattened]);
+            SErr::ElementsBeyondKnownSought->throw( next_elements => [@flattened] );
         }
         else {
             ## expecting: $flattened[0]
@@ -1184,7 +1191,7 @@ sub GetSomethingLike {
     my $direction   = $opts_ref->{direction} or confess;
     my $reason      = $opts_ref->{reason} || '';              # used for message for ask_user
     my $trust_level = $opts_ref->{trust_level} or confess;    # used if ask_user
-    my $hilit_set = $opts_ref->{hilit_set};
+    my $hilit_set   = $opts_ref->{hilit_set};
     defined($start_pos) or confess;
 
     my @objects_at_that_location;
@@ -1212,12 +1219,13 @@ sub GetSomethingLike {
     TRY {
         $is_object_literally_present = SWorkspace->check_at_location(
             { direction => $direction, start => $start_pos, what => $object } );
-    } CATCH {
-        ElementsBeyondKnownSought: {
+    }
+    CATCH {
+    ElementsBeyondKnownSought: {
             $trust_level *= 0.02;    # had multiplied by 50 for toss...
-            if ( SUtil::toss($trust_level) ) { # Kludge.
-                Global::Hilit(1, @$hilit_set);
-                $err->Ask("$reason. ", '');
+            if ( SUtil::toss($trust_level) ) {    # Kludge.
+                Global::Hilit( 1, @$hilit_set );
+                $err->Ask( "$reason. ", '' );
                 Global::ClearHilit();
             }
         }

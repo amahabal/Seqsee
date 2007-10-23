@@ -7,7 +7,6 @@ RUN: {
         my $object = SUtil::toss(0.5) ? SWorkspace->read_object() : SWorkspace->read_relation();
         return unless $object;
 
-        my $strength = $object->get_strength();
         SThought->create($object)->schedule();
     }
 }
@@ -42,18 +41,7 @@ RUN: {
             or confess "Hey, should NEVER have failed!";
     }
 }
-#####################################
-#####################################
-# Given a relation and a direction it tries to extend it in that direction
-# How it works
-# find next position where extension starts
-#   if extension is beyond known elements. fizzle with an 85% probability
-# find out what the next object should be
-# if the object is actually present, then a relation  is added to one of the original
-# objects as appropriate, and category labels are added to the new object
-#
-# if, on the other hand, the new object lies in the unknown range, another codelet is
-# launched that  checks if the user should be asked and extends the terms if possible
+
 CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
 INITIAL: {
         multimethod 'find_reln';
@@ -79,12 +67,10 @@ RUN: {
                 distance    => $distance,
             }
         );
-        return unless ( defined($next_pos) and $next_pos <= $SWorkspace::ElementCount );
-        my $what_next;
-        TRY { $what_next = apply_reln( $relation_to_consider, $obj2->GetEffectiveObject() ); }
-        CATCH {
-        DEFAULT: { $err->rethrow(); }
-        };
+        return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
+
+        my $what_next = apply_reln( $relation_to_consider, $obj2->GetEffectiveObject() );
+        return unless $what_next;
         return unless @$what_next;    # 0 elts also not okay
 
         my $is_this_what_is_present;
@@ -99,10 +85,10 @@ RUN: {
         CATCH {
         ElementsBeyondKnownSought: {
                 return unless EstimateAskability($core);
-                Global::Hilit(1, $obj1, $obj2, $core);
-                my $reply =  $err->Ask();
+                Global::Hilit( 1, $obj1, $obj2, $core );
+                my $reply = $err->Ask();
                 Global::ClearHilit();
-                $reply  or return;
+                return unless $reply;
                 $is_this_what_is_present = 1;
             }
         };
@@ -117,26 +103,29 @@ RUN: {
                 $wso->describe_as($type) or return;
             }
             my $reln_to_add;
-            if ($direction eq $direction_of_core) {
-                $reln_to_add = find_reln( $obj2, $wso);
-            } else {
-                $reln_to_add = find_reln($wso, $obj2);
+            if ( $direction eq $direction_of_core ) {
+                $reln_to_add = find_reln( $obj2, $wso );
+            }
+            else {
+                $reln_to_add = find_reln( $wso, $obj2 );
             }
             $reln_to_add->insert() if $reln_to_add;
-        } else {
-            if (SUtil::toss(0.5)) {
+        }
+        else {
+            if ( SUtil::toss(0.5) ) {
                 CODELET 100, AreTheseGroupable,
                     {
-                        items => [ $core->get_ends() ],
-                        reln  => $core
-                            };
+                    items => [ $core->get_ends() ],
+                    reln  => $core
+                    };
             }
         }
     }
 FINAL: {
+
         sub EstimateAskability {
-            my ( $core ) = @_;
-            my $type_activation = SLTM::SpikeBy(10, $core->get_type() );
+            my ($core) = @_;
+            my $type_activation = SLTM::SpikeBy( 10, $core->get_type() );
             return SUtil::toss($type_activation);
         }
 
@@ -588,7 +577,8 @@ FINAL: {
 CodeletFamily WorthAskingForExtendingReln( $core !, $direction !, $already_matched !,
     $ask_if_what !, $err ! ) does {
 RUN: {
-            confess "AM I STILL USING WorthAskingForExtendingReln?";
+        confess "AM I STILL USING WorthAskingForExtendingReln?";
+
         #main::message("WorthAskingForExtendingReln called with " . join(', ', @$ask_if_what), 1);
         my $type_activation = SCF::FindIfRelated::spike_reln_type($core);
         if ( $type_activation < 0.3 or SUtil::toss( 1 - $type_activation ) ) {

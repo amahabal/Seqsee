@@ -45,7 +45,7 @@ RUN: {
         eval {
             my @unstarred_items = map { $_->GetUnstarred() } @$items;
             ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
-            SWorkspace::__CheckLiveness(@unstarred_items) or return; # dead objects.
+            SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
             $new_group = SAnchored->create(@unstarred_items);
             if ($new_group) {
                 $new_group->set_underlying_reln($reln);
@@ -166,7 +166,7 @@ FRINGE: {
     }
 
 ACTIONS: {
-        SLTM::SpikeBy(10, $core) if $Global::Feature{LTM};
+        SLTM::SpikeBy( 10, $core ) if $Global::Feature{LTM};
 
         my $metonym            = $core->get_metonym();
         my $metonym_activeness = $core->get_metonym_activeness();
@@ -212,13 +212,19 @@ ACTIONS: {
             }
         }
 
-        if ($Global::Feature{LTM}) {
+        if ( $Global::Feature{LTM} ) {
+
             # Spread activation from corresponding node:
-            SLTM::SpreadActivationFrom(SLTM::GetMemoryIndex($core));
-            my @active_followers = SLTM::FindActiveFollowers($core, 0.01);
+            SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
+            my @active_followers = SLTM::FindActiveFollowers( $core, 0.01 );
             if (@active_followers) {
                 for (@active_followers) {
-                    main::debug_message($_->as_text(). " appears to be a promising follower of " . $core->as_text(), 1,1);
+                    main::debug_message(
+                        $_->as_text()
+                            . " appears to be a promising follower of "
+                            . $core->as_text(),
+                        1, 1
+                    );
                 }
             }
         }
@@ -300,11 +306,12 @@ INITIAL: {
 
     }
 ACTIONS: {
-        SLTM::SpikeBy(10, $core) if $Global::Feature{LTM};
+        SLTM::SpikeBy( 10, $core ) if $Global::Feature{LTM};
+
         #my $index = SLTM::GetMemoryIndex($core);
-        #my ($activation) = @{SLTM::GetRealActivationsForIndices([$index])}; 
+        #my ($activation) = @{SLTM::GetRealActivationsForIndices([$index])};
         #main::message("[$index] $core spiked: $activation!");
-}
+    }
 
 FRINGE: {
         return get_fringe_for($core);
@@ -342,10 +349,11 @@ ACTIONS: {
         my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
         #if ( not $holey ) {
-            ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
-            ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };
+        ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
+        ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };
 
-            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5) if $Global::Feature{LTM};
+        SLTM::InsertFollowsLink( $core->get_ends(), $core )->Spike(5) if $Global::Feature{LTM};
+
         #}
 
         {
@@ -440,13 +448,14 @@ ACTIONS: {
         }
 
         {
+
             # last if $holey;
             CODELET 100, AttemptExtensionOfRelation,
                 {
                 core      => $core,
                 direction => DIR::RIGHT()
                 };
-            SLTM::InsertFollowsLink($core->get_ends(), $core)->Spike(5) if $Global::Feature{LTM};
+            SLTM::InsertFollowsLink( $core->get_ends(), $core )->Spike(5) if $Global::Feature{LTM};
         }
 
         {
@@ -509,9 +518,8 @@ ACTIONS: {
             if (    SUtil::significant($ad_hoc_activation)
                 and SUtil::toss($ad_hoc_activation) )
             {
-                my @ends
-                    = SWorkspace::__SortLtoRByLeftEdge( $core->get_first()->GetUnstarred(),
-                                                        $core->get_second()->GetUnstarred() );
+                my @ends = SWorkspace::__SortLtoRByLeftEdge( $core->get_first()->GetUnstarred(),
+                    $core->get_second()->GetUnstarred() );
                 my $new_obj = SAnchored->create( $ends[0], @intervening_objects );
                 if ( SWorkspace::__GetObjectsWithEndsExactly( $new_obj->get_edges() ) ) {
                     return;

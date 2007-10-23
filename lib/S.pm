@@ -36,13 +36,6 @@ use SWorkspace;
 
 use ResultOfCanBeSeenAs;
 
-# Need to convert the next four
-#use SCat::Derive::assuming;
-#use SCat::Derive::blemished;
-#use SCat::Derive::blemish_count;
-#use SCat::Derive::blemish_position;
-
-#use SReln;
 use SReln::Simple;
 use SReln::Compound;
 use SReln::Position;
@@ -254,54 +247,50 @@ sub ELEMENT {$ELEMENT}
 
 # Can/should be influenced by activations.
 sub PickOne {
-    if (SUtil::toss(0.25)) {
+    if ( SUtil::toss(0.25) ) {
         return $GROUP;
-    } else {
+    }
+    else {
         return $ELEMENT;
     }
 }
 
 sub IsUnitGroups {
-    my ( $mode ) = @_;
-    return ($mode eq $GROUP) ? 1 : 0;
+    my ($mode) = @_;
+    return ( $mode eq $GROUP ) ? 1 : 0;
 }
-
-
 
 package DISTANCE;
 use strict;
 use warnings;
 
 sub InElements {
-    my ( $distance ) = @_;
-    bless [$distance, $DISTANCE_MODE::ELEMENT], 'DISTANCE';
+    my ($distance) = @_;
+    bless [ $distance, $DISTANCE_MODE::ELEMENT ], 'DISTANCE';
 }
 
 sub InGroups {
-    my ( $distance ) = @_;
-    bless [$distance, $DISTANCE_MODE::GROUP], 'DISTANCE';
+    my ($distance) = @_;
+    bless [ $distance, $DISTANCE_MODE::GROUP ], 'DISTANCE';
 }
 
 sub Zero {
-    bless [0, $DISTANCE_MODE::GROUP], 'DISTANCE';
+    bless [ 0, $DISTANCE_MODE::GROUP ], 'DISTANCE';
 }
 
-
 sub IsUnitGroups {
-    my ( $self ) = @_;
+    my ($self) = @_;
     return $self->[1]->IsUnitGroups();
 }
 
 sub GetMagnitude {
-    my ( $self ) = @_;
+    my ($self) = @_;
     return $self->[0];
 }
 
 sub as_text {
-    my ( $self ) = @_;
-    return "$self->[0] ". $self->[1]->{mode};
+    my ($self) = @_;
+    return "$self->[0] " . $self->[1]->{mode};
 }
-
-
 
 1;

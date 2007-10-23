@@ -19,10 +19,10 @@ for (qw{apply_reln __PlonkIntoPlace find_reln}) {
     multimethod $_;
 }
 
-my %Rule_of : ATTR(:get<rule>);    # The underlying rule.
-my %Items_of : ATTR(:get<items>);  # Objects to which the rule has been applied.
-my %States_of : ATTR;              # The states corresponding to the types.
-my %Direction_of : ATTR;           # Direction of application (Right/Left).
+my %Rule_of : ATTR(:get<rule>);      # The underlying rule.
+my %Items_of : ATTR(:get<items>);    # Objects to which the rule has been applied.
+my %States_of : ATTR;                # The states corresponding to the types.
+my %Direction_of : ATTR;             # Direction of application (Right/Left).
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -50,7 +50,7 @@ sub CheckConsitencyOfGroup {
     # If the ruleapp does not fully cover group, it in not inconsistent
     my ( $left,    $right )    = $self->get_edges();
     my ( $gp_left, $gp_right ) = $group->get_edges();
-    return 1 unless ($gp_left >= $left and $gp_right <= $right);
+    return 1 unless ( $gp_left >= $left and $gp_right <= $right );
     return 1 if $group->get_underlying_reln() eq $self;
 
     # Reasons for consistency:
@@ -64,31 +64,27 @@ sub CheckConsitencyOfGroup {
     return 0;
 }
 
-sub CheckConsitencyOfRelation{
+sub CheckConsitencyOfRelation {
     my ( $self, $reln ) = @_;
     return 1;
-    my $id = ident $self;
-    my @items = @{$Items_of{$id}};
+    my $id    = ident $self;
+    my @items = @{ $Items_of{$id} };
 
-    # If the ruleapp does not fully cover either end, it in not inconsistent   
-    my ( $left,    $right )    = $self->get_edges();
-    my ($end1, $end2) = $reln->get_ends();
-    my ($e1left, $e1right, $e2left, $e2right) = map { $_->get_edges() } ($end1, $end2);
+    # If the ruleapp does not fully cover either end, it in not inconsistent
+    my ( $left, $right ) = $self->get_edges();
+    my ( $end1, $end2 )  = $reln->get_ends();
+    my ( $e1left, $e1right, $e2left, $e2right ) = map { $_->get_edges() } ( $end1, $end2 );
     my $some_end_overlaps = 0;
 
     # Check if end1 overlaps:
-    if ($e1left >= $left and $e1right <= $right) {
-        
-    }
-    
+    if ( $e1left >= $left and $e1right <= $right ) {
 
+    }
 
 }
 
-
 sub ExtendInDirection {
-    my (
-        $self, $id,
+    my ($self, $id,
         $direction,        # Direction to extend in (Right/Left)
         $object_at_end,    # First/Last object, depending on direction
         $relation,         # Relation to use for extension
@@ -99,29 +95,27 @@ sub ExtendInDirection {
     my $next_pos = $object_at_end->get_next_pos_in_dir($direction);
     ## next_pos: $next_pos
     return unless defined $next_pos;
-    my $next_object =
-      apply_reln( $relation, $object_at_end->GetEffectiveObject() );
+    my $next_object = apply_reln( $relation, $object_at_end->GetEffectiveObject() );
     ## next_object: $next_object, $next_object->get_structure_string()
 
     my $is_this_what_is_present;
     TRY {
-        $is_this_what_is_present = 
-        SWorkspace->check_at_location(
-            {
-                start     => $next_pos,
+        $is_this_what_is_present = SWorkspace->check_at_location(
+            {   start     => $next_pos,
                 direction => $direction,
                 what      => $next_object
             }
         );
-    } CATCH {
-        ElementsBeyondKnownSought: {
-            my $trust_level = ($self->get_span() / $SWorkspace::ElementCount) * 0.5;
+    }
+    CATCH {
+    ElementsBeyondKnownSought: {
+            my $trust_level = ( $self->get_span() / $SWorkspace::ElementCount ) * 0.5;
             ### span: $self->get_span()
             ### count: $SWorkspace::ElementCount
             ### trust: $trust_level
             # log(scalar(@{$self->get_items})) / log(3);
-            if ( SUtil::toss($trust_level) ) { # kludge
-                Global::Hilit(1, @{$self->get_items});
+            if ( SUtil::toss($trust_level) ) {    # kludge
+                Global::Hilit( 1, @{ $self->get_items } );
                 $is_this_what_is_present = $err->Ask('(while extending rule) ');
                 Global::ClearHilit();
             }
@@ -130,8 +124,8 @@ sub ExtendInDirection {
     ## is_this_what_is_present: $is_this_what_is_present
 
     if ($is_this_what_is_present) {
-        my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $next_object);
-        confess "__PlonkIntoPlace failed. Shouldn't have, I think" 
+        my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $next_object );
+        confess "__PlonkIntoPlace failed. Shouldn't have, I think"
             unless $plonk_result->PlonkWasSuccessful();
         my $wso = $plonk_result->get_resultant_object();
         my $reln;
@@ -152,7 +146,7 @@ sub ExtendInDirection {
         unless ($reln) {
             my @wso_cats = map { $_->get_name() } @{ $wso->get_categories() };
             my @object_at_end_cats =
-              map { $_->get_name() } @{ $object_at_end->get_categories() };
+                map { $_->get_name() } @{ $object_at_end->get_categories() };
             my @wso_part_cats = map {
                 [ map { $_->get_name() } @{ $_->get_categories() } ]
             } @$wso;
@@ -201,8 +195,7 @@ sub FindExtension {
     if ( $direction_of_self eq $direction_to_extend_in ) {
         $last_object = $items_ref->[ -1 - $skip ];
         my $last_state = $states_ref->[ -1 - $skip ];
-        ( $relation, $next_state ) =
-          $rule->GetRelationAndTransition($last_state);
+        ( $relation, $next_state ) = $rule->GetRelationAndTransition($last_state);
     }
     else {
         $last_object = $items_ref->[$skip];
@@ -210,39 +203,35 @@ sub FindExtension {
         ## items_ref: $items_ref
         ## last_object: $last_object->as_text()
         my $last_state = $states_ref->[$skip];
-        ( $relation, $next_state ) =
-          $rule->GetReverseRelationAndTransition($last_state);
+        ( $relation, $next_state ) = $rule->GetReverseRelationAndTransition($last_state);
     }
 
     my $next_pos = $last_object->get_next_pos_in_dir($direction_to_extend_in);
     return unless defined $next_pos;
     ## next_pos: $next_pos
 
-    my $expected_next_object =
-      apply_reln( $relation, $last_object->GetEffectiveObject() )
-      or return;
+    my $expected_next_object = apply_reln( $relation, $last_object->GetEffectiveObject() )
+        or return;
 
     unless (@$expected_next_object) {
         print "######################\n";
-        print("Item in RuleApp: ", $_->as_text()) for @$items_ref;
+        print( "Item in RuleApp: ", $_->as_text() ) for @$items_ref;
         print "Skip=$skip\nDirection To Extend In: $direction_to_extend_in->{text}\n";
         print "Direction of Self: $direction_of_self->{text}\n";
         print "Relation: ", $relation->as_text(), "\n";
         print "Last object, effectively: ", $last_object->GetEffectiveObject()->as_text(), "\n";
+
         # confess "In SRuleApp::FindExtension, Empty object generated by apply_reln!\n";
         return;
     }
 
-    return SWorkspace->GetSomethingLike( # This is crazy! Fix workflow.
-        {
-            object      => $expected_next_object,
+    return SWorkspace->GetSomethingLike(    # This is crazy! Fix workflow.
+        {   object      => $expected_next_object,
             start       => $next_pos,
             direction   => $direction_to_extend_in,
-            trust_level => 50 *
-              $self->get_span() /
-              ( $SWorkspace::ElementCount + 1 ),    # !!
-            reason => 'Extension attempted for: ' . $rule->as_text(),
-            hilit_set => [@$items_ref],
+            trust_level => 50 * $self->get_span() / ( $SWorkspace::ElementCount + 1 ),    # !!
+            reason      => 'Extension attempted for: ' . $rule->as_text(),
+            hilit_set   => [@$items_ref],
         }
     );
 }
@@ -263,12 +252,11 @@ sub ExtendForward {
         ## Extending step: $_
         my $current_rightmost = $items_ref->[-1];
         my $rightmost_state   = $states_ref->[-1];
-        my ( $relation, $next_state ) =
-          $rule->GetRelationAndTransition($rightmost_state);
+        my ( $relation, $next_state ) = $rule->GetRelationAndTransition($rightmost_state);
         ## relation, next_state: ident $relation, $next_state
-        my $result =
-          $self->ExtendInDirection( $id, $direction_to_extend_in,
-            $current_rightmost, $relation, $next_state, 'end', );
+        my $result
+            = $self->ExtendInDirection( $id, $direction_to_extend_in, $current_rightmost, $relation,
+            $next_state, 'end', );
         ## result of extending: $result
         unless ($result) {    # Could not extend as many steps as desired!
             splice( @$items_ref,  $count );
@@ -295,12 +283,11 @@ sub ExtendBackward {
     for my $step ( 1 .. $steps ) {
         my $current_leftmost = $items_ref->[0];
         my $leftmost_state   = $states_ref->[0];
-        my ( $relation, $next_state ) =
-          $rule->GetReverseRelationAndTransition($leftmost_state);
-        my $result =
-          $self->ExtendInDirection( $id, $direction_to_extend_in,
-            $current_leftmost, $relation, $next_state, 'start' );
-        unless ($result) {    # Could not extend as many steps as desired!
+        my ( $relation, $next_state ) = $rule->GetReverseRelationAndTransition($leftmost_state);
+        my $result
+            = $self->ExtendInDirection( $id, $direction_to_extend_in, $current_leftmost, $relation,
+            $next_state, 'start' );
+        unless ($result) {                    # Could not extend as many steps as desired!
             splice( @$items_ref,  0, $step - 1 );
             splice( @$states_ref, 0, $step - 1 );
             return;
@@ -352,14 +339,12 @@ sub ExtendLeftMaximally {
     my $current_left_edge = $current_leftmost->get_left_edge();
 
     while ( $current_left_edge > 0 ) {
-        my ( $relation, $next_state ) =
-          $rule->GetReverseRelationAndTransition($leftmost_state);
+        my ( $relation, $next_state ) = $rule->GetReverseRelationAndTransition($leftmost_state);
         my $direction_of_self = $Direction_of{$id};
-        my $start_or_end =
-          ( $direction_of_self eq $DIR::RIGHT ) ? 'start' : 'end';
-        my $result =
-          $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost,
-            $relation, $next_state, $start_or_end );
+        my $start_or_end = ( $direction_of_self eq $DIR::RIGHT ) ? 'start' : 'end';
+        my $result
+            = $self->ExtendInDirection( $id, $DIR::LEFT, $current_leftmost, $relation, $next_state,
+            $start_or_end );
 
         if ($result) {
             $current_leftmost  = $items_ref->[0];
@@ -401,18 +386,16 @@ sub suggest_cat_for_ends {
 
 sub get_span {
     my ($self) = @_;
-    return List::Util::sum( map { $_->get_span() }
-          @{ $Items_of{ ident $self} } );
+    return List::Util::sum( map { $_->get_span() } @{ $Items_of{ ident $self} } );
 }
 
-sub get_edges{
-    my ( $self ) = @_;
-    my $id = ident $self;
-    my @items = @{$Items_of{$id}};
+sub get_edges {
+    my ($self) = @_;
+    my $id     = ident $self;
+    my @items  = @{ $Items_of{$id} };
 
-    return List::MoreUtils::minmax(map { $_->get_edges() } @items);
-    
+    return List::MoreUtils::minmax( map { $_->get_edges() } @items );
+
 }
-
 
 1;
