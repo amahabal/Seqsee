@@ -20,7 +20,7 @@ my $Canvas;
 my ( $Width, $Height );
 Construct Tk::Widget 'Seqsee';
 
-my @ViewOptions = (
+our @ViewOptions = (
     ['Workspace + Stream', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Stream', 0, 50, 100, 50 ],

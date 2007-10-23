@@ -91,6 +91,9 @@ sub FindTypeOfFlippedRelation {
             }
         );
     };
+    sub GetListOfSimpleRules {
+        return %MEMO;
+    }
 }
 
 {
@@ -106,6 +109,9 @@ sub FindTypeOfFlippedRelation {
             }
         );
     };
+    sub GetListOfCompoundRules {
+        return %MEMO;
+    }
 }
 
 sub create {

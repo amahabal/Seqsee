@@ -158,9 +158,32 @@ sub CreateSeqseeLaunchingFrame {
     }
     my $View;
     {   # Should be a pulldown!
+        use lib 'genlib';
+        use Tk::Seqsee;
+        use Tk::ComboEntry;
+        my @view_options = @Tk::Seqsee::ViewOptions;
+        my @options_to_list;
+        my %names_to_values;
+
+        my $counter = 0;
+        for (@view_options) {
+            my $name = $_->[0];
+            $names_to_values{$name} = $counter++;
+            push @options_to_list, $name;
+        }
+
         my $subframe = $frame->Frame()->pack(-side => 'top');
         $subframe->Label(-text => "View: ")->pack(-side=> 'left');
-        $subframe->Entry(-textvariable => \$View)->pack(-side=>'left');
+        # $subframe->Entry(-textvariable => \$View)->pack(-side=>'left');
+        $subframe->ComboEntry(-itemlist => \@options_to_list,
+                              -invoke => sub  {
+                                  my ($comboentry) = @_;
+                                  my $choice = $comboentry->get();
+                                  $View = $names_to_values{$choice};
+                              },
+                              -width => 40,
+                              -showmenu => 1,
+                                  )->pack(-side => 'left');
     }
     use lib 'genlib';
     use Global;
