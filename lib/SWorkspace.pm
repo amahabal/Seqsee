@@ -551,8 +551,9 @@ sub __GetLongestNonAdHocWithLeftExactRightBelow {
 
 # Distance, where each non-ad-hoc counts as 1
 sub __FindDistance {
-    my ( $object1, $object2, $mode ) = @_;
+    my ( $object1, $object2, $requested_mode ) = @_;
 
+    my $mode = $requested_mode;
     $mode ||= DISTANCE_MODE::PickOne();
 
     my $min_right = List::Util::min( $RightEdge_of{$object1}, $RightEdge_of{$object2} );
@@ -563,7 +564,15 @@ sub __FindDistance {
     }
 
     # Find distance now.
-    return __FindDistanceHelper_( $min_right + 1, $max_left - 1, $mode );
+    my $distance =  __FindDistanceHelper_( $min_right + 1, $max_left - 1, $mode );
+    if ($mode->IsUnitGroups() and !$requested_mode) {
+        # Is what we got really elements? If so, change unit.
+        my $magnitude = $distance->GetMagnitude;
+        if ($max_left - $min_right - 1 == $magnitude ) {
+            $distance = DISTANCE::InElements($magnitude); # change units.
+        }
+    }
+    return $distance;
 }
 
 sub __FindDistanceHelper_ {
