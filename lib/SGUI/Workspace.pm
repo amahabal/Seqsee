@@ -26,11 +26,13 @@ my $ElementsYFraction;
 my $ElementsY;
 my ( $MinGpHeightFraction, $MaxGpHeightFraction );
 my ( $MinGpHeight,         $MaxGpHeight );
+my ( $BarlineTop, $BarlineBottom);
 my $MetoYFraction;
 my $MetoY;
 my $SpacePerElement;
 my $GroupHtPerUnitSpan;
 my $RelnZenithFraction;
+my $BarlineHeightFraction;
 
 my %RelationsToHide;
 my %AnchorsForRelations;
@@ -40,11 +42,11 @@ BEGIN {
     my %layout_options = %{ $config{Layout} };
     (
         $Margin, $ElementsYFraction, $MinGpHeightFraction, $MaxGpHeightFraction,
-        $MetoYFraction, $RelnZenithFraction
+        $MetoYFraction, $RelnZenithFraction, $BarlineHeightFraction
       )
       = @layout_options{
         qw{Margin ElementsYFraction MinGpHeightFraction MaxGpHeightFraction
-          MetoYFraction RelnZenithFraction
+          MetoYFraction RelnZenithFraction BarlineHeightFraction
           }
       };
 }
@@ -59,6 +61,8 @@ sub Setup {
     $MinGpHeight = $EffectiveHeight * $MinGpHeightFraction;
     $MaxGpHeight = $EffectiveHeight * $MaxGpHeightFraction;
     $MetoY       = $YOffset + $Margin +$EffectiveHeight * $MetoYFraction;
+    $BarlineTop  = $ElementsY - $EffectiveHeight * 0.5 * $BarlineHeightFraction;
+    $BarlineBottom  = $ElementsY + $EffectiveHeight * 0.5 * $BarlineHeightFraction;
 }
 
 sub DrawIt {
@@ -71,6 +75,7 @@ sub DrawIt {
     DrawGroups();
     DrawElements();
     DrawRelations();
+    DrawBarLines();
     DrawLastRunnable();
 }
 
@@ -188,6 +193,16 @@ sub DrawRelations {
         $rel->draw_ws3();
     }
 }
+
+sub DrawBarLines {
+    my @barlines = SWorkspace->GetBarLines();
+    
+    for my $index (@barlines) {
+        my $xpos = $Margin + $index * $SpacePerElement; 
+        $Canvas->createLine($xpos, $BarlineTop, $xpos, $BarlineBottom);
+    }
+}
+
 
 sub DrawMetonym {
     my ($opts_ref) = @_;

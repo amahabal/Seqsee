@@ -43,6 +43,9 @@ my %SuperGroups_of;   # Groups whose direct element is this group.
 my %Span_of;          # Span.
 my %LiveAtSomePoint;  # List of all live objects ever.
 
+my @BarLines;
+my $BarLineCount = 0;
+
 sub GetElements {
     my ($package) = @_;
     return @Elements;
@@ -708,6 +711,48 @@ sub __AddGroup {
     return 1;
     
 }
+
+#############################################
+# BAR LINES
+#############################################
+sub __ClearBarLines {
+    @BarLines = ();
+    $BarLineCount = 0;
+}
+
+sub __AddBarLines {
+    my ( @indices ) = @_;
+    @BarLines = sort { $a <=> $b } (@BarLines, @indices);
+    $BarLineCount = scalar(@BarLines);
+}
+
+sub GetBarLines {
+    return @BarLines;
+}
+
+
+sub __ClosestBarLineToLeftGivenIndex {
+    my ( $index ) = @_;
+    return unless $BarLineCount;
+    return if $BarLines[0] > $index;
+    my $count = 1;
+    while ($count < $BarLineCount and $BarLines[$count] <= $index) {
+        $count++;
+    }
+    return $BarLines[$count - 1];
+}
+
+sub __ClosestBarLineToRightGivenIndex {
+    my ( $index ) = @_;
+    return unless $BarLineCount;
+    return if $BarLines[-1] <= $index;
+    my $count = $BarLineCount - 2;
+    while ($count > -1 and $BarLines[$count] > $index) {
+        $count--;
+    }
+    return $BarLines[$count + 1];
+}
+
 
 
 #=============================================
