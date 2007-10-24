@@ -71,7 +71,7 @@ sub GenerateBeginBlock {
         \$Margin = \$config{Layout}{Margin};
 
         my \%layout_options = \%{ \$config{$config_set_name} };
-        ($var_list) = \@layout_options{ qw{$names_list}; };
+        ($var_list) = \@layout_options{ qw{$names_list} };
     }
     };
 }
