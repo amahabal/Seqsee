@@ -27,8 +27,7 @@ my %changed_bindings_of_of : ATTR(:get<changed_bindings_ref>);
 my %position_reln_of : ATTR(:get<position_reln>);
 my %metonymy_reln_of : ATTR(:get<metonymy_reln>);
 my %direction_reln_of : ATTR(:get<direction_reln>);
-my %slippages_of :ATTR(:get<slippages_ref>); #key: new attribute, val: old att
-
+my %slippages_of : ATTR(:get<slippages_ref>);    #key: new attribute, val: old att
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -72,7 +71,7 @@ sub BUILD {
                     position_reln                                       )
                 },
             join( ";", map { "$_=>" . $changed_bindings{$_}->get_type() } keys %changed_bindings ),
-            join(';', %{$opts{slippages} || {}}),
+            join( ';', %{ $opts{slippages} || {} } ),
         );
 
         ## attempted creation: $string
@@ -96,17 +95,34 @@ sub as_text {
     my ($self) = @_;
     my $id = ident $self;
 
-    my $basecat = $base_category_of{$id}->as_text();
+    my $basecat          = $base_category_of{$id}->as_text();
     my $changed_bindings = $changed_bindings_of_of{$id};
     my $changed_bindings_string;
-    while (my($k, $v) = each %$changed_bindings) {
-        $changed_bindings_string .= "$k => " . $v->as_text() . ";";
+    my $metonymy_presence = $base_meto_mode_of{$id}->is_metonymy_present() ? '*' : '';
+    my %slippages = %{ $slippages_of{$id} };
+    if (%slippages) {
+        while ( my ( $new, $old ) = each %slippages ) {
+            my $reln_for_this_attribute = $changed_bindings->{$new};
+            if ($reln_for_this_attribute) {
+                $changed_bindings_string .= "$new => " . $reln_for_this_attribute->as_text();
+                $changed_bindings_string .= " (of $old)" if $old ne $new;
+                $changed_bindings_string .= ';';
+            }
+            else {
+                if ( $old ne $new ) {
+                    $changed_bindings_string .= "new $new is the earlier $old;";
+                }
+            }
+        }
+    }
+    else {
+        while ( my ( $k, $v ) = each %$changed_bindings ) {
+            $changed_bindings_string .= "$k => " . $v->as_text() . ";";
+        }
     }
     chop($changed_bindings_string);
-    my $metonymy_presence = $base_meto_mode_of{$id}->is_metonymy_present() ? '*' : '';
-    my %slippages = %{$slippages_of{$id}};
-    my $slippages_str = %slippages ? '{' .join(',',%slippages). '}': '';
-    return "[$basecat$metonymy_presence] $slippages_str $changed_bindings_string";
+
+    return "[$basecat$metonymy_presence]  $changed_bindings_string";
 }
 
 multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
@@ -128,11 +144,11 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     my $new_bindings_ref     = {};
 
     if (%$slippages_ref) {
-        for my $att (keys %$slippages_ref) {
+        for my $att ( keys %$slippages_ref ) {
             my $old_attr = $slippages_ref->{$att} or next;
             my $val = $bindings_ref->{$old_attr};
-            if (exists $changed_bindings_ref->{$att}) {
-                $new_bindings_ref->{$att}= apply_reln( $changed_bindings_ref->{$att}, $val);
+            if ( exists $changed_bindings_ref->{$att} ) {
+                $new_bindings_ref->{$att} = apply_reln( $changed_bindings_ref->{$att}, $val );
                 next;
             }
             $new_bindings_ref->{$att} = $val;
@@ -144,8 +160,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
             ## $k, $v: $k, $v
             if ( exists $changed_bindings_ref->{$k} ) {
                 ## cbr: $changed_bindings_ref->{$k}
-                $new_bindings_ref->{$k} =
-                  apply_reln( $changed_bindings_ref->{$k}, $v );
+                $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k}, $v );
                 next;
             }
             ## handled
@@ -168,8 +183,8 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
     unless ( $reln_meto_mode == METO_MODE::NONE() ) {
 
         # Calculate the metonymy type of the new object
-        my $new_metonymy_type =
-          apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
+        my $new_metonymy_type
+            = apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
         return unless $new_metonymy_type;
 
         if ( $reln_meto_mode == METO_MODE::ALL() ) {
@@ -178,8 +193,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
         else {
 
             # If we get here, position is relevant!
-            my $new_position =
-              apply_reln( $reln->get_position_reln, $bindings->get_position );
+            my $new_position = apply_reln( $reln->get_position_reln, $bindings->get_position );
             ## new_blemish position: $new_position->get_name()
             return unless $new_position;
             ## $reln->get_position_reln()->get_text()
@@ -193,11 +207,7 @@ multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
 
             ## $new_object->get_structure
             my $blemished;
-            eval {
-                $blemished =
-                  $ret_obj->apply_blemish_at( $new_metonymy_type,
-                    $new_position );
-            };
+            eval { $blemished = $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position ); };
             ## new object: $ret_obj->get_structure
             return unless $blemished;
             $ret_obj = $blemished;
@@ -280,7 +290,7 @@ sub as_insertlist {
             my $sublist = new SInsertList;
             $sublist->append( $k, "", "\t", "" );
             $sublist->concat( $v->as_insertlist(0)->indent(1) );
-            $sublist->append( "\n" );
+            $sublist->append("\n");
             $list->concat( $sublist->indent(1) );
         }
         return $list;
@@ -289,23 +299,21 @@ sub as_insertlist {
     confess "Verbosity $verbosity not implemented for " . ref $self;
 }
 
-sub suggest_cat_for_ends{
-    my ( $self ) = @_;
-    my $id = ident $self;
-    my $base_meto_mode = $base_meto_mode_of{$id};
+sub suggest_cat_for_ends {
+    my ($self)              = @_;
+    my $id                  = ident $self;
+    my $base_meto_mode      = $base_meto_mode_of{$id};
     my $is_metonymy_present = $base_meto_mode->is_metonymy_present();
 
     my $base_category = $base_category_of{$id};
-    # XXX(Board-it-up): [2006/12/31] I should also take into account unchanged bindings as a basis for more specific categories...
+
+# XXX(Board-it-up): [2006/12/31] I should also take into account unchanged bindings as a basis for more specific categories...
     return unless $is_metonymy_present;
-    return $base_category->derive_blemished(); 
+    return $base_category->derive_blemished();
 }
 
-sub suggest_cat{
+sub suggest_cat {
     return;
 }
-
-
-
 
 1;
