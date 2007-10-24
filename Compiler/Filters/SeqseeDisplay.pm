@@ -27,13 +27,16 @@ sub GenerateCode {
 
     my $PackageName = "SGUI::$widget_name";
     my $Preamble    = GeneratePreamble();
+    my $InitialCode = $blocks_hash->{InitialCode} || '';
     my $BeginBlock = GenerateBeginBlock($widget_name.'Layout', \@ConfigNames);
     my $SetupBlock = GenerateSetupBlock($blocks_hash->{Setup});
     my $DrawItBlock = GenerateDrawItBlock($blocks_hash->{DrawIt});
     my $ExtraStuff  = $blocks_hash->{ExtraStuff};
     my $return = Compiler::Filter::tidy(qq{{
 package $PackageName;
-$Preamble my ($VarNamesString);
+$Preamble
+my ($VarNamesString);
+$InitialCode
 $BeginBlock $SetupBlock $DrawItBlock $ExtraStuff
     }
 1;
