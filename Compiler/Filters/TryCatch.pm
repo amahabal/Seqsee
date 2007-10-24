@@ -43,7 +43,7 @@ sub GenerateCatchBlock {
         return $Filter if $Filter;
         $Filter = Compiler::Filter::CreateFilter( "TRY", $Grammar, "TryCatch" );
         unless ($Filter) {
-            confess "Error creating filter Compiler::Filters::Style";
+            confess "Error creating filter Compiler::Filters::TryCatch";
         }
         return $Filter;
     }

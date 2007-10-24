@@ -12,6 +12,7 @@ use Compiler::Filters::CodeletFamily;
 use Compiler::Filters::ThoughtType;
 use Compiler::Filters::Style;
 use Compiler::Filters::TryCatch;
+use Compiler::Filters::SeqseeDisplay;
 
 my @FILTERS;
 push @FILTERS, Compiler::Filters::Formula::GetFilter();
@@ -19,7 +20,7 @@ push @FILTERS, Compiler::Filters::TryCatch::GetFilter();
 push @FILTERS, Compiler::Filters::CodeletFamily::GetFilter();
 push @FILTERS, Compiler::Filters::ThoughtType::GetFilter();
 push @FILTERS, Compiler::Filters::Style::GetFilter();
-
+push @FILTERS, Compiler::Filters::SeqseeDisplay::GetFilter();
 
 sub CompileAllFiles {
     for my $file (glob('lib/*.pm lib/*/*.pm lib/*/*/*.pm')) {
