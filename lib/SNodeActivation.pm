@@ -52,5 +52,6 @@ sub {
     for ( \@_ ) {
         $SPIKE_CODE;
     }
+    return \$_[-1][2];
 }
 };

@@ -47,7 +47,7 @@ sub CheckConsitencyOfGroup {
     my ( $self, $group ) = @_;
     my $id = ident $self;
 
-    # If the ruleapp does not fully cover group, it in not inconsistent
+    # If the ruleapp does not fully cover group, it is still consistent
     my ( $left,    $right )    = $self->get_edges();
     my ( $gp_left, $gp_right ) = $group->get_edges();
     return 1 unless ( $gp_left >= $left and $gp_right <= $right );
