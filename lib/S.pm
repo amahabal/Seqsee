@@ -52,6 +52,7 @@ use SThought::Load;
 use Scripts::Load;
 
 use SActivation;
+use SNodeActivation;
 use SLTM;
 
 use SRule;

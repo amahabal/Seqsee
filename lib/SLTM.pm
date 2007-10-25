@@ -7,16 +7,16 @@ use Carp;
 use Smart::Comments;
 
 use SLTM::Platonic;
-use SActivation;    # In order to use constnts defined there.
 
 use constant {
-    LTM_FOLLOWS        => 1,
-    LTM_IS             => 2,
-    LTM_CAN_BE_SEEN_AS => 3,
-    LTM_TYPE_COUNT     => 3,
+    LTM_FOLLOWS        => 1, # Link of type A often follows B in sequences
+    LTM_IS             => 2, # A is an instance of B
+    LTM_CAN_BE_SEEN_AS => 3, # A has been squinted as B
+    LTM_TYPE_COUNT     => 3, # 
 };
 
 our @PRECALCULATED = @SActivation::PRECALCULATED;
+confess "Load order issues" unless @PRECALCULATED;
 
 our %MEMORY;                 # Just has the index into @MEMORY.
 our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
@@ -37,7 +37,8 @@ sub Clear {
     %MEMORY      = ();
     $NodeCount   = 0;
     @MEMORY      = ('!!!');                   # Remember, its 1-based
-    @ACTIVATIONS = ( SActivation->new() );    # Remember, this, too, is 1-based
+    @ACTIVATIONS = ( SNodeActivation->new() );    # Remember, this, too, is 1-based
+    @LINKS = ();
     @OUT_LINKS   = ('!!!');
 }
 
@@ -69,7 +70,7 @@ sub InsertNode {
     $NodeCount++;
     push @MEMORY, $pure;
     ## ACTIVATIONS: @ACTIVATIONS
-    push @ACTIVATIONS, SActivation->new();
+    push @ACTIVATIONS, SNodeActivation->new();
     ## ACTIVATIONS NOW: @ACTIVATIONS
     push @OUT_LINKS, [];
     $MEMORY{$pure} = $NodeCount;
@@ -123,7 +124,7 @@ sub SpreadActivationFrom {
     my %nodes_at_distance_below_1 = ( $root_index, 0 );    # Keys are nodes.
           # values are amount of activation pumped into them.
 
-    my $activation = $ACTIVATIONS[$root_index][$SActivation::REAL_ACTIVATION];    # is fn faster?
+    my $activation = $ACTIVATIONS[$root_index][$SNodeActivation::REAL_ACTIVATION];    # is fn faster?
     for my $link_set ( @{ $OUT_LINKS[$root_index] } ) {
         while ( my ( $target_index, $link ) = each %$link_set ) {
             my $amount_to_spread = $link->AmountToSpread($activation);
@@ -177,11 +178,10 @@ sub Dump {
 
     for my $index ( 1 .. $NodeCount ) {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
-        my ( $significance, $stability ) = (
-            $activation->[SActivation::RAW_SIGNIFICANCE],
-            $activation->[SActivation::STABILITY_RECIPROCAL]
+        my ( $depth_reciprocal ) = (
+            $activation->[SNodeActivation::DEPTH_RECIPROCAL],
         );
-        print {$filehandle} "=== $index: ", ref($pure), " $significance $stability\n",
+        print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n",
             $pure->serialize(), "\n";
     }
 
@@ -221,13 +221,13 @@ sub Load {
         s#\s*$##;
         next if m#^$#;
         my ( $type_and_sig, $val ) = split( /\n/, $_, 2 );
-        my ( $type, $significance, $stability ) = split( /\s/, $type_and_sig, 3 );
+        my ( $type, $depth_reciprocal ) = split( /\s/, $type_and_sig, 2 );
         ## type, val: $type, $val
         my $pure = $type->deserialize($val);
         ## pure: $pure
         confess qq{Could not find pure: type='$type', val='$val'} unless defined($pure);
         my $index = InsertNode($pure);
-        SetSignificanceAndStabilityForIndex( $index, $significance, $stability );
+        SetDepthReciprocalForIndex( $index, $depth_reciprocal );
     }
     ## nodes: @nodes
 
@@ -303,6 +303,12 @@ sub SetSignificanceAndStabilityForIndex {
     $activation_object->[SActivation::STABILITY_RECIPROCAL] = $stability;
 }
 
+sub SetDepthReciprocalForIndex {
+    my ( $index, $depth_reciprocal ) = @_;
+    $ACTIVATIONS[$index][SNodeActivation::DEPTH_RECIPROCAL] = $depth_reciprocal;
+}
+
+
 sub SetRawActivationForIndex {
     my ( $index, $activation ) = @_;
     $ACTIVATIONS[$index]->[SActivation::RAW_ACTIVATION] = $activation;
@@ -312,12 +318,13 @@ sub SpikeBy {
     my ( $amount, $concept ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    $ACTIVATIONS[ GetMemoryIndex($concept) ]->Spike( int($amount) );
+    SNodeActivation::SpikeSeveral($amount, $ACTIVATIONS[ GetMemoryIndex($concept) ]);
 }
 
 my $DecayString = qq{
     sub {
-        for ( \@ACTIVATIONS, \@LINKS ) {
+        SNodeActivation::DecayManyTimes(1, \@ACTIVATIONS);
+        for ( \@LINKS ) {
             $SActivation::DECAY_CODE;
         }
     }
@@ -327,25 +334,25 @@ my $DecayString = qq{
 
 sub GetRawActivationsForIndices {
     my ($index_ref) = @_;
-    return [ map { $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION] } @$index_ref ];
+    return [ map { $ACTIVATIONS[$_]->[SNodeActivation::RAW_ACTIVATION] } @$index_ref ];
 }
 
 sub GetRealActivationsForIndices {
     my ($index_ref) = @_;
-    return [ map { $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION] } @$index_ref ];
+    return [ map { $ACTIVATIONS[$_]->[SNodeActivation::REAL_ACTIVATION] } @$index_ref ];
 }
 
 sub GetRealActivationsForConcepts {
     my ($index_ref) = @_;
-    return [ map { $ACTIVATIONS[ GetMemoryIndex($_) ]->[SActivation::REAL_ACTIVATION] }
+    return [ map { $ACTIVATIONS[ GetMemoryIndex($_) ]->[SNodeActivation::REAL_ACTIVATION] }
             @$index_ref ];
 }
 
 {
     my $chooser_given_indices
-        = SChoose->create( { map => q{$SLTM::ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION]} } );
+        = SChoose->create( { map => q{$SLTM::ACTIVATIONS[$_]->[SNodeActivation::REAL_ACTIVATION]} } );
     my $chooser_given_concepts = SChoose->create(
-        { map => q{$SLTM::ACTIVATIONS[$SLTM::MEMORY{$_}]->[SActivation::REAL_ACTIVATION]} } );
+        { map => q{$SLTM::ACTIVATIONS[$SLTM::MEMORY{$_}]->[SNodeActivation::REAL_ACTIVATION]} } );
 
     sub ChooseIndexGivenIndex {
         return $chooser_given_indices->( $_[0] );
@@ -377,9 +384,8 @@ sub GetTopConcepts {
     my ($N) = @_;
     return map {
         [   $MEMORY[$_],
-            $ACTIVATIONS[$_]->[SActivation::REAL_ACTIVATION],
-            $ACTIVATIONS[$_]->[SActivation::RAW_ACTIVATION],
-            $ACTIVATIONS[$_]->[SActivation::RAW_SIGNIFICANCE]
+            $ACTIVATIONS[$_]->[SNodeActivation::REAL_ACTIVATION],
+            $ACTIVATIONS[$_]->[SNodeActivation::RAW_ACTIVATION],
         ]
     } ( 1 .. $NodeCount );
 }
