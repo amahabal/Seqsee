@@ -1,9 +1,10 @@
 SeqseeDisplay Rules is {
-ConfigNames: { RowCount }
-Variables: { xpos ystart row_height}
+ConfigNames: { RowCount RejectionTimeOffset NameOffset}
+Variables: { rejection_x name_x ystart row_height}
 InitialCode: { }
 Setup: { 
-        $xpos = $XOffset + $Margin + 10;
+        $rejection_x = $XOffset + $Margin + $RejectionTimeOffset;
+        $name_x = $XOffset + $Margin + $NameOffset;
         $ystart = $YOffset + $Margin + 10;
         $row_height = $EffectiveHeight / $RowCount;
 }
@@ -13,9 +14,11 @@ DrawIt: {
                          );
         my $ypos = $ystart;
         while (my($k, $v) = each %rules) {
-            $Canvas->createText($xpos, $ypos, -anchor => 'nw',
+            $Canvas->createText($name_x, $ypos, -anchor => 'nw',
                                 -text => $v->as_text()
                                     );
+            $Canvas->createText($rejection_x, $ypos, -anchor => 'nw',
+                                    -text => $v->GetRejectTime());
             $ypos += $row_height;
         }
 

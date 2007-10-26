@@ -22,7 +22,7 @@ our %FlippedRelations_of : ATTR;                 # Fliped versions, if needed.
 our %InverseTransitionFunction_of : ATTR;        # To move left. state->[state]
 our %ReverseRelations_of : ATTR;                 # To move left. state->reln.
 
-our %Rejects_of : ATTR;                          # When has this rule been rejected?
+our %Rejects_of : ATTR;       # When has this rule been rejected?
 
 multimethod 'apply_reln';
 
@@ -61,7 +61,7 @@ sub BUILD {
         }
     }
     $ReverseRelations_of{$id} = \@rev_reln;
-
+    $Rejects_of{$id} = [];
 }
 
 sub FindTypeOfFlippedRelation {
@@ -91,6 +91,7 @@ sub FindTypeOfFlippedRelation {
             }
         );
     };
+
     sub GetListOfSimpleRules {
         return %MEMO;
     }
@@ -109,6 +110,7 @@ sub FindTypeOfFlippedRelation {
             }
         );
     };
+
     sub GetListOfCompoundRules {
         return %MEMO;
     }
@@ -280,6 +282,14 @@ sub Reject {
     my ($self) = @_;
     unshift @{ $Rejects_of{ ident $self} }, $Global::Steps_Finished;
 }
+
+sub GetRejectTime {
+    my ( $self ) = @_;
+    my @reject_times = @{$Rejects_of{ident $self}};
+    return $reject_times[0] if @reject_times;
+    return '----';
+}
+
 
 sub as_text {
     my ($self) = @_;
