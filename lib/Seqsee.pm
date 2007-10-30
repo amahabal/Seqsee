@@ -290,6 +290,8 @@ sub _read_config{
         confess "Seqsee is being used interactively: absolutely must have the update interval: it cannot use the value $RETURN_ref->{update_interval}";
     }
 
+    print "View: $RETURN_ref->{view}!\n";
+
     return $RETURN_ref;
 }
 

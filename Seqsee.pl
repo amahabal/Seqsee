@@ -1,5 +1,4 @@
 use strict;
-
 use lib 'genlib/';
 
 use Config::Std;
@@ -11,6 +10,9 @@ use Seqsee;
 
 use Carp;
 use Tk::Carp qw{tkdie};
+use Tk::Menustrip;
+use Tk::ComboEntry;
+
 use Smart::Comments;
 use List::Util qw(min);
 use UNIVERSAL::require;

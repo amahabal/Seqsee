@@ -218,6 +218,7 @@ sub CreateSeqseeLaunchingFrame {
                                        );
                        my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
                        $subprocess_cmd->();
+                       print "View was $View\n";
                    }
                        )->pack(-side=>'top');
 }
