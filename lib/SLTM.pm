@@ -9,23 +9,23 @@ use Smart::Comments;
 use SLTM::Platonic;
 
 use constant {
-    LTM_FOLLOWS        => 1, # Link of type A often follows B in sequences
-    LTM_IS             => 2, # A is an instance of B
-    LTM_CAN_BE_SEEN_AS => 3, # A has been squinted as B
-    LTM_TYPE_COUNT     => 3, # 
+    LTM_FOLLOWS        => 1,    # Link of type A often follows B in sequences
+    LTM_IS             => 2,    # A is an instance of B
+    LTM_CAN_BE_SEEN_AS => 3,    # A has been squinted as B
+    LTM_TYPE_COUNT     => 3,    #
 };
 
 our @PRECALCULATED = @SActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
 
-our %MEMORY;                 # Just has the index into @MEMORY.
-our @MEMORY;                 # Is 1-based, so that I can say $MEMORY{$x} || ...
-our @ACTIVATIONS;            # Also 1-based, an array of SActivation objects.
-our @LINKS;                  # List of all links, for decay purposes.
-our @OUT_LINKS;              # Also 1-based; Outgoing links from given node.
-our $NodeCount;              # Number of nodes.
-our %_PURE_CLASSES_;         # List of pure classes: those that can be stored in the LTM.
-our %CurrentlyInstalling;    # We are currently installing these. Needed to detect cycles.
+our %MEMORY;                    # Just has the index into @MEMORY.
+our @MEMORY;                    # Is 1-based, so that I can say $MEMORY{$x} || ...
+our @ACTIVATIONS;               # Also 1-based, an array of SActivation objects.
+our @LINKS;                     # List of all links, for decay purposes.
+our @OUT_LINKS;                 # Also 1-based; Outgoing links from given node.
+our $NodeCount;                 # Number of nodes.
+our %_PURE_CLASSES_;            # List of pure classes: those that can be stored in the LTM.
+our %CurrentlyInstalling;       # We are currently installing these. Needed to detect cycles.
 
 %_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
@@ -36,9 +36,9 @@ Clear();
 sub Clear {
     %MEMORY      = ();
     $NodeCount   = 0;
-    @MEMORY      = ('!!!');                   # Remember, its 1-based
+    @MEMORY      = ('!!!');                       # Remember, its 1-based
     @ACTIVATIONS = ( SNodeActivation->new() );    # Remember, this, too, is 1-based
-    @LINKS = ();
+    @LINKS       = ();
     @OUT_LINKS   = ('!!!');
 }
 
@@ -84,9 +84,10 @@ sub __InsertLinkUnlessPresent {
     my ( $from_index, $to_index, $modifier_index, $type ) = @_;
     my $outgoing_links_ref = ( $OUT_LINKS[$from_index][$type] ||= {} );
 
-    if (my $link = $outgoing_links_ref->{$to_index}) {
+    if ( my $link = $outgoing_links_ref->{$to_index} ) {
         return $link;
-    } else {
+    }
+    else {
         my $new_link = SLinkActivation->new($modifier_index);
         $outgoing_links_ref->{$to_index} = $new_link;
         push @LINKS, $new_link;
@@ -124,7 +125,7 @@ sub SpreadActivationFrom {
     my %nodes_at_distance_below_1 = ( $root_index, 0 );    # Keys are nodes.
           # values are amount of activation pumped into them.
 
-    my $activation = $ACTIVATIONS[$root_index][$SNodeActivation::REAL_ACTIVATION];    # is fn faster?
+    my $activation = $ACTIVATIONS[$root_index][$SNodeActivation::REAL_ACTIVATION];   # is fn faster?
     for my $link_set ( @{ $OUT_LINKS[$root_index] } ) {
         while ( my ( $target_index, $link ) = each %$link_set ) {
             my $amount_to_spread = $link->AmountToSpread($activation);
@@ -133,8 +134,7 @@ sub SpreadActivationFrom {
             my $node_name = $MEMORY[$target_index]->as_text();
             main::debug_message(
                 "distance = 1 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
-                1,
-                1
+                1, 1
             );
         }
     }
@@ -151,8 +151,7 @@ sub SpreadActivationFrom {
                 my $node_name = $MEMORY[$target_index]->as_text();
                 main::debug_message(
                     "distance = 2 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
-                    1,
-                    1
+                    1, 1
                 );
             }
         }
@@ -178,11 +177,9 @@ sub Dump {
 
     for my $index ( 1 .. $NodeCount ) {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
-        my ( $depth_reciprocal ) = (
-            $activation->[SNodeActivation::DEPTH_RECIPROCAL],
-        );
-        print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n",
-            $pure->serialize(), "\n";
+        my ($depth_reciprocal) = ( $activation->[SNodeActivation::DEPTH_RECIPROCAL], );
+        print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n", $pure->serialize(),
+            "\n";
     }
 
     # Links.
@@ -296,10 +293,11 @@ sub Load {
 sub SetSignificanceAndStabilityForIndex {
     my ( $index, $significance, $stability ) = @_;
     my $activation_object = $ACTIVATIONS[$index];
+
     # The / 5 in next line: too many concepts end up hyperactive o/w. This limits their
     # influence at load time, yet biases a little bit towards faster activation.
     # Also, now stability rises only if *for several problems* significance is high.
-    $activation_object->[SActivation::RAW_SIGNIFICANCE]     = int($significance/5);
+    $activation_object->[SActivation::RAW_SIGNIFICANCE]     = int( $significance / 5 );
     $activation_object->[SActivation::STABILITY_RECIPROCAL] = $stability;
 }
 
@@ -307,7 +305,6 @@ sub SetDepthReciprocalForIndex {
     my ( $index, $depth_reciprocal ) = @_;
     $ACTIVATIONS[$index][SNodeActivation::DEPTH_RECIPROCAL] = $depth_reciprocal;
 }
-
 
 sub SetRawActivationForIndex {
     my ( $index, $activation ) = @_;
@@ -318,7 +315,7 @@ sub SpikeBy {
     my ( $amount, $concept ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    SNodeActivation::SpikeSeveral($amount, $ACTIVATIONS[ GetMemoryIndex($concept) ]);
+    SNodeActivation::SpikeSeveral( $amount, $ACTIVATIONS[ GetMemoryIndex($concept) ] );
 }
 
 my $DecayString = qq{
@@ -348,9 +345,14 @@ sub GetRealActivationsForConcepts {
             @$index_ref ];
 }
 
+sub GetRealActivationsForOneConcept {
+    my ($concept) = @_;
+    return $ACTIVATIONS[ GetMemoryIndex( $_[0] ) ]->[SNodeActivation::REAL_ACTIVATION];
+}
+
 {
-    my $chooser_given_indices
-        = SChoose->create( { map => q{$SLTM::ACTIVATIONS[$_]->[SNodeActivation::REAL_ACTIVATION]} } );
+    my $chooser_given_indices = SChoose->create(
+        { map => q{$SLTM::ACTIVATIONS[$_]->[SNodeActivation::REAL_ACTIVATION]} } );
     my $chooser_given_concepts = SChoose->create(
         { map => q{$SLTM::ACTIVATIONS[$SLTM::MEMORY{$_}]->[SNodeActivation::REAL_ACTIVATION]} } );
 
@@ -395,9 +397,9 @@ sub FindActiveFollowers {
     $cutoff ||= 0.3;
 
     my $node_id = GetMemoryIndex($node);
-    my $follows_links_ref = ($OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {});
-    return @MEMORY[ grep { $ACTIVATIONS[$_][SActivation::REAL_ACTIVATION()] > $cutoff } keys %$follows_links_ref];
+    my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
+    return @MEMORY[ grep { $ACTIVATIONS[$_][ SActivation::REAL_ACTIVATION() ] > $cutoff }
+        keys %$follows_links_ref ];
 }
-
 
 1;

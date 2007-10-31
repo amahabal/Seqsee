@@ -29,6 +29,8 @@ my %metonymy_reln_of : ATTR(:get<metonymy_reln>);
 my %direction_reln_of : ATTR(:get<direction_reln>);
 my %slippages_of : ATTR(:get<slippages_ref>);    #key: new attribute, val: old att
 
+my %complexity_penalty_of :ATTR(:get<complexity_penalty>);
+
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $base_category_of{$id}         = $opts_ref->{base_category};
@@ -40,6 +42,8 @@ sub BUILD {
     $position_reln_of{$id}         = $opts_ref->{position_reln};
     $string_representation_of{$id} = $opts_ref->{string};
     $direction_reln_of{$id}        = $opts_ref->{dir_reln};
+
+    $complexity_penalty_of{$id} = $self->CalculateComplexityPenalty();
 }
 
 {
@@ -315,5 +319,32 @@ sub suggest_cat_for_ends {
 sub suggest_cat {
     return;
 }
+
+sub CalculateComplexityPenalty {
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my $return = 1;
+
+    # Slippages penalty
+    while (my($k, $v) = each %{$slippages_of{$id}}) {
+        $return *= 0.8 if $k ne $v; 
+    }
+
+    # Changed bindings penalty
+    while (my($k, $v) = each %{$changed_bindings_of_of{$id}}) {
+        $return *= $v->get_complexity_penalty;
+    }
+
+    # Complex metonymy change penalty
+    my $base_meto_mode = $base_meto_mode_of{$id};
+    if ($base_meto_mode->is_metonymy_present()) {
+        $return *= $position_reln_of{$id}->CalculateComplexityPenalty() if $base_meto_mode->is_position_relevant();
+        $return *= $metonymy_reln_of{$id}->CalculateComplexityPenalty();
+    }
+
+    return $return;
+}
+
 
 1;

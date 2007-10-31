@@ -126,6 +126,13 @@ sub suggest_cat_for_ends{
     return;
 }
 
+my %ComplexityLookup = qw{same 1 succ 0.9 pred 0.9};
+sub get_complexity_penalty {
+    my ( $self ) = @_;
+    my $string = $string_of{ident $self};
+    return $ComplexityLookup{$string} || die;
+}
+
 
 1;
 

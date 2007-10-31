@@ -360,8 +360,10 @@ sub suggest_cat_for_ends {
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength =
-      20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );
+    my $type = $self->get_type;
+    my $strength = 100 * SLTM::GetRealActivationsForOneConcept($type);
+    my $complexity_penalty = $type->get_complexity_penalty;
+    $strength *= $complexity_penalty;
 
     $strength = 100 if $strength > 100;
     $self->set_strength($strength);

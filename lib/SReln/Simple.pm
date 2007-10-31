@@ -178,7 +178,7 @@ sub as_insertlist {
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength = 20 + 0.4 * sum( map { $_->get_strength() } ( $self->get_ends() ) );
+    my $strength = 100 * SLTM::GetRealActivationsForOneConcept($self->get_type);
 
     $strength = 100 if $strength > 100;
     $self->set_strength($strength);

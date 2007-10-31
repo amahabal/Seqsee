@@ -146,6 +146,16 @@ sub as_text{
     return 'SReln::MetoType ' . $self;
 }
 
+sub CalculateComplexityPenalty {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $return = 1;
+    while (my($k, $v) = each %{$change_of_of{$id}}) {
+        $return *= $v->get_complexity_penalty;
+    }
+    return $return;
+}
+
 
 
 
