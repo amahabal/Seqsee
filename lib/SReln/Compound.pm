@@ -43,6 +43,9 @@ use Smart::Comments;
 use List::Util qw(sum shuffle);
 use List::MoreUtils qw(uniq);
 
+multimethod 'find_relation_string';
+multimethod 'find_relation_type';
+
 my %type_of : ATTR(:get<type>);        # The SRelnType::Compound object.
 my %first_of : ATTR( :get<first> );    # First object. Not necessarily the left.
 my %second_of : ATTR( :get<second> );  # Second object.
@@ -109,14 +112,14 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     return _find_reln( $o1, $o2, $cat );
 };
 
-multimethod find_reln => ('#', 'SElement') => sub {
+multimethod find_relation_string => ('#', 'SElement') => sub {
     my ( $num, $elt ) = @_;
-    return find_reln($num, $elt->get_mag());
+    return find_relation_string($num, $elt->get_mag());
 };
 
-multimethod find_reln => ('SElement', '#') => sub {
+multimethod find_relation_string => ('SElement', '#') => sub {
     my ( $elt, $num ) = @_;
-    return find_reln($elt->get_mag(), $num);
+    return find_relation_string($elt->get_mag(), $num);
 };
 
 
@@ -207,10 +210,10 @@ sub CalculateBindingsChange_no_slips {
             $unchanged_ref->{$k} = $v1;
             next;
         }
-        my $rel = find_reln( $v1, $v2 );
+        my $rel = find_relation_type( $v1, $v2 );
         ## k, v1, v2, rel: $k, $v1, $v2, $rel
         return unless $rel;
-        $changed_ref->{$k} = $rel->get_type();
+        $changed_ref->{$k} = $rel;
     }
     $output_ref->{changed_bindings}   = $changed_ref;
     $output_ref->{unchanged_bindings} = $unchanged_ref;
@@ -243,10 +246,10 @@ sub CalculateBindingsChange_with_slips {
                 ## v = v2:
                 next LOOP;
             }
-            my $rel = find_reln( $v, $v2 );
+            my $rel = find_relation_type( $v, $v2 );
             next unless $rel;
             ## found rel:
-            $changed_ref->{$k2} = $rel->get_type();
+            $changed_ref->{$k2} = $rel;
             $slips_ref->{$k2}   = $k;
             next LOOP;
         }
@@ -364,6 +367,9 @@ sub UpdateStrength {
     my $strength = 100 * SLTM::GetRealActivationsForOneConcept($type);
     my $complexity_penalty = $type->get_complexity_penalty;
     $strength *= $complexity_penalty;
+
+    # Holeyness penalty
+    $strength *= 0.8 if $self->get_holeyness;
 
     $strength = 100 if $strength > 100;
     $self->set_strength($strength);

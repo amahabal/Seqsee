@@ -14,6 +14,7 @@ use English qw(-no_match_vars);
 
 use Class::Std;
 my %direction_reln_of : ATTR( :get<direction_reln> :set<direction_reln>  );
+my %holeyness_of :ATTR(:get<holeyness>);
 
 use Class::Multimethods;
 multimethod 'find_reln';
@@ -22,12 +23,10 @@ use Smart::Comments;
 sub BUILD{
     my ( $self, $id, $opts_ref ) = @_;
     my ($f, $s) = ($opts_ref->{first}, $opts_ref->{second});
-    if (ref($f) and ref($s)) {
-        ## $opts_ref->{first}
-        $direction_reln_of{$id} = find_reln( $f->get_direction, $s->get_direction());
-    } else {
-        $direction_reln_of{$id} = "unknown";
-    }
+    ### require: ref($f) and ref($s)
+
+    $direction_reln_of{$id} = find_reln( $f->get_direction, $s->get_direction());
+    $holeyness_of{$id} = SWorkspace->are_there_holes_here($f, $s);
 }
 
 

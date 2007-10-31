@@ -36,33 +36,15 @@ sub BUILD {
     $type_of{$id} = SRelnType::Simple->create( $arg_ref->{text} );
 }
 
-multimethod find_reln => ( '#', '#' ) => sub {
+multimethod find_relation_string => ('#', '#') => sub {
     my ( $a, $b ) = @_;
-    if ( $a == $b ) {
-        return SReln::Simple->new(
-            {   text   => "same",
-                first  => $a,
-                second => $b,
-            }
-        );
+    if ($a == $b) {
+        return "same";
+    } elsif ($a + 1 == $b) {
+        return "succ";
+    } elsif ($a - 1 == $b) {
+        return "pred";
     }
-    elsif ( $a + 1 == $b ) {
-        return SReln::Simple->new(
-            {   text   => "succ",
-                first  => $a,
-                second => $b,
-            }
-        );
-    }
-    elsif ( $a - 1 == $b ) {
-        return SReln::Simple->new(
-            {   text   => "pred",
-                first  => $a,
-                second => $b,
-            }
-        );
-    }
-
     return;
 };
 
@@ -85,13 +67,14 @@ multimethod find_reln => ( '$', '$' ) => sub {
 
 multimethod _find_reln => qw( SElement SElement ) => sub {
     my ( $e1, $e2 ) = @_;
-    my $rel = find_reln( $e1->get_mag(), $e2->get_mag );
-    if ($rel) {
-        my $id = ident $rel;
-        $first_of{$id}  = $e1;
-        $second_of{$id} = $e2;
+    my $relation_string = find_relation_string( $e1->get_mag(), $e2->get_mag );
+    if ($relation_string) {
+        return SReln::Simple->new({text => $relation_string,
+                             first => $e1,
+                             second => $e2}
+                                 );
     }
-    return $rel;
+    return;
 };
 
 sub as_text {
@@ -179,6 +162,9 @@ sub as_insertlist {
 sub UpdateStrength {
     my ($self) = @_;
     my $strength = 20 * SLTM::GetRealActivationsForOneConcept($self->get_type);
+
+    # Holeyness penalty
+    $strength *= 0.8 if $self->get_holeyness;
 
     $strength = 100 if $strength > 100;
     $self->set_strength($strength);

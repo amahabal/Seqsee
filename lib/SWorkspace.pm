@@ -1149,7 +1149,7 @@ sub are_there_holes_here {
     return 0 unless @items;
     my %slots_taken;
     for my $item (@items) {
-        SErr->throw("SAnchored->create called with a non anchored object")
+        SErr->throw("SWorkspace are_there_holes_here called with a non anchored object $item")
             unless UNIVERSAL::isa( $item, "SAnchored" );
         my ( $left, $right ) = $item->get_edges();
         @slots_taken{ $left .. $right } = ( $left .. $right );
