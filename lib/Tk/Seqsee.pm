@@ -17,6 +17,7 @@ use SGUI::Stream;
 use SGUI::Coderack;
 use SGUI::Rules;
 use SGUI::Relations;
+use SGUI::Groups;
 
 my $Canvas;
 my ( $Width, $Height );
@@ -47,6 +48,10 @@ our @ViewOptions = (
     ['Workspace + Relations', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Relations', 0, 50, 100, 50 ],
+            ]],
+    ['Workspace + Groups', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ 'SGUI::Groups', 0, 50, 100, 50 ],
             ]],
         );
 

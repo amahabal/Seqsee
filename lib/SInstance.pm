@@ -83,6 +83,13 @@ sub get_categories {
     return [ map { $S::Str2Cat{$_} } @cat_strings ];
 }
 
+sub get_categories_as_string {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return join(', ', keys %{$cats_of_of{$id}});
+}
+
+
 # method: is_of_category_p
 # Given a category, says if the object belongs to that category
 #
