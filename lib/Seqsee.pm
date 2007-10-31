@@ -47,7 +47,10 @@ sub run {
             SCodelet->new( "CheckProgress", 100, {} )->schedule();
         }
 
-        SLTM::DecayAll() unless $Global::Steps_Finished % 10;
+        if ($Global::Steps_Finished % 10 == 0) {
+            SLTM::DecayAll();
+            SWorkspace::__UpdateObjectStrengths();
+        }
     }
 }
 

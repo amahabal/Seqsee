@@ -93,12 +93,14 @@ RUN: {
             }
         };
         if ($is_this_what_is_present) {
+            SLTM::SpikeBy(100, $core);
             my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
             return unless $plonk_result->PlonkWasSuccessful();
             my $wso = $plonk_result->get_resultant_object();
 
             if ( $core->isa('SReln::Compound') ) {
                 my $type = $core->get_base_category;
+                SLTM::SpikeBy(100, $type);
                 ## Describe as: $type
                 $wso->describe_as($type) or return;
             }

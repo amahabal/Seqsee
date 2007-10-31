@@ -170,6 +170,7 @@ sub ExtendInDirection {
             return;
         }
         $reln->insert();
+        SLTM::SpikeBy(200, $reln);
         return 1;
     }
     else {

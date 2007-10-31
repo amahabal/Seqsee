@@ -46,6 +46,9 @@ my %LiveAtSomePoint;  # List of all live objects ever.
 my @BarLines;
 my $BarLineCount = 0;
 
+our %relations;
+our %relations_by_ends;    # keys: end1;end2 value:1 if a relation present.
+
 sub GetElements {
     my ($package) = @_;
     return @Elements;
@@ -762,6 +765,13 @@ sub __ClosestBarLineToRightGivenIndex {
     return $BarLines[ $count + 1 ];
 }
 
+sub __UpdateObjectStrengths {
+    for (values(%relations), values(%Objects)) {
+        $_->UpdateStrength();
+    }
+}
+
+
 #=============================================
 #=============================================
 
@@ -779,8 +789,6 @@ our @elements = ();
 our $ReadHead = 0;
 
 # variable: %relations
-our %relations;
-our %relations_by_ends;    # keys: end1;end2 value:1 if a relation present.
 
 my $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
 
