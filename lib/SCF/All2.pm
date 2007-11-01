@@ -84,12 +84,14 @@ RUN: {
         }
         CATCH {
         ElementsBeyondKnownSought: {
-                return unless EstimateAskability($core);
-                Global::Hilit( 1, $obj1, $obj2, $core );
-                my $reply = $err->Ask();
-                Global::ClearHilit();
-                return unless $reply;
-                $is_this_what_is_present = 1;
+              return unless EstimateAskability($core);
+              #  Global::Hilit( 1, $obj1, $obj2, $core );
+              #  my $reply = $err->Ask();
+              #  Global::ClearHilit();
+              #  return unless $reply;
+              #  $is_this_what_is_present = 1;
+              CODELET 10000, MaybeAskTheseTerms, {core => $core, exception => $err };
+              return;
             }
         };
         if ($is_this_what_is_present) {
@@ -130,9 +132,8 @@ FINAL: {
             SLTM::SpikeBy( 10, $core->get_type() );
 
             my $strength = $core->get_strength;
-            main::message("Strength for asking: $strength", 1);
-            
-            return SUtil::toss($strength/100);
+            # main::message("Strength for asking: $strength", 1);
+            return unless SUtil::toss($strength/100);
         }
 
         sub worth_asking {

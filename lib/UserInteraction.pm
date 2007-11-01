@@ -50,6 +50,15 @@ sub Ask {
     return $validated;
 }
 
+sub AskBasedOnRelation {
+    my ( $self, $relation, $msg_prefix ) = @_;
+    Global::Hilit(1, $relation->get_ends(), $relation);
+    my $reply = $self->Ask($msg_prefix . ' extending relation: ');
+    Global::ClearHilit();
+    return $reply;
+}
+
+
 sub DoInsertBookKeeping {
     my ($self) = @_;
     my @items = @{ $self->next_elements() };
@@ -76,11 +85,12 @@ sub WorthAsking {
 }
 
 package RulesAskedSoFar;
-our @SuccessfulRules;      # ([rule, time)] when user said yes to extension. Most recent first.
-our @UnsuccessfulRules;    # ([rule, time)] when user said no to extension. Most recent first.
+use List::Util qw{first};
+my @SuccessfulRules;      # ([rule, time)] when user said yes to extension. Most recent first.
+my @UnsuccessfulRules;    # ([rule, time)] when user said no to extension. Most recent first.
 
-our %AcceptedRules;   # Key=val; Yes to the specific question: Does this rule describe the sequence?
-our %RejectedRules;   # Key=val; No to the specific question: Does this rule describe the sequence?
+my %AcceptedRules;   # Key=val; Yes to the specific question: Does this rule describe the sequence?
+my %RejectedRules;   # Key=val; No to the specific question: Does this rule describe the sequence?
 
 # return -1 if never successful, or not last Q asked.
 # Else return time since that question.
@@ -100,7 +110,7 @@ sub TimeSinceRuleUsedToExtendSuccessfully {
 }
 
 # Return 0 if never used to extend unsuccessfully.
-sub TimeSinceRuleUsedToExtendUnuccessfully {
+sub TimeSinceRuleUsedToExtendUnsuccessfully {
     my ( $rule ) = @_;
     my $last_time_block = first { $_->[0] eq $rule } @UnsuccessfulRules;
     return 0 unless $last_time_block;
@@ -117,5 +127,27 @@ sub AddRuleToFailureList {
     my ($rule) = @_;
     unshift @UnsuccessfulRules, [ $rule, $Global::Steps_Finished ];
 }
+
+sub MarkRuleAsRejected {
+    my ( $rule ) = @_;
+    $RejectedRules{$rule} = $rule;
+}
+
+sub MarkRuleAsConfirmed {
+    my ( $rule ) = @_;
+    $AcceptedRules{$rule} = $rule;
+}
+
+sub HasRuleBeenConfirmed {
+    my ( $rule ) = @_;
+    return (exists($AcceptedRules{$rule}) ? 1 : 0);
+}
+
+sub HasRuleBeenRejected {
+    my ( $rule ) = @_;
+    return (exists($RejectedRules{$rule}) ? 1 : 0);
+}
+
+
 
 1;
