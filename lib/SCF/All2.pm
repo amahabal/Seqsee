@@ -127,8 +127,12 @@ FINAL: {
 
         sub EstimateAskability {
             my ($core) = @_;
-            my $type_activation = SLTM::SpikeBy( 10, $core->get_type() );
-            return SUtil::toss($type_activation);
+            SLTM::SpikeBy( 10, $core->get_type() );
+
+            my $strength = $core->get_strength;
+            main::message("Strength for asking: $strength", 1);
+            
+            return SUtil::toss($strength/100);
         }
 
         sub worth_asking {
