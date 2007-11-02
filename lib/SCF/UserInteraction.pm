@@ -11,7 +11,7 @@ RUN: {
         if ($time_since_successful_extension) {
             CODELET 100, MaybeAskUsingThisGoodRule,
                 {
-                    core => $core,
+                core      => $core,
                 rule      => $rule,
                 exception => $exception,
                 };
@@ -19,7 +19,7 @@ RUN: {
         elsif ($time_since_unsuccessful_extension) {
             CODELET 50, MaybeAskUsingThisUnlikelyRule,
                 {
-                    core => $core,
+                core      => $core,
                 rule      => $rule,
                 exception => $exception,
                 };
@@ -33,14 +33,14 @@ RUN: {
 
                 # main::message("Strength for asking: $strength", 1);
                 return unless SUtil::toss( $strength / 100 );
-                CODELET 100, DoTheAsking, {
-                    core => $core,
-                    exception => $exception,
-                        };
             }
             else {
+                CODELET 100, DoTheAsking,
+                    {
+                    core      => $core,
+                    exception => $exception,
+                    };
 
-                # XXX
             }
             if ($success) {
                 RulesAskedSoFar::AddRuleToSuccessList($rule);
@@ -65,16 +65,16 @@ FINAL: {
     }
 };
 
-CodeletFamily DoTheAsking( $core !, $exception !, $msg_prefix={""} ) does {
+CodeletFamily DoTheAsking( $core !, $exception !, $msg_prefix = {""} ) does {
 INITIAL: { use Class::Multimethods qw{createRule}; }
 RUN: {
         my ( $type_of_core, $rule ) = SCF::MaybeAskTheseTerms::get_core_type_and_rule($core);
         my $success;
         if ( $type_of_core eq 'relation' ) {
-            $success = $exception->AskBasedOnRelation($core, $msg_prefix);
+            $success = $exception->AskBasedOnRelation( $core, $msg_prefix );
         }
         else {
-            $success = $exception->AskBasedOnRuleApp($core, $msg_prefix);
+            $success = $exception->AskBasedOnRuleApp( $core, $msg_prefix );
         }
 
         if ($success) {
@@ -86,18 +86,19 @@ RUN: {
 
     }
 };
-CodeletFamily MaybeAskUsingThisGoodRule($core!, $rule!, $exception!) does {
-  RUN:{
-        CODELET 10000, DoTheAsking, {
-            core => $core,
-            exception => $exception,
+CodeletFamily MaybeAskUsingThisGoodRule( $core !, $rule !, $exception ! ) does {
+RUN: {
+        CODELET 10000, DoTheAsking,
+            {
+            core       => $core,
+            exception  => $exception,
             msg_prefix => "I know I have asked this before...",
-                };
+            };
     }
 }
 
-CodeletFamily MaybeAskUsingThisUnlikelyRule($core!, $rule!, $exception!) does {
-    RUN: {
+CodeletFamily MaybeAskUsingThisUnlikelyRule( $core !, $rule !, $exception ! ) does {
+RUN: {
 
-      }
+    }
 }

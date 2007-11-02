@@ -511,7 +511,7 @@ ACTIONS: {
 
             #main::message(Scalar::Util::refaddr($possible_ad_hoc_cat));
             SLTM::InsertUnlessPresent($possible_ad_hoc_cat);
-            my $ad_hoc_activation = SLTM::SpikeBy( 5 / $distance, $possible_ad_hoc_cat );
+            my $ad_hoc_activation = SLTM::SpikeBy( 20 / $distance, $possible_ad_hoc_cat );
 
             #main::message("ad_hoc(dis => $distance) activation: $ad_hoc_activation");
 

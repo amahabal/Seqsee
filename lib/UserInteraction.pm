@@ -58,6 +58,14 @@ sub AskBasedOnRelation {
     return $reply;
 }
 
+sub AskBasedOnRuleApp {
+    my ( $self, $ruleapp, $msg_prefix ) = @_;
+    Global::Hilit(1, @{$ruleapp->get_items});
+    my $reply = $self->Ask($msg_prefix . ' extending relation: ');
+    Global::ClearHilit();
+    return $reply;
+}
+
 
 sub DoInsertBookKeeping {
     my ($self) = @_;

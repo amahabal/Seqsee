@@ -48,7 +48,7 @@ smooth: {1}
 
 STYLE Group( $meto !, $hilit !, $strength !, $is_largest ! ) is {
 fill: {
-        my ( $s, $v ) = ( 40, 80 - 0.5 * $strength );
+        my ( $s, $v ) = ( 40, 90 - 0.4 * $strength );
         $meto ? HSV( 240 - 20 * $is_largest, $s, $v ) : HSV( 160 - 20 * $is_largest, $s, $v );
     }
 width: {0}
