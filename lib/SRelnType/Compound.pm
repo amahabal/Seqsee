@@ -13,6 +13,7 @@ use Carp;
 use Class::Std;
 use Smart::Comments;
 use base qw{SRelnType};
+use Memoize;
 
 use Class::Multimethods;
 for (qw{apply_reln}) {
@@ -317,8 +318,10 @@ sub suggest_cat_for_ends {
 }
 
 sub suggest_cat {
-    return;
+    my $self = shift;
+    return SCat::OfObj::RelationTypeBased->Create($self);
 }
+memoize('suggest_cat');
 
 sub CalculateComplexityPenalty {
     my ( $self ) = @_;
@@ -346,5 +349,20 @@ sub CalculateComplexityPenalty {
     return $return;
 }
 
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    while (my($k, $v) = each %{$slippages_of{$id}}) {
+        return if $k ne $v; 
+    }
+    return if %{$changed_bindings_of_of{$id}};
+    my $base_meto_mode = $base_meto_mode_of{$id};
+    if ($base_meto_mode->is_metonymy_present()) {
+        return unless $position_reln_of{$id}->IsEffectivelyASamenessRelation();
+        return unless $metonymy_reln_of{$id}->IsEffectivelyASamenessRelation();
+    }
+    return 1;
+}
+memoize('IsEffectivelyASamenessRelation');
 
 1;

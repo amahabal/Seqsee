@@ -348,6 +348,13 @@ BUILD: {
 ACTIONS: {
         my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
+        if ($core->get_type()->IsEffectivelyASamenessRelation()) {
+            CODELET 100, AreTheseGroupable, {
+                items => [$core->get_ends ],
+                reln => $core,
+                    };
+        }
+
         #if ( not $holey ) {
         ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::RIGHT };
         ACTION 80, AttemptExtensionOfRelation, { core => $core, direction => $DIR::LEFT };

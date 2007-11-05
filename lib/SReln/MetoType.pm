@@ -157,6 +157,15 @@ sub CalculateComplexityPenalty {
     return $return;
 }
 
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    while (my($k, $v) = each %{$change_of_of{$id}}) {
+        return unless $v->IsEffectivelyASamenessRelation();
+    }
+    return 1;
+}
+
 
 
 

@@ -7,6 +7,7 @@ use Class::Std;
 use base qw{SInstance SCat};
 use English qw(-no_match_vars);
 use Smart::Comments;
+use Memoize;
 
 use Class::Multimethods;
 multimethod is_instance => qw(SCat::OfObj SObject) => sub {
@@ -51,5 +52,18 @@ sub find_metonym{
     
     return $obj;
 }
+
+sub get_squintability_checker{
+    my ( $self ) = @_;
+    # XXX(Board-it-up): [2006/12/29] Currently just returns No. Should be different for some categories.
+    return;
+}
+
+sub get_meto_types {
+    my ( $self ) = @_;
+    return;
+}
+memoize('get_meto_types');
+
 
 1;

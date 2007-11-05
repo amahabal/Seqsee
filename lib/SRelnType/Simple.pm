@@ -133,6 +133,11 @@ sub get_complexity_penalty {
     return $ComplexityLookup{$string} || die;
 }
 
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    return $string_of{ident $self} eq 'same' ? 1 : 0;
+}
+
 
 1;
 

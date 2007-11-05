@@ -36,12 +36,19 @@ my $Successor   = SReln::Position->create('succ');
 my $Predecessor = SReln::Position->create('pred');
 my $SamePos     = SReln::Position->create('same');
 my %ComplexityLookup = ($Successor => 0.9, $Predecessor => 0.9, $SamePos => 1);
+my %IsEffectivelyASamenessRelationLookup = ($Successor => 0, $Predecessor => 0, $SamePos => 1);
 
 sub get_memory_dependencies { return; }
 
 sub CalculateComplexityPenalty {
     my ( $self ) = @_;
     return $ComplexityLookup{$self};
+}
+
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    confess "???" unless exists $IsEffectivelyASamenessRelationLookup{$self};
+    return $IsEffectivelyASamenessRelationLookup{$self};
 }
 
 
