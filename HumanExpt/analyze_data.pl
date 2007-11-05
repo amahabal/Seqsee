@@ -61,7 +61,7 @@ sub DisplayResults {
         next if $set eq '';
 
         my $type = $values->{Type};
-        next unless $set =~ /variation/i;
+        next if $set =~ /variation/i;
 
         my $expected_difficulty = $values->{ExpectedDifficulty} || '';
         $expected_difficulty =~ s#\s+##g;

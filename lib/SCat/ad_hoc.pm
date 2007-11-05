@@ -36,7 +36,7 @@ my $builder = sub {
         return SObject->create(@ret_parts);
     };
 
-    my $ret_cat = SCat::OfObj->new(
+    my $ret_cat = SCat::OfObj::Std->new(
         {   name        => $name,
             to_recreate => $to_recreate,
             builder     => $builder,

@@ -19,7 +19,7 @@ my $builder = sub {
         return SObject->create($prototype);
     };
     my $empty_ok = ( !( ref $structure ) or @$structure ) ? 0 : 1;
-    my $ret_cat = SCat::OfObj->new(
+    my $ret_cat = SCat::OfObj::Std->new(
         {   name        => $string,
             to_recreate => $to_recreate,
             builder     => $builder_of_new,

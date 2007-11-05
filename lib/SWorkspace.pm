@@ -576,6 +576,7 @@ sub __GetLongestNonAdHocWithLeftExactRightBelow {
 # Distance, where each non-ad-hoc counts as 1
 sub __FindDistance {
     my ( $object1, $object2, $requested_mode ) = @_;
+    ### require: __CheckLivenessAndDiagnose($object1, $object2)
 
     my $mode = $requested_mode;
     $mode ||= DISTANCE_MODE::PickOne();
@@ -1240,16 +1241,7 @@ sub GetSomethingLike {
     }
 
     if ($is_object_literally_present) {
-        my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object );
-        unless ( $plonk_result->PlonkWasSuccessful() ) {
-            print "In GetSomethingLike(), unusual plonk failure! plonk_result: $plonk_result\n";
-            print "Start Position: $opts_ref->{start}\n";
-            print "Direction: $direction->{text}\n";
-            print "Expected Structure String: $expected_structure_string\n";
-            print "Object as text: ", $object->as_text(), "\n";
-            print "is_object_literally_present: $is_object_literally_present\n";
-            confess "{SEE MESSAGE} Plonk unexpectedly failed.\n";
-        }
+        my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object ) or return;
         my $present_object = $plonk_result->get_resultant_object();
         if ( SUtil::toss(0.5) ) {
             return $present_object;

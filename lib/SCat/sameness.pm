@@ -75,7 +75,7 @@ my $meto_unfinder_each = sub {
     return $cat->build( { each => $object, %$info_loss } );
 };
 
-our $sameness = SCat::OfObj->new(
+our $sameness = SCat::OfObj::Std->new(
     {   name        => q{sameness},
         to_recreate => q{$S::SAMENESS},
         builder     => $builder,

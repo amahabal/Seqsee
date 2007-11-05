@@ -30,7 +30,7 @@ my $builder = sub {
     return $ret;
 };
 
-our $ascending = SCat::OfObj->new(
+our $ascending = SCat::OfObj::Std->new(
     {   name        => q{ascending},
         to_recreate => q{$S::ASCENDING},
         builder     => $builder,

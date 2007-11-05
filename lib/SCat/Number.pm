@@ -48,7 +48,7 @@ my $meto_unfinder_square = sub {
     return $cat->build( { mag => $mag * $mag });
 };
 
-our $Number = SCat::OfObj->new({
+our $Number = SCat::OfObj::Std->new({
     name => 'number',
     to_recreate => '$S::NUMBER',
     builder => $builder,

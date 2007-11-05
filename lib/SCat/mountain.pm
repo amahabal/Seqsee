@@ -31,7 +31,7 @@ my $peak_finder = sub {
     return [$idx];
 };
 
-our $mountain = SCat::OfObj->new(
+our $mountain = SCat::OfObj::Std->new(
     {   name        => q{mountain},
         to_recreate => q{$S::MOUNTAIN},
         builder     => $builder,

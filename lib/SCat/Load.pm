@@ -1,5 +1,6 @@
 use SCat;
 use SCat::OfObj;
+use SCat::OfObj::Std;
 use SCat::OfCat;
 use SCat::ascending;
 use SCat::descending;

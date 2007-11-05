@@ -27,7 +27,7 @@ our $NodeCount;                 # Number of nodes.
 our %_PURE_CLASSES_;            # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;       # We are currently installing these. Needed to detect cycles.
 
-%_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj SLTM::Platonic SRelnType::Simple
+%_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj SCat::OfObj::Std SCat::OfObj::RelationTypeBased SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
 
 Clear();

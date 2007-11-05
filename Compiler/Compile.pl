@@ -14,6 +14,8 @@ use Compiler::Filters::Style;
 use Compiler::Filters::TryCatch;
 use Compiler::Filters::SeqseeDisplay;
 
+$| = 1;
+
 my @FILTERS;
 push @FILTERS, Compiler::Filters::Formula::GetFilter();
 push @FILTERS, Compiler::Filters::TryCatch::GetFilter();
@@ -51,8 +53,10 @@ sub DoActualCompile {
         mkpath($path);
     }
     write_file( $target_file, $source );
-    unless ($source eq $original_source) {
+    if ($source ne $original_source) {
         print "FILE MODIFIED BY FILTER: $source_file\n";
+    } else {
+        print ".";
     }
 }
 

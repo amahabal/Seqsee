@@ -123,7 +123,7 @@ multimethod find_relation_string => ('SElement', '#') => sub {
 };
 
 
-# multi: find_reln ( SObject, SObject, SCat::OfObj )
+# multi: find_reln ( SObject, SObject, SCat::OfObj::Std )
 
 multimethod _find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my ( $o1, $o2, $cat ) = @_;

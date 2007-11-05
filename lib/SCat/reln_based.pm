@@ -55,7 +55,7 @@ my $instancer = sub {
 };
 
 our $reln_based =
-    SCat::OfObj->new({
+    SCat::OfObj::Std->new({
         name => q{reln_based},
         to_recreate => q{$S::RELN_BASED},
         builder => $builder,
