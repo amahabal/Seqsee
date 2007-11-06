@@ -279,22 +279,22 @@ sub CalculateBindingsChange_with_slips {
 # calls _find_reln
 #
 multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
-    my ( $o1, $o2, $cat ) = @_;
-    $o1 = $o1->GetEffectiveObject;
-    $o2 = $o2->GetEffectiveObject;
+    my ( $original_o1, $original_o2, $cat ) = @_;
+    my $o1 = $original_o1->GetEffectiveObject;
+    my $o2 = $original_o2->GetEffectiveObject;
     my $ret = _find_reln( $o1, $o2, $cat ) or return;
-    $ret->set_first($o1);
-    $ret->set_second($o2);
+    $ret->set_first($original_o1);
+    $ret->set_second($original_o2);
     return $ret;
 };
 
 multimethod find_reln => qw(SObject SObject) => sub {
-    my ( $o1, $o2 ) = @_;
-    $o1 = $o1->GetEffectiveObject();
-    $o2 = $o2->GetEffectiveObject();
+    my ( $original_o1, $original_o2, $cat ) = @_;
+    my $o1 = $original_o1->GetEffectiveObject;
+    my $o2 = $original_o2->GetEffectiveObject;
     my $ret = _find_reln( $o1, $o2 ) or return;
-    $ret->set_first($o1);
-    $ret->set_second($o2);
+    $ret->set_first($original_o1);
+    $ret->set_second($original_o2);
     return $ret;
 };
 
