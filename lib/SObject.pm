@@ -822,6 +822,14 @@ sub MaybeAnnotateWithMetonym {
     }
 }
 
+sub IsThisAMetonymedObject {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $is_a_metonym_of = $is_a_metonym_of{$id};
+    return 0 if (not($is_a_metonym_of) or $is_a_metonym_of eq $self);
+    return 1;
+}
+
 
 # #################################
 # RELATION MANAGEMENT

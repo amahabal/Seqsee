@@ -20,7 +20,7 @@ our $TimeOfLastNewElement = 0;      # When was the last element added?
 our $TimeOfNewStructure   = 0;      # When was the last group created or element added?
 
 our $InterstepSleep = 0;            # In milli-seconds
-our $Sanity;                        # Do sanity check after each step?
+our $Sanity         = 1;            # Do sanity check after each step?
 our %Hilit;                         # 0bjects to hi1lit; can have 1/2as values
 
 our $BestRule;                      # Best rule seen so far.

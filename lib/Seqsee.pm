@@ -241,9 +241,6 @@ sub _read_commandline {
     $options{gui_config} ||= $options{gui} if exists $options{gui};
     $options{gui_config} = 'GUI_tabbed' if $options{tabbed};
 
-    # XXX(Board-it-up): [2007/03/05] should be elsewhere!
-    $Global::Sanity = 1 if $options{sanity};
-
     return %options;
 }
 
@@ -385,7 +382,10 @@ multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
 
 multimethod SanityCheck => qw(SReln) => sub {
     my ($rel) = @_;
-
+    my (@ends) = $rel->get_ends();
+    for (@ends) {
+        SanityFail("End of a relation is a metonymed object") if $_->IsThisAMetonymedObject();
+    }
 };
 
 1;

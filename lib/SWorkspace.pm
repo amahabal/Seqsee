@@ -935,6 +935,10 @@ sub _saccade {
 sub AddRelation {
     my ( $package, $reln ) = @_;
     my ( $f,       $s )    = $reln->get_ends();
+    for ($f, $s) {
+        confess "Metonym'd end of relation" if $_->IsThisAMetonymedObject();
+    }
+
     my $key = join( ';', $f, $s );
     return if exists $relations_by_ends{$key};
 
