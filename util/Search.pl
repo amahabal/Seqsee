@@ -38,7 +38,7 @@ $frame->Button(
     }
 )->pack( -side => 'left' );
 
-my $TB = $MW->Scrolled('Text')->pack();
+my $TB = $MW->Scrolled('Text', -height => 40)->pack();
 $TB->focus();
 $TB->tagConfigure( 'file', -background => '#FFCCCC' );
 $TB->tagConfigure( 'sub',  -background => '#CCCCFF' );

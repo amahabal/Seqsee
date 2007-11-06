@@ -131,7 +131,8 @@ sub as_text {
 }
 
 multimethod apply_reln => qw(SRelnType::Compound SObject) => sub {
-    my ( $reln, $object ) = @_;
+    my ( $reln, $original_object ) = @_;
+    my $object = $original_object->GetEffectiveObject();
 
     # Find category for new object
     my $cat = $reln->get_base_category;

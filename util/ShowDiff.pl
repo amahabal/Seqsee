@@ -14,7 +14,7 @@ use Tk;
 my $MW = new MainWindow();
 $MW->focusmodel('active');
 
-my $TB = $MW->Scrolled('Text', -scrollbars => 'e')->pack();
+my $TB = $MW->Scrolled('Text', -scrollbars => 'e', -height => 40)->pack();
 $TB->focus();
 $TB->tagConfigure( 'file', -background => '#FFCCCC' );
 $TB->tagConfigure( 'type',  -background => '#CCCCFF' );

@@ -18,8 +18,8 @@ use List::Util qw(sum);
 multimethod 'apply_reln_direction';
 
 my %str_of : ATTR(:get<text>);
-my %first_of : ATTR(:get<first>);      # First object in the relation. Not necessarily the left.
-my %second_of : ATTR(:get<second>);    # Second object.
+my %first_of : ATTR(:get<first>, :set<first>);      # First object in the relation. Not necessarily the left.
+my %second_of : ATTR(:get<second>, :set<second>);    # Second object.
 my %type_of : ATTR(:get<type>);        # Corresponding SRelnType::Simple object.
 
 sub get_pure {

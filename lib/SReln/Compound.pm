@@ -47,8 +47,8 @@ multimethod 'find_relation_string';
 multimethod 'find_relation_type';
 
 my %type_of : ATTR(:get<type>);        # The SRelnType::Compound object.
-my %first_of : ATTR( :get<first> );    # First object. Not necessarily the left.
-my %second_of : ATTR( :get<second> );  # Second object.
+my %first_of : ATTR( :get<first>, :set<first> );    # First object. Not necessarily the left.
+my %second_of : ATTR( :get<second>, :set<second> );  # Second object.
 
 sub get_pure           { return $type_of{ ident $_[0] } }
 sub get_base_category  { return $type_of{ ident $_[0] }->get_base_category() }
@@ -98,6 +98,7 @@ sub BUILD {
 #    possible exceptions:
 #        Don't know for sure how to do this, but I had planned for this to return exceptions seeking more information also.
 
+# XXX: THIS IS A KLUDGE. _find_reln should be renamed _find_relntype, and changed appropriately...
 multimethod _find_reln => qw(SObject SObject) => sub {
     my ( $o1, $o2 ) = @_;
     my @common_categories = $o1->get_common_categories($o2);
@@ -281,7 +282,9 @@ multimethod find_reln => qw(SObject SObject SCat::OfObj) => sub {
     my ( $o1, $o2, $cat ) = @_;
     $o1 = $o1->GetEffectiveObject;
     $o2 = $o2->GetEffectiveObject;
-    my $ret = _find_reln( $o1, $o2, $cat );
+    my $ret = _find_reln( $o1, $o2, $cat ) or return;
+    $ret->set_first($o1);
+    $ret->set_second($o2);
     return $ret;
 };
 
@@ -289,7 +292,10 @@ multimethod find_reln => qw(SObject SObject) => sub {
     my ( $o1, $o2 ) = @_;
     $o1 = $o1->GetEffectiveObject();
     $o2 = $o2->GetEffectiveObject();
-    _find_reln( $o1, $o2 );
+    my $ret = _find_reln( $o1, $o2 ) or return;
+    $ret->set_first($o1);
+    $ret->set_second($o2);
+    return $ret;
 };
 
 multimethod apply_reln => qw(SReln::Compound SObject) => sub {
