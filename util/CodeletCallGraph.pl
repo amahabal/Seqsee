@@ -29,6 +29,11 @@ $text->tagConfigure( 'wasnt_executed', -overstrike => 1 );
 $text->tagConfigure( 'Codelet',        -background => '#FFAAAA' );
 $text->tagConfigure( 'Action',         -background => '#AAFFAA' );
 $text->tagConfigure( 'Thought',        -background => '#AAAAFF' );
+$text->tagConfigure(
+    'Hilit',
+    -font      => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
+    -underline => 1
+);
 $MW->bind(
     '<KeyPress-q>' => sub {
         exit;
@@ -51,13 +56,39 @@ while ( my ( $k, $v ) = each %Details ) {
 }
 ## ObjectTypesSeen: %ObjectTypesSeen
 my $frame = $MW->Frame()->pack( -side => 'top' );
-$frame->ComboEntry(
+my $combo1 = $frame->ComboEntry(
     -itemlist => [ grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
     -width => 40,
 )->pack( -side => 'left' );
-$frame->ComboEntry(
+$frame->Button(
+    -text    => 'Search',
+    -command => sub {
+        MaybeHilit( $combo1->get() );
+        }
+
+)->pack( -side => 'left' );
+my $combo2 = $frame->ComboEntry(
     -itemlist => [ grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
     -width => 40
+)->pack( -side => 'left' );
+$frame->Button(
+    -text    => 'Search',
+    -command => sub {
+        MaybeHilit( $combo2->get() );
+        }
+
+)->pack( -side => 'left' );
+$frame->Button(
+    -text    => '<',
+    -command => sub {
+        ShowPrevious();
+    }
+)->pack( -side => 'left' );
+$frame->Button(
+    -text    => '>',
+    -command => sub {
+        ShowNext();
+    }
 )->pack( -side => 'left' );
 MainLoop();
 
@@ -117,7 +148,8 @@ sub CreateDisplay {
     $execute_position = sprintf( '% 5d', $execute_position ) if defined($execute_position);
 
     my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
-    my @position_text = defined($execute_position)
+    my @position_text =
+        defined($execute_position)
         ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
         : ( "[$creation_position/xxxxx]", "wasnt_executed" );
     if ( $object =~ /^SCodelet=ARRAY/ ) {
@@ -149,3 +181,48 @@ sub PrintProgeny {
     }
 }
 
+{
+    my @selected_ranges;
+    my $currently_visible = 0;
+    my $selection_count   = scalar(@selected_ranges) / 2;
+
+    sub MaybeHilit {
+        my ($string) = @_;
+        $string =~ s#^\s*##;
+        $string =~ s#\s*$##;
+        return unless $string;
+
+        print "Searching for >>$string<<\n";
+        my @hilited_range = $text->tagRanges('Hilit');
+        $text->tagRemove( 'Hilit', @hilited_range ) if @hilited_range > 1;
+        $text->FindAll( '-exact', '-nocase', $string );
+        @selected_ranges = $text->tagRanges('sel');
+        print "Ranges: @selected_ranges\n";
+        if ( @selected_ranges > 1 ) {
+            $text->tagAdd( 'Hilit', @selected_ranges );
+            $text->see( $selected_ranges[0] );
+            $currently_visible = 0;
+            $selection_count   = scalar(@selected_ranges) / 2;
+        }
+        else {
+            $selection_count = 0;
+        }
+    }
+
+    sub ShowNext {
+        return if $selection_count == 0;
+
+        $currently_visible++;
+        $currently_visible = 0 if $currently_visible >= $selection_count;
+        $text->see( $selected_ranges[ 2 * $currently_visible ] );
+    }
+
+    sub ShowPrevious {
+        return if $selection_count == 0;
+
+        $currently_visible--;
+        $currently_visible = $selection_count - 1 if $currently_visible < 0;
+        $text->see( $selected_ranges[ 2 * $currently_visible ] );
+    }
+
+}
