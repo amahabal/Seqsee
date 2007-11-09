@@ -20,12 +20,14 @@ use constant ANSWERS_FILE      => 'InputList3.answers';
 use constant RESULTS_DIRECTORY => 'RealData';
 use constant OUTPUT_FILE       => 'Results2.xsl';
 
+use constant FirstSequenceOffset        => 15;
 use constant RowsPerSequence            => 5;
 use constant RowOffsetForPercentCorrect => 1;
 use constant ColumnForPercentCorrect    => 4;
 use constant ColumnForAvgTime           => 8;
 use constant RowOffsetForAvgTime        => 1;
-
+use constant TableStartRow              => 13;
+use constant TableStartCol              => 2;
 $| = 1;
 
 read_config ANSWERS_FILE() => my %ExperimentConfig;
@@ -88,7 +90,7 @@ sub CreateSheetForSequenceSet {
 
     my @sequences      = @{ $ss->get_sequences() };
     my $sequence_count = scalar(@sequences);
-    my $row            = 4 + $sequence_count;
+    my $row            = FirstSequenceOffset + 2 * $sequence_count;
     my @data_ranges;
     for my $seq (@sequences) {
         my $data_range = InsertSequenceData( $SHEET, $seq, $row );
@@ -97,18 +99,69 @@ sub CreateSheetForSequenceSet {
     }
 
     CreateTTestTable( $SHEET, $sequence_count, \@data_ranges, \@sequences );
+    CreateChart( $SHEET, $sequence_count );
+    ListSequences( $SHEET, @sequences );
+}
+
+sub ListSequences {
+    my ( $SHEET, @sequences ) = @_;
+    my $count = 0;
+    my $row   = 13;
+    for my $seq (@sequences) {
+        $count++;
+        $row++;
+        enter_value_in_cell( $SHEET, 2, $row, "Sequence $count" );
+        enter_value_in_cell( $SHEET, 4, $row, $seq->as_text );
+        my $Font = $SHEET->Range( cell_to_range_string( 4, $row ) )->{Font};
+        $Font->{Size}       = 15;
+        $Font->{Bold}       = 1;
+        $Font->{ColorIndex} = 3;
+    }
+}
+
+sub CreateChart {
+    my ( $SHEET, $sequence_count ) = @_;
+    my $chart_object = $SHEET->ChartObjects->Add( 50, 20, 250, 150 );
+    my $chart = $chart_object->{Chart};
+    $chart->SetSourceData(
+        $SHEET->Range(
+            cell_to_range_string( TableStartCol + $sequence_count + 3,
+                TableStartRow + $sequence_count + 2 )
+                . ':'
+                . cell_to_range_string(
+                TableStartCol + $sequence_count + 3,
+                TableStartRow + 2 * $sequence_count + 1
+                )
+        )
+    );
+    $chart->SeriesCollection()->Item(1)->{Name} = "Avg Time To Understand";
+
+    my $chart_object2 = $SHEET->ChartObjects->Add( 350, 20, 250, 150 );
+    my $chart2 = $chart_object2->{Chart};
+    $chart2->SetSourceData(
+        $SHEET->Range(
+            cell_to_range_string( TableStartCol + $sequence_count + 2,
+                TableStartRow + $sequence_count + 2 )
+                . ':'
+                . cell_to_range_string(
+                TableStartCol + $sequence_count + 2,
+                TableStartRow + 2 * $sequence_count + 1
+                )
+        )
+    );
+    $chart2->SeriesCollection()->Item(1)->{Name} = "% Correct";
 }
 
 sub CreateTTestTable {
     my ( $SHEET, $sequence_count, $data_ranges, $sequences ) = @_;
-    my @data_ranges = @$data_ranges;
-    my $table_start_row = 2;
-    my $table_start_col = 2;
-    enter_value_in_cell($SHEET, $table_start_col + 2 + $sequence_count, $table_start_row, "% Correct");
-    enter_value_in_cell($SHEET, $table_start_col + 3 + $sequence_count, $table_start_row, "Avg Time");
+    my @data_ranges     = @$data_ranges;
+    my $table_start_row = TableStartRow + $sequence_count;
+    my $table_start_col = TableStartCol;
+
     for ( 1 .. $sequence_count ) {
         enter_value_in_cell( $SHEET, $table_start_col, $table_start_row + $_, "Seq $_" );
-        enter_value_in_cell( $SHEET, $table_start_col + $_, $table_start_row, "Seq $_" );
+
+        #enter_value_in_cell( $SHEET, $table_start_col + $_, $table_start_row, "Seq $_" );
 
         # Copy % correct and average time
         # % Correct
@@ -119,7 +172,8 @@ sub CreateTTestTable {
             '='
                 . cell_to_range_string(
                 ColumnForPercentCorrect,
-                4 + $sequence_count + ( $_ - 1 ) * RowsPerSequence + RowOffsetForPercentCorrect,
+                FirstSequenceOffset + 2 * $sequence_count + ( $_ - 1 ) * RowsPerSequence
+                    + RowOffsetForPercentCorrect,
                 ),
         );
 
@@ -131,7 +185,8 @@ sub CreateTTestTable {
             '='
                 . cell_to_range_string(
                 ColumnForAvgTime,
-                4 + $sequence_count + ( $_ - 1 ) * RowsPerSequence + RowOffsetForAvgTime,
+                FirstSequenceOffset + 2 * $sequence_count + ( $_ - 1 ) * RowsPerSequence
+                    + RowOffsetForAvgTime,
                 ),
         );
 
@@ -139,8 +194,8 @@ sub CreateTTestTable {
             $SHEET,
             $table_start_col + 4 + $sequence_count,
             $table_start_row + $_,
-            $sequences->[$_-1]->as_text(),
-                );
+            $sequences->[ $_ - 1 ]->as_text(),
+        );
     }
     for my $i ( 1 .. $sequence_count ) {
         for my $j ( $i + 1 .. $sequence_count ) {
@@ -152,8 +207,32 @@ sub CreateTTestTable {
                 $table_start_row + $j,
                 "=TTEST($dr1, $dr2, 2, 3)"
             );
+            my $range = $SHEET->Range(
+                cell_to_range_string( $table_start_col + $i, $table_start_row + $j ) );
+            my $format_condition = $range->FormatConditions()->Add(
+                1,    # Cell value
+                8,    # <=
+                0.1
+            );
+            $format_condition->{Font}{Bold} = 1;
+            $format_condition->{Font}{ColorIndex} = 3;
+            $format_condition->{Interior}{ColorIndex} = 4;
         }
     }
+    my $data_range = cell_to_range_string( $table_start_col, $table_start_row + 1 ) . ':'
+        . cell_to_range_string( $table_start_col + $sequence_count + 4,
+        $table_start_row + $sequence_count );
+    my $table = $SHEET->{ListObjects}->Add( 1, $SHEET->Range($data_range),, 2 );
+    my $table_columns = $table->ListColumns();
+    for ( 1 .. $sequence_count ) {
+        $table_columns->Item( $_ + 1 )->{Name} = "Seq $_";
+    }
+
+    $table_columns->Item(1)->{Name}                     = "";
+    $table_columns->Item( $sequence_count + 2 )->{Name} = "";
+    $table_columns->Item( $sequence_count + 3 )->{Name} = "% Correct";
+    $table_columns->Item( $sequence_count + 4 )->{Name} = "Avg Time";
+    $table_columns->Item( $sequence_count + 5 )->{Name} = "Sequence";
 }
 
 sub InsertSequenceData {    #Returns range-string of Inlier Timing data
