@@ -10,6 +10,7 @@ package SWorkspace;
 use strict;
 use warnings;
 use Carp;
+use Carp::Source qw{source_cluck};
 use Class::Std;
 use Class::Multimethods;
 use List::Util;
@@ -81,28 +82,33 @@ sub __CheckLivenessAtSomePoint {
 
 sub __CheckLivenessAndDiagnose {
     my $problems_so_far = 0;
+    my $msg;
     for my $object (@_) {
         next if exists( $Objects{$object} );
 
         # So a dead object!
-        print "NON_LIVE OBJECT!\n";
-        if ( exists $LiveAtSomePoint{$object} ) {
-            print "But was live once!\n";
-        }
-        my $unstarred = $object->GetUnstarred();
-        if ( $unstarred ne $object ) {
-            print "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
-            if ( exists $Objects{$unstarred} ) {
-                print "\tIts unstarred *is* live.\n";
+        $msg .= "NON_LIVE OBJECT!\n";
+        if (not(defined $object)) {
+            $msg .= "In fact, IT IS UNDEF!!\n";
+        } else {
+            if ( exists $LiveAtSomePoint{$object} ) {
+                $msg .= "But was live once!\n";
             }
-            else {
-                print "\tEven its unstarred is non-live.\n";
+            my $unstarred = $object->GetUnstarred();
+            if ( $unstarred ne $object ) {
+                $msg .= "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
+                if ( exists $Objects{$unstarred} ) {
+                    $msg .= "\tIts unstarred *is* live.\n";
+                }
+                else {
+                    $msg .= "\tEven its unstarred is non-live.\n";
+                }
             }
         }
         $problems_so_far++;
     }
     if ($problems_so_far) {
-        confess("Dying because of liveness issues");
+        confess("Dying because of liveness issues!\n$msg");
     }
     return 1;
 }

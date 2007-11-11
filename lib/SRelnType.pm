@@ -39,6 +39,19 @@ multimethod find_relation_type => ('SElement', '#') => sub  {
     return find_relation_type($a->get_mag(), $b);
 };
 
+multimethod find_relation_type => ('SAnchored', '#') => sub  {
+    my ( $obj, $n ) = @_;
+    my $effective_object = $obj->GetEffectiveObject;
+    return if $obj eq $effective_object;
+    return find_relation_type($effective_object, $n);
+};
+
+multimethod find_relation_type => ('#', 'SAnchored') => sub  {
+    my ( $n, $obj ) = @_;
+    my $effective_object = $obj->GetEffectiveObject;
+    return if $obj eq $effective_object;
+    return find_relation_type($n, $effective_object);
+};
 
 
 multimethod find_relation_type => ('SAnchored', 'SAnchored') => sub  {
