@@ -176,16 +176,16 @@ ACTIONS: {
         my $span_fraction      = $core->get_span() / $SWorkspace::ElementCount;
 
         # extendibility checking...
-        if ( $flush_right and not($flush_left) ) {
-            next unless SUtil::toss(0.15);
-        }
+        #if ( $flush_right and not($flush_left) ) {
+        #    next unless SUtil::toss(0.15);
+        #}
         CODELET 100, AttemptExtensionOfGroup,
             {
             object    => $core,
             direction => DIR::RIGHT(),
             };
 
-        CODELET 100, AttemptExtensionOfGroup,
+        CODELET 50, AttemptExtensionOfGroup,
             {
             object    => $core,
             direction => DIR::LEFT(),
@@ -195,7 +195,7 @@ ACTIONS: {
             if ( SUtil::toss(0.5) ) {
 
                 #main::message("Will launch ConvulseEnd");
-                CODELET 100, ConvulseEnd,
+                CODELET 50, ConvulseEnd,
                     {
                     object    => $core,
                     direction => $DIR::RIGHT,
@@ -204,12 +204,16 @@ ACTIONS: {
             else {
 
                 #main::message("Will launch ConvulseEnd");
-                CODELET 100, ConvulseEnd,
+                CODELET 50, ConvulseEnd,
                     {
                     object    => $core,
                     direction => $DIR::LEFT,
                     };
             }
+        }
+
+        if ($Global::Feature{LiteralCat}) {
+            CODELET 100, SetLiteralCat, { object => $core };
         }
 
         if ( $Global::Feature{LTM} ) {
@@ -237,7 +241,7 @@ ACTIONS: {
 
             # main::message("$core is of $poss_cat? '$is_inst'");
             unless ($is_inst) {    #XXX if it already known, skip!
-                CODELET 100, CheckIfInstance,
+                CODELET 500, CheckIfInstance,
                     {
                     obj => $core,
                     cat => $poss_cat

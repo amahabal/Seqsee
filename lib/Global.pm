@@ -35,7 +35,7 @@ our $AcceptableTrustLevel = 0.5;    # Trust level above which questions can be a
 our $CodeletTreeLogfile = 'codelet_tree.log';
 our $CodeletTreeLogHandle;
 %PossibleFeatures = map { $_ => 1 } qw(relnact rules onlyfwd choosebiased debug LTM
-    CodeletTree NoGpOverlap
+    CodeletTree NoGpOverlap LiteralCat
 );
 
 # Feature description:
