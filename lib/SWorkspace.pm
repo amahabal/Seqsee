@@ -715,6 +715,7 @@ sub __CreateSamenessGroupAround {
     }
 
     my $new_group = SAnchored->create(@items);
+    $new_group->describe_as($S::SAMENESS);
     return __AddGroup($new_group);
 }
 

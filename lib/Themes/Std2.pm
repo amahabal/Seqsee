@@ -75,7 +75,7 @@ fill: { HSV( 240, 30, 90 - 0.88 * $raw_significance ) }
 STYLE ThoughtBox( $hit_intensity !, $is_current ! ) is {
 fill: {
         $hit_intensity = 2000 if $hit_intensity > 2000;
-        my ( $s, $v ) = ( 40, 80 - 0.025 * $hit_intensity );
+        my ( $s, $v ) = ( 40, 90 - 0.02 * $hit_intensity );
 
         # print "$hit_intensity => $v\n";
         $is_current ? HSV( 120, $s, $v ) : HSV( 100, $s, $v );
@@ -87,14 +87,16 @@ width: {
 
 STYLE ThoughtComponent( $presence_level !, $component_importance ! ) is {
 fill: {
-        my ( $s, $v ) = ( 70, 80 - 0.5 * $component_importance );
-        print "$component_importance => $v\n";
-        HSV( 30, $s, $v );
+        # my ( $s, $v ) = ( 90, 80 - 0.5 * $component_importance );
+        # my ( $s, $v ) = ( 90, 80 );
+        # print "$component_importance => $v\n";
+        HSV( 250, 90, 80 );
     }
+font: {'-adobe-helvetica-bold-r-normal--10-140-100-100-p-105-iso8859-4'}
 }
 
 STYLE ThoughtHead() is {
-font: {'-adobe-helvetica-bold-r-normal--12-140-100-100-p-105-iso8859-4'}
+font: {'-adobe-helvetica-bold-r-normal--14-140-100-100-p-105-iso8859-4'}
 }
 
 1;

@@ -46,7 +46,9 @@ ExtraStuff: {
                 -tags => [ $self, 'element', $idx ],
                 Style::Element($is_hilit),
             );
-            $Canvas->createText( $_[0] + 5, $_[1] + 10, -text => $idx );
+            if ($Global::Feature{debug}) {
+                $Canvas->createText( $_[0] + 5, $_[1] + 10, -text => $idx );
+            }
             $AnchorsForRelations{$self} ||= [ $_[0], $_[1] - 10 ];
             return $id;
         }

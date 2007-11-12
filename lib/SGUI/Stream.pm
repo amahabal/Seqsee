@@ -44,9 +44,9 @@ ExtraStuff: {
                 -text   => $tht->as_text(),
                 Style::ThoughtHead(),
             );
-            my $fringe = $tht->get_stored_fringe();
+            my $fringe = $tht->get_stored_fringe() or return;
             my $count  = 0;
-            for (@$fringe) {
+            for ((@$fringe)[0..2]) {
                 my ( $component, $activation ) = @$_;
                 $count++;
                 $Canvas->createText(
