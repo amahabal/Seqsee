@@ -21,7 +21,7 @@ use constant RESULTS_DIRECTORY => 'RealData';
 use constant OUTPUT_FILE       => 'Results2.xsl';
 
 use constant FirstSequenceOffset        => 15;
-use constant RowsPerSequence            => 5;
+use constant RowsPerSequence            => 6;
 use constant RowOffsetForPercentCorrect => 1;
 use constant ColumnForPercentCorrect    => 4;
 use constant ColumnForAvgTime           => 8;
@@ -269,6 +269,16 @@ sub InsertSequenceData {    #Returns range-string of Inlier Timing data
         }
     }
 
+    my @typing_time_profile = $seq->CreateTypingTimeProfile();
+    my @valid_extensions = @{$seq->get_acceptable_extensions()};
+    my @first_valid_extension = @valid_extensions? @{$valid_extensions[0]} : ();
+    enter_value_in_cell($SHEET, 2, $row+4, "More terms");
+    enter_value_in_cell($SHEET, 2, $row+5, "Typing time");
+    for (0..9) {
+        enter_value_in_cell( $SHEET, 4 + $_, $row + 4, $first_valid_extension[$_]);
+        enter_value_in_cell( $SHEET, 4 + $_, $row + 5, $typing_time_profile[$_]);
+    }
+    $SHEET->Range(cell_to_range_string(2, $row).':'.cell_to_range_string(2,$row+5))->{Font}{Bold} = 1;
     if ( $col > 4 ) {
         enter_value_in_cell( $SHEET, 6, $row + RowOffsetForAvgTime, "Avg Time: " );
         enter_value_in_cell(

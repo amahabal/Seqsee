@@ -17,7 +17,7 @@ THOUGHTTYPE: 'ThoughtType' Identifier '(' ArgList ')' 'does' '{' NamedBlocksHash
 
 };
 
-my %AllowedBlocks = map { $_ => 1 } qw(INITIAL FINAL FRINGE ACTIONS BUILD);
+my %AllowedBlocks = map { $_ => 1 } qw(INITIAL FINAL FRINGE ACTIONS BUILD AS_TEXT);
 
 sub GenerateThoughtCode {
     my ( $package_name, $arguments, $blocks ) = @_;
@@ -27,11 +27,15 @@ sub GenerateThoughtCode {
         confess "UNKNOWN BLOCK $k!" unless $AllowedBlocks{$k};
     }
 
+    my $AS_TEXT_BLOCK = $blocks->{AS_TEXT} || "return '$package_name';";
+
+
     $blocks->{BUILD} ||= '';
 
     my $VAR_DECLARATIONS        = ArgumentsToVarDeclarations($arguments);
     my $BUILD_ARGUMENT_PULLING  = ArgumentsToBuildPuller($arguments);
     my $OTHER_ARGUMENTS_PULLING = ArgumentsToOtherPuller($arguments);
+
 
     my $BUILD_BLOCK   = <<"BUILD_BLOCK";
     sub BUILD {
@@ -107,7 +111,8 @@ ACTIONS_BLOCK
         $FINAL_BLOCK;
 
         sub as_text {
-            return "$package_name";
+            my \$self = shift;
+            $AS_TEXT_BLOCK
         }
 
         sub get_extended_fringe {

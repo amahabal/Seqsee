@@ -6,6 +6,43 @@ use Carp;
 use Sort::Key qw(rikeysort);
 use Tk::JFileDialog;
 
+use Getopt::Long;
+
+my $AUTOPILOT;
+my $GENERATE_FILE_NAME;
+my %options;
+GetOptions( \%options, 'autopilot!', 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
+
+if ($options{autopilot}) {
+    if (!$options{sequence}) {
+        confess "Need sequence";
+    }
+    if ($options{generate_filename}) {
+        unless ($options{dir}) {
+            confess "With generate_filename, need dir";
+        }
+        $options{filename} = GenerateFilename($options{dir}, $options{sequence});
+    } elsif (!$options{filename}) {
+        confess "Need filename";
+    }
+    print "Will run on autopilot\n";
+    $AUTOPILOT = 1;
+}
+
+sub GenerateFilename {
+    my ( $dir, $seq ) = @_;
+    $seq =~ tr#{}[]()<>#abcdefgh#;
+    $seq =~ s#\s*([a-h])\s*#$1#g;
+    $seq =~ s#^\s*##;
+    $seq =~ s#\s*$##;
+    $seq =~ s#\s+# #g;
+    $seq =~ tr# #i#;
+    my $ret = "$dir/$seq.eps";
+    print $ret;
+    return $ret;
+}
+
+
 use constant {
     WIDTH      => 500,
     HEIGHT     => 55,
@@ -47,9 +84,10 @@ my $Entry
 my $FileEntry
     = $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )->pack( -side => 'left' );
 my $fileDialog = $MW->JFileDialog(
-    -Title => 'Select File To Save Image In',
-    -FPat  => '*.eps',
+    -Title    => 'Select File To Save Image In',
+    -FPat     => '*.eps',
     -HistFile => 'graveyard/history',
+
     # -HistUsePath => 1,
     -Path => 'D:/DISSERTATION/Chapters/SequenceEPS',
 );
@@ -65,13 +103,13 @@ $frame2->Button(
             $SaveFilename = '';
         }
     }
-)->pack(-side=>'left');
+)->pack( -side => 'left' );
 $frame2->Button(
     -text    => 'Save',
     -command => sub {
         Save() if $SaveFilename;
     }
-)->pack(-side=> 'left');
+)->pack( -side => 'left' );
 
 $Entry->focus();
 
@@ -110,6 +148,15 @@ $MW->Scale(
 )->pack();
 my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -background => BACKGROUND() )
     ->pack();
+if ($AUTOPILOT) {
+    $SequenceString = $options{sequence};
+    $SaveFilename = $options{filename};
+    Show();
+    sleep(1);
+    #Save();
+    #sleep(1);
+    # exit();
+}
 MainLoop();
 
 sub Show {
@@ -230,4 +277,5 @@ sub Save {
     my $filename = $SaveFilename;
     die "File exists. Fix this bug first." if -e $filename;
     $Canvas->postscript( -file => $filename, -pageheight => PAGEHEIGHT, -height => HEIGHT );
+    # or confess "Failed to save $filename";
 }

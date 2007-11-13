@@ -151,4 +151,21 @@ sub as_text {
     return array_to_string( $self->get_presented_terms );
 }
 
+sub CreateTypingTimeProfile {
+    my ( $self ) = @_;
+    my @array_of_stats;
+    for (0..9) {
+        push @array_of_stats, Statistics::Descriptive::Full->new();
+    }
+    for my $encounter ($self->GetCorrectInlierEncounters) {
+        my @typing_times = @{$encounter->get_typing_times};
+        for (0..9) {
+            last if $typing_times[$_] eq '?';
+            $array_of_stats[$_]->add_data($typing_times[$_]);
+        }
+    }
+    return map { $_->mean() } @array_of_stats;
+}
+
+
 1;

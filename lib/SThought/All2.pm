@@ -133,6 +133,7 @@ FINAL: {
 }
 
 ThoughtType SAnchored( $core ! ) does {
+AS_TEXT: { return "Group " . $self->get_core()->get_structure_string }
 INITIAL: {
         multimethod get_fringe_for => ('SAnchored') => sub {
             my ($core) = @_;
@@ -212,7 +213,7 @@ ACTIONS: {
             }
         }
 
-        if ($Global::Feature{LiteralCat}) {
+        if ( $Global::Feature{LiteralCat} ) {
             CODELET 100, SetLiteralCat, { object => $core };
         }
 
@@ -281,6 +282,7 @@ ACTIONS: {
 }
 
 ThoughtType SElement( $core !, $magnitude = {0} ) does {
+AS_TEXT: { return "Element (" . $self->get_magnitude . ")"}
 INITIAL: {
 
         multimethod get_fringe_for => ('SElement') => sub {
@@ -352,11 +354,12 @@ BUILD: {
 ACTIONS: {
         my $holey = SWorkspace->are_there_holes_here( $core->get_ends );
 
-        if ($core->get_type()->IsEffectivelyASamenessRelation()) {
-            CODELET 100, AreTheseGroupable, {
-                items => [$core->get_ends ],
-                reln => $core,
-                    };
+        if ( $core->get_type()->IsEffectivelyASamenessRelation() ) {
+            CODELET 100, AreTheseGroupable,
+                {
+                items => [ $core->get_ends ],
+                reln  => $core,
+                };
         }
 
         #if ( not $holey ) {
