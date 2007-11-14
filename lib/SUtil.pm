@@ -243,8 +243,7 @@ sub significant {
 sub StructureToString {
     my ($structure) = @_;
     if ( ref $structure ) {
-        return '['
-          . join( ', ', map { StructureToString($_) } @$structure ) . ']';
+        return '[' . join( ', ', map { StructureToString($_) } @$structure ) . ']';
     }
     else {
         return $structure;
@@ -259,5 +258,38 @@ sub trim {
     }
 }
 
+sub StringifyForCarp {
+    my $arg = shift;
+    $arg = '«' . $arg->as_text() . '»' if UNIVERSAL::can( $arg, 'as_text' );
+
+    my $reftype = ref($arg);
+    if ($reftype) {
+        if ( $reftype eq 'HASH' ) {
+            my %arg = %$arg;
+            $arg = '{ ';
+            while ( my ( $k, $v ) = each %arg ) {
+                $arg .= "$k => ";
+                if ( UNIVERSAL::can( $v, 'as_text' ) ) {
+                    $arg .= '«' . $v->as_text() . '»';
+                }
+                else {
+                    $arg .= "$v";
+                }
+                $arg .= ", ";
+            }
+            $arg .= ' }';
+        }
+        elsif ( $reftype eq 'ARRAY' ) {
+            $arg = join( ', ', map { UNIVERSAL::can( $_, 'as_text' ) ? $_->as_text : "$_" } @$arg );
+        }
+        else {
+            $arg = "reftype=$reftype";
+        }
+    }
+    elsif ( not defined($arg) ) {
+        $arg = 'undef';
+    }
+    return $arg;
+}
 
 1;

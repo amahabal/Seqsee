@@ -8,6 +8,11 @@ sub new {
     bless [ $family, $urgency, $Global::Steps_Finished, $args_ref ], $package;
 }
 
+sub as_text {
+    my ( $self ) = @_;
+    return "Codelet(family=$self->[0],urgency=$self->[1],args=" . SUtil::StringifyForCarp($self->[3]);
+}
+
 sub run {
     my $self = shift;
     return unless CheckFreshness($self->[2], values %{$self->[3]});

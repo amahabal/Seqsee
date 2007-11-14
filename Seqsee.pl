@@ -1,3 +1,29 @@
+BEGIN {
+
+    package Carp;
+    use Carp::Heavy;
+    *Carp::format_arg = sub {
+        my ($arg) = @_;
+
+        # (Abhijit Mahabal) My addition.
+        $arg = SUtil::StringifyForCarp($arg);
+        $arg =~ s/'/\\'/g;
+        $arg = str_len_trim( $arg, $MaxArgLen );
+
+        # Quote it?
+        $arg = "'$arg'" unless $arg =~ /^-?[\d.]+\z/;
+
+        # The following handling of "control chars" is direct from
+        # the original code - it is broken on Unicode though.
+        # Suggestions?
+        #utf8::is_utf8($arg)
+        #    or $arg =~ s/([[:cntrl:]]|[[:^ascii:]])/sprintf("\\x{%x}",ord($1))/eg;
+        return $arg;
+    };
+    $Carp::MaxEvalLen = 0;
+    $Carp::MaxArgLen  = 0;
+}
+
 use strict;
 use lib 'genlib/';
 
@@ -38,7 +64,7 @@ use SGUI;
 # variable: $OPTIONS_ref
 #    final configuration hash
 #
-#    This is the result after passing through all the three stages 
+#    This is the result after passing through all the three stages
 #  (config, command line, default)
 #
 #     This is passed on to initialize several others, and is thus very important
@@ -50,8 +76,7 @@ use SGUI;
 #  update_interval - force redisplay after so many steps
 #  interactive - for non-tk, this specifies interactivity
 
-my $OPTIONS_ref = $Global::Options_ref =
-  Seqsee::_read_config( Seqsee::_read_commandline() );
+my $OPTIONS_ref = $Global::Options_ref = Seqsee::_read_config( Seqsee::_read_commandline() );
 INITIALIZE();
 GET_GOING();    # Potentially "infinite" loop
 
@@ -117,8 +142,7 @@ sub GET_GOING {
 
 sub Interaction_continue {
     return Seqsee::Interaction_step_n(
-        {
-            n            => $OPTIONS_ref->{max_steps},
+        {   n            => $OPTIONS_ref->{max_steps},
             update_after => $OPTIONS_ref->{update_interval},
             max_steps    => $OPTIONS_ref->{max_steps},
         }
@@ -126,12 +150,8 @@ sub Interaction_continue {
 }
 
 sub Interaction_step_n {
-    return Seqsee::Interaction_step_n( {
-        %{$_[0]},
-        max_steps => $OPTIONS_ref->{max_steps},
-            });
+    return Seqsee::Interaction_step_n( { %{ $_[0] }, max_steps => $OPTIONS_ref->{max_steps}, } );
 }
-
 
 # method: Interaction_step
 # A single step, with update display
@@ -141,8 +161,7 @@ sub Interaction_step_n {
 
 sub Interaction_step {
     return Seqsee::Interaction_step_n(
-        {
-            n            => 1,
+        {   n            => 1,
             update_after => 1,
             max_steps    => $OPTIONS_ref->{max_steps},
         }
@@ -159,40 +178,41 @@ sub init_display {
     my $default_error_handler = sub {
         my ($err) = @_;
         $Tk::Carp::MainWindow = $SGUI::MW;
-        my $msg =
-          UNIVERSAL::isa( $err, 'Exception::Class' ) ? $err->as_string() : $err;
+        my $msg = UNIVERSAL::isa( $err, 'Exception::Class' ) ? $err->as_string() : $err;
         if ( $msg !~ m#\S# ) {
             $msg .= "<EMPTY MESSAGE>";
             confess $msg;
         }
-        if ($msg eq "_TK_EXIT_(0)\n") {
+        if ( $msg eq "_TK_EXIT_(0)\n" ) {
             return;
         }
-        tkdie("tkdie notes: '" . $msg . q{'});
+        tkdie( "tkdie notes: '" . $msg . q{'} );
     };
     my $msg_displayer = sub {
-        my ($msg, $no_break) = @_;
-        my $btn =
-          $SGUI::MW->messageBox( -message => $msg, -type => "OkCancel" );
+        my ( $msg, $no_break ) = @_;
+        my $btn = $SGUI::MW->messageBox( -message => $msg, -type => "OkCancel" );
         ## $btn
         $Global::Break_Loop = 1 unless $no_break;
     };
     my $commentary_displayer = sub {
-        my ( $msg, $no_break) = @_;
+        my ( $msg, $no_break ) = @_;
         print "MSG=$msg\n";
         if ($no_break) {
-            my @msg = (ref($msg) eq 'ARRAY') ? @$msg : ("$msg\n");
+            my @msg = ( ref($msg) eq 'ARRAY' ) ? @$msg : ("$msg\n");
             $SGUI::Commentary->MessageRequiringNoResponse(@msg);
-        } else {
+        }
+        else {
             my @msg = ref($msg) eq 'ARRAY' ? @$msg : ($msg);
-            $SGUI::Commentary->MessageRequiringAResponse(['continue'], @msg);
+            $SGUI::Commentary->MessageRequiringAResponse( ['continue'], @msg );
         }
     };
-    my $commentary_displayer_debug =  $Global::Feature{debug} ? sub {
+    my $commentary_displayer_debug = $Global::Feature{debug}
+        ? sub {
         my ( $msg, $no_break, $add_newline ) = @_;
         my $newline = $add_newline ? "\n" : '';
-        $commentary_displayer->(["[DEBUG: $msg]$newline", ['debug']], $no_break);
-    } : sub  {};
+        $commentary_displayer->( [ "[DEBUG: $msg]$newline", ['debug'] ], $no_break );
+        }
+        : sub { };
 
     my $ask_user_extension_displayer = sub {
         my ( $arr_ref, $msg_suffix ) = @_;
@@ -201,13 +221,14 @@ sub init_display {
 
         my $cnt = scalar(@$arr_ref);
         my $msg =
-          ( $cnt == 1 )
-          ? "Is the next term @$arr_ref?"
-          : "Are the next terms: @$arr_ref?";
+            ( $cnt == 1 )
+            ? "Is the next term @$arr_ref?"
+            : "Are the next terms: @$arr_ref?";
 
-        my $ok = $Global::Feature{debug} ? 
-            $SGUI::Commentary->MessageRequiringBooleanResponse($msg, '', $msg_suffix, ['debug'])
-                : $SGUI::Commentary->MessageRequiringBooleanResponse($msg);
+        my $ok =
+              $Global::Feature{debug}
+            ? $SGUI::Commentary->MessageRequiringBooleanResponse( $msg, '', $msg_suffix, ['debug'] )
+            : $SGUI::Commentary->MessageRequiringBooleanResponse($msg);
         if ($ok) {
             $Global::AtLeastOneUserVerification = 1;
         }
@@ -217,19 +238,17 @@ sub init_display {
     "main"->install_sub( { update_display => $update_display_sub } );
 
     "main"->install_sub( { default_error_handler => $default_error_handler } );
-    "main"->install_sub( { pop_message => $msg_displayer } );
-    "main"->install_sub( { message => $commentary_displayer } );
-    "main"->install_sub( { debug_message => $commentary_displayer_debug } );
-    "main"
-      ->install_sub( { ask_user_extension => $ask_user_extension_displayer } );
+    "main"->install_sub( { pop_message           => $msg_displayer } );
+    "main"->install_sub( { message               => $commentary_displayer } );
+    "main"->install_sub( { debug_message         => $commentary_displayer_debug } );
+    "main"->install_sub( { ask_user_extension    => $ask_user_extension_displayer } );
     "main"->install_sub(
-        {
-            ask_for_more_terms => sub {
+        {   ask_for_more_terms => sub {
                 my $window = SGUI::ask_for_more_terms();
 
                 # main::message("Got $window");
                 $window->waitWindow();
-              }
+                }
         }
     );
 
