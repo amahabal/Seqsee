@@ -279,6 +279,11 @@ sub Zero {
     bless [ 0, $DISTANCE_MODE::GROUP ], 'DISTANCE';
 }
 
+sub IsNonZero {
+    return $_[0]->[0];
+}
+
+
 sub IsUnitGroups {
     my ($self) = @_;
     return $self->[1]->IsUnitGroups();

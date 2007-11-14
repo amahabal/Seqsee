@@ -16,8 +16,8 @@ my %stored_fringe_of :ATTR( :get<stored_fringe>, :set<stored_fringe> );
 my %_Type2Class = 
     qw(   SElement        SThought::SElement
           SAnchored       SThought::SAnchored
-          SReln::Simple   SThought::SReln_Simple
-          SReln::Compound SThought::SReln_Compound
+          SReln::Simple   SThought::SRelation
+          SReln::Compound SThought::SRelation
            );
 
 # method: create

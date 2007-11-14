@@ -24,7 +24,8 @@ ACTIONS: {
 
                 # So there *is* a blemish!
                 #main::message("Start Blemish?");
-                my $underlying_rule = $group->get_underlying_reln()->get_rule();
+                my $underlying_ruleapp = $group->get_underlying_reln() or return;
+                my $underlying_rule = $underlying_ruleapp->get_rule();
                 my $statecount      = $underlying_rule->get_state_count();
                 if ( $statecount == 1 ) {
                     my $reln = $underlying_rule->get_relations()->[0];
