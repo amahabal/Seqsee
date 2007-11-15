@@ -219,7 +219,7 @@ INITIAL: {
 RUN: {
         return if ( $a->overlaps($b) );
         return unless SWorkspace::__CheckLiveness( $a, $b );
-        unless ( $Global::Feature{AllowLeftwardRelations} ) {
+        if ( not $Global::Feature{AllowLeftwardRelations} ) {
             ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
         }
 

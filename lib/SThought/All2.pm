@@ -192,7 +192,7 @@ ACTIONS: {
             direction => DIR::LEFT(),
             };
 
-        if ( $Global::Feature{Metonyms} and scalar(@$core) > 1 and SUtil::toss(0.8) ) {
+        if ( scalar(@$core) > 1 and SUtil::toss(0.8) ) {
             if ( SUtil::toss(0.5) ) {
 
                 #main::message("Will launch ConvulseEnd");

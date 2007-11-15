@@ -231,7 +231,7 @@ sub _describe_position {
     # XXX: Will only be fwd or backward, currently
     # XXX(Board-it-up): [2006/10/14] Should be more biased...
     unless ( defined $position_mode ) {
-        if ($Global::PossibleFeatures{onlyfwd}) {
+        if (not $Global::PossibleFeatures{AllowLeftwardRelations}) {
             $position_mode = POS_MODE::FORWARD();
             # main::message("Position mode is $position_mode");
         } else {
