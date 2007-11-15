@@ -576,7 +576,8 @@ sub RegTestHelper {
         close TEMP;
         my $FeatureSetCommand
             = join( ";", map {"\$Global::Feature{$_} = 1"} ( keys %Global::Feature ) );
-        system "perl  -e \"use lib 'genlib';use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
+        system
+            "perl  -e \"use lib 'genlib';use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
             and die "The subcommand was cancelled. exiting";
         open REG, "<", $tmp_file;
         my $VAR1;
@@ -689,6 +690,86 @@ sub ParseSeq_ {
         s/\s*$//;
     }
     return ( [ split( /\s+/, $s ) ], [ split( /\s+/, $c ) ] );
+}
+
+use ResultOfTestRun;
+sub RunSeqsee {
+    my ( $seq, $continuation, $max_steps, $max_false, $min_extension ) = @_;
+    ResetFailedRequests();
+    SWorkspace->init( { %{$Global::TestingOptionsRef}, seq => $seq } );
+    Global->SetFutureTerms(@$continuation);
+    SCoderack->init($Global::TestingOptionsRef);
+    SStream->init($Global::TestingOptionsRef);
+
+    # XXX(Board-it-up): [2006/10/23] Init memory here
+    $SWorkspace::ReadHead = 0;
+    Global->clear();
+
+    TRY {
+        while (
+            not Seqsee::Interaction_step_n(
+                {   n            => $max_steps,
+                    max_steps    => $max_steps,
+                    update_after => $max_steps,
+                }
+            )
+            )
+        {
+        }
+    }
+    CATCH {
+    FinishedTest: {
+            return ResultOfTestRun->new(
+                {   status => $TestOutputStatus::Successful,
+                    steps  => $Global::Steps_Finished,
+                    error  => undef,
+                }
+            ) if $err->got_it();
+            confess "A SErr::FinishedTest thrown without getting it. Bad.";
+        }
+    NotClairvoyant: {
+            return ResultOfTestRun->new(
+                {   status => $TestOutputStatus::RanOutOfTerms,
+                    steps  => $Global::Steps_Finished,
+                    error  => undef,
+                }
+            );
+        }
+    FinishedTestBlemished: {
+            return ResultOfTestRun->new(
+                {   status => $TestOutputStatus::InitialBlemish,
+                    steps  => $Global::Steps_Finished,
+                    error  => undef,
+                }
+            );
+        }
+    DEFAULT: {
+            return ResultOfTestRun->new(
+                {   status => $TestOutputStatus::Crashed,
+                    steps  => $Global::Steps_Finished,
+                    error  => "Crashed!\n$err",
+                }
+            );
+        }
+    }
+
+    # So did not die.
+    if ( $SWorkspace::ElementCount - scalar(@$seq) > $min_extension ) {
+        return ResultOfTestRun->new(
+            {   status => $TestOutputStatus::ExtendedABit,
+                steps  => $Global::Steps_Finished,
+                error  => undef,
+            }
+        );
+    }
+    else {
+        return ResultOfTestRun->new(
+            {   status => $TestOutputStatus::NotEvenExtended,
+                steps  => $Global::Steps_Finished,
+                error  => undef,
+            }
+        );
+    }
 }
 
 INITIALIZE_for_testing();

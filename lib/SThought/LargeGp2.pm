@@ -6,7 +6,7 @@ ACTIONS: {
         if ( $flush_right and $flush_left ) {
             THOUGHT AreWeDone, { group => $group };
         }
-        elsif ( $flush_right and !$flush_left ) {
+        elsif ( $Global::AtLeastOneUserVerification and $flush_right and !$flush_left ) {
             THOUGHT MaybeStartBlemish, { group => $group };
         }
     }
@@ -14,6 +14,7 @@ ACTIONS: {
 
 ThoughtType MaybeStartBlemish( $group ! ) does {
 ACTIONS: {
+        #XXX runs too eagerly.
         my $flush_right = $group->IsFlushRight();
         my $flush_left  = $group->IsFlushLeft();
         if ( !$flush_left ) {
