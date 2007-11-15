@@ -9,8 +9,9 @@ my $TIMES_TO_RUN = 10;
 
 my $MW = new MainWindow();
 
-my $Text = $MW->Text( -width => 130 )->pack();
+my $Text = $MW->Scrolled('Text', -scrollbars=>'se', -width => 130 )->pack();
 $Text->tagConfigure( 'success',   -background => 'blue',   -foreground => 'white' );
+$Text->tagConfigure( 'qualified_success',   -background => '#7777FF',   -foreground => 'white' );
 $Text->tagConfigure( 'error',     -background => 'red',    -foreground => 'white' );
 $Text->tagConfigure( 'nosuccess', -background => 'yellow', -foreground => 'white' );
 
@@ -61,18 +62,19 @@ sub Update {
 
 sub find_tag {
     my ($status) = @_;
+    my $string = $status->get_status_string;
     print $status;
     if ( $status->IsSuccess() ) {
-        return ( "O", ["success"] );
+        return ( " OK ", ["success"] );
     }
     elsif ( $status->IsACrash() ) {
         return ( " CRASH! ", ["error"] );
     }
     elsif ( $status->IsAtLeastAnExtension() ) {
-        return ( "?", ["success"] );
+        return ( " $string ", ["qualified_success"] );
     }
     else {
-        return ( "X", ["nosuccess"] );
+        return ( " X ", ["nosuccess"] );
     }
 }
 
