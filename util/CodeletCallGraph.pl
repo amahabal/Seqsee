@@ -5,15 +5,25 @@ use Smart::Comments;
 
 my $filename = 'codelet_tree.log';
 
-our %CreatedAtPosition;
-our %ExecutedAtPosition;
-our %Progeny;
-our %Parent;
-our @ExecuteOrder;
-our @CreationOrder;
-our %Details;
+# Format of that file:
+# An unindented line indicates a "parent": a runnable run, or "Initial" or "Background"
+# An indented line indicates an object being added to the coderack.
+
+# For these hashes, keys are as follows:
+# If for a codelet $C, "$C" is usually the key. BUT: perl reuses freed locations, and multiple
+#   codelets make stringify to the same value. In that case, a "#n" is appended to the name, where
+#   n=2,3, etc.
+our %SeenCount;             # Needed to enable the #n naming described above.
+our @ExecuteOrder;          # Runnables, in the order they were run.
+our %ExecutedAtPosition;    # The same information as in @ExecuteOrder
+our @CreationOrder;       # indices are "time steps", elements are lists of objects.
+our %CreatedAtPosition;     # The same information as in @CreationOrder
+
+our %Progeny;               # Immediate descendents, or objects it launched.
+our %Parent;                # The parent.
+
+our %Details;               # A string, with such details as urgency, type, whatever.
 our %AlreadyPrinted;
-our %SeenCount;
 
 my $MW = new MainWindow();
 $MW->focusmodel('active');
@@ -92,7 +102,7 @@ $frame->Button(
 )->pack( -side => 'left' );
 MainLoop();
 
-sub Phase_One {
+sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
     open my $file, '<', $filename;
     my $parent;
     while ( my $line = <$file> ) {
@@ -130,7 +140,7 @@ sub Phase_One {
     }
 }
 
-sub Phase_Two {
+sub Phase_Two {    # Print out the trees.
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
         PrintProgeny( $object, 0 ) unless $AlreadyPrinted{$object};
