@@ -4,7 +4,7 @@ use Carp;
 use Smart::Comments;
 use Getopt::Long;
 my %options;
-GetOptions( \%options, "JustTrees!" );
+GetOptions( \%options, "JustTrees!", "CodeletView!" );
 
 my $filename = 'codelet_tree.log';
 
@@ -56,7 +56,12 @@ $MW->bind(
 
 my $counter_of_executions = 0;
 Phase_One();
-Phase_Two();
+if ( $options{CodeletView} ) {
+    CodeletView_Phase_Two();
+}
+else {
+    TreeView_Phase_Two();
+}
 my %ObjectTypesSeen;
 while ( my ( $k, $v ) = each %Details ) {
     my $v_copy = $v;
@@ -144,17 +149,25 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
     }
 }
 
-sub Phase_Two {    # Print out the trees.
+sub CodeletView_Phase_Two {
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
-        if (not $AlreadyPrinted{$object}) {
-            PrintProgeny($object, 0);
-            $text->insert('end', "\n");    
+        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ),
+            '', ') ', '', CreateDisplay( $object, $idx + 1, $Details{$object} ), "\n" );
+    }
+}
+
+sub TreeView_Phase_Two {    # Print out the trees.
+    for my $idx ( 0 .. $counter_of_executions - 1 ) {
+        my $object = $ExecuteOrder[$idx];
+        if ( not $AlreadyPrinted{$object} ) {
+            PrintProgeny( $object, 0 );
+            $text->insert( 'end', "\n" );
         }
         for ( @{ $CreationOrder[$idx] || [] } ) {
-            if ( !exists( $ExecutedAtPosition{$_} ) and !$Parent{$_} ){
-                PrintProgeny($_, 0);
-                $text->insert('end', "\n");
+            if ( !exists( $ExecutedAtPosition{$_} ) and !$Parent{$_} ) {
+                PrintProgeny( $_, 0 );
+                $text->insert( 'end', "\n" );
             }
         }
 
@@ -164,7 +177,7 @@ sub Phase_Two {    # Print out the trees.
 sub CreateDisplay {
     my ( $object, $execute_position, $details ) = @_;
     my $executed_tag = defined($execute_position) ? "was_executed" : "wasnt_executed";
-    if ( $options{JustTrees} ) {
+    if ( $options{JustTrees} or $options{CodeletView} ) {
         if ( $object =~ /^SCodelet/ or $object =~ /^SAction/ ) {
             $details =~ m/^\s*(\S+)/;
             return ( $1, [$executed_tag] );
@@ -202,8 +215,8 @@ sub PrintProgeny {
     my $execute_position = $ExecutedAtPosition{$object};
 
     if ($depth) {
-        $text->insert('end', q{      } x ($depth - 1));
-        $text->insert('end', q{  |-- }, 'leaders');
+        $text->insert( 'end', q{      } x ( $depth - 1 ) );
+        $text->insert( 'end', q{  |-- }, 'leaders' );
     }
 
     $text->insert( 'end', CreateDisplay( $object, $execute_position, $Details{$object} ), "\n" );
