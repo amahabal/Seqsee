@@ -2,6 +2,9 @@ use strict;
 use Tk;
 use Carp;
 use Smart::Comments;
+use Getopt::Long;
+my %options;
+GetOptions( \%options, "JustTrees!" );
 
 my $filename = 'codelet_tree.log';
 
@@ -16,7 +19,7 @@ my $filename = 'codelet_tree.log';
 our %SeenCount;             # Needed to enable the #n naming described above.
 our @ExecuteOrder;          # Runnables, in the order they were run.
 our %ExecutedAtPosition;    # The same information as in @ExecuteOrder
-our @CreationOrder;       # indices are "time steps", elements are lists of objects.
+our @CreationOrder;         # indices are "time steps", elements are lists of objects.
 our %CreatedAtPosition;     # The same information as in @CreationOrder
 
 our %Progeny;               # Immediate descendents, or objects it launched.
@@ -39,6 +42,7 @@ $text->tagConfigure( 'wasnt_executed', -overstrike => 1 );
 $text->tagConfigure( 'Codelet',        -background => '#FFAAAA' );
 $text->tagConfigure( 'Action',         -background => '#AAFFAA' );
 $text->tagConfigure( 'Thought',        -background => '#AAAAFF' );
+$text->tagConfigure( 'leaders',        -foreground => '#BBBBBB' );
 $text->tagConfigure(
     'Hilit',
     -font      => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
@@ -143,10 +147,15 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
 sub Phase_Two {    # Print out the trees.
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
-        PrintProgeny( $object, 0 ) unless $AlreadyPrinted{$object};
-
+        if (not $AlreadyPrinted{$object}) {
+            PrintProgeny($object, 0);
+            $text->insert('end', "\n");    
+        }
         for ( @{ $CreationOrder[$idx] || [] } ) {
-            PrintProgeny( $_, 0 ) if ( !exists( $ExecutedAtPosition{$_} ) and !$Parent{$_} );
+            if ( !exists( $ExecutedAtPosition{$_} ) and !$Parent{$_} ){
+                PrintProgeny($_, 0);
+                $text->insert('end', "\n");
+            }
         }
 
     }
@@ -155,24 +164,35 @@ sub Phase_Two {    # Print out the trees.
 sub CreateDisplay {
     my ( $object, $execute_position, $details ) = @_;
     my $executed_tag = defined($execute_position) ? "was_executed" : "wasnt_executed";
-    $execute_position = sprintf( '% 5d', $execute_position ) if defined($execute_position);
-
-    my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
-    my @position_text =
-        defined($execute_position)
-        ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
-        : ( "[$creation_position/xxxxx]", "wasnt_executed" );
-    if ( $object =~ /^SCodelet=ARRAY/ ) {
-        return ( @position_text, "Codelet $details", [ 'Codelet', $executed_tag ] );
-    }
-    elsif ( $object =~ /^SAction=SCALAR/ ) {
-        return ( @position_text, "Action $details", [ 'Action', $executed_tag ] );
-    }
-    elsif ( $object =~ /^SThought::(.*?)=/ ) {
-        return ( @position_text, "$1", [ 'Thought', $executed_tag ] );
+    if ( $options{JustTrees} ) {
+        if ( $object =~ /^SCodelet/ or $object =~ /^SAction/ ) {
+            $details =~ m/^\s*(\S+)/;
+            return ( $1, [$executed_tag] );
+        }
+        elsif ( $object =~ /^SThought::(.*?)=/ ) {
+            return ( $1, [$executed_tag] );
+        }
     }
     else {
-        confess("Funny object >$object<");
+        $execute_position = sprintf( '% 5d', $execute_position ) if defined($execute_position);
+
+        my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
+        my @position_text =
+            defined($execute_position)
+            ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
+            : ( "[$creation_position/xxxxx]", "wasnt_executed" );
+        if ( $object =~ /^SCodelet=ARRAY/ ) {
+            return ( @position_text, "Codelet $details", [ 'Codelet', $executed_tag ] );
+        }
+        elsif ( $object =~ /^SAction=SCALAR/ ) {
+            return ( @position_text, "Action $details", [ 'Action', $executed_tag ] );
+        }
+        elsif ( $object =~ /^SThought::(.*?)=/ ) {
+            return ( @position_text, "$1", [ 'Thought', $executed_tag ] );
+        }
+        else {
+            confess("Funny object >$object<");
+        }
     }
 }
 
@@ -181,8 +201,12 @@ sub PrintProgeny {
 
     my $execute_position = $ExecutedAtPosition{$object};
 
-    $text->insert( 'end', q{   } x $depth,
-        '', CreateDisplay( $object, $execute_position, $Details{$object} ), "\n" );
+    if ($depth) {
+        $text->insert('end', q{      } x ($depth - 1));
+        $text->insert('end', q{  |-- }, 'leaders');
+    }
+
+    $text->insert( 'end', CreateDisplay( $object, $execute_position, $Details{$object} ), "\n" );
 
     $AlreadyPrinted{$object} = 1;
     my @progeny = @{ $Progeny{$object} || [] };
