@@ -4,7 +4,7 @@ use Carp;
 use Smart::Comments;
 use Getopt::Long;
 my %options;
-GetOptions( \%options, "JustTrees!", "CodeletView!" );
+GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!" );
 
 my $filename = 'codelet_tree.log';
 
@@ -28,6 +28,9 @@ our %Parent;                # The parent.
 our %Details;               # A string, with such details as urgency, type, whatever.
 our %AlreadyPrinted;
 
+our $TreeCount=0;
+our %TreeNum;
+
 my $MW = new MainWindow();
 $MW->focusmodel('active');
 my $text = $MW->Scrolled(
@@ -43,6 +46,7 @@ $text->tagConfigure( 'Codelet',        -background => '#FFAAAA' );
 $text->tagConfigure( 'Action',         -background => '#AAFFAA' );
 $text->tagConfigure( 'Thought',        -background => '#AAAAFF' );
 $text->tagConfigure( 'leaders',        -foreground => '#BBBBBB' );
+$text->tagConfigure( 'treenum',        -foreground => '#6666FF' );
 $text->tagConfigure(
     'Hilit',
     -font      => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
@@ -143,6 +147,10 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
             $Details{$object} = $details;
             if ($parent) {
                 push @{ $Progeny{$parent} }, $object;
+                $TreeNum{$object} = $TreeNum{$parent};
+            } else {
+                $TreeCount++;
+                $TreeNum{$object} = $TreeCount;
             }
             $Parent{$object} = $parent;
         }
@@ -152,6 +160,9 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
 sub CodeletView_Phase_Two {
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
+        if ($options{TreeNums}) {
+            $text->insert('end', sprintf("[tree #% 4d] ", $TreeNum{$object} ), 'treenum');
+        }
         $text->insert( 'end', sprintf( "% 5d", $idx + 1 ),
             '', ') ', '', CreateDisplay( $object, $idx + 1, $Details{$object} ), "\n" );
     }
@@ -161,11 +172,15 @@ sub TreeView_Phase_Two {    # Print out the trees.
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
         if ( not $AlreadyPrinted{$object} ) {
+            my $treenum = $TreeNum{$object};
+            $text->insert('end', "Tree #$treenum", 'treenum', "\n");
             PrintProgeny( $object, 0 );
             $text->insert( 'end', "\n" );
         }
         for ( @{ $CreationOrder[$idx] || [] } ) {
             if ( !exists( $ExecutedAtPosition{$_} ) and !$Parent{$_} ) {
+                my $treenum = $TreeNum{$_};
+                $text->insert('end', "Tree #$treenum", 'treenum', "\n");
                 PrintProgeny( $_, 0 );
                 $text->insert( 'end', "\n" );
             }
