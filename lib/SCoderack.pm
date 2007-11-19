@@ -200,7 +200,7 @@ sub get_next_runnable {
     unless ($CODELET_COUNT) {
         my $new_reader = SCodelet->new( 'Reader', 100, {} );
         if ( $Global::Feature{CodeletTree} ) {
-            print {$Global::CodeletTreeLogHandle} "Background\n\t$new_reader\tReader\n";
+            print {$Global::CodeletTreeLogHandle} "Background\n\t$new_reader\tReader\t100\n";
         }
         return $new_reader;
     }
