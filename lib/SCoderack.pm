@@ -70,13 +70,14 @@ sub init {
     my $OPTIONS_ref = shift;
     print "Initializing Coderack...\n";
 
-    if ($Global::Feature{CodeletTree}) {
+    if ( $Global::Feature{CodeletTree} ) {
         open my $handle, '>', $Global::CodeletTreeLogfile;
         select($handle);
         $| = 1;
         select(*STDOUT);
-        $| = 1;
+        $|                            = 1;
         $Global::CodeletTreeLogHandle = $handle;
+
         #print "Handle: $handle\n";
         print {$Global::CodeletTreeLogHandle} "Initial\n";
     }
@@ -115,7 +116,7 @@ sub add_codelet {
     }
     $CODELET_COUNT++;
     push( @CODELETS, $codelet );
-    if ($Global::Feature{CodeletTree}) {
+    if ( $Global::Feature{CodeletTree} ) {
         print {$Global::CodeletTreeLogHandle} "\t$codelet\t$codelet->[0]\t$codelet->[1]\n";
     }
     $URGENCIES_SUM += $codelet->[1];
@@ -169,7 +170,7 @@ sub get_next_runnable {
     if ($FORCED_THOUGHT) {
         my $to_return = $FORCED_THOUGHT;
         $FORCED_THOUGHT = undef;
-        $HistoryOfRunnable{ref($to_return)}++;
+        $HistoryOfRunnable{ ref($to_return) }++;
         return $LastSelectedRunnable = $to_return;
     }
 
@@ -183,19 +184,22 @@ sub get_next_runnable {
             my $to_return = $SCHEDULED_THOUGHT;
             $SCHEDULED_THOUGHT = undef;
             ## $SCHEDULED_THOUGHT
-            $HistoryOfRunnable{ref($to_return)}++;
+            $HistoryOfRunnable{ ref($to_return) }++;
             return $LastSelectedRunnable = $to_return;
 
         }
         elsif ( SUtil::toss($ScheduledThoughtVanishProb) ) {
+            if ( $Global::Feature{CodeletTree} ) {
+                print {$Global::CodeletTreeLogHandle} "Expunge $SCHEDULED_THOUGHT\n";
+            }
             $SCHEDULED_THOUGHT = undef;
         }
     }
     ## get_next_runnable, NOT using scheduled
     # If I reach here, return some codelet
     unless ($CODELET_COUNT) {
-        my $new_reader = SCodelet->new('Reader', 100, {});
-        if ($Global::Feature{CodeletTree}) {
+        my $new_reader = SCodelet->new( 'Reader', 100, {} );
+        if ( $Global::Feature{CodeletTree} ) {
             print {$Global::CodeletTreeLogHandle} "Background\n\t$new_reader\tReader\n";
         }
         return $new_reader;
@@ -203,7 +207,7 @@ sub get_next_runnable {
 
     my $idx = _choose_codelet();
     my $to_return = splice( @CODELETS, $idx, 1 );
-    $HistoryOfRunnable{'SCF::' . $to_return->[0]}++;
+    $HistoryOfRunnable{ 'SCF::' . $to_return->[0] }++;
     $URGENCIES_SUM -= $to_return->[1];
     $CODELET_COUNT--;
     return $LastSelectedRunnable = $to_return;
@@ -243,7 +247,7 @@ sub schedule_thought {
     if ( LOGGING_DEBUG() ) {
         $logger->debug( ": scheduled thought: ", $thought->as_text() );
     }
-    if ($Global::Feature{CodeletTree}) {
+    if ( $Global::Feature{CodeletTree} ) {
         print {$Global::CodeletTreeLogHandle} "\t$thought\n";
     }
 
@@ -255,6 +259,9 @@ sub schedule_thought {
 sub expunge_codelet {
     @CODELETS = sort { $b->[1] <=> $a->[1] } @CODELETS;
     my $cl = pop(@CODELETS);
+    if ( $Global::Feature{CodeletTree} ) {
+        print {$Global::CodeletTreeLogHandle} "Expunge $cl\n";
+    }
     $CODELET_COUNT--;
     $URGENCIES_SUM -= $cl->[1];
 }

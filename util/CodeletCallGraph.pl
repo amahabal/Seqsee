@@ -122,6 +122,8 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
         chomp($line);
         if ( $line =~ /^Initial/ or $line =~ /^Background/ ) {
             $parent = '';
+        } elsif ($line =~ /^Expunge/) {
+            next;
         }
         elsif ( $line =~ /^\S+ \s* (\S+)/x ) {
             my $object = $1;
