@@ -63,10 +63,12 @@ ACTIONS: {
 
 ThoughtType InterlacedInitialBlemish( $count !, $group !, $cat ! ) does {
 ACTIONS: {
+        my @parts = @$group;
+        Global::Hilit(1, @parts);
         main::message(
             "I realize that there are $count interlaced groups in the sequence, and I have started on the wrong foot. Will shift the big group right one unit, see if that helps!!"
         );
-        my @parts = @$group;
+        Global::ClearHilit();
         my @subparts = map {@$_} @parts;
         SWorkspace->remove_gp($group);
         SWorkspace->remove_gp($_) for @parts;

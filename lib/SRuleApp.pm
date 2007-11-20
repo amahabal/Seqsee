@@ -238,7 +238,7 @@ sub FindExtension {
             start       => $next_pos,
             direction   => $direction_to_extend_in,
             trust_level => 50 * $self->get_span() / ( $SWorkspace::ElementCount + 1 ),    # !!
-            reason      => 'Extension attempted for: ' . $rule->as_text(),
+            reason      => '', # 'Extension attempted for: ' . $rule->as_text(),
             hilit_set   => [@$items_ref],
         }
     );

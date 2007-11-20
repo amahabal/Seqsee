@@ -14,11 +14,11 @@ sub Populate{
 }
 
 sub clear{
-    
+    $label->configure(-text => $Global::Steps_Finished||0);
 }
 
 sub Update{
-    $label->configure(-text => $Global::Steps_Finished);
+    $label->configure(-text => $Global::Steps_Finished||0);
 }
 
 1;
