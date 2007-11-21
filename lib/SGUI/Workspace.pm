@@ -8,6 +8,7 @@ Variables: {
             GroupHtPerUnitSpan
     }
 InitialCode: {
+        use Smart::Comments;
         my %Id2Obj;
         my %Obj2Id;
         my %RelationsToHide;
@@ -22,39 +23,39 @@ Setup: {
         $BarlineBottom = $ElementsY + $EffectiveHeight * 0.5 * $BarlineHeightFraction;
     }
 DrawIt: {
-        DrawLegend( 10, 10 );
+        $self->DrawLegend( 10, 10 );
         $GroupHtPerUnitSpan = ( $MaxGpHeight - $MinGpHeight ) / ( $SWorkspace::ElementCount || 1 );
         $SpacePerElement = $EffectiveWidth / ( $SWorkspace::ElementCount + 1 );
         %AnchorsForRelations = ();
         %RelationsToHide     = ();
-        DrawGroups();
-        DrawElements();
-        DrawRelations();
-        DrawBarLines();
-        DrawLastRunnable();
+        $self->DrawGroups();
+        $self->DrawElements();
+        $self->DrawRelations();
+        $self->DrawBarLines();
+        $self->DrawLastRunnable();
     }
 ExtraStuff: {
 
         sub SElement::draw_ws3 {
-            my $self = shift;
-            my $idx  = shift;
-            ## drawing element: $self
+            my ($self, $display, $idx, @rest) = @_;
+            ## drawing element: @_
             my $is_hilit = $Global::Hilit{$self} || 0;
             my $id = $Canvas->createText(
-                @_,
+                @rest,
                 -text => $self->get_mag(),
                 -tags => [ $self, 'element', $idx ],
                 Style::Element($is_hilit),
             );
             if ($Global::Feature{debug}) {
-                $Canvas->createText( $_[0] + 5, $_[1] + 10, -text => $idx );
+                $Canvas->createText( $rest[0] + 5, $rest[1] + 10, -text => $idx );
             }
-            $AnchorsForRelations{$self} ||= [ $_[0], $_[1] - 10 ];
+            $AnchorsForRelations{$self} ||= [ $rest[0], $rest[1] - 10 ];
             return $id;
         }
 
         sub SAnchored::draw_ws3 {
-            my ( $self, $is_largest ) = @_;
+            my ( $self, $display, $is_largest ) = @_;
+            ## drawing group: @_
             my @items = @$self;
             my @edges = $self->get_edges();
             $is_largest ||= 0;
@@ -74,6 +75,7 @@ ExtraStuff: {
             my $is_meto;
             if ( $is_meto = $self->get_metonym_activeness() ) {
                 DrawMetonym(
+                    $display, 
                     {   actual_string => $self->get_structure_string(),
                         starred       => $self->GetEffectiveObject()->get_structure_string(),
                         x1            => $leftx,
@@ -98,7 +100,8 @@ ExtraStuff: {
         }
 
         sub SReln::draw_ws3 {
-            my ($self) = @_;
+            my ($self, $display) = @_;
+            ## draw relation: @_
             my @ends = $self->get_ends();
             return if ( $RelationsToHide{ join( '', @ends ) } and not( $Global::Hilit{$self} ) );
             my $is_hilit = $Global::Hilit{$self} || 0;
@@ -117,43 +120,47 @@ ExtraStuff: {
         }
 
         sub DrawItemOnCanvas {
-            my $obj = shift;
-            my $id  = $obj->draw_ws3(@_);
+            my ($obj, $display, @rest) = @_;
+            my $id  = $obj->draw_ws3($display, @rest);
             $Id2Obj{$id} = $obj;
             return $id;
         }
 
         sub DrawElements {
+            my $self = shift;
             my $counter = 0;
             for my $elt ( SWorkspace->GetElements() ) {
-                DrawItemOnCanvas( $elt, $counter, $Margin + ( 0.5 + $counter ) * $SpacePerElement,
+                $elt->draw_ws3( $self, $counter, $Margin + ( 0.5 + $counter ) * $SpacePerElement,
                     $ElementsY );
                 $counter++;
             }
         }
 
         sub DrawGroups {
+            my $self = shift;
             my @groups = SWorkspace->GetGroups() or return;
             my $largest_group = shift(@groups);
-            $largest_group->draw_ws3(1);    # Argument is: $is_largest
+            $largest_group->draw_ws3($self, 1);    # Argument is: $is_largest
 
             for my $gp (@groups) {
-                $gp->draw_ws3();
+                $gp->draw_ws3($self);
             }
             for my $elt ( SWorkspace::GetElements() ) {
-                SAnchored::draw_ws3($elt)
+                SAnchored::draw_ws3($elt, $self)
                     if ( $elt->get_group_p() or $elt->get_metonym_activeness() );
             }
             $Canvas->raise('hilit');
         }
 
         sub DrawRelations {
+            my $self = shift;
             for my $rel ( values %SWorkspace::relations ) {
-                $rel->draw_ws3();
+                $rel->draw_ws3($self);
             }
         }
 
         sub DrawBarLines {
+            my $self = shift;
             my @barlines = SWorkspace->GetBarLines();
 
             for my $index (@barlines) {
@@ -163,7 +170,7 @@ ExtraStuff: {
         }
 
         sub DrawMetonym {
-            my ($opts_ref) = @_;
+            my ($self, $opts_ref) = @_;
             my $id = $Canvas->createText(
                 ( $opts_ref->{x1} + $opts_ref->{x2} ) / 2,
                 $MetoY + 20,
@@ -186,7 +193,7 @@ ExtraStuff: {
                 map { my %f = Style::Relation( $_ * 10, 0 ); $f{-fill} } 0 .. 10;
 
             sub DrawLegend {
-                my ( $x, $y ) = @_;
+                my ( $self, $x, $y ) = @_;
                 my $step = 15;
                 $Canvas->createText( $x, $y, -text => 'Legend', -anchor => 'nw' );
                 my $id1 = $Canvas->createText(
@@ -231,6 +238,7 @@ ExtraStuff: {
         }
 
         sub DrawLastRunnable {
+            my $self = shift;
             $Canvas->createText(
                 $Margin, $Height - $Margin,
                 -anchor => 'sw',

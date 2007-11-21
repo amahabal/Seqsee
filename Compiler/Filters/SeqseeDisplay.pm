@@ -94,7 +94,7 @@ sub Setup {
 
 sub GenerateDrawItBlock {
     my ( $block ) = @_;
-    return qq{sub DrawIt {$block} };
+    return qq{sub DrawIt {my \$self = shift; $block} };
 }
 
 
