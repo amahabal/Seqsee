@@ -45,7 +45,7 @@ $frame->Button(
 
 )->pack( -side => 'left' );
 
-my $Canvas = $MW->Canvas( -height => 300, -width => 800 )->pack( -side => 'top' );
+my $Canvas = $MW->Canvas( -height => 300, -width => 700 )->pack( -side => 'top' );
 MainLoop;
 
 sub ReadFile {
@@ -158,15 +158,15 @@ sub ShowGraph {
 
     # print "@data\n";
     $Canvas->delete('all');
-    $Canvas->create( 'rectangle', 10, 10, 790, 290 );
-    my $width_per_runnable = 780 / $RunnableCount;
+    $Canvas->create( 'rectangle', 10, 10, 690, 290 );
+    my $width_per_runnable = 680 / $RunnableCount;
     my $x                  = 10;
     for ( 0 .. $RunnableCount - 1 ) {
         $x += $width_per_runnable;
         my $data = $data[$_];
         next unless $data;
         my $y = 290 - 280 * $data;
-        $Canvas->create('rectangle', $x, $y, $x+1, $y+1, -fill=>'#0000FF', -outline=>'#0000FF');
+        $Canvas->create('line', $x, $y, $x, 290, -fill=>'#0000FF');
     }
 }
 

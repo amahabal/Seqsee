@@ -88,9 +88,10 @@ sub __CheckLivenessAndDiagnose {
 
         # So a dead object!
         $msg .= "NON_LIVE OBJECT!\n";
-        if (not(defined $object)) {
+        if ( not( defined $object ) ) {
             $msg .= "In fact, IT IS UNDEF!!\n";
-        } else {
+        }
+        else {
             if ( exists $LiveAtSomePoint{$object} ) {
                 $msg .= "But was live once!\n";
             }
@@ -774,11 +775,10 @@ sub __ClosestBarLineToRightGivenIndex {
 }
 
 sub __UpdateObjectStrengths {
-    for (values(%relations), values(%Objects)) {
+    for ( values(%relations), values(%Objects) ) {
         $_->UpdateStrength();
     }
 }
-
 
 #=============================================
 #=============================================
@@ -877,6 +877,86 @@ multimethod _insert_element => ('SElement') => sub {
     __InsertElement($elt);
 };
 
+sub __ReadObjectOrRelation {
+
+    # return SUtil::toss(0.5) ? SWorkspace->read_object() : SWorkspace->read_relation();
+    my ( $dist_likelihoods_ref, $dist_objects )
+        = __GetObjectOrRelationChoiceProbabilityDistribution();
+    my $chosen = SChoose->choose( $dist_likelihoods_ref, $dist_objects );
+    if ( UNIVERSAL::isa( $chosen, 'SAnchored' ) ) {
+        my $right_edge = $RightEdge_of{$chosen};
+        if ( $right_edge == $ElementCount - 1 ) {
+            _saccade();
+        }
+        else {
+            $ReadHead = $right_edge + 1;
+        }
+    }
+
+    return $chosen;
+}
+
+sub __GetObjectOrRelationChoiceProbabilityDistribution {
+
+    # Returns two array_refs: the first with likelihoods, the second with objects.
+    # Likelihoods sum to 1 if arrays non-empty.
+    my ( $obj_likelihood, $obj_list ) = __GetObjectChoiceProbabilityDistribution();
+    my ( $rel_likelihood, $rel_list ) = __GetRelationChoiceProbabilityDistribution();
+    for ( @$obj_likelihood, @$rel_likelihood ) {
+        $_ *= 0.5;    # normalize.
+    }
+    return ( [ @$obj_likelihood, @$rel_likelihood ], [ @$obj_list, @$rel_list ] );
+}
+
+sub __GetObjectChoiceProbabilityDistribution {
+    my @choose_from = __GetObjectsWithEndsBeyond( $ReadHead, $ReadHead );
+    my @distribution_values;
+    my @distribution_objects;
+    my $sum_of_numbers = 0;
+    for my $object (@choose_from) {
+        my $strength = $object->get_strength();
+        if ( $Global::Feature{choosebiased} ) {
+            $strength *= 2 if $Span_of{$object} > 4;
+        }
+        next unless $strength;
+        push @distribution_objects, $object;
+        push @distribution_values,  $strength;
+        $sum_of_numbers += $strength;
+    }
+
+    if ($sum_of_numbers) {
+        $_ /= $sum_of_numbers for @distribution_values;
+    }
+
+    # These could be empty:
+    return ( \@distribution_values, \@distribution_objects );
+}
+
+sub __GetRelationChoiceProbabilityDistribution {
+    my @choose_from = values %relations;
+    my @distribution_values;
+    my @distribution_objects;
+    my $sum_of_numbers = 0;
+    for my $object (@choose_from) {
+        my $strength = $object->get_strength();
+
+        #if ($Global::Feature{choosebiased}) {
+        #    $strength *= 2 if $Span_of{$object} > 4;
+        #}
+        next unless $strength;
+        push @distribution_objects, $object;
+        push @distribution_values,  $strength;
+        $sum_of_numbers += $strength;
+    }
+
+    if ($sum_of_numbers) {
+        $_ /= $sum_of_numbers for @distribution_values;
+    }
+
+    # These could be empty:
+    return ( \@distribution_values, \@distribution_objects );
+}
+
 # method: read_object
 sub read_object {
     my ($package) = @_;
@@ -942,7 +1022,7 @@ sub _saccade {
 sub AddRelation {
     my ( $package, $reln ) = @_;
     my ( $f,       $s )    = $reln->get_ends();
-    for ($f, $s) {
+    for ( $f, $s ) {
         confess "Metonym'd end of relation" if $_->IsThisAMetonymedObject();
     }
 

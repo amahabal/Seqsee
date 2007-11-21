@@ -4,7 +4,7 @@ RUN: {
             SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
             return;
         }
-        my $object = SUtil::toss(0.5) ? SWorkspace->read_object() : SWorkspace->read_relation();
+        my $object = SWorkspace::__ReadObjectOrRelation();
         return unless $object;
 
         SThought->create($object)->schedule();
