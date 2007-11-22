@@ -81,7 +81,6 @@ font: {
 
 STYLE GroupAttention( $attention ! ) is {
 fill: {
-        print $attention, "\n";
         my ( $s, $v ) = ( 40, 400 * $attention );
         $v = 0 if $v < 0;
         $v = 99 if $v > 99;

@@ -1,3 +1,4 @@
+## NO LONGER USED
 package SGUI::Workspace_Std;
 use Smart::Comments;
 use base 'SGUI::Workspace';
@@ -17,25 +18,21 @@ sub PrepareForDrawing {
 sub find_element_style {
     my ( $display, $element ) = @_;
     my $attention = $AttentionDistribution->{$element} || 0;
-    return Style::ElementAttention( $attention );
+    return Style::ElementAttention($attention);
 }
 
 sub find_group_style {
     my ( $display, $group, $is_meto, $is_largest ) = @_;
     my $attention = $AttentionDistribution->{$group} || 0;
-    return Style::GroupAttention( $attention );
+    return Style::GroupAttention($attention);
 }
 
 sub find_group_border_style {
     return Style::GroupBorderAttention();
 }
 
-
 sub find_relation_style {
     my ( $display, $reln, $is_hilit ) = @_;
     my $attention = $AttentionDistribution->{$reln} || 0;
-    return Style::RelationAttention( $attention );
+    return Style::RelationAttention($attention);
 }
-
-
-1;
