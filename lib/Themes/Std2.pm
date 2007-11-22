@@ -69,8 +69,9 @@ width: { 2 + 2 * $hilit }
 
 STYLE ElementAttention( $attention ! ) is {
 fill: {
-        my ( $s, $v ) = ( 40, 99 - 200 * $attention );
+        my ( $s, $v ) = ( 40, 400 * $attention );
         $v = 0 if $v < 0;
+        $v = 99 if $v > 99;
         HSV( 300, $s, $v );
     }
 font: {
@@ -80,16 +81,23 @@ font: {
 
 STYLE GroupAttention( $attention ! ) is {
 fill: {
-        my ( $s, $v ) = ( 40, 99 - 200 * $attention );
+        print $attention, "\n";
+        my ( $s, $v ) = ( 40, 400 * $attention );
         $v = 0 if $v < 0;
+        $v = 99 if $v > 99;
         HSV( 160, $s, $v );
     }
 }
 
+STYLE GroupBorderAttention() is {
+  outline: { HSV(180, 40, 5 )}
+}
+
 STYLE RelationAttention( $attention ! ) is {
 fill: {
-        my ( $s, $v ) = ( 40, 99 - 200 * $attention );
+        my ( $s, $v ) = ( 40, 400 * $attention );
         $v = 0 if $v < 0;
+        $v = 99 if $v > 99;
         HSV( 190, $s, $v );
     }
 arrow: {'last'}

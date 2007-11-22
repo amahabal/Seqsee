@@ -9,6 +9,7 @@ sub DrawLegend {
 
 sub PrepareForDrawing {
     my ($self) = @_;
+    $self->DrawBlackRectangle();
     $AttentionDistribution = SCoderack->AttentionDistribution();
     ## AttentionDistribution: $AttentionDistribution
 }
@@ -24,6 +25,11 @@ sub find_group_style {
     my $attention = $AttentionDistribution->{$group} || 0;
     return Style::GroupAttention( $attention );
 }
+
+sub find_group_border_style {
+    return Style::GroupBorderAttention();
+}
+
 
 sub find_relation_style {
     my ( $display, $reln, $is_hilit ) = @_;

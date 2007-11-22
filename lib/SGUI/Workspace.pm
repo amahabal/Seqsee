@@ -41,6 +41,15 @@ ExtraStuff: {
             
         }
 
+        sub DrawBlackRectangle {
+            $Canvas->createRectangle($XOffset + $Margin, $YOffset + $Margin,
+                                     $XOffset + $Margin + $EffectiveWidth,
+                                     $YOffset+$Margin+$EffectiveHeight,
+                                     -fill => '#000000',
+                                         );
+        }
+
+
         sub SElement::draw_ws3 {
             my ( $self, $display, $idx, @rest ) = @_;
             ## drawing element: @_
