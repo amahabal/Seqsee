@@ -266,4 +266,45 @@ sub expunge_codelet {
     $URGENCIES_SUM -= $cl->[1];
 }
 
+sub AttentionDistribution {
+    # This returns a map from objects to probability of it being chosen next.
+    # Probabilities need not sum to 1, as some codelets may choose multiple objects.
+
+    return {} unless $URGENCIES_SUM;
+    my %return_distribution;
+    my $reader_urgencies_sum = 0;
+    for my $cl (@CODELETS) {
+        if ($cl->[0] eq 'Reader') {
+            $reader_urgencies_sum += $cl->[1];
+            next;
+        }
+        my $urgency = $cl->[1];
+        while (my($k, $v) = each %{$cl->[3]}) {
+            # print "\t$v updated by $urgency\n";
+            $return_distribution{$v} += $urgency;
+        }
+    }
+
+    # Account for reader's choice:
+    if ($reader_urgencies_sum) {
+        my ($reader_distribution_prob, $reader_dist_objects) =
+            SWorkspace::__GetObjectOrRelationChoiceProbabilityDistribution();
+        my @probs = @$reader_distribution_prob;
+        for (@$reader_dist_objects) {
+            my $prob = shift(@probs);
+            $return_distribution{$_} += $prob * $reader_urgencies_sum;
+            # print "\t[Reader] $_ updated by $prob * $reader_urgencies_sum\n";
+        }
+    }
+
+    # Normalize:
+    ## Before normalization: $URGENCIES_SUM, %return_distribution
+    #while (my($k, $v) = each %return_distribution) {
+        $_ /= $URGENCIES_SUM for(values %return_distribution);
+    #}
+    
+    return \%return_distribution;
+}
+
+
 1;

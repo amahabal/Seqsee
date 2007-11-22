@@ -46,7 +46,7 @@ fill: { $hilit ? "#00FF00" : HSV( 60, 40, 80 - 0.5 * $strength ) }
 smooth: {1}
 }
 
-STYLE Group( $meto !, $hilit !, $strength !, $is_largest ! ) is {
+STYLE Group( $meto !, $strength !, $is_largest ! ) is {
 fill: {
         my ( $s, $v ) = ( 40, 90 - 0.4 * $strength );
         $meto ? HSV( 240 - 20 * $is_largest, $s, $v ) : HSV( 160 - 20 * $is_largest, $s, $v );
@@ -54,18 +54,47 @@ fill: {
 width: {0}
 }
 
-STYLE GroupBorder( $meto !, $hilit !, $strength ! ) is {
+STYLE GroupBorder( $hilit ! ) is {
 outline: {
-        my ( $s, $v ) = ( 50, 70 - 0.5 * $strength );
         if ( $hilit == 1 ) {
             '#00FF00';
         }
         elsif ( $hilit == 2 ) {
             '#0000FF';
         }
-        else { $meto ? HSV( 240, $s, $v ) : HSV( 160, $s, $v ); }
+        else { HSV( 240, 70, 70 ) }
     }
 width: { 2 + 2 * $hilit }
+}
+
+STYLE ElementAttention( $attention ! ) is {
+fill: {
+        my ( $s, $v ) = ( 40, 99 - 200 * $attention );
+        $v = 0 if $v < 0;
+        HSV( 300, $s, $v );
+    }
+font: {
+        '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4';
+    }
+}
+
+STYLE GroupAttention( $attention ! ) is {
+fill: {
+        my ( $s, $v ) = ( 40, 99 - 200 * $attention );
+        $v = 0 if $v < 0;
+        HSV( 160, $s, $v );
+    }
+}
+
+STYLE RelationAttention( $attention ! ) is {
+fill: {
+        my ( $s, $v ) = ( 40, 99 - 200 * $attention );
+        $v = 0 if $v < 0;
+        HSV( 190, $s, $v );
+    }
+arrow: {'last'}
+width: { 4 }
+smooth: {1}
 }
 
 STYLE NetActivation( $raw_significance ! ) is {
@@ -87,6 +116,7 @@ width: {
 
 STYLE ThoughtComponent( $presence_level !, $component_importance ! ) is {
 fill: {
+
         # my ( $s, $v ) = ( 90, 80 - 0.5 * $component_importance );
         # my ( $s, $v ) = ( 90, 80 );
         # print "$component_importance => $v\n";

@@ -11,6 +11,7 @@ use base qw/Tk::Derived Tk::Frame/;
 
 use Themes::Std2;
 use SGUI::Workspace;
+use SGUI::Workspace_Std;
 use SGUI::Slipnet;
 use SGUI::Categories;
 use SGUI::Stream;
@@ -30,7 +31,7 @@ our @ViewOptions = (
         [ 'SGUI::Groups', 0, 50, 35, 50 ],
         [ 'SGUI::Relations', 35, 50, 65, 50 ],
             ]],
-    ['Workspace', [['SGUI::Workspace', 0, 0, 100, 100]]],
+    ['Workspace', [['SGUI::Workspace_Std', 0, 0, 100, 100]]],
     ['Workspace + Slipnet', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Slipnet', 0, 50, 100, 50 ],
