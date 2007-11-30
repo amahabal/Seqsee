@@ -4,7 +4,7 @@ use Carp;
 use Smart::Comments;
 use Getopt::Long;
 my %options;
-GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!" );
+GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!", "TimeStamps!" );
 
 my $filename = 'codelet_tree.log';
 
@@ -28,7 +28,7 @@ our %Parent;                # The parent.
 our %Details;               # A string, with such details as urgency, type, whatever.
 our %AlreadyPrinted;
 
-our $TreeCount=0;
+our $TreeCount = 0;
 our %TreeNum;
 
 my $MW = new MainWindow();
@@ -41,12 +41,13 @@ my $text = $MW->Scrolled(
 )->pack( -side => 'bottom' );
 $text->focus();
 $text->tagConfigure( 'was_executed', );
-$text->tagConfigure( 'wasnt_executed', -overstrike => 1 );
-$text->tagConfigure( 'Codelet',        -background => '#FFAAAA' );
-$text->tagConfigure( 'Action',         -background => '#AAFFAA' );
-$text->tagConfigure( 'Thought',        -background => '#AAAAFF' );
-$text->tagConfigure( 'leaders',        -foreground => '#BBBBBB' );
-$text->tagConfigure( 'treenum',        -foreground => '#6666FF' );
+$text->tagConfigure( 'wasnt_executed',   -overstrike => 1 );
+$text->tagConfigure( 'execute_position', -foreground => '#FF6666' );
+$text->tagConfigure( 'Codelet',          -background => '#FFAAAA' );
+$text->tagConfigure( 'Action',           -background => '#AAFFAA' );
+$text->tagConfigure( 'Thought',          -background => '#AAAAFF' );
+$text->tagConfigure( 'leaders',          -foreground => '#BBBBBB' );
+$text->tagConfigure( 'treenum',          -foreground => '#6666FF' );
 $text->tagConfigure(
     'Hilit',
     -font      => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
@@ -122,7 +123,8 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
         chomp($line);
         if ( $line =~ /^Initial/ or $line =~ /^Background/ ) {
             $parent = '';
-        } elsif ($line =~ /^Expunge/) {
+        }
+        elsif ( $line =~ /^Expunge/ ) {
             next;
         }
         elsif ( $line =~ /^\S+ \s* (\S+)/x ) {
@@ -150,7 +152,8 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
             if ($parent) {
                 push @{ $Progeny{$parent} }, $object;
                 $TreeNum{$object} = $TreeNum{$parent};
-            } else {
+            }
+            else {
                 $TreeCount++;
                 $TreeNum{$object} = $TreeCount;
             }
@@ -162,11 +165,11 @@ sub Phase_One {    # Read file, populate %SeenCount, @ExecuteOrder etc.
 sub CodeletView_Phase_Two {
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
-        if ($options{TreeNums}) {
-            $text->insert('end', sprintf("[tree #% 4d] ", $TreeNum{$object} ), 'treenum');
+        if ( $options{TreeNums} ) {
+            $text->insert( 'end', sprintf( "[tree #% 4d] ", $TreeNum{$object} ), 'treenum' );
         }
-        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ),
-            '', ') ', '', CreateDisplay( $object, $idx + 1, $Details{$object} ), "\n" );
+        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ) . ') ', 'execute_position' ) unless $options{TimeStamps};
+        $text->insert( 'end', CreateDisplay( $object, $idx + 1, $Details{$object} ), "\n" );
     }
 }
 
@@ -175,14 +178,14 @@ sub TreeView_Phase_Two {    # Print out the trees.
         my $object = $ExecuteOrder[$idx];
         if ( not $AlreadyPrinted{$object} ) {
             my $treenum = $TreeNum{$object};
-            $text->insert('end', "Tree #$treenum", 'treenum', "\n");
+            $text->insert( 'end', "Tree #$treenum", 'treenum', "\n" );
             PrintProgeny( $object, 0 );
             $text->insert( 'end', "\n" );
         }
         for ( @{ $CreationOrder[$idx] || [] } ) {
             if ( !exists( $ExecutedAtPosition{$_} ) and !$Parent{$_} ) {
                 my $treenum = $TreeNum{$_};
-                $text->insert('end', "Tree #$treenum", 'treenum', "\n");
+                $text->insert( 'end', "Tree #$treenum", 'treenum', "\n" );
                 PrintProgeny( $_, 0 );
                 $text->insert( 'end', "\n" );
             }
@@ -194,23 +197,25 @@ sub TreeView_Phase_Two {    # Print out the trees.
 sub CreateDisplay {
     my ( $object, $execute_position, $details ) = @_;
     my $executed_tag = defined($execute_position) ? "was_executed" : "wasnt_executed";
+    $execute_position = sprintf( '% 5d', $execute_position ) if defined($execute_position);
+
+    my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
+    my @position_text =
+        defined($execute_position)
+        ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
+        : ( "[$creation_position/xxxxx]", "wasnt_executed" );
+
     if ( $options{JustTrees} or $options{CodeletView} ) {
+        @position_text = () unless $options{TimeStamps};
         if ( $object =~ /^SCodelet/ or $object =~ /^SAction/ ) {
             $details =~ m/^\s*(\S+)/;
-            return ( $1, [$executed_tag] );
+            return ( @position_text, $1, [$executed_tag] );
         }
         elsif ( $object =~ /^SThought::(.*?)=/ ) {
-            return ( $1, [$executed_tag] );
+            return ( @position_text, $1, [$executed_tag] );
         }
     }
     else {
-        $execute_position = sprintf( '% 5d', $execute_position ) if defined($execute_position);
-
-        my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
-        my @position_text =
-            defined($execute_position)
-            ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
-            : ( "[$creation_position/xxxxx]", "wasnt_executed" );
         if ( $object =~ /^SCodelet=ARRAY/ ) {
             return ( @position_text, "Codelet $details", [ 'Codelet', $executed_tag ] );
         }

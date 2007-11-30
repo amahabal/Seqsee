@@ -108,7 +108,12 @@ my @button_config = (
             close $MEMORY_HANDLE;
             }
     ],
-    [ ShowCodeletGraph => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
+    [ CodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView') ],
+    [ TimestampedCodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView', '--Timestamps') ],
+    [ TreeLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--JustTrees') ],
+    [ LabeledCodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView', '--TreeNums') ],
+    [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
+    [ PressureView => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
 );
 
 INSERT_BUTTONS: {
