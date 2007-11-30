@@ -82,7 +82,7 @@ ExtraStuff: {
             );
         }
 
-        sub SElement::draw_ws3 {
+        sub SElement::draw_attention {
             my ( $self, $display, $idx, @rest ) = @_;
             ## drawing element: @_
             my $id = $Canvas->createText(
@@ -100,7 +100,7 @@ ExtraStuff: {
             return $id;
         }
 
-        sub SAnchored::draw_ws3 {
+        sub SAnchored::draw_attention {
             my ( $self, $display, $is_largest ) = @_;
             ## drawing group: @_
             my @items = @$self;
@@ -144,7 +144,7 @@ ExtraStuff: {
             return $canvas_obj;
         }
 
-        sub SReln::draw_ws3 {
+        sub SReln::draw_attention {
             my ( $self, $display ) = @_;
             ## draw relation: @_
             my @ends = $self->get_ends();
@@ -168,7 +168,7 @@ ExtraStuff: {
 
         sub DrawItemOnCanvas {
             my ( $obj, $display, @rest ) = @_;
-            my $id = $obj->draw_ws3( $display, @rest );
+            my $id = $obj->draw_attention( $display, @rest );
             $Id2Obj{$id} = $obj;
             return $id;
         }
@@ -177,7 +177,7 @@ ExtraStuff: {
             my $self    = shift;
             my $counter = 0;
             for my $elt ( SWorkspace->GetElements() ) {
-                $elt->draw_ws3( $self, $counter, $Margin + ( 0.5 + $counter ) * $SpacePerElement,
+                $elt->draw_attention( $self, $counter, $Margin + ( 0.5 + $counter ) * $SpacePerElement,
                     $ElementsY );
                 $counter++;
             }
@@ -187,13 +187,13 @@ ExtraStuff: {
             my $self          = shift;
             my @groups        = SWorkspace->GetGroups() or return;
             my $largest_group = shift(@groups);
-            $largest_group->draw_ws3( $self, 1 );    # Argument is: $is_largest
+            $largest_group->draw_attention( $self, 1 );    # Argument is: $is_largest
 
             for my $gp (@groups) {
-                $gp->draw_ws3($self);
+                $gp->draw_attention($self);
             }
             for my $elt ( SWorkspace::GetElements() ) {
-                SAnchored::draw_ws3( $elt, $self )
+                SAnchored::draw_attention( $elt, $self )
                     if ( $elt->get_group_p() or $elt->get_metonym_activeness() );
             }
             $Canvas->raise('hilit');
@@ -202,7 +202,7 @@ ExtraStuff: {
         sub DrawRelations {
             my $self = shift;
             for my $rel ( values %SWorkspace::relations ) {
-                $rel->draw_ws3($self);
+                $rel->draw_attention($self);
             }
         }
 
