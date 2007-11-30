@@ -28,6 +28,10 @@ sub Ask {
     my @items = @{ $self->next_elements() };
     return if Seqsee::already_rejected_by_user( \@items );
 
+    if ($Global::TestingMode) {
+        return main::ask_user_extension(\@items);
+    }
+
     my $actual_question = $self->ActualQuestion();
     my $question = join( q{}, $question_prefix, $actual_question, $question_suffix );
 
