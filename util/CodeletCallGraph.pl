@@ -81,7 +81,7 @@ while ( my ( $k, $v ) = each %Details ) {
 ## ObjectTypesSeen: %ObjectTypesSeen
 my $frame = $MW->Frame()->pack( -side => 'top' );
 my $combo1 = $frame->ComboEntry(
-    -itemlist => [ grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
+    -itemlist => [ sort grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
     -width => 40,
 )->pack( -side => 'left' );
 $frame->Button(
@@ -92,7 +92,7 @@ $frame->Button(
 
 )->pack( -side => 'left' );
 my $combo2 = $frame->ComboEntry(
-    -itemlist => [ grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
+    -itemlist => [ sort grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
     -width => 40
 )->pack( -side => 'left' );
 $frame->Button(

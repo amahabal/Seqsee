@@ -34,7 +34,7 @@ $MW->bind(
 );
 my $frame = $MW->Frame()->pack( -side => 'top' );
 my $combo1 = $frame->ComboEntry(
-    -itemlist => [ keys %ObjectCounts ],
+    -itemlist => [ sort keys %ObjectCounts ],
     -width    => 40,
 )->pack( -side => 'left' );
 $frame->Button(
