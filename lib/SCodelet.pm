@@ -1,6 +1,7 @@
 package SCodelet;
 use strict;
 use Carp;
+use English qw(-no_match_vars);
 
 sub new {
     my ( $package, $family, $urgency, $args_ref ) = @_;
@@ -9,19 +10,32 @@ sub new {
 }
 
 sub as_text {
-    my ( $self ) = @_;
-    return "Codelet(family=$self->[0],urgency=$self->[1],args=" . SUtil::StringifyForCarp($self->[3]);
+    my ($self) = @_;
+    return "Codelet(family=$self->[0],urgency=$self->[1],args="
+        . SUtil::StringifyForCarp( $self->[3] );
 }
 
 sub run {
     my $self = shift;
-    return unless CheckFreshness($self->[2], values %{$self->[3]});
+    return unless CheckFreshness( $self->[2], values %{ $self->[3] } );
     $Global::CurrentCodelet       = $self;
     $Global::CurrentCodeletFamily = $self->[0];
     no strict;
     my $code = *{"SCF::$self->[0]::run"}{CODE}
         or fishy_codefamily( $self->[0] );
-    $code->( $self, $self->[3] );
+    eval { $code->( $self, $self->[3] ) };
+    if ($EVAL_ERROR) {
+        die $EVAL_ERROR if ref($EVAL_ERROR);
+        if ($EVAL_ERROR =~ /_TK_EXIT_/) {
+            die $EVAL_ERROR;
+        }
+        if ($EVAL_ERROR =~ /\n=====\n/) {
+            # Probably already a confess..
+            die("Encountered a confess while running a codelet:\n$EVAL_ERROR");
+        } else {
+            confess("Encountered C<die> while running a codelet:\n $EVAL_ERROR");
+        }
+    }
 }
 
 sub fishy_codefamily {
@@ -73,31 +87,29 @@ sub display_self {
     );
 }
 
-
-sub CheckFreshness{
-    my $since = shift; # Should not have changed since this time.
+sub CheckFreshness {
+    my $since = shift;    # Should not have changed since this time.
     for (@_) {
-        return unless(IsFresh($_, $since));
+        return unless ( IsFresh( $_, $since ) );
     }
     return 1;
 }
 
-
 use Class::Multimethods;
-multimethod IsFresh => ('*', '#') => sub {
+multimethod IsFresh => ( '*', '#' ) => sub {
+
     # detualt case:fresh.
-    return 1;    
+    return 1;
 };
 
-
-multimethod IsFresh => ('SAnchored', '#') => sub {
+multimethod IsFresh => ( 'SAnchored', '#' ) => sub {
     my ( $obj, $since ) = @_;
-    return $obj->UnchangedSince($since);   
+    return $obj->UnchangedSince($since);
 };
-multimethod IsFresh => ('SReln', '#') => sub {
+multimethod IsFresh => ( 'SReln', '#' ) => sub {
     my ( $rel, $since ) = @_;
     my @ends = $rel->get_ends();
-    return ( $ends[0]->UnchangedSince($since) and $ends[1]->UnchangedSince($since));   
+    return ( $ends[0]->UnchangedSince($since) and $ends[1]->UnchangedSince($since) );
 };
 
 1;
