@@ -121,7 +121,7 @@ sub get_span {
 sub as_text {
     my ($self)           = @_;
     my $bounds_string    = $self->get_bounds_string();
-    my $structure_string = $self->get_structure_string();
+    my $structure_string = $self->GetAnnotatedStructureString();
     my $metonym_string = $self->get_metonym_activeness() ? '--*-> ' . $self->GetEffectiveObject()->get_structure_string(): '';
     return "SAnchored $bounds_string $structure_string $metonym_string";
 }

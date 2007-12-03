@@ -656,6 +656,27 @@ sub get_structure_string {
     SUtil::StructureToString($struct);
 }
 
+sub GetAnnotatedStructureString {
+    my ( $self ) = @_;
+    my $id = ident $self;
+
+    my $body;
+    if ($self->isa('SElement')) {
+        $body = $self->get_mag;
+    } else {
+        my @items = @{$items_of{$id}};
+        $body = '[' . join(', ', map { $_->GetAnnotatedStructureString } @items) .']';
+    }
+
+    if ($metonym_activeness_of{$id}) {
+        my $meto_structure_string = $self->GetEffectiveObject()->get_structure_string();
+        $body .= " --*-> $meto_structure_string";
+    }
+
+    return $body;
+}
+
+
 # XXX(Assumption): [2006/09/16] Parts are non-overlapping.
 sub get_span {
     my ($self) = @_;
