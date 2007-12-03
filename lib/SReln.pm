@@ -23,7 +23,7 @@ use Smart::Comments;
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     my ( $f, $s ) = ( $opts_ref->{first}, $opts_ref->{second} );
-    confess "Strange arguments" unless(ref($f) and ref($s));
+    confess "Strange arguments. Missing first or second, or they are non-ref." unless(ref($f) and ref($s));
 
     $direction_reln_of{$id} = find_reln( $f->get_direction, $s->get_direction() );
     $holeyness_of{$id} = SWorkspace->are_there_holes_here( $f, $s );

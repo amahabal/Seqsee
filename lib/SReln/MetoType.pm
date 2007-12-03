@@ -12,7 +12,6 @@ use Carp;
 use Class::Std;
 use Class::Multimethods;
 use Smart::Comments;
-use base qw{SReln};
 
 my %category_of : ATTR( :get<category>);       # Category shared by both ends of relation.
 my %name_of : ATTR( :get<name>);               # Shared name.
@@ -144,7 +143,11 @@ sub deserialize{
 
 sub as_text{
     my ( $self ) = @_;
-    return 'SReln::MetoType ' . $self;
+    my $id = ident $self;
+
+    my $change = SUtil::StringifyForCarp($change_of_of{$id});
+    my $category = SUtil::StringifyForCarp($category_of{$id});
+    return "SReln::MetoType[$id](change=>$change, category=>$category)";
 }
 
 sub CalculateComplexityPenalty {
