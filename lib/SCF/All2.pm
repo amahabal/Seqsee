@@ -57,7 +57,8 @@ RUN: {
             ( $relation_to_consider, $obj1, $obj2 ) = ( $core, $core->get_ends );
         }
         else {
-            ( $relation_to_consider, $obj2, $obj1 ) = ( $core->FlippedVersion(), $core->get_ends );
+            $relation_to_consider = $core->FlippedVersion() or return;
+            ( $obj2, $obj1 ) = $core->get_ends;
         }
 
         my $distance = SWorkspace::__FindDistance( $obj1, $obj2 );
@@ -366,16 +367,18 @@ RUN: {
         #main::message("Found extension: $extension; " . $extension->get_structure_string());
         my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
         ## add_to_end_p (in SCF): $add_to_end_p
-        my $extend_success = eval { $object->Extend( $extension, $add_to_end_p ); };
-        if ( my $e = $EVAL_ERROR ) {
-            if ( UNIVERSAL::isa( $e, 'SErr::CouldNotCreateExtendedGroup' ) ) {
+        my $extend_success;
+        TRY {
+            $extend_success = $object->Extend( $extension, $add_to_end_p );
+        } CATCH {
+          CouldNotCreateExtendedGroup: {
                 my $msg = "Extending object: " . $object->as_text() . "\n";
                 $msg .= "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
                 print STDERR $msg;
                 main::message($msg);
             }
-            confess($e);
         }
+
         return unless $extend_success;
         ContinueWith( SThought::AreWeDone->new( { group => $object } ) )
             if SUtil::toss( $object->get_strength() / 100 );

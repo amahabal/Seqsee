@@ -353,7 +353,10 @@ multimethod are_relns_compatible => qw($ $) => sub {
 
 sub as_text {
     my ($self) = @_;
-    return "SReln::Compound";
+    my $id = ident $self;
+
+    my ($first, $second) = map { SUtil::StringifyForCarp($_) } ($first_of{$id}, $second_of{$id});
+    return "SReln::Compound($first ---> $second)";
 }
 
 #sub suggest_cat {
