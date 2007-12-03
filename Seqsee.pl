@@ -165,6 +165,7 @@ sub GET_GOING {
 # The word Interaction is a misnomer
 
 sub Interaction_continue {
+    $Global::InterstepSleep = 0;
     return Seqsee::Interaction_step_n(
         {   n            => $OPTIONS_ref->{max_steps},
             update_after => $OPTIONS_ref->{update_interval},
@@ -191,6 +192,18 @@ sub Interaction_step {
         }
     );
 }
+
+sub Interaction_crawl {
+    my ( $sleep_time_in_ms ) = @_;
+    $Global::InterstepSleep = $sleep_time_in_ms;
+    return Seqsee::Interaction_step_n(
+        {   n            => $OPTIONS_ref->{max_steps},
+            update_after => 1,
+            max_steps    => $OPTIONS_ref->{max_steps},
+        }
+    );
+}
+
 
 #method: init_display
 # Sets up update_display() as well.
