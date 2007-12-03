@@ -318,6 +318,13 @@ sub SpikeBy {
     SNodeActivation::SpikeSeveral( $amount, $ACTIVATIONS[ GetMemoryIndex($concept) ] );
 }
 
+sub WeakenBy {
+    my ( $amount, $concept ) = @_;
+    ## Mem index: GetMemoryIndex($concept)
+    ## @ACTIVATIONS: @ACTIVATIONS
+    SNodeActivation::WeakenSeveral( $amount, $ACTIVATIONS[ GetMemoryIndex($concept) ] );
+}
+
 my $DecayString = qq{
     sub {
         SNodeActivation::DecayManyTimes(1, \@ACTIVATIONS);

@@ -37,6 +37,13 @@ $_->[0] = 95 if $_->[0] > 98;
 $_->[2] = $PRECALCULATED[$_->[0]];
 };
 
+my $WEAKEN_CODE = q{
+$spike ||= 1;
+$_->[0] -= $_->[1] * $spike;
+$_->[0] = 2 if $_->[0] < 2;
+$_->[2] = $PRECALCULATED[$_->[0]];
+};
+
 *DecayManyTimes = eval qq{
 sub {
     my \$times = shift;
@@ -51,6 +58,16 @@ sub {
     my \$spike = shift;
     for ( \@_ ) {
         $SPIKE_CODE;
+    }
+    return \$_[-1][2];
+}
+};
+
+*WeakenSeveral = eval qq{
+sub {
+    my \$spike = shift;
+    for ( \@_ ) {
+        $WEAKEN_CODE;
     }
     return \$_[-1][2];
 }

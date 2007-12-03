@@ -90,7 +90,7 @@ RUN: {
               #  Global::ClearHilit();
               #  return unless $reply;
               #  $is_this_what_is_present = 1;
-              CODELET 10000, MaybeAskTheseTerms, {core => $core, exception => $err };
+              CODELET 500, MaybeAskTheseTerms, {core => $core, exception => $err };
               return;
             }
         };
@@ -116,6 +116,16 @@ RUN: {
             $reln_to_add->insert() if $reln_to_add;
         }
         else {
+            # Weaken relation a bit.
+            SLTM::WeakenBy(50, $core);
+
+            # Weaken corresponding ad-hoc if this was one.
+            if ($distance > 1) {
+                my $possible_ad_hoc_cat
+                    = $S::AD_HOC->build( { parts_count => $distance->GetMagnitude() + 1 } );
+                SLTM::WeakenBy(30, $possible_ad_hoc_cat);
+            }
+
             if ( SUtil::toss(0.5) ) {
                 CODELET 100, AreTheseGroupable,
                     {
