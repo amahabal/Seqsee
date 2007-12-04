@@ -428,4 +428,27 @@ sub FindActiveFollowers {
     ];
 }
 
+{
+my %NodesAlreadyPrinted;
+sub LogActivations {
+    # Called only when $Global::Feature{LogActivations} is on.
+    my @to_print = ($Global::Steps_Finished);
+    for (1..$NodeCount) {
+        my $activation = $ACTIVATIONS[$_]->[SNodeActivation::REAL_ACTIVATION];
+        next unless $activation > 0.01;
+        unless ($NodesAlreadyPrinted{$_}) {
+            PrintNode($_, $MEMORY[$_]->as_text);
+            $NodesAlreadyPrinted{$_} = 1;
+        }
+        push @to_print, $_, $activation;
+    }
+    print {$Global::ActivationsLogHandle} join(' ', @to_print), "\n";
+}
+sub PrintNode {
+    my ( $id, $name ) = @_;
+    print {$Global::ActivationsLogHandle} "NewNode\t$id\t$name\n";
+}
+
+}
+
 1;

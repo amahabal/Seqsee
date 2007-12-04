@@ -88,6 +88,7 @@ sub already_rejected_by_user {
 
 sub Seqsee_Step {
     $Global::Steps_Finished++;
+    SLTM->LogActivations() if ($Global::Feature{LogActivations} and not($Global::Steps_Finished % 10));
     unless ( $Global::Steps_Finished % 100 ) {
         $Global::AcceptableTrustLevel -= 0.002;
     }
@@ -152,6 +153,8 @@ sub Seqsee_Step {
     }
     return;
 }
+
+
 
 # method: Interaction_step_n
 # Takes upto n steps

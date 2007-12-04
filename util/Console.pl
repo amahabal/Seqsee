@@ -114,6 +114,7 @@ my @button_config = (
     [ LabeledCodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView', '--TreeNums') ],
     [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
     [ PressureView => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
+    [ ActivationViewer => CreateRunPerlScriptCommand('util\ActivationsViewer.pl') ],
 );
 
 INSERT_BUTTONS: {
