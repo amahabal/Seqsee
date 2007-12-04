@@ -21,10 +21,11 @@ GetOptions(
     "seq=s",
     "view=i",    # ignored
     "times=i",
+    "f=s",
 );
 
 my ( $times, $terms ) = @options{qw{times seq}};
-
+my @selected_feature_set = map {"-f=$_"} keys %Global::Feature;
 my $TIMES_TO_RUN = 10;
 
 my $MW = new MainWindow();
@@ -51,7 +52,7 @@ sub StartRun {
         'c:\perl\bin\perl',   'util/RunTestOnce.pl',
         qq{--seq="$seq"},     qq{--continuation="$continuation"},
         qq{-max_steps=10000}, qq{--min_extension=3},
-        qq{--max_false=3}
+        qq{--max_false=3}, @selected_feature_set,
     );
 
     # my $cmd = join(" ", @cmd);
@@ -84,7 +85,7 @@ sub Update {
 sub find_tag {
     my ($status) = @_;
     my $string = $status->get_status_string;
-    print $status;
+    # print $status;
     if ( $status->IsSuccess() ) {
         return ( " OK ", ["success"] );
     }
@@ -107,7 +108,7 @@ sub Display_Selected {
     $Text->insert( 'end', @string, " \n " );
 
     for my $line (@arr) {
-        ### line: $line
+        ## line: $line
         $Text->insert( 'end', " == == == \n \n " );
         $Text->insert( 'end', $line, '', " \n " );
     }
