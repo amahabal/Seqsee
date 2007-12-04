@@ -19,18 +19,18 @@ $SB->addLabel( -textvariable => \$StatusMsg );
 my $button_frame = $MW->Frame()->pack( -side => 'bottom' );
 my $buttons_per_row = 3;
 
-CreateSeqseeLaunchingFrame();
+CreateSeqseeLaunchingFrame('Run Seqsee',
+                           'config/sequence_list',
+                           'Seqsee.pl',
+                           [], # extra arguments
+                               );
+CreateSeqseeLaunchingFrame('Run Seqsee Multiple Times',
+                           'config/sequence_list_for_multiple',
+                           'util/RunMultipleTimes.pl',
+                           ['--times=10'], 
+                               );
 
 my @input_requiring_commands_config = (
-    [   "RunMultipleTimes",
-        [ [ "Terms", "1 1 2 1 2 3 | 1 2 3 4 1 2 3 4 5 1 2 3 4 5 6", ], ],
-        [    # Command constructor
-            'CreateRunPerlScriptCommand',
-            qw{util/RunMultipleTimes.pl},
-            10,
-            qq{"\$Terms"},
-        ],
-    ],
     [   "Search",    #command name
         [            # inputs
             [   "SearchString",    #input name
@@ -152,14 +152,15 @@ sub CreateRunPerlScriptCommand {
 }
 
 sub CreateSeqseeLaunchingFrame {
+    my ($frame_label, $sequence_list_filename, $CommandToRun, $ExtraArgsRef) = @_;
     my $frame = $MW->LabFrame(
-        -label     => 'Run Seqsee',
+        -label     => $frame_label,
         -labelside => 'acrosstop'
     )->pack( -side => 'top' );
     my $Sequence;
     my $SequenceEntry;
     {
-        open my $LIST, '<', 'config/sequence_list' or die "Failed to open list";
+        open my $LIST, '<', $sequence_list_filename or die "Failed to open list";
         my @sequence_list = <$LIST>;
         close $LIST;
         @sequence_list = grep {$_} map { s#^\s*##; s#\s*$##; $_ } @sequence_list;
@@ -167,7 +168,7 @@ sub CreateSeqseeLaunchingFrame {
         $subframe->Label( -text => "Sequence: " )->pack( -side => 'left' );
         $SequenceEntry = $subframe->ComboEntry(
             -itemlist => \@sequence_list,
-            -width    => 40
+            -width    => 60
         )->pack( -side => 'left' );
 
         #$subframe->Entry(-textvariable => \$Sequence)->pack(-side=>'left');
@@ -235,7 +236,7 @@ sub CreateSeqseeLaunchingFrame {
             my @features_turned_on        = grep { $FeatureValues{$_} } keys %FeatureValues;
             my @feature_related_arguments = map  {"-f=$_"} @features_turned_on;
             my @cmds
-                = ( "Seqsee.pl", qq{--seq=$Sequence}, qq{--view=$View}, @feature_related_arguments,
+                = ( $CommandToRun, qq{--seq=$Sequence}, qq{--view=$View}, @feature_related_arguments, @$ExtraArgsRef
                 );
             my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
             $subprocess_cmd->();

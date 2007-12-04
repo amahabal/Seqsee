@@ -223,6 +223,7 @@ sub _read_commandline {
             $Global::Feature{$feature_name} = 1;
         }
     );
+
     GetOptions(
         \%options,
         "seed=i",
