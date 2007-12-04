@@ -20,6 +20,7 @@ sub run {
     SStream->init();
     SCoderack->clear();
     SCoderack->init();
+    SLTM->init();
 
     _SeqseeMainLoop();
 

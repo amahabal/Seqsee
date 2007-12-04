@@ -700,6 +700,7 @@ sub RunSeqsee {
     Global->SetFutureTerms(@$continuation);
     SCoderack->init($Global::TestingOptionsRef);
     SStream->init($Global::TestingOptionsRef);
+    SLTM->init();
 
     # XXX(Board-it-up): [2006/10/23] Init memory here
     $SWorkspace::ReadHead = 0;

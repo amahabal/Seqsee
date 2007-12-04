@@ -141,7 +141,7 @@ sub INITIALIZE {
     }
 
     SLTM->Load('memory_dump.dat') if $Global::Feature{LTM};
-
+    SLTM->init();
 }
 
 # method: GET_GOING

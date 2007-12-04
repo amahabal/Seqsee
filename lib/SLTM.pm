@@ -27,8 +27,25 @@ our $NodeCount;                 # Number of nodes.
 our %_PURE_CLASSES_;            # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;       # We are currently installing these. Needed to detect cycles.
 
-%_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj SCat::OfObj::Std SCat::OfObj::RelationTypeBased SLTM::Platonic SRelnType::Simple
+%_PURE_CLASSES_ = map { $_ => 1 }
+    qw(SCat::OfObj SCat::OfObj::Std SCat::OfObj::RelationTypeBased SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
+
+sub init {
+    print "Initializing SLTM...\n";
+    if ( $Global::Feature{LogActivations} ) {
+        print "\tActivation logging requested.\n";
+        unless ($Global::ActivationsLogHandle) {
+            print "\tOpening file for write: $Global::ActivationsLogfile\n";
+            open my $handle, '>', $Global::ActivationsLogfile;
+            select($handle);
+            $| = 1;
+            select(*STDOUT);
+            $|                            = 1;
+            $Global::ActivationsLogHandle = $handle;
+        }
+    }
+}
 
 Clear();
 
@@ -405,8 +422,10 @@ sub FindActiveFollowers {
 
     my $node_id = GetMemoryIndex($node);
     my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
-    return @MEMORY[ grep { $ACTIVATIONS[$_][ SActivation::REAL_ACTIVATION() ] > $cutoff }
-        keys %$follows_links_ref ];
+    return @MEMORY[
+        grep { $ACTIVATIONS[$_][ SActivation::REAL_ACTIVATION() ] > $cutoff }
+        keys %$follows_links_ref
+    ];
 }
 
 1;
