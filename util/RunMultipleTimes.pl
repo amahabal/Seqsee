@@ -3,6 +3,7 @@ use Tk;
 use lib 'genlib';
 use Test::Seqsee;
 use Global;
+use List::Util qw{min max sum};
 
 use Getopt::Long;
 my %options = (
@@ -52,7 +53,7 @@ sub StartRun {
         'c:\perl\bin\perl',   'util/RunTestOnce.pl',
         qq{--seq="$seq"},     qq{--continuation="$continuation"},
         qq{-max_steps=10000}, qq{--min_extension=3},
-        qq{--max_false=3}, @selected_feature_set,
+        qq{--max_false=3},    @selected_feature_set,
     );
 
     # my $cmd = join(" ", @cmd);
@@ -73,6 +74,25 @@ sub Update {
         $Text->delete( '0.0', 'end' );
         my @top_row = map { find_tag( $_->get_status() ) } @RESULTS;
         $Text->insert( 'end', @top_row, scalar(@RESULTS), '', "/$TIMES_TO_RUN", '', "\n" );
+        my @times_when_successful
+            = map { $_->get_steps() } grep { $_->get_status()->IsSuccess } @RESULTS;
+        my $sucess_percent = sprintf( '%5.2f', 100 * scalar(@times_when_successful) / scalar(@RESULTS) );
+        if ($sucess_percent) {
+            $Text->insert( 'end', "$sucess_percent% successful\n" );
+            $Text->insert('end', "Steps needed when correct: ", '', 
+                          join(', ', sort {$a <=> $b} @times_when_successful), '', "\n"
+                              );
+            $Text->insert(
+                'end',
+                "\nMinimum steps: " . min(@times_when_successful),
+                '',
+                "\nMaximum steps: " . max(@times_when_successful),
+                '',
+                "\nAverage:       " . sprintf('%5.3f', sum(@times_when_successful) / scalar(@times_when_successful)),
+                '',
+                "\n"
+            );
+        }
         for (@RESULTS) {
             $Text->insert( 'end', "\n............\n", '', find_tag( $_->get_status() ),
                 "\t", '', $_->get_steps(), '', "\n\n" );
@@ -85,6 +105,7 @@ sub Update {
 sub find_tag {
     my ($status) = @_;
     my $string = $status->get_status_string;
+
     # print $status;
     if ( $status->IsSuccess() ) {
         return ( " OK ", ["success"] );
