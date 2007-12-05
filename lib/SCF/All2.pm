@@ -380,8 +380,9 @@ RUN: {
         }
 
         return unless $extend_success;
-        ContinueWith( SThought::AreWeDone->new( { group => $object } ) )
-            if SUtil::toss( $object->get_strength() / 100 );
+        if (SUtil::toss( $object->get_strength() / 100 )) {
+            CODELET 100, AreWeDone, { group => $object};
+        }
 
         #main::message("Extended!");
 
@@ -522,7 +523,7 @@ RUN: {
             $application->ExtendLeftMaximally();
             my $new_group = SAnchored->create( @{ $application->get_items() } );
             SWorkspace->add_group($new_group) or return;
-            THOUGHT AreWeDone, { group => $new_group };
+            CODELET 100, AreWeDone, { group => $new_group };
         }
         else {
 

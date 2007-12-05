@@ -4,7 +4,7 @@ RUN: {
         my $flush_left  = $group->IsFlushLeft();
 
         if ( $flush_right and $flush_left ) {
-            THOUGHT AreWeDone, { group => $group };
+            CODELET 100, AreWeDone, { group => $group };
         }
         elsif ( $Global::AtLeastOneUserVerification and $flush_right and !$flush_left ) {
             CODELET 100,  MaybeStartBlemish, { group => $group };

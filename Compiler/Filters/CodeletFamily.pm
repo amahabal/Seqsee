@@ -51,7 +51,7 @@ sub GenerateScriptCode {
 
     my %block_hash = map { @$_ } @$blocks_list; # Only one STEP survives in hash...
     while (my($k, $v) = each %block_hash) {
-        confess "UNKNOWN BLOCK $k!" unless $ScriptAllowedBlocks{$k};
+        confess "UNKNOWN BLOCK >>$k<<!" unless $ScriptAllowedBlocks{$k};
     }
 
     my @STEPS;
@@ -103,7 +103,7 @@ sub GenerateFamilyCode {
     print "GENERATE FAMILY CODE CALLED ON $package_name; blocks=$blocks\n";
 
     while (my($k, $v) = each %$blocks) {
-        confess "UNKNOWN BLOCK $k!" unless $AllowedBlocks{$k};
+        confess "UNKNOWN BLOCK >>$k<<!" unless $AllowedBlocks{$k};
     }
 
     my $INITIAL_BLOCK = $blocks->{INITIAL} || '';

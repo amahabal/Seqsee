@@ -72,8 +72,8 @@ RUN: {
     }
 }
 
-ThoughtType AreWeDone( $group ! ) does {
-ACTIONS: {
+CodeletFamily AreWeDone( $group ! ) does {
+RUN: {
         my $gp          = $group;
         my $span        = $gp->get_span;
         my $total_count = $SWorkspace::ElementCount;
