@@ -135,17 +135,6 @@ sub Seqsee_Step {
         if ( UNIVERSAL::isa( $err, 'SErr::ProgOver' ) ) {
             return 1;
         }
-        if (   UNIVERSAL::isa( $err, 'SErr::NeedMoreData' )
-            or UNIVERSAL::isa( $err, 'SErr::ContinueWith' ) )
-        {
-            if ( $err->forced() ) {
-                $err->payload()->force_to_be_next_runnable();
-            }
-            else {
-                $err->payload()->schedule();
-            }
-            return;
-        }
 
         # main::message("About to call default_error_handler with '$err'");
         # confess "Empty error message" if $err eq q{};
