@@ -11,16 +11,12 @@ use Carp;
 use Class::Std;
 use base qw{Exporter};
 
-our @EXPORT = qw( ContinueWith NeedMoreData );
+our @EXPORT = qw( ContinueWith );
 
 sub ContinueWith {
-    my ($runnable, $forced) = @_;
-    SErr::ContinueWith->new( payload => $runnable, forced => $forced )->throw;
-}
-
-sub NeedMoreData {
-    my ($runnable) = @_;
-    SErr::NeedMoreData->new( payload => $runnable )->throw;
+    scalar(@_) == 1 or confess "ContinueWith takes a single argument!";
+    UNIVERSAL::isa($_[0], 'SThought') or confess "ContinueWith takes a thought as argument";
+    SStream->add_thought($_[0]);
 }
 
 1;

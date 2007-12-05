@@ -7,7 +7,8 @@ RUN: {
         my $object = SWorkspace::__ReadObjectOrRelation();
         return unless $object;
 
-        SThought->create($object)->schedule();
+        # I am changing things so that thoughts do not sit in the coderack at all.
+        SStream->add_thought(SThought->create($object));
     }
 }
 

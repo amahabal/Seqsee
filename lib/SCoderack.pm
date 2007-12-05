@@ -232,6 +232,7 @@ sub display_as_text {
 #
 sub force_thought {
     my ( $package, $thought ) = @_;
+    confess "I thought I had eliminated thoughts from the coderack!";
     $FORCED_THOUGHT = $thought;
     if ( LOGGING_DEBUG() ) {
         $logger->debug( ": forced thought: ", $thought->as_text() );
@@ -243,6 +244,7 @@ sub force_thought {
 #
 sub schedule_thought {
     my ( $package, $thought ) = @_;
+    confess "I thought I had eliminated thoughts from the coderack!";
     $SCHEDULED_THOUGHT = $thought;
     if ( LOGGING_DEBUG() ) {
         $logger->debug( ": scheduled thought: ", $thought->as_text() );

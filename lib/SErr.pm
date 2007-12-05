@@ -18,9 +18,6 @@ use Exception::Class (
     'SErr::NotOfCat'            => {},
     'SErr::MetonymNotAppicable' => {},
 
-    'SErr::NeedMoreData' => { fields => ['payload', 'forced'] },
-    'SErr::ContinueWith' => { fields => ['payload', 'forced'] },
-
     'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
     'SErr::AskUser' => { fields => [qw{already_matched 
