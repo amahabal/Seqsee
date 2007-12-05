@@ -47,6 +47,7 @@ ExtraStuff: {
             my $fringe = $tht->get_stored_fringe() or return;
             my $count  = 0;
             for ((@$fringe)[0..2]) {
+                last unless $_;
                 my ( $component, $activation ) = @$_;
                 $count++;
                 $Canvas->createText(

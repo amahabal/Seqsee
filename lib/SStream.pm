@@ -189,9 +189,13 @@ sub _think_the_current_thought{
     my @action_set = $thought->get_actions();
 
     if ($hit_with) {
-        my $new_thought = SThought::AreRelated->new( {a => $hit_with,
-                                                      b => $thought});
-        push @action_set, $new_thought;
+        my $new_thought = SCodelet->new(
+            'AreRelated',
+            100,
+            {   a => $hit_with,
+                b => $thought
+            }
+        )->schedule();
     }
 
     my (@_thoughts);

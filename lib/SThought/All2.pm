@@ -1,5 +1,5 @@
-ThoughtType AreRelated( $a !, $b ! ) does {
-ACTIONS: {
+CodeletFamily AreRelated( $a !, $b ! ) does {
+RUN: {
         my $a_core = $a->can('get_core') ? $a->get_core() : undef;
         my $b_core = $b->can('get_core') ? $b->get_core() : undef;
 
