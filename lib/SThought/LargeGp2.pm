@@ -1,5 +1,5 @@
-ThoughtType LargeGroup( $group ! ) does {
-ACTIONS: {
+CodeletFamily LargeGroup( $group ! ) does {
+RUN: {
         my $flush_right = $group->IsFlushRight();
         my $flush_left  = $group->IsFlushLeft();
 
@@ -7,13 +7,13 @@ ACTIONS: {
             THOUGHT AreWeDone, { group => $group };
         }
         elsif ( $Global::AtLeastOneUserVerification and $flush_right and !$flush_left ) {
-            THOUGHT MaybeStartBlemish, { group => $group };
+            CODELET 100,  MaybeStartBlemish, { group => $group };
         }
     }
 }
 
-ThoughtType MaybeStartBlemish( $group ! ) does {
-ACTIONS: {
+CodeletFamily MaybeStartBlemish( $group ! ) does {
+RUN: {
         #XXX runs too eagerly.
         my $flush_right = $group->IsFlushRight();
         my $flush_left  = $group->IsFlushLeft();
@@ -37,32 +37,28 @@ ACTIONS: {
 
                         #main::message($cat->get_name());
                         if ( $cat->get_name() =~ m#^ad_hoc_(.*)#o ) {
-                            THOUGHT InterlacedInitialBlemish,
+                            CODELET 100, InterlacedInitialBlemish,
                                 {
                                 count => $1,
                                 group => $group,
                                 cat   => $cat,
                                 };
-
-                            # XXX(Board-it-up): [2007/04/15] just return useless.
-                            # Add to compiler: RETURN that translates to line below..
-
-                            return @actions_ret;
+                            return;
                         }
                     }
                 }
 
                 # So: either statecount > 1, or not interlaced.
                 if ($flush_right) {
-                    THOUGHT ArbitraryInitialBlemish, { group => $group };
+                    CODELET 100, ArbitraryInitialBlemish, { group => $group };
                 }
             }
         }
     }
 }
 
-ThoughtType InterlacedInitialBlemish( $count !, $group !, $cat ! ) does {
-ACTIONS: {
+CodeletFamily InterlacedInitialBlemish( $count !, $group !, $cat ! ) does {
+RUN: {
         my @parts = @$group;
         Global::Hilit(1, @parts);
         main::message(
@@ -90,8 +86,8 @@ ACTIONS: {
     }
 }
 
-ThoughtType ArbitraryInitialBlemish( $group ! ) does {
-ACTIONS: {
+CodeletFamily ArbitraryInitialBlemish( $group ! ) does {
+RUN: {
         SErr::FinishedTestBlemished->throw() if $Global::TestingMode;
         ACTION 100, DescribeSolution, { group => $group };
     }

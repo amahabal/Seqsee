@@ -275,7 +275,7 @@ ACTIONS: {
         }
 
         if ( $span_fraction > 0.5 ) {
-            THOUGHT LargeGroup, { group => $core };
+            CODELET 100,  LargeGroup, { group => $core };
         }
 
     }
