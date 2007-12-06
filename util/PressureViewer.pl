@@ -3,7 +3,7 @@ use Tk;
 use Carp;
 use Smart::Comments;
 use Getopt::Long;
-use List::Util qw(sum);
+use List::Util qw(sum max);
 my %options;
 
 my $filename = 'codelet_tree.log';
@@ -18,6 +18,7 @@ use constant THOUGHT => 2;
 our %ObjectCounts;          # Keys: families
 our %ObjectUrgencySums;     # Keys: families
 our @DistributionAtTime;    # Index: time. Entries: Hash with keys families, values probabilities.
+our @TypeRunAtTime; # Index: time. Entries: families.
 
 our $RunnableCount;
 our %Type;
@@ -94,6 +95,7 @@ sub ProcessAddition {
     if ( $object =~ /^SThought::(.*?)=/ ) {
         $Type{$object}   = THOUGHT;
         $Family{$object} = $1;
+        push @TypeRunAtTime, $1;
     }
     else {
         $Type{$object} = CODELET;
@@ -104,6 +106,7 @@ sub ProcessAddition {
         $Urgency{$object} = $urgency;
         $ObjectCounts{$family}++;
         $ObjectUrgencySums{$family} += $urgency;
+        push @TypeRunAtTime, $family;
     }
 }
 
@@ -168,6 +171,13 @@ sub ShowGraph {
         next unless $data;
         my $y = 290 - 280 * $data;
         $Canvas->create('line', $x, $y, $x, 290, -fill=>'#0000FF');
+
+        if ($TypeRunAtTime[$_] eq $family) {
+            $Canvas->create('line', $x, 292, $x, 295,
+                            -width => 3,
+                            -fill => '#FF0000');
+        }
+
     }
 }
 
