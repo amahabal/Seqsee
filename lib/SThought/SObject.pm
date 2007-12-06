@@ -46,17 +46,19 @@ ACTIONS: {
         #if ( $flush_right and not($flush_left) ) {
         #    next unless SUtil::toss(0.15);
         #}
-        CODELET 100, AttemptExtensionOfGroup,
+        CODELET 50, AttemptExtensionOfGroup,
             {
             object    => $core,
             direction => DIR::RIGHT(),
             };
 
-        CODELET 50, AttemptExtensionOfGroup,
-            {
-            object    => $core,
-            direction => DIR::LEFT(),
-            };
+        if ( $core->get_left_edge() > 0 ) {
+            CODELET 100, AttemptExtensionOfGroup,
+                {
+                object    => $core,
+                direction => DIR::LEFT(),
+                };
+        }
 
         if ( scalar(@$core) > 1 and SUtil::toss(0.8) ) {
             if ( SUtil::toss(0.5) ) {
@@ -141,14 +143,14 @@ ACTIONS: {
         }
 
         if ( $span_fraction > 0.5 ) {
-            CODELET 100,  LargeGroup, { group => $core };
+            CODELET 100, LargeGroup, { group => $core };
         }
 
     }
 }
 
 ThoughtType SElement( $core !, $magnitude = {0} ) does {
-AS_TEXT: { return "Element (" . $self->get_magnitude . ")"}
+AS_TEXT: { return "Element (" . $self->get_magnitude . ")" }
 INITIAL: {
 
         multimethod get_fringe_for => ('SElement') => sub {

@@ -43,6 +43,7 @@ sub conditionally_run {
 
     return unless ( SUtil::toss( $urgency_of{$id} / 100 ) );
     if ($Global::Feature{CodeletTree}) {
+        print {$Global::CodeletTreeLogHandle} "\t$self\t$family_of{$id}\t100\n";
         print {$Global::CodeletTreeLogHandle} "acted $self\n";
     }
     no strict;

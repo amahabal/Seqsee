@@ -110,7 +110,8 @@ sub ProcessAddition {
 sub UncountRunnable {
     my ($object) = @_;
     my $type = $Type{$object};    # 1=codelet, 2=thought
-    confess "Missing type" unless $type;
+    return unless($type); # SActions, never on coderack...
+    # confess "Missing type for >>$object<<" unless $type;
     if ( $type == CODELET ) {
         my $family  = $Family{$object}  or confess;
         my $urgency = $Urgency{$object} or confess;

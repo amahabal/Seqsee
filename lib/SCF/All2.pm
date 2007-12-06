@@ -8,7 +8,7 @@ RUN: {
         return unless $object;
 
         # I am changing things so that thoughts do not sit in the coderack at all.
-        ContinueWith(SThought->create($object));
+        ContinueWith( SThought->create($object) );
     }
 }
 
@@ -86,25 +86,26 @@ RUN: {
         }
         CATCH {
         ElementsBeyondKnownSought: {
-              return unless EstimateAskability($core);
-              #  Global::Hilit( 1, $obj1, $obj2, $core );
-              #  my $reply = $err->Ask();
-              #  Global::ClearHilit();
-              #  return unless $reply;
-              #  $is_this_what_is_present = 1;
-              CODELET 500, MaybeAskTheseTerms, {core => $core, exception => $err };
-              return;
+                return unless EstimateAskability($core);
+
+                #  Global::Hilit( 1, $obj1, $obj2, $core );
+                #  my $reply = $err->Ask();
+                #  Global::ClearHilit();
+                #  return unless $reply;
+                #  $is_this_what_is_present = 1;
+                CODELET 500, MaybeAskTheseTerms, { core => $core, exception => $err };
+                return;
             }
         };
         if ($is_this_what_is_present) {
-            SLTM::SpikeBy(100, $core);
+            SLTM::SpikeBy( 100, $core );
             my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
             return unless $plonk_result->PlonkWasSuccessful();
             my $wso = $plonk_result->get_resultant_object();
 
             if ( $core->isa('SReln::Compound') ) {
                 my $type = $core->get_base_category;
-                SLTM::SpikeBy(100, $type);
+                SLTM::SpikeBy( 100, $type );
                 ## Describe as: $type
                 $wso->describe_as($type) or return;
             }
@@ -118,14 +119,15 @@ RUN: {
             $reln_to_add->insert() if $reln_to_add;
         }
         else {
+
             # Weaken relation a bit.
-            SLTM::WeakenBy(50, $core);
+            SLTM::WeakenBy( 50, $core );
 
             # Weaken corresponding ad-hoc if this was one.
-            if ($distance > 1) {
+            if ( $distance > 1 ) {
                 my $possible_ad_hoc_cat
                     = $S::AD_HOC->build( { parts_count => $distance->GetMagnitude() + 1 } );
-                SLTM::WeakenBy(30, $possible_ad_hoc_cat);
+                SLTM::WeakenBy( 30, $possible_ad_hoc_cat );
             }
 
             if ( SUtil::toss(0.5) ) {
@@ -144,8 +146,9 @@ FINAL: {
             SLTM::SpikeBy( 10, $core->get_type() );
 
             my $strength = $core->get_strength;
+
             # main::message("Strength for asking: $strength", 1);
-            return unless SUtil::toss($strength/100);
+            return unless SUtil::toss( $strength / 100 );
         }
 
         sub worth_asking {
@@ -229,7 +232,13 @@ INITIAL: {
         multimethod 'find_reln';
     }
 RUN: {
-        return if ( $a->overlaps($b) );
+        if ( $a->overlaps($b) ) {
+            my ( $ul_a, $ul_b ) = ( $a->get_underlying_reln(), $b->get_underlying_reln() );
+            return unless ( $ul_a and $ul_b );
+            return unless $ul_a->get_rule() eq $ul_b->get_rule();
+            CODELET 100, AttemptGroupMerge, { a => $a, b => $b };
+            return;
+        }
         return unless SWorkspace::__CheckLiveness( $a, $b );
         if ( not $Global::Feature{AllowLeftwardRelations} ) {
             ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
@@ -244,7 +253,6 @@ RUN: {
             ContinueWith( SThought->create($reln) );
         }
 
-## Running FindIfRelated: $a, $b
         $reln = find_reln( $a, $b ) or return;
 
         my $type_activation = spike_reln_type($reln);
@@ -371,8 +379,9 @@ RUN: {
         my $extend_success;
         TRY {
             $extend_success = $object->Extend( $extension, $add_to_end_p );
-        } CATCH {
-          CouldNotCreateExtendedGroup: {
+        }
+        CATCH {
+        CouldNotCreateExtendedGroup: {
                 my $msg = "Extending object: " . $object->as_text() . "\n";
                 $msg .= "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
                 print STDERR $msg;
@@ -381,8 +390,8 @@ RUN: {
         }
 
         return unless $extend_success;
-        if (SUtil::toss( $object->get_strength() / 100 )) {
-            CODELET 100, AreWeDone, { group => $object};
+        if ( SUtil::toss( $object->get_strength() / 100 ) ) {
+            CODELET 100, AreWeDone, { group => $object };
         }
 
         #main::message("Extended!");
@@ -645,5 +654,25 @@ RUN: {
             core      => $core,
             direction => $direction
             };
+    }
+}
+
+CodeletFamily AttemptGroupMerge( $a !, $b ! ) does {
+RUN: {
+        my @items = SWorkspace::__SortLtoRByLeftEdge(@$a, @$b);
+        return if SWorkspace::__AreThereHolesOrOverlap(@items);
+        my $new_group;
+        TRY {
+            my @unstarred_items = map { $_->GetUnstarred() } @items;
+            ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
+            SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
+            $new_group = SAnchored->create(@unstarred_items);
+            if ($new_group) {
+                $new_group->set_underlying_reln($a->get_underlying_reln()->get_rule());
+                SWorkspace->add_group($new_group);
+            }
+        } CATCH {
+          ConflictingGroups: { return }
+        }
     }
 }
