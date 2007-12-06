@@ -19,29 +19,11 @@ use strict;
 use Carp;
 use Config::Std;
 use Smart::Comments;
-use Perl6::Form;
-
-my $logger;
-{
-    my ( $is_debug, $is_info );
-
-    BEGIN {
-        $logger   = Log::Log4perl->get_logger("SCoderack");
-        $is_debug = $logger->is_debug();
-        $is_info  = $logger->is_info();
-    }
-    sub LOGGING_DEBUG() { $is_debug; }
-    sub LOGGING_INFO()  { $is_info; }
-}
 
 my $MAX_CODELETS  = 25;    # Maximum number of codelets allowed.
 my $CODELET_COUNT = 0;     #    How many codelets are in there currently?
 our @CODELETS;             #    The actual codelets
 our $URGENCIES_SUM = 0;            #    Sum of all urgencies
-our $SCHEDULED_THOUGHT;            #    The though if any scheduled, undef o/w
-our $FORCED_THOUGHT;               #    If set, get next runnable returns this, no matter what
-my $UseScheduledThoughtProb;       #    Likelihood that the current scheduled thought is used
-my $ScheduledThoughtVanishProb;    #    Prob. that scheduled thought is annhilated if unused
 our $LastSelectedRunnable;         # Last selected codelet/thought
 
 our %HistoryOfRunnable;
@@ -55,8 +37,6 @@ sub clear {
     $CODELET_COUNT     = 0;
     $URGENCIES_SUM     = 0;
     @CODELETS          = ();
-    $SCHEDULED_THOUGHT = undef;
-    $FORCED_THOUGHT    = undef;
     %HistoryOfRunnable = ();
 }
 
@@ -81,9 +61,6 @@ sub init {
         #print "Handle: $handle\n";
         print {$Global::CodeletTreeLogHandle} "Initial\n";
     }
-
-    $UseScheduledThoughtProb    = $OPTIONS_ref->{UseScheduledThoughtProb};
-    $ScheduledThoughtVanishProb = $OPTIONS_ref->{ScheduledThoughtVanishProb};
 
 # Codelet configuarion for startup should be read in from another configuration file config/start_codelets.conf
 # die "This is where I left yesterday";
@@ -111,9 +88,6 @@ sub init {
 sub add_codelet {
     my ( $package, $codelet ) = @_;
     confess "A non codelet is being added" unless $codelet->isa("SCodelet");
-    if ( LOGGING_DEBUG() ) {
-        $logger->debug(": codelet added: $codelet->[0]");
-    }
     $CODELET_COUNT++;
     push( @CODELETS, $codelet );
     if ( $Global::Feature{CodeletTree} ) {
@@ -165,38 +139,7 @@ sub get_codelet_count { return $CODELET_COUNT }
 sub get_next_runnable {
     my ($package) = @_;
     $Global::LogString = "\n\n=======\nLogged Message:\n===\n";
-    ## get_next_runnable, scheduled: $SCHEDULED_THOUGHT
 
-    if ($FORCED_THOUGHT) {
-        my $to_return = $FORCED_THOUGHT;
-        $FORCED_THOUGHT = undef;
-        $HistoryOfRunnable{ ref($to_return) }++;
-        return $LastSelectedRunnable = $to_return;
-    }
-
-    if ($SCHEDULED_THOUGHT) {
-        ## SCheduled Thought Present
-        ## $CODELET_COUNT
-        my $use_scheduled = SUtil::toss($UseScheduledThoughtProb);
-        ## $use_scheduled
-        if ( $use_scheduled or ( $CODELET_COUNT == 0 ) ) {
-            ## get_next_runnable, using scheduled:
-            my $to_return = $SCHEDULED_THOUGHT;
-            $SCHEDULED_THOUGHT = undef;
-            ## $SCHEDULED_THOUGHT
-            $HistoryOfRunnable{ ref($to_return) }++;
-            return $LastSelectedRunnable = $to_return;
-
-        }
-        elsif ( SUtil::toss($ScheduledThoughtVanishProb) ) {
-            if ( $Global::Feature{CodeletTree} ) {
-                print {$Global::CodeletTreeLogHandle} "Expunge $SCHEDULED_THOUGHT\n";
-            }
-            $SCHEDULED_THOUGHT = undef;
-        }
-    }
-    ## get_next_runnable, NOT using scheduled
-    # If I reach here, return some codelet
     unless ($CODELET_COUNT) {
         my $new_reader = SCodelet->new( 'Reader', 100, {} );
         if ( $Global::Feature{CodeletTree} ) {
@@ -211,48 +154,6 @@ sub get_next_runnable {
     $URGENCIES_SUM -= $to_return->[1];
     $CODELET_COUNT--;
     return $LastSelectedRunnable = $to_return;
-}
-
-# method: display_as_text
-# prints a string of the coderack, for debugging etc
-#
-sub display_as_text {
-    my ($package) = @_;
-    print form "=========================================================",
-        "Scheduled Thought: {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-        ( defined $SCHEDULED_THOUGHT ) ? $SCHEDULED_THOUGHT->as_text() : "none",
-        "=========================================================", "Codelets: ",
-        "      {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-        [ map { form "{<<<<<<<<<<} {>>>>>>>} ", $_->[0], $_->[1] } @CODELETS ],
-        "=========================================================";
-}
-
-# method: force_thought
-# Set the forced thought to this
-#
-sub force_thought {
-    my ( $package, $thought ) = @_;
-    confess "I thought I had eliminated thoughts from the coderack!";
-    $FORCED_THOUGHT = $thought;
-    if ( LOGGING_DEBUG() ) {
-        $logger->debug( ": forced thought: ", $thought->as_text() );
-    }
-}
-
-# method: schedule_thought
-# Set the scheduled thought to this
-#
-sub schedule_thought {
-    my ( $package, $thought ) = @_;
-    confess "I thought I had eliminated thoughts from the coderack!";
-    $SCHEDULED_THOUGHT = $thought;
-    if ( LOGGING_DEBUG() ) {
-        $logger->debug( ": scheduled thought: ", $thought->as_text() );
-    }
-    if ( $Global::Feature{CodeletTree} ) {
-        print {$Global::CodeletTreeLogHandle} "\t$thought\n";
-    }
-
 }
 
 # method: expunge_codelet
