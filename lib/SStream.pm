@@ -9,29 +9,9 @@
 
 package SStream;
 use strict;
-use Perl6::Form;
 use Carp;
 use Smart::Comments;
 use Scalar::Util qw(blessed reftype);
-
-my ($logger, $fringe_logger);
-{
-    my ($is_debug, $is_info);
-    BEGIN{ $logger   = Log::Log4perl->get_logger("SStream"); 
-           $is_debug = $logger->is_debug();
-           $is_info  = $logger->is_info();
-         }
-    sub LOGGING_DEBUG() { $is_debug; }
-    sub LOGGING_INFO()  { $is_info;  }
-
-    my ($is_fringe_debug, $is_fringe_info);
-    BEGIN{ $fringe_logger   = Log::Log4perl->get_logger("Fringe"); 
-           $is_fringe_debug = $fringe_logger->is_debug();
-           $is_fringe_info  = $fringe_logger->is_info();
-         }
-    sub LOGGING_FRINGE_DEBUG() { $is_fringe_debug; }
-    sub LOGGING_FRINGE_INFO()  { $is_fringe_info;  }
-}
 
 # variable: $DiscountFactor
 #    controls how fast efect fades with age
@@ -119,11 +99,6 @@ sub add_thought{
     @_ == 2 or confess "new thought takes two arguments";
     my ( $package, $thought ) = @_;
 
-    if (LOGGING_DEBUG()) {
-        $logger->debug( "\n=== $Global::Steps_Finished ==========  NEW THOUGHT $thought" );
-        $logger->debug( "== ", $thought->as_text() );
-    }
-
     return if $thought eq $CurrentThought;
 
     # XXX(Board-it-up): [2006/10/23] Need to hook into "real" memory
@@ -160,28 +135,6 @@ sub _think_the_current_thought{
     ## $fringe
     $thought->set_stored_fringe( $fringe );
     my $extended_fringe = $thought->get_extended_fringe();
-
-    if (LOGGING_FRINGE_DEBUG()) {
-        my $msg = "- fringe:\n";
-        for (@$fringe) {
-            my ($k, $v) = @$_;
-            # unfortunately, the next line is useless because $k is a string
-            # my $k = (blessed $k) ? $k->as_text() : $k;
-            # But if the fringe only contain categories or props, the following
-            # will work:
-            $k = $S::Str2Cat{$k} || $k;
-            $k = $k->as_text() if blessed($k);
-            $msg .= "\t- $k\t--> $v\n";
-        }
-        $msg .= "- extended_fringe:\n";
-        for (@$extended_fringe) {
-            my ($k, $v) = @$_;
-            $k = $S::Str2Cat{$k} || $k;
-            $k = $k->as_text() if blessed($k);
-            $msg .= "\t- $k\t--> $v\n";
-        }
-        $fringe_logger->debug($msg);
-    }
 
     my $hit_with = _is_there_a_hit( $fringe, $extended_fringe );
     ## $hit_with
@@ -282,26 +235,6 @@ sub antiquate_current_thought{
    $CurrentThought = '';
    $OlderThoughtCount++;
    _recalculate_Compstrength();
-}
-
-
-
-# method: display_as_text
-# prints a string of the stream
-#
-sub display_as_text{
-    my ( $package ) = @_;
-    my $thoughts = form
-        "*******************************************",
-        "Current Thought:                           ",
-        "{[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-        $CurrentThought ? $CurrentThought->as_text() : "none",
-        "*******************************************",
-        "{>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<}",
-        ["OLDER THOUGHTS"],
-        "{[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}",
-         [map { $_->as_text } @OlderThoughts];
-    print $thoughts;
 }
 
 
