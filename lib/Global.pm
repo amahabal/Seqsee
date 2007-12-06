@@ -36,6 +36,10 @@ our $CodeletTreeLogfile = 'codelet_tree.log';
 our $CodeletTreeLogHandle;
 our $ActivationsLogfile = 'activations.log';
 our $ActivationsLogHandle;
+
+use SStream2;
+our $MainStream = SStream2->CreateNew('MainStream');
+
 %PossibleFeatures = map { $_ => 1 } qw(relnact rules choosebiased debug LTM
     CodeletTree NoGpOverlap LiteralCat AllowLeftwardRelations LogActivations
 );

@@ -48,7 +48,7 @@ my $check_and_accept_input_sequence = sub {
     print "Return pressed; Seq is: @seq";
     SWorkspace->clear();
     SCoderack->clear();
-    SStream->clear();
+    $Global::MainStream->clear();
 
     SWorkspace->insert_elements(@seq);
     Update();    

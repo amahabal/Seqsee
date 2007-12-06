@@ -16,8 +16,8 @@ sub run {
     my (@sequence) = @_;
     SWorkspace->clear();
     SWorkspace->init(@sequence);
-    SStream->clear();
-    SStream->init();
+    $Global::MainStream->clear();
+    $Global::MainStream->init();
     SCoderack->clear();
     SCoderack->init();
     SLTM->init();
@@ -75,9 +75,9 @@ sub already_rejected_by_user {
 #
 #  The call SCoderack->get_next_runnable() returns a codelet or a thought, taking into account whether a thought is scheduled, etc.
 #
-#  If a thought is returned, we should call SStream->add_thought(), which, er, thinks the thought.
+#  If a thought is returned, we should call $Global::MainStream->add_thought(), which, er, thinks the thought.
 #
-#  If it is a codelet, it should be executed, and its return value looked at: If the return value is a thought, that should also result in SStream->add_thought(), too.
+#  If it is a codelet, it should be executed, and its return value looked at: If the return value is a thought, that should also result in $Global::MainStream->add_thought(), too.
 #
 # Error Checking:
 #   * If running a codelet, traps SErr::ProgOver and SErr::Think
@@ -118,7 +118,7 @@ sub Seqsee_Step {
             }
             $Global::CurrentRunnableString = ref($runnable);
             ## $runnable
-            SStream->add_thought($runnable);
+            $Global::MainStream->add_thought($runnable);
         }
         else {
             SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");

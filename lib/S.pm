@@ -44,7 +44,7 @@ use SReln::Dir;
 use SRelnType::Compound;
 use SRelnType::Simple;
 use SThought;
-use SStream;
+use SStream2;
 use SWorkspace;
 
 use SCF::Load;

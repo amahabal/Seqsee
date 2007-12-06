@@ -207,7 +207,7 @@ sub clear_all {
 }
 
 sub clear_all_but_workspace {
-    SStream->clear;
+    $Global::MainStream->clear;
     SCoderack->clear;
 }
 

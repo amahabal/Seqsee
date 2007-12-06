@@ -8,7 +8,7 @@ RUN: {
         return unless $object;
 
         # I am changing things so that thoughts do not sit in the coderack at all.
-        SStream->add_thought(SThought->create($object));
+        ContinueWith(SThought->create($object));
     }
 }
 

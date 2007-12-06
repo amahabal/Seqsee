@@ -121,8 +121,8 @@ sub INITIALIZE {
     SCoderack->init($OPTIONS_ref);
 
     # Initialize Stream
-    SStream->clear();
-    SStream->init($OPTIONS_ref);
+    $Global::MainStream->clear();
+    $Global::MainStream->init($OPTIONS_ref);
 
     # Initialize Workspace
     SWorkspace->clear();

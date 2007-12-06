@@ -8,12 +8,12 @@ Setup: {
     }
 DrawIt: {
         DrawThought(
-            $SStream::CurrentThought,
+            $Global::MainStream->{CurrentThought},
             $XOffset + $Margin / 2, $YOffset,
             1,    # i.e., is current tht
-        ) if $SStream::CurrentThought;
+        ) if $Global::MainStream->{CurrentThought};
         my ( $row, $col ) = ( 0, 0 );
-        for my $tht (@SStream::OlderThoughts) {
+        for my $tht (@{$Global::MainStream->{OlderThoughts}}) {
             next unless $tht;
             $row++;
             if ( $row >= $EntriesPerColumn ) {
@@ -31,7 +31,7 @@ DrawIt: {
 ExtraStuff: {
         sub DrawThought {
             my ( $tht, $left, $top, $is_current ) = @_;
-            my $hit_intensity = $SStream::thought_hit_intensity{$tht};
+            my $hit_intensity = $Global::MainStream->{thought_hit_intensity}{$tht};
             $Canvas->createRectangle(
                 $left, $top,
                 $left + $ColumnWidth,
@@ -55,7 +55,7 @@ ExtraStuff: {
                     -text   => $component,
                     -anchor => 'nw',
                     Style::ThoughtComponent( $activation,
-                        $SStream::hit_intensity{$component},
+                        $Global::MainStream->{hit_intensity}{$component},
                     ),
                 );
             }
