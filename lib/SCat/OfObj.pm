@@ -4,7 +4,7 @@ package SCat::OfObj;
 use strict;
 use Carp;
 use Class::Std;
-use base qw{SInstance SCat};
+use base qw{SInstance};
 use English qw(-no_match_vars);
 use Smart::Comments;
 use Memoize;
@@ -64,6 +64,7 @@ sub get_meto_types {
     return;
 }
 memoize('get_meto_types');
+
 
 
 1;

@@ -28,7 +28,7 @@ our %_PURE_CLASSES_;            # List of pure classes: those that can be stored
 our %CurrentlyInstalling;       # We are currently installing these. Needed to detect cycles.
 
 %_PURE_CLASSES_ = map { $_ => 1 }
-    qw(SCat::OfObj SCat::OfObj::Std SCat::OfObj::RelationTypeBased SLTM::Platonic SRelnType::Simple
+    qw(SCat::OfObj::Std SCat::OfObj::RelationTypeBased SLTM::Platonic SRelnType::Simple
     SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
 
 sub init {
@@ -146,7 +146,7 @@ sub SpreadActivationFrom {
     for my $link_set ( @{ $OUT_LINKS[$root_index] } ) {
         while ( my ( $target_index, $link ) = each %$link_set ) {
             my $amount_to_spread = $link->AmountToSpread($activation);
-            $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
+            SNodeActivation::SpikeSeveral(int($amount_to_spread), $ACTIVATIONS[$target_index]);
             $nodes_at_distance_below_1{$target_index} += $amount_to_spread;
             my $node_name = $MEMORY[$target_index]->as_text();
             main::debug_message(

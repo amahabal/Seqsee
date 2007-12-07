@@ -105,5 +105,29 @@ sub AreAttributesSufficientToBuild {
     return 0;
 }
 
+sub get_pure {
+    return $_[0];    
+}
+
+sub get_memory_dependencies {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return $RelationType_of{$id};
+}
+
+sub serialize {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return SLTM::encode($RelationType_of{$id});
+}
+
+sub deserialize {
+    my ( $package, $string ) = @_;
+    my ($type) = SLTM::decode($string);
+    return $package->Create($type);
+}
+
+
+
 
 1;

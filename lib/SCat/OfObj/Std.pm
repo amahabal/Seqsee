@@ -69,7 +69,29 @@ my %att_type_of_of :ATTR;
 
 my %sufficient_atts_of_of :ATTR;
 
+my %Recreation_String_of :ATTR(:name<to_recreate>);
+
 my %IS_BLEMISHED_VERSION_OF;
+
+sub get_pure { return $_[0] }
+
+# XXX(Board-it-up): [2006/11/06] Needs fixing: can have dependencies.
+sub get_memory_dependencies { return; }
+
+sub serialize {
+    my ($self) = @_;
+    return $Recreation_String_of{ ident $self};
+}
+
+sub deserialize {
+    my ( $package, $string ) = @_;
+
+    # print qq{Will resuscicate '$string'};
+    return eval($string);    # Could be optimized, look out!
+}
+
+
+
 #
 # subsection: The public interface
 
