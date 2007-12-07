@@ -734,6 +734,52 @@ sub __AddGroup {
 
 }
 
+sub __ScanRightwardForElements {
+    # Returns the position of the *leftmost* element of matching magnitude set.
+    my ( $start_position, $magnitudes_ref ) = @_;
+
+    # A simple worst case n square algorithm. n will be small in general, and expected time is much better.
+    my @magnitudes_to_hunt = @$magnitudes_ref;
+    my $how_many_to_hunt = scalar(@magnitudes_to_hunt);
+    my $largest_possible_leftmost_position = $ElementCount - $how_many_to_hunt;
+
+    OUTER: for my $possible_leftmost_position ($start_position..$largest_possible_leftmost_position) {
+          for (0..$how_many_to_hunt-1) {
+              next OUTER if $ElementMagnitudes[$possible_leftmost_position+$_] != $magnitudes_to_hunt[$_];
+          }
+          # We have our matching elements!
+          return $possible_leftmost_position;
+    }
+
+    return;
+}
+
+sub __ScanLeftwardForElements {
+    # Returns the position of the *leftmost* element of matching magnitude set.
+    # Returns undef if none match
+    my ( $start_position, $magnitudes_ref ) = @_;
+    
+    # A simple worst case n square algorithm. n will be small in general, and expected time is much better.
+    my @magnitudes_to_hunt = @$magnitudes_ref;
+    my $how_many_to_hunt = scalar(@magnitudes_to_hunt);
+    my $largest_possible_leftmost_position = $start_position - $how_many_to_hunt + 1;
+    
+    my $possible_leftmost_position = $largest_possible_leftmost_position;
+  OUTER: while ($possible_leftmost_position >= 0) {
+        for (0..$how_many_to_hunt-1) {
+            if ($ElementMagnitudes[$possible_leftmost_position+$_] != $magnitudes_to_hunt[$_]) {
+                $possible_leftmost_position--;
+                next OUTER;
+            }
+        }
+        # We have our matching elements!
+        return $possible_leftmost_position;
+    }
+
+    return;
+}
+
+
 #############################################
 # BAR LINES
 #############################################
