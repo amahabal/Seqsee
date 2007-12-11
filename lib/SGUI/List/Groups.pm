@@ -59,5 +59,9 @@ sub Clear {
     $self->{Canvas}->delete($self);
 }
 
+sub PrepareForDrawing {
+    
+}
+
 
 1;

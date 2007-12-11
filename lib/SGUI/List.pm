@@ -18,6 +18,7 @@ BEGIN {
 
 sub DrawIt {
     my ($self)          = @_;
+    $self->PrepareForDrawing();
     my @entries_to_draw = $self->GetEntriesOnCurrentPage();
     my $Canvas          = $self->{Canvas};
     my $left            = $self->{EffectiveXOffset};

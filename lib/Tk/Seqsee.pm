@@ -20,9 +20,11 @@ use SGUI::Rules;
 use SGUI::Relations;
 use SGUI::Groups;
 use SGUI::List;
-use SGUI::List::Groups;
 
+use SGUI::List::Groups;
+use SGUI::List::Categories;
 my $ListGroupsViewer = SGUI::List::Groups->new();
+my $ListCatViewer = SGUI::List::Categories->new();
 
 my $Canvas;
 my ( $Width, $Height );
@@ -47,6 +49,10 @@ our @ViewOptions = (
     ['Workspace + Categories', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Categories', 0, 50, 100, 50 ],
+            ]],
+    ['Workspace + CategoriesList', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ $ListCatViewer, 0, 50, 100, 50 ],
             ]],
     ['Workspace + Coderack', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
