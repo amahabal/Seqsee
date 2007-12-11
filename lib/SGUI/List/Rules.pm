@@ -25,13 +25,4 @@ sub DrawOneItem {
     return @item_ids;
 }
 
-sub Clear {
-    my ($self) = @_;
-    $self->{Canvas}->delete($self);
-}
-
-sub PrepareForDrawing {
-
-}
-
 1;

@@ -221,4 +221,13 @@ sub CreatePopupWidget {
     return $Toplevel;
 }
 
+sub Clear {
+    my ( $self ) = @_;
+    $self->{Canvas}->delete($self);
+}
+
+sub PrepareForDrawing {
+    
+}
+
 1;
