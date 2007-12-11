@@ -13,14 +13,12 @@ use Themes::Std2;
 use SGUI::Workspace;
 use SGUI::Workspace_Attention;
 use SGUI::Slipnet;
-use SGUI::Categories;
 use SGUI::Stream;
 use SGUI::Coderack;
 use SGUI::Rules;
 use SGUI::Relations;
-use SGUI::Groups;
-use SGUI::List;
 
+use SGUI::List;
 use SGUI::List::Groups;
 use SGUI::List::Categories;
 my $ListGroupsViewer = SGUI::List::Groups->new();
@@ -48,10 +46,6 @@ our @ViewOptions = (
             ]],
     ['Workspace + Categories', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
-        [ 'SGUI::Categories', 0, 50, 100, 50 ],
-            ]],
-    ['Workspace + CategoriesList', [
-        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ $ListCatViewer, 0, 50, 100, 50 ],
             ]],
     ['Workspace + Coderack', [
@@ -67,10 +61,6 @@ our @ViewOptions = (
         [ 'SGUI::Relations', 0, 50, 100, 50 ],
             ]],
     ['Workspace + Groups', [
-        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
-        [ 'SGUI::Groups', 0, 50, 100, 50 ],
-            ]],
-    ['Workspace + GroupsList', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ $ListGroupsViewer, 0, 50, 100, 50 ],
             ]],
