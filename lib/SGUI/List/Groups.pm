@@ -20,29 +20,31 @@ sub GetItemList {
 
 sub DrawOneItem {
     my ( $self, $Canvas, $left, $top, $group ) = @_;
-    $Canvas->createText(
-        $self->{EffectiveXOffset} + $self->{strength_x}, $top,
+    my @item_ids;
+    push @item_ids, $Canvas->createText(
+        $left + $self->{strength_x}, $top,
         -anchor => 'nw',
         -font   => $self->{Font},
         -text   => sprintf( "%5.2f", $group->get_strength() ),
-        -tags => [$self],
+        # -tags => [$self],
     );
-    $Canvas->createText(
-        $self->{EffectiveXOffset} + $self->{ends_x}, $top,
+    push @item_ids, $Canvas->createText(
+        $left + $self->{ends_x}, $top,
         -anchor => 'nw',
         -font   => $self->{Font},
         -text   => $group->get_bounds_string(),
-        -tags => [$self],
+        # -tags => [$self],
     );
 
     my $categories_string = $group->get_categories_as_string();
-    $Canvas->createText(
-        $self->{EffectiveXOffset} + $self->{categories_x}, $top,
+    push @item_ids, $Canvas->createText(
+        $left + $self->{categories_x}, $top,
         -anchor => 'nw',
         -font   => $self->{Font},
         -text   => $categories_string,
-        -tags => [$self],
+        # -tags => [$self],
     );
+    return @item_ids;
 }
 
 sub Clear {

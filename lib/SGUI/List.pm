@@ -24,8 +24,11 @@ sub DrawIt {
     my $top             = $self->{EffectiveYOffset};
     my $HeightPerRow    = $self->{HeightPerRow};
 
+    my $itemvivify_ref = $self->{ItemVivify} = {};
+
     my $counter = 0;
     for my $entry (@entries_to_draw) {
+        $itemvivify_ref->{$entry} = $entry;
         if ( not( $counter % 2 ) ) {
             my $id = $Canvas->createRectangle(
                 $left, $top,
@@ -33,11 +36,16 @@ sub DrawIt {
                 $top + $HeightPerRow,
                 -fill    => '#CCFFDD',
                 -outline => '',
-                -tags => [$self],
+                -tags    => [$self],
             );
             $Canvas->lower($id);
         }
-        $self->DrawOneItem( $Canvas, $left, $top, $entry );
+        my @item_ids = $self->DrawOneItem( $Canvas, $left, $top, $entry );
+        for (@item_ids) {
+            $Canvas->addtag( $self,                  withtag => $_ );
+            $Canvas->addtag( $entry,                 withtag => $_ );
+            $Canvas->addtag( "$self-Clickable-Item", withtag => $_ );
+        }
         $top += $HeightPerRow;
 
         $counter++;
@@ -51,16 +59,14 @@ sub DrawBookKeeping {
     my $entries_count = $self->{EntriesCount};
     my $string;
     if ($entries_count) {
-        $string = join('',
-                       'Page #',
-                       $self->{PageNumber} + 1,
-                       '. Entries ',
-                       $self->{EntriesShownFrom} + 1,
-                       '-',
-                       $self->{EntriesShownTo} + 1,
-                       " of $entries_count Shown."
-                           );
-    } else {
+        $string = join( '',
+            'Page #', $self->{PageNumber} + 1,
+            '. Entries ', $self->{EntriesShownFrom} + 1,
+            '-',
+            $self->{EntriesShownTo} + 1,
+            " of $entries_count Shown." );
+    }
+    else {
         $string = 'No entries to show.';
     }
 
@@ -130,6 +136,16 @@ sub Setup {
             $self->ReDrawIt();
         }
     );
+
+    $Canvas->bind(
+        "$self-Clickable-Item",
+        '<1>' => sub {
+            my @tags = $Canvas->gettags('current');
+            my ($useful_tag)
+                = grep { $_ ne 'current' and $_ ne $self and $_ ne "$self-Clickable-Item" } @tags;
+            $self->ProcessClickOnItem($self->{ItemVivify}{$useful_tag});
+        }
+    );
 }
 
 sub GetEntriesOnCurrentPage {
@@ -168,6 +184,11 @@ sub GetEntriesOnCurrentPage {
             = min( $entries_per_page * ( $page_number + 1 ) - 1, $entries_count - 1 );
         return @all_entries[ $self->{EntriesShownFrom} .. $self->{EntriesShownTo} ];
     }
+}
+
+sub ProcessClickOnItem {
+    my ( $package, $item ) = @_;
+    print "WILL PROCESS >>$item<<\n";
 }
 
 1;
