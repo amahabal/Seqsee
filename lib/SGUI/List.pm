@@ -29,17 +29,16 @@ sub DrawIt {
     my $counter = 0;
     for my $entry (@entries_to_draw) {
         $itemvivify_ref->{$entry} = $entry;
-        if ( not( $counter % 2 ) ) {
-            my $id = $Canvas->createRectangle(
-                $left, $top,
-                $left + $self->{EffectiveWidth},
-                $top + $HeightPerRow,
-                -fill    => '#CCFFDD',
-                -outline => '',
-                -tags    => [$self],
-            );
-            $Canvas->lower($id);
-        }
+        my $bar_color = ( $counter % 2 ) ? '#FFDDCC' : '#FFFFDD';
+        my $id = $Canvas->createRectangle(
+            $left, $top,
+            $left + $self->{EffectiveWidth},
+            $top + $HeightPerRow,
+            -fill    => $bar_color,
+            -outline => '',
+            -tags    => [ $self, $entry, "$self-Clickable-Item" ],
+        );
+        $Canvas->lower($id);
         my @item_ids = $self->DrawOneItem( $Canvas, $left, $top, $entry );
         for (@item_ids) {
             $Canvas->addtag( $self,                  withtag => $_ );
@@ -143,7 +142,7 @@ sub Setup {
             my @tags = $Canvas->gettags('current');
             my ($useful_tag)
                 = grep { $_ ne 'current' and $_ ne $self and $_ ne "$self-Clickable-Item" } @tags;
-            $self->ProcessClickOnItem($self->{ItemVivify}{$useful_tag});
+            $self->ProcessClickOnItem( $self->{ItemVivify}{$useful_tag} );
         }
     );
 }
@@ -187,8 +186,38 @@ sub GetEntriesOnCurrentPage {
 }
 
 sub ProcessClickOnItem {
-    my ( $package, $item ) = @_;
+    my ( $self, $item ) = @_;
+    my $popup = ( $self->{POPUP_WIDGET} ||= $self->CreatePopupWidget() );
     print "WILL PROCESS >>$item<<\n";
+    $self->{SelectedItem} = $item;
+    $popup->deiconify();
+    $Global::Break_Loop = 1;
+    $popup->waitVisibility();
+}
+
+sub CreatePopupWidget {
+    my ($self) = @_;
+    return $self->{POPUP_WIDGET} if $self->{POPUP_WIDGET};
+    my $Toplevel = $self->{Canvas}->Toplevel( -title => 'Actions for ' . ref($self) );
+    $Toplevel->protocol(
+        'WM_DELETE_WINDOW',
+        sub {
+            $Toplevel->withdraw;
+        }
+    );
+    while ( my ( $k, $v ) = each %{ $self->{ActionButtons} ||= {} } ) {
+        $Toplevel->Button(
+            -text    => $k,
+            -command => sub {
+                $v->( $self->{SelectedItem} );
+                Tk::Seqsee::Update();
+                $Toplevel->withdraw;
+            }
+        )->pack(-side=>'top');
+    }
+
+    $Toplevel->withdraw;
+    return $Toplevel;
 }
 
 1;

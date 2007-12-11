@@ -10,6 +10,13 @@ sub new {
                        Font => '-adobe-helvetica-bold-r-normal--9-140-100-100-p-105-iso8859-4',
                        HeightPerRow => 15,
                    }, $package;
+
+    $self->{ActionButtons} = {
+        Delete => sub  {
+            my ( $group ) = @_;
+            SWorkspace::__DeleteGroup($group);
+        }
+            };
     return $self;
 }
 
