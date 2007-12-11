@@ -21,7 +21,6 @@ my %RelationType_of : ATTR(:name<relation_type>);
         }
         ### require: $relation_type->isa("SRelnType");
         return ( $MEMO{$relation_type} ||= $package->new( { relation_type => $relation_type,
-                                                            to_recreate => 'confess',
                                                         } ) );
     }
 }

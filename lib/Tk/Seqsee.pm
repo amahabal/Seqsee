@@ -19,6 +19,10 @@ use SGUI::Coderack;
 use SGUI::Rules;
 use SGUI::Relations;
 use SGUI::Groups;
+use SGUI::List;
+use SGUI::List::Groups;
+
+my $ListGroupsViewer = SGUI::List::Groups->new();
 
 my $Canvas;
 my ( $Width, $Height );
@@ -59,6 +63,10 @@ our @ViewOptions = (
     ['Workspace + Groups', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Groups', 0, 50, 100, 50 ],
+            ]],
+    ['Workspace + GroupsList', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ $ListGroupsViewer, 0, 50, 100, 50 ],
             ]],
     ['Workspace + Stream', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
