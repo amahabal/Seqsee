@@ -15,15 +15,15 @@ use SGUI::Workspace_Attention;
 use SGUI::Slipnet;
 use SGUI::Stream;
 use SGUI::Coderack;
-use SGUI::Rules;
 use SGUI::Relations;
 
 use SGUI::List;
 use SGUI::List::Groups;
 use SGUI::List::Categories;
+use SGUI::List::Rules;
 my $ListGroupsViewer = SGUI::List::Groups->new();
 my $ListCatViewer = SGUI::List::Categories->new();
-
+my $ListRulesViewer = SGUI::List::Rules->new();
 my $Canvas;
 my ( $Width, $Height );
 Construct Tk::Widget 'Seqsee';
@@ -54,7 +54,7 @@ our @ViewOptions = (
             ]],
     ['Workspace + Rules', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
-        [ 'SGUI::Rules', 0, 50, 100, 50 ],
+        [ $ListRulesViewer, 0, 50, 100, 50 ],
             ]],
     ['Workspace + Relations', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],

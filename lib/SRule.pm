@@ -93,7 +93,7 @@ sub FindTypeOfFlippedRelation {
     };
 
     sub GetListOfSimpleRules {
-        return %MEMO;
+        return values(%MEMO);
     }
 }
 
@@ -112,7 +112,7 @@ sub FindTypeOfFlippedRelation {
     };
 
     sub GetListOfCompoundRules {
-        return %MEMO;
+        return values(%MEMO);
     }
 }
 
