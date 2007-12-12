@@ -659,6 +659,7 @@ RUN: {
 
 CodeletFamily AttemptGroupMerge( $a !, $b ! ) does {
 RUN: {
+        SWorkspace::__CheckLiveness($a, $b) or return;
         my @items = SWorkspace::__SortLtoRByLeftEdge(@$a, @$b);
         return if SWorkspace::__AreThereHolesOrOverlap(@items);
         my $new_group;

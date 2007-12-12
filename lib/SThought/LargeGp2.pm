@@ -59,6 +59,7 @@ RUN: {
 
 CodeletFamily InterlacedInitialBlemish( $count !, $group !, $cat ! ) does {
 RUN: {
+        return unless SWorkspace::__CheckLiveness($group);
         my @parts = @$group;
         Global::Hilit(1, @parts);
         main::message(
@@ -66,8 +67,8 @@ RUN: {
         );
         Global::ClearHilit();
         my @subparts = map {@$_} @parts;
-        SWorkspace->remove_gp($group);
-        SWorkspace->remove_gp($_) for @parts;
+        SWorkspace::__DeleteGroup($group);
+        SWorkspace::__DeleteGroup($_) for @parts;
         shift(@subparts);
         my @newparts;
         while ( @subparts > $count ) {
@@ -82,7 +83,7 @@ RUN: {
         }
         my $new_gp = SAnchored->create(@newparts);
         SWorkspace->add_group($new_gp);
-        SThought->create($new_gp)->schedule();
+        ContinueWith(SThought->create($new_gp));
     }
 }
 

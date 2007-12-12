@@ -1323,12 +1323,17 @@ sub FightUntoDeath {
         # Hah. $challenger a No contest winner.
         return 1;
     }
+
+    if ($incumbent->get_is_locked_against_deletion()) {
+        return 0; # Locked, so cannot be deleted.
+    }
+
     my (@strengths) = map { $_->get_strength() } ( $challenger, $incumbent );
     confess "Both strengths 0" unless $strengths[0] + $strengths[1];
     if ( SUtil::toss( $strengths[0] / ( $strengths[0] + 1.5 * $strengths[1] ) ) ) {
 
         # challenger won!
-        SWorkspace->remove_gp($incumbent);
+        __DeleteGroup($incumbent);
         return 1;
     }
     else {
@@ -1469,7 +1474,7 @@ sub DeleteObjectsInconsistentWith {
     for my $gp (@groups) {
         next unless __CheckLiveness($gp);
         my $is_consistent = $ruleapp->CheckConsitencyOfGroup($gp);
-        SWorkspace->remove_gp($gp) unless $is_consistent;
+        __DeleteGroup($gp) unless $is_consistent;
     }
 }
 

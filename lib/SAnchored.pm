@@ -21,6 +21,7 @@ multimethod 'apply_reln';
 
 my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);       # Left edge. 0 is leftmost.
 my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
+my %is_locked_against_deletion_of :ATTR(:get<is_locked_against_deletion> :set<is_locked_against_deletion>);
 
 use overload fallback => 1;
 
