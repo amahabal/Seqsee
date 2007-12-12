@@ -1,3 +1,5 @@
+use threads;
+use threads::shared;
 use strict;
 use Tk;
 use lib 'genlib';
@@ -26,8 +28,12 @@ GetOptions(
     "f=s",
 );
 
-my ( $times, $terms ) = @options{qw{times seq}};
-my @selected_feature_set = map {"-f=$_"} keys %Global::Feature;
+my $times : shared;
+my $terms : shared;
+
+( $times, $terms ) = @options{qw{times seq}};
+my @selected_feature_set : shared;
+@selected_feature_set = map {"-f=$_"} keys %Global::Feature;
 my $TIMES_TO_RUN = 10;
 
 my $MW = new MainWindow();
@@ -40,12 +46,17 @@ $Text->tagConfigure( 'nosuccess',         -background => 'yellow',  -foreground 
 
 $Text->insert( 'end', "Please wait...." );
 $Text->update();
-my @RESULTS;
-my @WALLCLOCK_TIME;
-my @EFFECTIVE_CODELET_RATE; # not *actual*, as contaminated by startup time.
+my @RESULTS : shared;
+my @WALLCLOCK_TIME : shared;
+my @EFFECTIVE_CODELET_RATE : shared;    # not *actual*, as contaminated by startup time.
 
-StartRun();
-
+threads->create('StartRun');
+$MW->repeat(
+    3000,
+    sub {
+        Update();
+    }
+);
 $MW->MainLoop();
 
 use Storable;
@@ -70,50 +81,58 @@ sub StartRun {
 
         open( my $RESULT, '<', "foo" ) or confess "Unable to open file >>foo<<";
         my $result_str = join( '', <$RESULT> );
-        my $result_object = Storable::thaw($result_str)
-            or confess "Unable to thaw: >>$result_str<<!!";
-        push @RESULTS, $result_object;
-        my $effective_codelet_rate = $result_object->get_steps() / $time_taken;
+        #my $result_object = Storable::thaw($result_str)
+        #    or confess "Unable to thaw: >>$result_str<<!!";
+        push @RESULTS, $result_str;
+        my $effective_codelet_rate = Storable::thaw($result_str)->get_steps() / $time_taken;
         push @EFFECTIVE_CODELET_RATE, $effective_codelet_rate;
-        Update();
+        print "RESULT ADDED\n";
     }
 }
 
+my $ResultCountAtLastUpdate = 0;
 sub Update {
     if (@RESULTS) {
+        return unless scalar(@RESULTS) > $ResultCountAtLastUpdate;
+        $ResultCountAtLastUpdate = scalar(@RESULTS);
+        my @RESULTS2 = map { Storable::thaw($_) } @RESULTS;
         $Text->delete( '0.0', 'end' );
-        my @top_row = map { find_tag( $_->get_status() ) } @RESULTS;
+        my @top_row = map { find_tag( $_->get_status() ) } @RESULTS2;
         $Text->insert( 'end', @top_row, scalar(@RESULTS), '', "/$TIMES_TO_RUN", '', "\n" );
 
-        $Text->insert('end', "Times in seconds:    ", '',
-                      (map { sprintf('%6.2f', $_), '', ' ', '' } @WALLCLOCK_TIME), "\n"
-                          );
-        $Text->insert('end', "Codelets per second: ", '',
-                      (map { sprintf('%6.2f', $_), '', ' ', '' } @EFFECTIVE_CODELET_RATE), "\n"
-                          );
-
+        $Text->insert( 'end', "Times in seconds:    ",
+            '', ( map { sprintf( '%6.2f', $_ ), '', ' ', '' } @WALLCLOCK_TIME ), "\n" );
+        $Text->insert( 'end', "Codelets per second: ",
+            '', ( map { sprintf( '%6.2f', $_ ), '', ' ', '' } @EFFECTIVE_CODELET_RATE ), "\n" );
+        $Text->insert( 'end', "Codelets run:        ",
+            '', ( map { sprintf( '%6d', $_->get_steps() ), '', ' ', '' } @RESULTS2 ), "\n" );
 
         my @times_when_successful
-            = map { $_->get_steps() } grep { $_->get_status()->IsSuccess } @RESULTS;
-        my $sucess_percent = sprintf( '%5.2f', 100 * scalar(@times_when_successful) / scalar(@RESULTS) );
-        if ($sucess_percent > 0) {
+            = map { $_->get_steps() } grep { $_->get_status()->IsSuccess } @RESULTS2;
+        my $sucess_percent
+            = sprintf( '%5.2f', 100 * scalar(@times_when_successful) / scalar(@RESULTS) );
+        if ( $sucess_percent > 0 ) {
             $Text->insert( 'end', "$sucess_percent% successful\n" );
-            $Text->insert('end', "Steps needed when correct: ", '', 
-                          join(', ', sort {$a <=> $b} @times_when_successful), '', "\n"
-                              );
+            $Text->insert(
+                'end', "Steps needed when correct: ",
+                '', join( ', ', sort { $a <=> $b } @times_when_successful ),
+                '', "\n"
+            );
             $Text->insert(
                 'end',
                 "\nMinimum steps: " . min(@times_when_successful),
                 '',
                 "\nMaximum steps: " . max(@times_when_successful),
                 '',
-                "\nAverage:       " . sprintf('%5.3f', sum(@times_when_successful) / scalar(@times_when_successful)),
-                '',
-                "\n"
+                "\nAverage:       "
+                    . sprintf(
+                    '%5.3f', sum(@times_when_successful) / scalar(@times_when_successful)
+                    ),
+                '', "\n"
             );
         }
 
-        for (@RESULTS) {
+        for (@RESULTS2) {
             $Text->insert( 'end', "\n............\n", '', find_tag( $_->get_status() ),
                 "\t", '', $_->get_steps(), '', "\n\n" );
             $Text->insert( 'end', $_->get_error() ) if $_->get_error();
