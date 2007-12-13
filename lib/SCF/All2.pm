@@ -354,7 +354,7 @@ INITIAL: {
         multimethod 'SanityCheck';
     }
 RUN: {
-
+        SWorkspace::__CheckLiveness($object) or return;
         #main::message("Starting SCF::AttemptExtensionOfGroup");
         my $underlying_reln = $object->get_underlying_reln();
         unless ( SWorkspace::__CheckLiveness($object) ) {

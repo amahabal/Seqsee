@@ -58,6 +58,11 @@ multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     return apply_reln( $_[0]->get_type(), $_[1] );
 };
 
+multimethod apply_reln => qw(SReln::Simple SAnchored) => sub  {
+    return;
+};
+
+
 multimethod find_reln => ( '$', '$' ) => sub {
     my ( $n1, $n2 ) = @_;
     print "Should Never reach here; If it does, it means that find_reln was called with funny",
