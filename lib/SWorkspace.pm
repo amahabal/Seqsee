@@ -1405,7 +1405,7 @@ sub GetSomethingLike {
         SCoderack->add_codelet(
             SCodelet->new(
                 'TryToSquint',
-                50,
+                10,
                 {   actual   => $_,
                     intended => $object,
                 }

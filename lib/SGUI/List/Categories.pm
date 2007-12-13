@@ -26,6 +26,14 @@ sub new {
             for my $gp (SWorkspace::GetGroups()) {
                 SWorkspace::__DeleteGroup($gp) unless $Keep{$gp};
             }
+        },
+        AddBarlinesBefore => sub  {
+            my ( $category ) = @_;
+            SWorkspace::__ClearBarLines();
+            for my $gp (SWorkspace::GetGroups()) {
+                next unless $gp->is_of_category_p($category);
+                SWorkspace::__AddBarLines($gp->get_left_edge);
+            }
         }
             };
     return $self;

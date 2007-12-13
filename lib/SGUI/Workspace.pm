@@ -202,7 +202,7 @@ ExtraStuff: {
 
             for my $index (@barlines) {
                 my $xpos = $Margin + $index * $SpacePerElement;
-                $Canvas->createLine( $xpos, $BarlineTop, $xpos, $BarlineBottom );
+                $Canvas->createLine( $xpos, $BarlineTop, $xpos, $BarlineBottom, -width => 3 );
             }
         }
 

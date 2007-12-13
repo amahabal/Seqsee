@@ -9,6 +9,9 @@ use List::Util qw{min max sum};
 use Time::HiRes qw{time};
 
 use Getopt::Long;
+
+my $StartTime = time();
+
 my %options = (
     f => sub {
         my ( $ignored, $feature_name ) = @_;
@@ -52,7 +55,7 @@ my @EFFECTIVE_CODELET_RATE : shared;    # not *actual*, as contaminated by start
 
 threads->create('StartRun');
 $MW->repeat(
-    3000,
+    1000,
     sub {
         Update();
     }
@@ -92,6 +95,8 @@ sub StartRun {
 
 my $ResultCountAtLastUpdate = 0;
 sub Update {
+    my $elapsed_time = time() - $StartTime;
+    $MW->configure(-title => 'Multiple Seqsee Runs. Time elapsed: '. sprintf('%4d', $elapsed_time) . ' seconds');
     if (@RESULTS) {
         return unless scalar(@RESULTS) > $ResultCountAtLastUpdate;
         $ResultCountAtLastUpdate = scalar(@RESULTS);
