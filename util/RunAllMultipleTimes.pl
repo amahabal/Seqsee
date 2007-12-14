@@ -28,16 +28,18 @@ GetOptions(
     "seq=s",
     "view=i",    # ignored
     "times=i",
+    "steps=i",
     "f=s",
 );
 
 my $times : shared;
+my $MaxSteps : shared;
 
 ($times) = @options{qw{times}};
 my @selected_feature_set : shared;
 @selected_feature_set = map {"-f=$_"} keys %Global::Feature;
 my $TIMES_TO_RUN = ( $times ||= 10 );
-
+$MaxSteps = $options{steps} || 10000;
 my $SequencesRunSoFar : shared;
 my $TotalSequences : shared;
 $SequencesRunSoFar = 0;
@@ -91,7 +93,7 @@ sub StartRun {
         my @cmd = (
             'c:\perl\bin\perl',   'util/RunTestOnce.pl',
             qq{--seq="$seq"},     qq{--continuation="$continuation"},
-            qq{-max_steps=10000}, qq{--min_extension=3},
+            qq{-max_steps=$MaxSteps}, qq{--min_extension=3},
             qq{--max_false=3},    @selected_feature_set,
         );
 

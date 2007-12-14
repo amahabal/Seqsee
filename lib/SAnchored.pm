@@ -265,6 +265,7 @@ sub Update {
         eval { $self->set_underlying_reln( $underlying_reln->get_rule() ) };
         if ($EVAL_ERROR) {
             SWorkspace->remove_gp($self);
+            return;
         }
     }
 
