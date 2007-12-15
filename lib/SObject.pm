@@ -38,14 +38,6 @@ my %reln_other_of : ATTR();
 #    is the group based on some relation? undef if not, the relation otherwise
 my %underlying_reln_of : ATTR( :get<underlying_reln>);
 
-#
-# subsection: Construction
-
-# method: BUILD
-#  Builds.
-#
-#    opts_ref only takes items and group_p
-
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     die "Need group_p" unless exists $opts_ref->{group_p};
@@ -69,16 +61,6 @@ sub BUILD {
 #    * An array ref, each of whose elements is like those described here.
 #
 #    If there is a single argument that is an array ref, the "square brackets are removed".
-#
-#    usage:
-#     SObject->create(...)
-#
-#    parameter list:
-#
-#    return value:
-#      An SObject
-#
-#    possible exceptions:
 
 sub create {
     my $package = shift;
@@ -135,8 +117,6 @@ sub create {
 
 # method: CreateObjectFromStructure
 # creates the object, or just returns int
-#
-# clearly just a helper
 
 sub CreateObjectFromStructure {
     my $object = shift;
@@ -209,9 +189,6 @@ sub QuickCreate {
     return $object;
 }
 
-#
-# SubSection: Annotation
-
 # method: annotate_with_cat
 # Annotattes object as belonging to category
 #
@@ -244,34 +221,6 @@ sub annotate_with_cat {
 #    In fact, it does a add_non_cat in that situation.
 
 *SObject::maybe_annotate_with_cat = *SObject::describe_as;
-
-# method: AnnotateWithMetonym
-# Adds a metonym from the given category to the object
-#
-#    Dies if metonym application not possible.
-#
-#    usage:
-#     $object->AnnotateWithMetonym( $cat, $name )
-#
-#    parameter list:
-#        $self - The object
-#        $cat - category
-#        $name - name of metonymy
-#
-#    return value:
-#      none
-#
-#    possible exceptions:
-#        SErr::MetonymNotAppicable
-
-
-# method: MaybeAnnotateWithMetonym
-#  same as AnnotateWithMetonym, except does not die
-
-
-#
-# SubSection: Structure related methods
-#
 
 # method: get_structure
 # returns the structure, a deep array of integers
@@ -311,13 +260,6 @@ sub get_parts_count {
     my $id = ident shift;
     return scalar( @{ $items_of{$id} } );
 }
-
-# method: get_parts_ref
-# returns a ref of the parts.
-#
-#    Don't mess with the parts, though!
-#
-#    Defined with items above
 
 # method: arrayify
 # Get the numbered part, 0  indexed
@@ -427,13 +369,6 @@ sub TellDirectedStory{
     $bindings->TellDirectedStory($self, $position_mode);
 }
 
-
-#
-# subsection: Positions and ranges
-#
-# Methods dealing with positions
-#
-#
 
 # method: get_subobj_given_range
 #  Get the subobject
@@ -602,21 +537,6 @@ sub redescribe_as {
 
 }
 
-#
-# subsection: relation management
-
-# method: _get_other_end_of_reln
-#
-#
-
-# method: AddRelation
-#
-#
-
-# method: RemoveRelation
-#
-#
-
 # XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
 sub set_underlying_reln : CUMULATIVE {
     my ( $self, $reln ) = @_;
@@ -721,19 +641,6 @@ sub get_pure {
     my ($self) = @_;
     return SLTM::Platonic->create( $self->get_structure_string() );
 }
-
-# Cannot be retrieved after being dumped. Main function for being in memory is to pass around
-# activation.
-# Probably unneeded.
-# sub as_dump{
-#     my ( $self ) = @_;
-#     confess "Should never be in memory: so why am I dumping this?";
-# }
-
-# sub as_text{
-#     my ( $self ) = @_;
-#     return q{<object>};
-# }
 
 sub HasAsItem{
     my ( $self, $item ) = @_;
