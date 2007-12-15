@@ -48,10 +48,12 @@ RUN: {
             SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
             $new_group = SAnchored->create(@unstarred_items);
             if ($new_group) {
-                $new_group->set_underlying_reln($reln);
-
-                # next line commented on 07/1/06. Do I need reln_based?
-                #return unless $new_group->describe_as($S::RELN_BASED);
+                TRY { $new_group->set_underlying_reln($reln); }
+                    CATCH {
+                      UnderlyingRelnUnapplicable: {
+                            return;
+                        }
+                    }
                 SWorkspace->add_group($new_group);
             }
 

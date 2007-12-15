@@ -558,7 +558,7 @@ sub set_underlying_reln : CUMULATIVE {
             $msg_string .= "\n" . $reln->as_text();
             $msg_string .= "The objects effective structure was: "
                 . $self->GetEffectiveStructureString();
-            confess "unable to apply underlying relation! $msg_string";
+            SErr::UnderlyingRelnUnapplicable->throw("unable to apply underlying relation! $msg_string");
         }
 
     } else {

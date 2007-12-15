@@ -87,7 +87,8 @@ sub __CheckLivenessAndDiagnose {
         next if exists( $Objects{$object} );
 
         # So a dead object!
-        $msg .= "NON_LIVE OBJECT!\n";
+        $msg .= "NON_LIVE OBJECT: >>" . $object->as_text() . "<<\n";
+        
         if ( not( defined $object ) ) {
             $msg .= "In fact, IT IS UNDEF!!\n";
         }
@@ -1405,7 +1406,7 @@ sub GetSomethingLike {
         SCoderack->add_codelet(
             SCodelet->new(
                 'TryToSquint',
-                10,
+                200,
                 {   actual   => $_,
                     intended => $object,
                 }
