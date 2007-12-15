@@ -304,39 +304,6 @@ multimethod apply_reln => qw(SReln::Compound SObject) => sub {
     return apply_reln( $reln->get_type(), $object );
 };
 
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    my $id = ident $self;
-
-    if ( $verbosity == 0 ) {
-        return new SInsertList( "SReln::Compound", "heading", "\n" );
-    }
-
-    if ( $verbosity == 1 ) {
-        my $list = $self->as_insertlist(0);
-        $list->append( "first: ", "first_second", "\n" );
-        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
-
-        $list->append( "Second: ", "first_second", "\n" );
-        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
-        $list->append("\n");
-        return $list;
-    }
-
-    if ( $verbosity == 2 ) {
-        my $list = $self->as_insertlist(0);
-        $list->append( "Type: ", "first_second", "\n" );
-        $list->concat( $type_of{$id}->as_insertlist(1)->indent(1) );
-        $list->append( "History: ", 'heading', "\n" );
-        for ( @{ $self->get_history } ) {
-            $list->append("$_\n");
-        }
-        return $list;
-    }
-
-    confess "Verbosity $verbosity not implemented for " . ref $self;
-}
-
 multimethod are_relns_compatible => qw(SReln SReln) => sub {
     return;    #we are here if one is simple, the other compound.
 };

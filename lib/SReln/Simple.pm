@@ -118,52 +118,6 @@ sub suggest_cat_for_ends{
     return;
 }
 
-
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    my $id = ident $self;
-
-    if ( $verbosity == 0 ) {
-        return new SInsertList( $self->as_text() );
-    }
-
-    if ( $verbosity == 1 ) {
-        my $list = new SInsertList;
-        $list->append( $self->as_text(), "heading", "\n" );
-        $list->append( "first: ", "first_second", "\n" );
-        ## $list
-        ## $first_of{$id}->as_insertlist(0)
-        ## $first_of{$id}->as_insertlist(0)->indent(1)
-
-        $list->concat( $first_of{$id}->as_insertlist(0)->indent(1) );
-
-        $list->append( "Second: ", "first_second", "\n" );
-        $list->concat( $second_of{$id}->as_insertlist(0)->indent(1) );
-        $list->append("\n");
-        return $list;
-    }
-
-    if ( $verbosity == 2 ) {
-        my $list = new SInsertList;
-        $list->append( $self->as_text(), "heading", "\n" );
-        $list->append( "first: ", "first_second", "\n" );
-        $list->concat( $first_of{$id}->as_insertlist(1)->indent(1) );
-
-        $list->append( "Second: ", "first_second", "\n" );
-        $list->concat( $second_of{$id}->as_insertlist(1)->indent(1) );
-        $list->append("\n");
-
-        $list->append( "History: ", 'heading', "\n" );
-        for ( @{ $self->get_history } ) {
-            $list->append("$_\n");
-        }
-
-        return $list;
-    }
-
-    confess "Verbosity $verbosity not implemented for " . ref $self;
-}
-
 sub UpdateStrength {
     my ($self) = @_;
     my $strength = 20 * SLTM::GetRealActivationsForOneConcept($self->get_type);

@@ -166,24 +166,6 @@ sub get_blemish_cats {
     return \%ret;
 }
 
-sub categories_as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    my $id = ident $self;
-
-    my $list = new SInsertList;
-
-    $list->append( "Categories: ", "heading2", "\n" );
-    while ( my ( $c, $bindings ) = each %{ $cats_of_of{$id} } ) {
-        my $cat = $S::Str2Cat{$c};
-        $list->concat( $cat->as_insertlist(0)->indent(1) );
-        if ( $verbosity > 0 ) {
-            $list->concat( $bindings->as_insertlist($verbosity)->indent(2) );
-        }
-    }
-
-    return $list;
-}
-
 sub HasNonAdHocCategory {
     my ( $item ) = @_;
     for (keys %{$cats_of_of{ident $item}}) {

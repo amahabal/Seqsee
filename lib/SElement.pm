@@ -56,26 +56,6 @@ sub as_text {
     return join( "", ( ref $self ), ":[$l,$r] $mag" );
 }
 
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    my $id = ident $self;
-    my ( $l, $r ) = $self->get_edges;
-    my $mag = $self->get_mag;
-
-    if ( $verbosity == 0 ) {
-        return new SInsertList( "[$l, $r] ", "range", $mag, "structure", "\n" );
-    }
-
-    if ( $verbosity == 1 or $verbosity == 2 ) {
-        my $list = $self->as_insertlist(0);
-        $list->concat( $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
-        return $list;
-    }
-
-    die "Verbosity $verbosity not implemented for " . ref $self;
-
-}
-
 my $POS_FIRST = SPos->new(1);
 my $POS_LAST  = SPos->new(-1);
 

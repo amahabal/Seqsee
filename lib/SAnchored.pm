@@ -126,44 +126,6 @@ sub as_text {
     return "SAnchored $bounds_string $structure_string";
 }
 
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    my $id = ident $self;
-    my ( $l, $r ) = $self->get_edges;
-
-    if ( $verbosity == 0 ) {
-        return new SInsertList( "SAnchored", "heading", "[$l, $r] ", "range", "\n" );
-    }
-
-    if ( $verbosity == 1 or $verbosity == 2 ) {
-        my $list = $self->as_insertlist(0);
-        $list->concat( $self->categories_as_insertlist( $verbosity - 1 )->indent(1) );
-        $list->append( "Extendibility: ",    'heading' );
-        $list->append( "Direction: ",        'heading', $self->get_direction->as_text, "", "\n" );
-        $list->append( "Meto activeness: ",  'heading', $self->get_metonym_activeness(), "", "\n" );
-        $list->append( "Self:             ", 'heading', $self, '', "\n" );
-        $list->append( "Effective object: ", 'heading', $self->GetEffectiveObject(), '', "\n" );
-        $list->append( "Flattened: ", 'heading', join( ", ", @{ $self->get_flattened() } ),
-            '', "\n" );
-        $list->append( "Items: ", 'heading', join( ", ", @{ $self->get_parts_ref } ), '', "\n" );
-        $list->append( "Fringe: ", 'heading', "\n" );
-
-        for ( @{ SThought->create($self)->get_fringe } ) {
-            my ( $t, $v ) = @$_;
-            $list->append("\t$v\t$t\n");
-        }
-
-        $list->append( "History: ", 'heading', "\n" );
-        for ( @{ $self->get_history } ) {
-            $list->append("$_\n");
-        }
-        return $list;
-    }
-
-    confess "Verbosity $verbosity not implemented for " . ref $self;
-
-}
-
 sub get_next_pos_in_dir {
     my ( $self, $direction ) = @_;
     my $id = ident $self;

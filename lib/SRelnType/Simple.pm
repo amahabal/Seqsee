@@ -94,13 +94,6 @@ multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
     return $ret;
 };
 
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    my $id = ident $self;
-
-    return new SInsertList( $string_of{$id} );
-}
-
 # method: suggest_cat
 # suggests a cat type based on reln
 #

@@ -115,11 +115,6 @@ sub as_text {
     return $self->{text};
 }
 
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    return new SInsertList( $self->{text}, '' );
-}
-
 package POS_MODE;
 our $FORWARD  = bless { mode => 'FORWARD' },  'POS_MODE';
 our $BACKWARD = bless { mode => 'BACKWARD' }, 'POS_MODE';
@@ -130,11 +125,6 @@ sub BACKWARD {$BACKWARD}
 sub as_text {
     my ($self) = @_;
     return $self->{mode};
-}
-
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    return new SInsertList( $self->{mode}, '' );
 }
 
 sub get_memory_dependencies { return; }
@@ -168,11 +158,6 @@ sub OTHER     {$OTHER}
 sub as_text {
     my ($self) = @_;
     return $self->{mode};
-}
-
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    return new SInsertList( $self->{mode}, '' );
 }
 
 sub is_position_relevant {
@@ -215,11 +200,6 @@ our $UNKNOWN = bless { mode => 'UNKNOWN' }, 'EXTENDIBILE';
 sub NO      {$NO}
 sub PERHAPS {$PERHAPS}
 sub UNKNOWN {$UNKNOWN}
-
-sub as_insertlist {
-    my ( $self, $verbosity ) = @_;
-    return new SInsertList( $self->{mode}, '' );
-}
 
 use overload (
     q{bool} => sub {

@@ -3,7 +3,7 @@
 #    Package: SAction
 #
 #####################################################
-#Codelets that run "immediately"
+# Codelets that run "immediately"
 #
 #Actions are really like codelets---in fact, they share almost all the code
 #---except they never see the coderack. These are actions that get taken
