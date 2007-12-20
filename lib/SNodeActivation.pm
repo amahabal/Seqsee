@@ -8,7 +8,7 @@ use constant RAW_ACTIVATION   => 0;
 use constant DEPTH_RECIPROCAL => 1;
 use constant REAL_ACTIVATION  => 2;
 
-my @PRECALCULATED = @SActivation::PRECALCULATED;
+my @PRECALCULATED = @SLinkActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
 
 use constant Initial_Raw_Activation   => 2;

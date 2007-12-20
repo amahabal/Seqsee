@@ -15,12 +15,12 @@ use constant {
     LTM_TYPE_COUNT     => 3,    #
 };
 
-our @PRECALCULATED = @SActivation::PRECALCULATED;
+our @PRECALCULATED = @SLinkActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
 
 our %MEMORY;                    # Just has the index into @MEMORY.
 our @MEMORY;                    # Is 1-based, so that I can say $MEMORY{$x} || ...
-our @ACTIVATIONS;               # Also 1-based, an array of SActivation objects.
+our @ACTIVATIONS;               # Also 1-based, an array of SLinkActivation objects.
 our @LINKS;                     # List of all links, for decay purposes.
 our @OUT_LINKS;                 # Also 1-based; Outgoing links from given node.
 our $NodeCount;                 # Number of nodes.
@@ -206,10 +206,10 @@ sub Dump {
         for my $type ( 1 .. LTM_TYPE_COUNT ) {
             my $links_of_this_type = $links_ref->[$type];
             while ( my ( $to_node, $link ) = each %$links_of_this_type ) {
-                my $modifier_index = $link->[SActivation::MODIFIER_NODE_INDEX] || 0;
+                my $modifier_index = $link->[SLinkActivation::MODIFIER_NODE_INDEX] || 0;
                 my ( $significance, $stability ) = (
-                    $link->[SActivation::RAW_SIGNIFICANCE],
-                    $link->[SActivation::STABILITY_RECIPROCAL]
+                    $link->[SLinkActivation::RAW_SIGNIFICANCE],
+                    $link->[SLinkActivation::STABILITY_RECIPROCAL]
                 );
                 print {$filehandle} sprintf( "%4s %4s %2s %4s %7.4f %7.5f\n",
                     $from_node, $to_node, $type, $modifier_index, $significance, $stability );
@@ -253,8 +253,8 @@ sub Load {
         next if m#^$#;
         my ( $from, $to, $type, $modifier_index, $significance, $stability ) = split( /\s+/, $_ );
         my $activation = __InsertLinkUnlessPresent( $from, $to, $modifier_index, $type );
-        $activation->[ SActivation::RAW_SIGNIFICANCE() ]     = $significance;
-        $activation->[ SActivation::STABILITY_RECIPROCAL() ] = $stability;
+        $activation->[ SLinkActivation::RAW_SIGNIFICANCE() ]     = $significance;
+        $activation->[ SLinkActivation::STABILITY_RECIPROCAL() ] = $stability;
     }
 
     ## links: $links
@@ -314,8 +314,8 @@ sub SetSignificanceAndStabilityForIndex {
     # The / 5 in next line: too many concepts end up hyperactive o/w. This limits their
     # influence at load time, yet biases a little bit towards faster activation.
     # Also, now stability rises only if *for several problems* significance is high.
-    $activation_object->[SActivation::RAW_SIGNIFICANCE]     = int( $significance / 5 );
-    $activation_object->[SActivation::STABILITY_RECIPROCAL] = $stability;
+    $activation_object->[SLinkActivation::RAW_SIGNIFICANCE]     = int( $significance / 5 );
+    $activation_object->[SLinkActivation::STABILITY_RECIPROCAL] = $stability;
 }
 
 sub SetDepthReciprocalForIndex {
@@ -325,7 +325,7 @@ sub SetDepthReciprocalForIndex {
 
 sub SetRawActivationForIndex {
     my ( $index, $activation ) = @_;
-    $ACTIVATIONS[$index]->[SActivation::RAW_ACTIVATION] = $activation;
+    $ACTIVATIONS[$index]->[SLinkActivation::RAW_ACTIVATION] = $activation;
 }
 
 sub SpikeBy {
@@ -346,7 +346,7 @@ my $DecayString = qq{
     sub {
         SNodeActivation::DecayManyTimes(1, \@ACTIVATIONS);
         for ( \@LINKS ) {
-            $SActivation::DECAY_CODE;
+            $SLinkActivation::DECAY_CODE;
         }
     }
 };
@@ -423,7 +423,7 @@ sub FindActiveFollowers {
     my $node_id = GetMemoryIndex($node);
     my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
     return @MEMORY[
-        grep { $ACTIVATIONS[$_][ SActivation::REAL_ACTIVATION() ] > $cutoff }
+        grep { $ACTIVATIONS[$_][ SLinkActivation::REAL_ACTIVATION() ] > $cutoff }
         keys %$follows_links_ref
     ];
 }

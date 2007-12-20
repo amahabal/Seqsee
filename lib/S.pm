@@ -51,7 +51,7 @@ use SCF::Load;
 use SThought::Load;
 use Scripts::Load;
 
-use SActivation;
+use SLinkActivation;
 use SNodeActivation;
 use SLTM;
 
