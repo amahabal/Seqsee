@@ -8,7 +8,6 @@
 ;(load "startup")
 
 (load "cperl-mode")
-(load "cperl-mode.el.4.32")
 (load "seq.el")
 ;(load "cperl6-mode.el")
 (seq-change-to-dir)
@@ -56,12 +55,13 @@
 (global-set-key [f12] 'seq-search-codebase)
 
 (setq auto-mode-alist
-      (append '(("\\.pm"  . perl-mode)
+      (append '(("\\.pm"  . cperl-mode)
+                ("\\.pl"  . cperl-mode)
 		("\\.ph"  . perl-mode)
 		("\\.pod" . perl-mode)
 		("\\.nw"  . perl-mode)
-		("\\.p6$"  . cperl6-mode)
-		("\\.t$"   . perl-mode) 
+		;("\\.p6$"  . cperl6-mode)
+		("\\.t$"   . cperl-mode) 
 		)
 	      auto-mode-alist))
 
@@ -127,13 +127,6 @@
 	  '(lambda () (progn (font-lock-mode)
 			     (outline-minor-mode)
 			     )))
-
-(setq TeX-outline-extra
-      '(("[ \t]*\\\\\\(bib\\)?item\\b" 7)
-	("\\\\bibliography\\b" 2)))
-
-;(set-frame-font "-b&h-lucida sans typewriter-medium-r-normal-sans-18-180-72-72-m-110-iso8859-1")
-
 
 ;(perl-mode)
 (define-key cperl-mode-map "\C-a\C-t" 'seq-test-start)

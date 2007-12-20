@@ -94,6 +94,9 @@ multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
     return $ret;
 };
 
+multimethod apply_reln => qw(SRelnType::Simple SAnchored) => sub {
+    return;
+};
 # method: suggest_cat
 # suggests a cat type based on reln
 #
