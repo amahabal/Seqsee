@@ -18,20 +18,17 @@ use Smart::Comments;
 use List::Util qw(min);
 use UNIVERSAL::require;
 use Sub::Installer;
-use IO::Prompt 0.99.4;
 use English qw(-no_match_vars );
 
-use Perl6::Form;
 use Sort::Key;
 use Memoize;
 use Exception::Class;
 use Class::Multimethods;
-use Log::Log4perl;
-use Log::Log4perl::Layout::PatternLayout;
+
 use PerlIO;
 use File::Slurp;
 use Tk::ROText;
-use attributes;
+
 
 use Tk;
 use SGUI;
@@ -99,15 +96,7 @@ sub INITIALIZE {
 #      Goes into an infinite loop: what loop depends upon whether there is interaction, whether or not we are running Tk
 
 sub GET_GOING {
-
-# This should be the last "setup" function: the real work begins here. Don't expect this to ever return.
-    my $interactive = $OPTIONS_ref->{interactive};
-    if ($interactive) {
-        MainLoop();
-    }
-    else {
-        Interaction_continue();
-    }
+    MainLoop();
 }
 
 # method: Interaction_continue
