@@ -54,21 +54,5 @@ sub conditionally_run {
     $code->( $self, $args_of_of{$id} );
 }
 
-# method: generate_log_msg
-# Called from individual code families only if this will get logged, returns a string that can be logged.
-#
-sub generate_log_msg {
-    my ($self) = @_;
-    my $id     = ident $self;
-    my $family = $family_of{$id};
-
-    my $ret = join( "", "\n=== $Global::Steps_Finished ", "=" x 10, "  ACTION $family\n" );
-    while ( my ( $k, $v ) = each %{ $args_of_of{$id} } ) {
-        my $val = ( blessed $v) ? $v->as_text() : $v;
-        $ret .= "== $k \t--> $val\n";
-    }
-    return $ret;
-}
-
 1;
 
