@@ -113,9 +113,9 @@
 	
 (abbrev-mode 1)
 (load "remote1")
-(load "menu")
+(load "menu2")
 
-(define-key global-map [mouse-3] 'show-menu)
+;(define-key global-map [mouse-3] 'show-menu)
 (x-set-selection 'PRIMARY "")
 ; (load "lng.el")
 
