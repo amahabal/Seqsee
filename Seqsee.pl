@@ -32,6 +32,7 @@ use Tk::ROText;
 
 use Tk;
 use SGUI;
+use UI::Graphical;
 
 # variable: $OPTIONS_ref
 #    final configuration hash
@@ -151,82 +152,17 @@ sub Interaction_crawl {
 sub init_display {
     SGUI::setup($OPTIONS_ref);
     SGUI::Update();
-    my $update_display_sub = sub { SGUI::Update(); };
-    my $default_error_handler = sub {
-        my ($err) = @_;
-        $Tk::Carp::MainWindow = $SGUI::MW;
-        my $msg = UNIVERSAL::isa( $err, 'Exception::Class' ) ? $err->as_string() : $err;
-        if ( $msg !~ m#\S# ) {
-            $msg .= "<EMPTY MESSAGE>";
-            confess $msg;
-        }
-        if ( $msg eq "_TK_EXIT_(0)\n" ) {
-            return;
-        }
-        tkdie( "tkdie notes: '" . $msg . q{'} );
-    };
-    my $msg_displayer = sub {
-        my ( $msg, $no_break ) = @_;
-        my $btn = $SGUI::MW->messageBox( -message => $msg, -type => "OkCancel" );
-        ## $btn
-        $Global::Break_Loop = 1 unless $no_break;
-    };
-    my $commentary_displayer = sub {
-        my ( $msg, $no_break ) = @_;
-        print "MSG=$msg\n";
-        if ($no_break) {
-            my @msg = ( ref($msg) eq 'ARRAY' ) ? @$msg : ("$msg\n");
-            $SGUI::Commentary->MessageRequiringNoResponse(@msg);
-        }
-        else {
-            my @msg = ref($msg) eq 'ARRAY' ? @$msg : ($msg);
-            $SGUI::Commentary->MessageRequiringAResponse( ['continue'], @msg );
-        }
-    };
+    my $update_display_sub = sub { };
+  
     my $commentary_displayer_debug = $Global::Feature{debug}
         ? sub {
         my ( $msg, $no_break, $add_newline ) = @_;
         my $newline = $add_newline ? "\n" : '';
-        $commentary_displayer->( [ "[DEBUG: $msg]$newline", ['debug'] ], $no_break );
+        message( [ "[DEBUG: $msg]$newline", ['debug'] ], $no_break );
         }
         : sub { };
-
-    my $ask_user_extension_displayer = sub {
-        my ( $arr_ref, $msg_suffix ) = @_;
-
-        return if Seqsee::already_rejected_by_user($arr_ref);
-
-        my $cnt = scalar(@$arr_ref);
-        my $msg =
-            ( $cnt == 1 )
-            ? "Is the next term @$arr_ref?"
-            : "Are the next terms: @$arr_ref?";
-
-        my $ok =
-              $Global::Feature{debug}
-            ? $SGUI::Commentary->MessageRequiringBooleanResponse( $msg, '', $msg_suffix, ['debug'] )
-            : $SGUI::Commentary->MessageRequiringBooleanResponse($msg);
-        if ($ok) {
-            $Global::AtLeastOneUserVerification = 1;
-        }
-        return $ok;
-    };
-
-    "main"->install_sub( { update_display => $update_display_sub } );
-
-    "main"->install_sub( { default_error_handler => $default_error_handler } );
-    "main"->install_sub( { pop_message           => $msg_displayer } );
-    "main"->install_sub( { message               => $commentary_displayer } );
+   
+   
     "main"->install_sub( { debug_message         => $commentary_displayer_debug } );
-    "main"->install_sub( { ask_user_extension    => $ask_user_extension_displayer } );
-    "main"->install_sub(
-        {   ask_for_more_terms => sub {
-                my $window = SGUI::ask_for_more_terms();
-
-                # main::message("Got $window");
-                $window->waitWindow();
-                }
-        }
-    );
-
+   
 }
