@@ -57,7 +57,7 @@ CodeBlock: <perl_codeblock {}>
              chop($ret);
              $return = $ret; }
 CodeBlockUnstripped: <perl_codeblock {}> { $return = $item[1]}
-ProcessAnything: /.*?(?=$arg[0])/s <matchrule: $arg[1]> { $return = [1,join('', $item[1], $item[2], $text)]}
+ProcessAnything: /.*?(?=$arg[0])/s <commit> (<matchrule: $arg[1]>|<error: Saw a $arg[0], but did not then see a $arg[1]! I was looking at $text>) { $return = [1,join('', $item[1], $item[3], $text)]}
                 |{$return = [0, $text]}
 };
 

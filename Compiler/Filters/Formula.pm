@@ -8,17 +8,11 @@ use Smart::Comments;
 use Compiler::Filter;
 use Carp;
 
-my %arglist_of :ATTR(:get<arglist>);
-my %body_of :ATTR(:get<body>);
+my %arglist_of :ATTR(:name<arglist>);
+my %body_of :ATTR(:name<body>);
+my %name_of :ATTR(:name<name>);
 
 our %LIST;
-
-sub BUILD{
-    my ( $package, $id, $opts_ref ) = @_;
-    $arglist_of{$id} = $opts_ref->{arglist};
-    $body_of{$id} = $opts_ref->{body};
-}
-
 
 sub GenerateInsertText{
     my ( $self, $opts_ref ) = @_;
@@ -28,13 +22,15 @@ sub GenerateInsertText{
     ## arglist: $arglist_of{$id}
 
     my $body = $body_of{$id};
+    my $name = $name_of{$id};
     my %replacement;
     for my $arg (@{$arglist_of{$id}}) {
         ## arg: $arg
         my ($var, $sigil) = ($arg->{var}, $arg->{sigil});
         ## var, sigil: $var, $sigil
         if ($arg->{required}) {
-            exists $opts_ref->{$var} or die "Required argument $var missing!";
+            exists $opts_ref->{$var} 
+                or die "Cannot proceed with expanding formula $name: required argument $var missing!";
             $replacement{$sigil.$var} = $opts_ref->{$var};
         } else {
             if (exists $opts_ref->{$var}) {
@@ -66,7 +62,7 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
 
         #print "NAB=$name~~$arglist~~>>$body<<\n";
         $Compiler::Filters::Formula::LIST{$name}
-            = new Compiler::Filters::Formula( { arglist => $arglist, body => $body } );
+            = new Compiler::Filters::Formula( { name => $name, arglist => $arglist, body => $body } );
         $return = 1;
     }
 
@@ -74,8 +70,9 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
 
 my $Grammar_For_Formula = q{
 FormulaVar: Identifier '=>' PerlVar {$return = [ $item{Identifier}, $item{PerlVar}]}
-OptionalFormulaVars: ',' FormulaVar(s? /,/) {$return = {map {@$_} @{$item[2]}}}| {$return = []}
-Formula : "InsertFormula" "("  FullIdentifier OptionalFormulaVars ")" 
+OptionalFormulaVars: ':' FormulaVar(s? /,/) {$return = {map {@$_} @{$item[2]}}}| {$return = []}
+IdentifierNameParts: FullIdentifier(s /,/) { $return = join('::', @{$item[1]})}
+Formula : "InsertFormula" "("  IdentifierNameParts  OptionalFormulaVars ")" 
         # { print "Saw Formula $item[3]"}
         { $return = Compiler::Filters::Formula::ExpandFormula($item[3], $item[4])}
 };
