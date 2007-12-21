@@ -178,41 +178,6 @@ FINAL: {
     }
 }
 
-CodeletFamily AttemptExtensionOfLongRelation( $core !, $effective_relation !,
-    $obj1 !, $obj2 !, $direction_to_extend_in ! ) does {
-RUN: {
-
-        #main::message("AttemptExtensionOfLongRelation run!");
-        my $direction_of_core = $effective_relation->get_direction();
-        ### require: $direction_of_core eq $direction_to_extend_in
-        # but not necessarily $core->get_direction() eq $direction_to_extend_in
-
-        #return unless $direction_of_core->PotentiallyExtendible();
-        my $distance = SWorkspace::__FindDistance( $obj1, $obj2 );
-        unless ($distance) {
-            print "distance undef/0 in AttemptExtensionOfLongRelation\n";
-            print $obj1->as_text(), "\n", $obj2->as_text(), "\n";
-            confess "distance undef/0 in AttemptExtensionOfLongRelation\n";
-        }
-        my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
-            {   from_object => $obj2,    # Assumption: We are called by AttemptExtensionOfRelation,
-                                         # and direction_of_core == direction_to_extend_in
-                direction => $direction_to_extend_in,
-                distance  => $distance,
-            }
-        );
-        return unless defined $next_pos;
-        return if $next_pos > $SWorkspace::ElementCount;
-        SCF::AttemptExtensionOfRelation::DoTheExtension( $next_pos, $direction_to_extend_in,
-            $effective_relation, $obj2, $core, );
-
-#main::message("While extending " . $core->as_text() . " with end object ".
-#                  $obj2->as_text() . ' in direction ' . $direction_to_extend_in->as_text().
-#                      " the distance was " . $distance->as_text() . ", and next position $next_pos."
-#                  );
-    }
-}
-
 CodeletFamily flipReln( $reln ! ) does {
 INITIAL: {
         multimethod 'find_reln';
