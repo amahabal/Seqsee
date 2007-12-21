@@ -62,9 +62,6 @@ GET_GOING();    # Potentially "infinite" loop
 
 sub INITIALIZE {
 
-    # Initialize logging
-    SLog->init($OPTIONS_ref);
-
     # Initialize Coderack
     SCoderack->clear();
     SCoderack->init($OPTIONS_ref);

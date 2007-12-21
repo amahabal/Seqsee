@@ -1,7 +1,7 @@
 package Seqsee;
 use strict;
 use S;
-use version; our $VERSION = version->new("0.0.3");
+use version; our $VERSION = version->new("0.91");
 
 use English qw(-no_match_vars);
 use List::Util qw(min max);
@@ -49,7 +49,7 @@ sub run {
             SCodelet->new( "CheckProgress", 100, {} )->schedule();
         }
 
-        if ($Global::Steps_Finished % 10 == 0) {
+        if ( $Global::Steps_Finished % 10 == 0 ) {
             SLTM::DecayAll();
             SWorkspace::__UpdateObjectStrengths();
         }
@@ -89,7 +89,8 @@ sub already_rejected_by_user {
 
 sub Seqsee_Step {
     $Global::Steps_Finished++;
-    SLTM->LogActivations() if ($Global::Feature{LogActivations} and not($Global::Steps_Finished % 10));
+    SLTM->LogActivations()
+        if ( $Global::Feature{LogActivations} and not( $Global::Steps_Finished % 10 ) );
     unless ( $Global::Steps_Finished % 100 ) {
         $Global::AcceptableTrustLevel -= 0.002;
     }
@@ -104,47 +105,31 @@ sub Seqsee_Step {
     my $runnable = SCoderack->get_next_runnable();
     return unless $runnable;    # prog not yet finished!
 
-    eval {
-        if ( $runnable->isa("SCodelet") )
-        {
+    TRY {
+        if ( $runnable->isa("SCodelet") ) {
             if ( $Global::Feature{CodeletTree} ) {
                 print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
             }
             $Global::CurrentRunnableString = "SCF::" . $runnable->[0];
             $runnable->run();
         }
-        elsif ( $runnable->isa("SThought") ) {
-            if ( $Global::Feature{CodeletTree} ) {
-                print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
-            }
-            $Global::CurrentRunnableString = ref($runnable);
-            ## $runnable
-            $Global::MainStream->add_thought($runnable);
-        }
         else {
-            SErr::Fatal->throw("Runnable object is $runnable: expected an SThought or a SCodelet");
+            SErr::Fatal->throw("Runnable object is $runnable: expected a SCodelet");
         }
-    };
-
-    if ($Global::Sanity) {
-        SanityCheck();
+        if ($Global::Sanity) {
+            SanityCheck();
+        }
     }
-
-    if ($EVAL_ERROR) {
-        my $err = $EVAL_ERROR;
-        ## Caught an error: ref($err)
-        if ( UNIVERSAL::isa( $err, 'SErr::ProgOver' ) ) {
+    CATCH {
+    ProgOver: {
             return 1;
-        }
 
-        # main::message("About to call default_error_handler with '$err'");
-        # confess "Empty error message" if $err eq q{};
-        main::default_error_handler($err);
+        }
+    DEFAULT: { main::default_error_handler($err); }
     }
+
     return;
 }
-
-
 
 # method: Interaction_step_n
 # Takes upto n steps
@@ -376,7 +361,7 @@ multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
 };
 
 multimethod SanityCheck => qw(SReln) => sub {
-    my ($rel) = @_;
+    my ($rel)  = @_;
     my (@ends) = $rel->get_ends();
     for (@ends) {
         SanityFail("End of a relation is a metonymed object") if $_->IsThisAMetonymedObject();
