@@ -63,6 +63,7 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
         #print "NAB=$name~~$arglist~~>>$body<<\n";
         $Compiler::Filters::Formula::LIST{$name}
             = new Compiler::Filters::Formula( { name => $name, arglist => $arglist, body => $body } );
+           print "Noted new formula for >>$name<<\n";
         $return = 1;
     }
      | FullIdentifier '=>' '{' NameValuePairs '}' {
@@ -73,13 +74,14 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
            $Compiler::Filters::Formula::LIST{$name} = new Compiler::Filters::Formula({ name => $name,
                     arglist => [], body => $v
                   });
+           print "Noted new formula for >>$name<<\n";
         }
         $return = 1;
      }
 
 NameValuePairs: NameValuePair(s /,/) { $return = $item[1]}
-NameValuePair: FullIdentifier '=>' BlockOrIntOrVar { $return = [$item[1], $item[3]]}
-BlockOrIntOrVar: IntOrVar { $return = $item[1]} | CodeBlock { $return = $item[1]} 
+NameValuePair: FullIdentifier '=>' BlockOrNumOrVar { $return = [$item[1], $item[3]]}
+BlockOrNumOrVar: NumOrVar { $return = $item[1]} | CodeBlock { $return = $item[1]} 
 };
 
 my $Grammar_For_Formula = q{

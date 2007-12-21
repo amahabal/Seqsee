@@ -1,6 +1,6 @@
 CodeletFamily Reader() does {
 RUN: {
-        if ( SUtil::toss(0.1) ) {
+        if ( SUtil::toss(««Codelet, Reader::HuntsSameness»») ) {
             SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
             return;
         }

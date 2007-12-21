@@ -9,6 +9,9 @@ FullIdentifier: Identifier(s /::/) { $return = join('::', @{$item[1]})}
 PerlVar: <perl_variable> {$return = $item[1]}
 IntOrVar: /\d+/ { $return = $item[1]}
    | PerlVar { $return = $item[1]}
+NumOrVar: Num { $return = $item[1]}
+   | PerlVar { $return = $item[1]}
+Num: /\d+(\.\d+)?/ { $return = $item[1]}
 OptionalSpace: /\s*/
 
 Sigil: '$' { $return = '$'}
