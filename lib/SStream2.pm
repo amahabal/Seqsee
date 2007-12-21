@@ -15,9 +15,9 @@ sub CreateNew {
     my $self = bless {}, $package;
     $MEMO{$name} = $self;
 
-    $self->{Name} = $name;
-    $self->{DiscountFactor}   = $opts_ref->{DiscountFactor}   || 0.8;
-    $self->{MaxOlderThoughts} = $opts_ref->{MaxOlderThoughts} || 10;
+    $self->{Name}                  = $name;
+    $self->{DiscountFactor}        = $opts_ref->{DiscountFactor} || 0.8;
+    $self->{MaxOlderThoughts}      = $opts_ref->{MaxOlderThoughts} || 10;
     $self->{OlderThoughtCount}     = 0;
     $self->{OlderThoughts}         = [];
     $self->{ThoughtsSet}           = {};
@@ -78,9 +78,8 @@ sub _think_the_current_thought {
     my $fringe = $thought->get_fringe();
     ## $fringe
     $thought->set_stored_fringe($fringe);
-    my $extended_fringe = $thought->get_extended_fringe();
 
-    my $hit_with = $self->_is_there_a_hit( $fringe, $extended_fringe );
+    my $hit_with = $self->_is_there_a_hit($fringe);
     ## $hit_with
 
     if ($hit_with) {
@@ -176,16 +175,15 @@ sub antiquate_current_thought {
 # with which the hit occured is returned. Perhaps only thoughts of the same
 # core type as the current are returned.
 sub _is_there_a_hit {
-    my ( $self, $fringe_ref, $extended_ref ) = @_;
+    my ( $self, $fringe_ref ) = @_;
     ## $fringe_ref
-    ## $extended_ref
     my %components_hit;    # keys values same
     my $hit_intensity = $self->{hit_intensity};
     %$hit_intensity = ();    # keys are components, values numbers
 
     my $ComponentOwnership_of = $self->{ComponentOwnership_of};
 
-    for my $in_fringe ( @$fringe_ref, @$extended_ref ) {
+    for my $in_fringe (@$fringe_ref) {
         my ( $comp, $intensity ) = @$in_fringe;
         next unless exists $ComponentOwnership_of->{$comp};
         $components_hit{$comp} = $comp;

@@ -115,9 +115,6 @@ ACTIONS_BLOCK
             $AS_TEXT_BLOCK
         }
 
-        sub get_extended_fringe {
-            return [];
-        }
     }
 
 SERIALIZED
