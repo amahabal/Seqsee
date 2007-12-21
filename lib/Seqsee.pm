@@ -12,6 +12,9 @@ use Getopt::Long;
 use Time::HiRes qw( sleep );
 use Class::Multimethods;
 use SUtil;
+use Sanity;
+
+multimethod 'SanityCheck';
 
 sub run {
     my (@sequence) = @_;
@@ -206,20 +209,16 @@ sub _read_commandline {
     GetOptions(
         \%options,
         "seed=i",
-        "log!",
         "seq=s",
         "update_interval=i",
-        "interactive!",
         "max_steps=i", "n=i",    # same option!
         'f=s',
         'gui_config=s', 'gui=s',    # same option!
-        'tabbed!',
         'sanity!',
         'view=i',
     );
     $options{max_steps}  ||= $options{n}   if exists $options{n};
     $options{gui_config} ||= $options{gui} if exists $options{gui};
-    $options{gui_config} = 'GUI_tabbed' if $options{tabbed};
 
     return %options;
 }
@@ -238,8 +237,8 @@ sub _read_config {
     read_config 'config/seqsee.conf' => my %config;
 
     for (
-        qw{seed log max_steps
-        interactive update_interval
+        qw{seed max_steps
+       update_interval
 
         UseScheduledThoughtProb ScheduledThoughtVanishProb
         DecayRate
@@ -270,102 +269,9 @@ sub _read_config {
     my @seq = split( /[\s,]+/, $seq );
     $RETURN_ref->{seq} = [@seq];
 
-    # SANITY CHECKING: interactive
-    if ( $RETURN_ref->{tk} and not( $RETURN_ref->{interactive} ) ) {
-        print "Using Tk forces interactivity! Reading your mind...\n";
-        $RETURN_ref->{interactive} = 1;
-    }
-
-    # SANITY CHECKING: update_interval
-    if ( $RETURN_ref->{interactive}
-        and not( $RETURN_ref->{update_interval} ) )
-    {
-        confess
-            "Seqsee is being used interactively: absolutely must have the update interval: it cannot use the value $RETURN_ref->{update_interval}";
-    }
-
     print "View: $RETURN_ref->{view}!\n";
 
     return $RETURN_ref;
 }
-
-multimethod SanityFail => ('$') => sub {
-    my ($m) = @_;
-    my $msg
-        = "Entered inconsistent state after a $Global::CurrentRunnableString.($Global::Steps_Finished)\n$m";
-    main::message($msg);
-    confess "Sanity failed... exiting!";
-};
-
-multimethod SanityCheck => () => sub {
-    for my $gp ( SWorkspace::GetGroups() ) {
-        SanityCheck($gp);
-    }
-    for my $rel ( values %SWorkspace::relations ) {
-        SanityCheck($rel);
-    }
-};
-
-multimethod SanityCheck => qw(SElement) => sub {
-    my ($el) = @_;
-
-};
-
-multimethod SanityCheck => qw(SAnchored) => sub {
-    my ($gp) = @_;
-    if ( my $underlying_ruleapp = $gp->get_underlying_reln() ) {
-        SanityCheck( $gp, $underlying_ruleapp );
-    }
-    my ( $l, $r ) = $gp->get_edges();
-    0 <= $l                        or SanityFail("Edge problem: left $l");
-    $l <= $r                       or SanityFail("Edge problem: $l $r");
-    $r < $SWorkspace::ElementCount or SanityFail("Edge problem: right $r");
-
-    my @parts = @$gp;
-
-    SWorkspace->are_there_holes_here(@parts) and SanityFail("Holes in group!");
-
-    for my $part (@parts) {
-        $part->isa('SAnchored') or SanityFail("Unanchored part!");
-        $part->get_is_a_metonym() and SanityFail("Group has metonym as part");
-    }
-};
-
-multimethod SanityCheck => qw(SAnchored SRuleApp) => sub {
-    SanityCheck( @_, '' );
-};
-
-multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
-    my ( $gp, $ra, $m ) = @_;
-    $m = $m ? "($m) " : "";
-    my @gp_parts = @$gp;
-    my @ra_items = @{ $ra->get_items() };
-    my $count    = scalar(@gp_parts);
-    unless ( scalar(@ra_items) == $count ) {
-        my $msg = "Group: "
-            . $gp->as_text()
-            . " has $count elements: @gp_parts, whereas ruleapp only has @ra_items";
-        SanityFail("$m Gp/Ruleapp out of sync! $msg");
-    }
-    for my $i ( 0 .. $count - 1 ) {
-        my $gp_part = $gp_parts[$i];
-        my $ra_part = $ra_items[$i];
-        if ( $gp_part->get_metonym_activeness() ) {
-
-# $gp_part->GetEffectiveObject() eq $ra_part or SanityFail("Metonym'd object had ruleapp with unmetonymd part or different part " . join(";", "Group", $gp, $gp->as_text(), "Part: ", $gp_part, $gp_part->as_text(), $gp_part->GetEffectiveObject(), $ra_part, $ra_part->as_text()));
-        }
-        else {
-            $gp_part eq $ra_part or SanityFail("$m Gp/Ruleapp item out of sync!");
-        }
-    }
-};
-
-multimethod SanityCheck => qw(SReln) => sub {
-    my ($rel)  = @_;
-    my (@ends) = $rel->get_ends();
-    for (@ends) {
-        SanityFail("End of a relation is a metonymed object") if $_->IsThisAMetonymedObject();
-    }
-};
 
 1;
