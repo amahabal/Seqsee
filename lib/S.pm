@@ -9,7 +9,6 @@ use Scalar::Util;
 
 use SHistory;
 
-use SLog;
 use SInsertList;
 
 use SErr;

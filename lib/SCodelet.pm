@@ -49,22 +49,6 @@ sub fishy_codefamily {
     SErr::Code->throw("COuld not find codeobject for family $family. Problem?");
 }
 
-#### method generate_log_msg
-# description    :generates the log message for logging. Called only if it will get logged
-# argument list  :
-# return type    :
-# context of call:called from individual codefamilies
-# exceptions     :
-
-sub generate_log_msg {
-    return '' if $Global::TestingMode;
-    my $codelet = shift;
-    my $ret = join( "", "\n=== $Global::Steps_Finished ", "=" x 10, "  CODELET $codelet->[0] \n" );
-    while ( my ( $k, $v ) = each %{ $codelet->[3] } ) {
-        $ret .= "== $k \t--> $v\n";
-    }
-    return $ret;
-}
 
 # method: schedule
 # adds self to Coderack
@@ -75,17 +59,6 @@ sub schedule {
     SCoderack->add_codelet($self);
 }
 
-sub display_self {
-    my ( $self, $widget ) = @_;
-    $widget->Display(
-        "Codelet", ["heading"], "\n",
-        "\tFamily:\t",  $self->[0], "\n",
-        "\tUrgency:\t", $self->[1], "\n",
-        "\tArguments:\t\n",
-        map { ( "\t\t", $_, "\t=>", $self->[3]{$_} ) }
-            ( keys %{ $self->[3] } ),
-    );
-}
 
 sub CheckFreshness {
     my $since = shift;    # Should not have changed since this time.

@@ -11,6 +11,7 @@ use Config::Std;
 use Getopt::Long;
 use Time::HiRes qw( sleep );
 use Class::Multimethods;
+use SUtil;
 
 sub run {
     my (@sequence) = @_;
