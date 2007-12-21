@@ -65,16 +65,30 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
             = new Compiler::Filters::Formula( { name => $name, arglist => $arglist, body => $body } );
         $return = 1;
     }
+     | FullIdentifier '=>' '{' NameValuePairs '}' {
+        my $top = $item{FullIdentifier};
+        for my $pair (@{$item{NameValuePairs}}) {
+           my ($k, $v) = @$pair;
+           my $name = $top . '::' . $k;
+           $Compiler::Filters::Formula::LIST{$name} = new Compiler::Filters::Formula({ name => $name,
+                    arglist => [], body => $v
+                  });
+        }
+        $return = 1;
+     }
 
+NameValuePairs: NameValuePair(s /,/) { $return = $item[1]}
+NameValuePair: FullIdentifier '=>' BlockOrIntOrVar { $return = [$item[1], $item[3]]}
+BlockOrIntOrVar: IntOrVar { $return = $item[1]} | CodeBlock { $return = $item[1]} 
 };
 
 my $Grammar_For_Formula = q{
 FormulaVar: Identifier '=>' PerlVar {$return = [ $item{Identifier}, $item{PerlVar}]}
 OptionalFormulaVars: ':' FormulaVar(s? /,/) {$return = {map {@$_} @{$item[2]}}}| {$return = []}
 IdentifierNameParts: FullIdentifier(s /,/) { $return = join('::', @{$item[1]})}
-Formula : "InsertFormula" "("  IdentifierNameParts  OptionalFormulaVars ")" 
+Formula : "««"  IdentifierNameParts  OptionalFormulaVars "»»" 
         # { print "Saw Formula $item[3]"}
-        { $return = Compiler::Filters::Formula::ExpandFormula($item[3], $item[4])}
+        { $return = Compiler::Filters::Formula::ExpandFormula($item[2], $item[3])}
 };
 
 $::RD_HINT = 1;
@@ -100,7 +114,7 @@ sub ExpandFormula{
     my $Filter;
     sub GetFilter {
         return $Filter if $Filter;
-        $Filter = Compiler::Filter::CreateFilter("InsertFormula",
+        $Filter = Compiler::Filter::CreateFilter("««",
                                                  $Grammar_For_Formula,
                                                  "Formula"
                                                      );

@@ -185,7 +185,7 @@ sub ArgumentsToStringForScript {
     my $Filter;
     sub GetFilter {
         return $Filter if $Filter;
-        $Filter = Compiler::Filter::CreateFilter("CodeletFamily",
+        $Filter = Compiler::Filter::CreateFilter('\bCodeletFamily',
                                                  $Grammar_For_Family,
                                                  "FAMILY"
                                                      );

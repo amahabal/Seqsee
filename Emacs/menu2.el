@@ -21,3 +21,6 @@
 (tool-bar-add-item "refresh" 'perltidy-all 'perltidy-all-menu
                    :help "perltidy-all"
                    )
+(tool-bar-add-item "zoom-out" 'seq-formula-insert 'seq-formula-insert-menu
+                   :help "Insert a formula"
+                   )

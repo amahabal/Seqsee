@@ -16,3 +16,8 @@ SErr::AskUser::WorthAsking( $match_size !, $ask_size !, $trust_level ! ) returns
 Urgencies::CLA::CLB() returns Num {
     100
 }
+
+Urgencies => {
+    CLA::CLB => 100,
+    CLA::D => $x
+}

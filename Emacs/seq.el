@@ -384,6 +384,14 @@
   "</steps>" "\n"
 )
 
+(define-skeleton seq-formula-insert
+  ""
+  nil
+  "««" 
+  _
+  "»»"
+)
+
 (define-skeleton seq-perl6-method-or-sub
   ""
   nil

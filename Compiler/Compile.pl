@@ -7,6 +7,7 @@ use Parse::RecDescent;
 
 use Compiler::Filters::Formula;
 Compiler::Filters::Formula->ReadFormulaFile('sample_formulas');
+Compiler::Filters::Formula->ReadFormulaFile('config/formulas');
 
 use Compiler::Filters::CodeletFamily;
 use Compiler::Filters::ThoughtType;
