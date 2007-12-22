@@ -392,6 +392,25 @@
   "»»"
 )
 
+(define-skeleton seq-formula-definition-insert
+  ""
+  nil
+  (skeleton-read "Name of Formula: ")
+  "("
+  ;(if (string-match "y" (setq v2 (skeleton-read "Does it have arguments? " "y")))
+  ;    (seq-formula-options)
+                                        ;  "")
+  ("Argument: " str ",") & -1
+   " ) returns " 
+  (skeleton-read "Return Type: ") "{\n" _ "\n}"
+)
+
+(define-skeleton seq-formula-options
+  ""
+  nil
+  ("Argument: " str ",") ""
+  )
+
 (define-skeleton seq-perl6-method-or-sub
   ""
   nil

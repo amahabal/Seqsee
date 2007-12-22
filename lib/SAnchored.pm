@@ -21,7 +21,8 @@ multimethod 'apply_reln';
 
 my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);       # Left edge. 0 is leftmost.
 my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
-my %is_locked_against_deletion_of :ATTR(:get<is_locked_against_deletion> :set<is_locked_against_deletion>);
+my %is_locked_against_deletion_of :
+    ATTR(:get<is_locked_against_deletion> :set<is_locked_against_deletion>);
 
 use overload fallback => 1;
 
@@ -162,10 +163,8 @@ sub overlaps {
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength_from_parts
-        = 20 + 0.2 * ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
-    my $strength_from_categories
-        = 30 * ( sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } ) || 0 );
+    my $strength_from_parts = ««Strength::SAnchored::FromParts: group=>$self»»;
+    my $strength_from_categories = «« Strength::SAnchored::FromCategories: group=>$self »»;
     my $strength = $strength_from_parts + $strength_from_categories;
     $strength += $Global::GroupStrengthByConsistency{$self};
     $strength = 100 if $strength > 100;

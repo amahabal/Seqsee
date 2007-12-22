@@ -135,6 +135,7 @@
 ;(define-key LaTeX-mode-map "\C-a\C-m" 'seq-method-entry)
 (define-key cperl-mode-map "\C-a\C-f" 'seq-comment-file)
 (define-key cperl-mode-map "\C-f" 'seq-formula-insert)
+(define-key cperl-mode-map "\M-f" 'seq-formula-definition-insert)
 
 (custom-set-variables
  '(cperl-close-paren-offset 4)
