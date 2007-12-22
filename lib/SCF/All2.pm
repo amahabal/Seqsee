@@ -17,7 +17,8 @@ RUN: {
         if ( $obj->describe_as($cat) ) {
             if ( $Global::Feature{LTM} ) {
                 SLTM::SpikeBy( 10, $cat );
-                SLTM::InsertISALink( $obj, $cat )->Spike(5);
+                SLTM::InsertISALink( $obj, $cat )->Spike(««SpikeAmount,
+                                                           CheckIfInstance::OnSuccess »»);
             }
         }
     }
