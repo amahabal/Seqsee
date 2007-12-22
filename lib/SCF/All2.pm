@@ -16,9 +16,9 @@ CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
 RUN: {
         if ( $obj->describe_as($cat) ) {
             if ( $Global::Feature{LTM} ) {
-                SLTM::SpikeBy( 10, $cat );
+                SLTM::SpikeBy( ««SpikeAmount, CheckIfInstance::Category»», $cat );
                 SLTM::InsertISALink( $obj, $cat )->Spike(««SpikeAmount,
-                                                           CheckIfInstance::OnSuccess »»);
+                                                           CheckIfInstance::Link »»);
             }
         }
     }
@@ -94,19 +94,19 @@ RUN: {
                 #  Global::ClearHilit();
                 #  return unless $reply;
                 #  $is_this_what_is_present = 1;
-                CODELET 500, MaybeAskTheseTerms, { core => $core, exception => $err };
+                CODELET ««Urgencies, AttemptExtensionOfRelation::MaybeAsk»», MaybeAskTheseTerms, { core => $core, exception => $err };
                 return;
             }
         };
         if ($is_this_what_is_present) {
-            SLTM::SpikeBy( 100, $core );
+            SLTM::SpikeBy( ««SpikeAmount, AttemptExtensionOfRelation::Core»», $core );
             my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
             return unless $plonk_result->PlonkWasSuccessful();
             my $wso = $plonk_result->get_resultant_object();
 
             if ( $core->isa('SReln::Compound') ) {
                 my $type = $core->get_base_category;
-                SLTM::SpikeBy( 100, $type );
+                SLTM::SpikeBy( ««SpikeAmount , AttemptExtensionOfRelation::CoreCategory »», $type );
                 ## Describe as: $type
                 $wso->describe_as($type) or return;
             }
@@ -122,17 +122,17 @@ RUN: {
         else {
 
             # Weaken relation a bit.
-            SLTM::WeakenBy( 50, $core );
+            SLTM::WeakenBy( ««WeakenAmount , AttemptExtensionOfRelation::Core »», $core );
 
             # Weaken corresponding ad-hoc if this was one.
             if ( $distance > 1 ) {
                 my $possible_ad_hoc_cat
                     = $S::AD_HOC->build( { parts_count => $distance->GetMagnitude() + 1 } );
-                SLTM::WeakenBy( 30, $possible_ad_hoc_cat );
+                SLTM::WeakenBy( ««WeakenAmount , AttemptExtensionOfRelation::AdHocOnFail»», $possible_ad_hoc_cat );
             }
 
             if ( SUtil::toss(0.5) ) {
-                CODELET 100, AreTheseGroupable,
+                CODELET ««Urgencies , AttemptExtensionOfRelation::AreTheseGroupable »», AreTheseGroupable,
                     {
                     items => [ $core->get_ends() ],
                     reln  => $core
@@ -202,7 +202,7 @@ RUN: {
             my ( $ul_a, $ul_b ) = ( $a->get_underlying_reln(), $b->get_underlying_reln() );
             return unless ( $ul_a and $ul_b );
             return unless $ul_a->get_rule() eq $ul_b->get_rule();
-            CODELET 100, AttemptGroupMerge, { a => $a, b => $b };
+            CODELET ««Urgencies , FindIfRelated::AttemptGroupMerge»», AttemptGroupMerge, { a => $a, b => $b };
             return;
         }
         return unless SWorkspace::__CheckLiveness( $a, $b );
@@ -301,7 +301,7 @@ RUN: {
         # Must be teh case that as is bf. Now we need to see if they are compatible
         my $compatibility = are_relns_compatible( $a, $b );
         if ($compatibility) {
-            CODELET 100, AreTheseGroupable,
+            CODELET «« Urgencies, FindIfRelatedRelns::AreTheseGroupable »», AreTheseGroupable,
                 {
                 items => [ $af, $as, $bs ],
                 reln  => $a,
@@ -357,7 +357,7 @@ RUN: {
 
         return unless $extend_success;
         if ( SUtil::toss( $object->get_strength() / 100 ) ) {
-            CODELET 100, AreWeDone, { group => $object };
+            CODELET ««Urgencies, AttemptExtensionOfGroup::AreWeDone »», AreWeDone, { group => $object };
         }
 
         #main::message("Extended!");

@@ -1,2 +1,18 @@
-Codelet => { Reader::HuntsSameness => 0.1 }
-SpikeAmount  =>{ CheckIfInstance::OnSuccess  => 5 }
+Codelet => { Reader::HuntsSameness => 0.1 };
+SpikeAmount => {
+    CheckIfInstance::Link     => 5,
+    CheckIfInstance::Category => 10,
+    AttemptExtensionOfRelation::Core  => 100,
+    AttemptExtensionOfRelation::CoreCategory => 100,
+};
+WeakenAmount => {
+    AttemptExtensionOfRelation::Core => 50,
+    AttemptExtensionOfRelation::AdHocOnFail => 30,
+};
+Urgencies => {
+    AttemptExtensionOfRelation::MaybeAsk => 500,
+    AttemptExtensionOfRelation::AreTheseGroupable => 100,
+    FindIfRelated::AttemptGroupMerge => 100,
+    FindIfRelatedRelns::AreTheseGroupable => 100,
+    AttemptExtensionOfGroup::AreWeDone => 100,
+};

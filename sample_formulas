@@ -20,4 +20,4 @@ Urgencies::CLA::CLB() returns Num {
 Urgencies => {
     CLA::CLB => 100,
     CLA::D => $x
-}
+};

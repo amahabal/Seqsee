@@ -66,7 +66,7 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
            print "Noted new formula for >>$name<<\n";
         $return = 1;
     }
-     | FullIdentifier '=>' '{' NameValuePairs '}' {
+     | FullIdentifier '=>' '{' NameValuePairs '}' ';' {
         my $top = $item{FullIdentifier};
         for my $pair (@{$item{NameValuePairs}}) {
            my ($k, $v) = @$pair;
@@ -79,9 +79,10 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
         $return = 1;
      }
 
-NameValuePairs: NameValuePair(s /,/) { $return = $item[1]}
+NameValuePairs: NameValuePair(s /,/) Comma(?) { $return = $item[1]}
 NameValuePair: FullIdentifier '=>' BlockOrNumOrVar { $return = [$item[1], $item[3]]}
 BlockOrNumOrVar: NumOrVar { $return = $item[1]} | CodeBlock { $return = $item[1]} 
+Comma: ',' 
 };
 
 my $Grammar_For_Formula = q{
