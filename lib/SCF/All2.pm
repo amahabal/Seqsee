@@ -151,31 +151,6 @@ FINAL: {
             # main::message("Strength for asking: $strength", 1);
             return unless SUtil::toss( $strength / 100 );
         }
-
-        sub worth_asking {
-            my ( $matched, $unmatched, $extension_from_span ) = @_;
-            return 1 if ( @$matched > 0 );
-            my $time_since_extension = $Global::Steps_Finished - $Global::TimeOfLastNewElement;
-            my $number_of_user_verified_elements
-                = $SWorkspace::ElementCount - $Global::InitialTermCount;
-            return if $time_since_extension < 10 * $number_of_user_verified_elements;
-
-        # main::message("Verified: $number_of_user_verified_elements; Time: $time_since_extension");
-            ### $matched
-            ### $unmatched
-            my $penetration
-                = ( scalar(@$matched) + $extension_from_span ) / $SWorkspace::ElementCount;
-
-            # print STDERR "Penetration: $penetration\n";
-            return unless $penetration;
-
-            my $on_a_limb = scalar(@$unmatched) / ( scalar(@$matched) + $extension_from_span );
-
-            # print STDERR "On a limb: $on_a_limb\n";
-            return 1 if ( $penetration > 0.5 and $on_a_limb < 0.85 );
-            return;
-        }
-
     }
 }
 
@@ -466,45 +441,6 @@ RUN: {
                 }
                 $object->recalculate_edges();
             }
-        }
-
-    }
-FINAL: {
-
-    }
-}
-
-CodeletFamily TryRule( $rule !, $reln ! ) does {
-INITIAL: {
-
-    }
-RUN: {
-
-        #main::message("Will try rule $rule");
-        my $direction = $reln->get_direction();
-
-        # XXX(Board-it-up): [2007/01/01] for now...
-        return unless $direction eq $DIR::RIGHT;
-        return unless SUtil::toss( $rule->suitability() );
-
-        my $application = $rule->AttemptApplication(
-            {   start     => $reln->get_first(),
-                terms     => 4,
-                direction => $DIR::RIGHT,
-            }
-        );
-        if ($application) {
-
-            #main::message("Application of rule succeded! " . $rule->as_text());
-            $application->ExtendLeftMaximally();
-            my $new_group = SAnchored->create( @{ $application->get_items() } );
-            SWorkspace->add_group($new_group) or return;
-            CODELET 100, AreWeDone, { group => $new_group };
-        }
-        else {
-
-            #main::message("Application of rule failed: " . $rule->as_text());
-            $rule->Reject();
         }
 
     }
