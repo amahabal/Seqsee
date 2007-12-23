@@ -172,11 +172,7 @@ sub BUILD{
                 if (ref($subobject) eq "SElement") {
                     return $subobject->get_mag;
                 } else {
-                    ## $subobject
-                    ## $subobject->get_structure
-                    my $int = $subobject->can_be_seen_as_int();
-                    ## $int
-                    return $int;
+                    return;
                 } 
             } else {
                 return $subobject;
@@ -199,8 +195,7 @@ sub BUILD{
                 if (ref($subobject) eq "SElement") {
                     return $subobject->get_mag;
                 } else {
-                    my $int = $subobject->can_be_seen_as_int();
-                    return $int;
+                    return;
                 } 
             } else {
                 return $subobject;

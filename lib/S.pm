@@ -9,8 +9,6 @@ use Scalar::Util;
 
 use SHistory;
 
-use SInsertList;
-
 use SErr;
 use UserInteraction;
 use SChoose;

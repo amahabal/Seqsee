@@ -276,64 +276,6 @@ sub boolify : BOOLIFY {
     return $self;
 }
 
-# method: can_be_seen_as_int
-# What integer can this object be seen as?
-#
-#    returns undef if none.
-#
-#    Just uses the metonym: if it's starred is an int, return that, else retrun undef.
-#
-sub can_be_seen_as_int {
-    my ($self) = @_;
-    my $id = ident $self;
-
-    my $meto = $metonym_of{$id};
-    ## $meto
-    return unless $meto;
-
-    my $starred = $meto->get_starred;
-    if ( ref($starred) ne "SElement" ) {
-        return;
-    }
-
-    return $starred->get_mag;
-}
-
-# multi: _can_be_seen_as_no_rec ( SObject, # )
-# Can the object be seen as the int?
-#
-multimethod _can_be_seen_as_no_rec => ( 'SObject', '#' ) => sub {
-    my ( $object, $int ) = @_;
-    my $id = ident $object;
-    $int = $int->get_structure() if ref($int) eq "SElement";
-
-    ## _can_be_seen_as_no_rec: $object, $int
-    ## $metonym_of{$id}
-    if ( SUtil::compare_deep( $object->get_structure(), $int ) ) {
-        return 0;
-    }
-    elsif ( $metonym_of{$id} and $metonym_of{$id}->get_starred()->get_structure == $int ) {
-        return $metonym_of{$id};
-    }
-    else {
-        return;
-    }
-};
-
-# multi: _can_be_seen_as_no_rec ( #, # )
-# The two should be equal
-#
-
-multimethod _can_be_seen_as_no_rec => ( '#', '#' ) => sub {
-    my ( $a, $b ) = @_;
-    if ( $a == $b ) {
-        return 0;
-    }
-    else {
-        return;
-    }
-};
-
 # method: tell_forward_story
 # Given a category, reinterprets bindings for that category so that positions are expressed in a forward direction.
 #
