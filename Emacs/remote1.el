@@ -59,7 +59,8 @@
 )
 
 (defun selection-or-word ()
-  (let ( (word (ffap-string-at-point "text-mode") )
+  (interactive)
+  (let ( (word (get-word-at-point) )
 	 (sel (x-get-selection))
 	 )
     (x-set-selection 'PRIMARY "")

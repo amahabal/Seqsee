@@ -140,55 +140,6 @@ sub CreateObjectFromStructure {
     }
 }
 
-# method: QuickCreate
-# Creates the object, adding metonyms as needed
-#
-#    For any subobject, if all of its elements are the same, adds the category-annotation for sameness group, and adds a metonymy
-
-sub QuickCreate {
-    my ( $package, $array_ref, @potential_cats ) = @_;
-    my $object = $package->create(@$array_ref);
-    my $id     = ident $object;
-
-    ## $object, $id
-
-    unless ( $object->isa("SElement") ) {
-    LOOP: for my $subobject ( @{ $items_of{$id} } ) {
-            next if ref($subobject) eq "SElement";
-
-            my $subid = ident $subobject;
-
-            # now check if all elements in it are the same.
-            my $parts_ref = $items_of{$subid};
-            ## $subobject, $parts_ref
-            my $count      = scalar(@$parts_ref);
-            my $first_part = $parts_ref->[0]->get_structure_string;
-
-            for my $i ( 1 .. $count - 1 ) {
-                unless ( $first_part eq $parts_ref->[$i]->get_structure_string ) {
-                    next LOOP;
-                }
-            }
-
-            ## So a sameness group has been seen.
-            ## $subobject->get_structure_string
-            # print "# $S::SAMENESS\n";
-            ## inst:  $S::SAMENESS->is_instance($subobject)
-            $subobject->annotate_with_cat($S::SAMENESS);
-            ## inst: $S::SAMENESS->is_instance($subobject)
-            $subobject->AnnotateWithMetonym( $S::SAMENESS, "each" );
-            $subobject->SetMetonymActiveness(1);
-        }
-    }
-
-    for (@potential_cats) {
-        $object->describe_as($_) or confess;
-        $object->tell_forward_story($_);
-    }
-
-    return $object;
-}
-
 # method: annotate_with_cat
 # Annotattes object as belonging to category
 #
@@ -214,13 +165,6 @@ sub annotate_with_cat {
     SErr::NotOfCat->throw() unless $bindings;
     return $bindings;
 }
-
-# method: maybe_annotate_with_cat
-# Similar to annotate_with_cat, except does not throw exception if the object cannot belong to the cat.
-#
-#    In fact, it does a add_non_cat in that situation.
-
-*SObject::maybe_annotate_with_cat = *SObject::describe_as;
 
 # method: get_structure
 # returns the structure, a deep array of integers
