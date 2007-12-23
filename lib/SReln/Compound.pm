@@ -110,7 +110,8 @@ multimethod _find_reln => qw(SObject SObject) => sub {
 
     ## $cat
 
-    return _find_reln( $o1, $o2, $cat );
+    return $cat->FindRelationBetween($o1, $o2);
+    # return _find_reln( $o1, $o2, $cat );
 };
 
 multimethod find_relation_string => ('#', 'SElement') => sub {
