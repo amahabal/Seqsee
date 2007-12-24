@@ -47,8 +47,7 @@ ACTIONS: {
                                                    $ends[1]->get_left_edge - 1 );
         my $distance_magnitude = scalar(@intervening_objects);
         if ($distance_magnitude) {
-            my $possible_ad_hoc_cat
-                = $S::AD_HOC->build( { parts_count => $distance_magnitude + 1 } );
+            my $possible_ad_hoc_cat = SCat::OfObj::Interlaced->Create($distance_magnitude + 1);
             my $ad_hoc_activation = SLTM::SpikeBy( 20 / $distance_magnitude, $possible_ad_hoc_cat );
             if ( SUtil::significant($ad_hoc_activation) and SUtil::toss($ad_hoc_activation) ) {
                 my @new_object_parts =

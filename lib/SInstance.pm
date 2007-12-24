@@ -169,7 +169,7 @@ sub get_blemish_cats {
 sub HasNonAdHocCategory {
     my ( $item ) = @_;
     for (keys %{$cats_of_of{ident $item}}) {
-        return 1 unless $_ =~ m#ad_hoc_#;
+        return 1 unless $_ =~ m#^Interlaced#;
     }
     return 0;
 }

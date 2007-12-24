@@ -126,8 +126,7 @@ RUN: {
 
             # Weaken corresponding ad-hoc if this was one.
             if ( $distance > 1 ) {
-                my $possible_ad_hoc_cat
-                    = $S::AD_HOC->build( { parts_count => $distance->GetMagnitude() + 1 } );
+                my $possible_ad_hoc_cat = SCat::OfObj::Interlaced->Create($distance->GetMagnitude() + 1);
                 SLTM::WeakenBy( ««WeakenAmount , AttemptExtensionOfRelation::AdHocOnFail»», $possible_ad_hoc_cat );
             }
 

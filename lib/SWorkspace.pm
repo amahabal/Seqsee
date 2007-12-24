@@ -1107,7 +1107,7 @@ sub get_longest_non_adhoc_object_starting_at {
 
         # That gives us longest first.
     INNER: for my $cat ( @{ $gp->get_categories() } ) {
-            if ( $cat->get_name() !~ m#ad_hoc_# ) {
+            if ( $cat->get_name() !~ m#^Interlaced# ) {
                 return $gp;
             }
         }
@@ -1129,7 +1129,7 @@ sub get_longest_non_adhoc_object_ending_at {
 
         # That gives us longest first.
     INNER: for my $cat ( @{ $gp->get_categories() } ) {
-            if ( $cat->get_name() !~ m#ad_hoc_# ) {
+            if ( $cat->get_name() !~ m#^Interlaced# ) {
                 return $gp;
             }
         }

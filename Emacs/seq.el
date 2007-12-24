@@ -506,3 +506,64 @@
   (interactive)
   (seq-change-to-dir)
   (shell-command "perl util/codeletgraph.pl &"))
+
+(define-skeleton seqsee-category-type
+  ""
+  nil
+  "package SCat::OfObj::;
+use strict;
+use base qw{SCat::OfObj};
+use Class::Std;
+use Smart::Comments;
+use Class::Multimethods;
+use Memoize;" \n
+
+"{ my %MEMO; sub Create { my ($package, ) = @_; }}" \n
+"sub Instancer {
+    my ( $self, $object ) = @_;
+    my $id            = ident $self;
+
+}" \n
+
+"# Create an instance of the category stored in $self.
+sub build {
+    my ( $self, $opts_ref ) = @_;
+    my $id            = ident $self;
+
+}" \n
+
+"sub get_name {
+    my ( $self ) = @_;
+
+}
+sub as_text {
+    my ( $self ) = @_;
+    return $self->get_name();
+}
+
+memoize('get_name');
+memoize('as_text');
+" \n
+
+"sub get_pure {
+    return $_[0];    
+}
+
+sub get_memory_dependencies {
+    my ( $self ) = @_;
+    my $id = ident $self;
+}
+
+sub serialize {
+    my ( $self ) = @_;
+    my $id = ident $self;
+}
+
+sub deserialize {
+    my ( $package, $string ) = @_;
+}
+1;
+"
+
+
+)

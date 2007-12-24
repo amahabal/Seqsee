@@ -36,7 +36,7 @@ RUN: {
                         my $cat = $reln->get_base_category();
 
                         #main::message($cat->get_name());
-                        if ( $cat->get_name() =~ m#^ad_hoc_(.*)#o ) {
+                        if ( $cat->get_name() =~ m#^Interlaced_(.*)#o ) {
                             CODELET 100, InterlacedInitialBlemish,
                                 {
                                 count => $1,
