@@ -29,7 +29,6 @@ use PerlIO;
 use File::Slurp;
 use Tk::ROText;
 
-
 use Tk;
 use SGUI;
 use UI::Graphical;
@@ -132,7 +131,7 @@ sub Interaction_step {
 }
 
 sub Interaction_crawl {
-    my ( $sleep_time_in_ms ) = @_;
+    my ($sleep_time_in_ms) = @_;
     $Global::InterstepSleep = $sleep_time_in_ms;
     return Seqsee::Interaction_step_n(
         {   n            => $OPTIONS_ref->{max_steps},
@@ -142,7 +141,6 @@ sub Interaction_crawl {
     );
 }
 
-
 #method: init_display
 # Sets up update_display() as well.
 
@@ -150,7 +148,7 @@ sub init_display {
     SGUI::setup($OPTIONS_ref);
     SGUI::Update();
     my $update_display_sub = sub { };
-  
+
     my $commentary_displayer_debug = $Global::Feature{debug}
         ? sub {
         my ( $msg, $no_break, $add_newline ) = @_;
@@ -158,8 +156,7 @@ sub init_display {
         message( [ "[DEBUG: $msg]$newline", ['debug'] ], $no_break );
         }
         : sub { };
-   
-   
-    "main"->install_sub( { debug_message         => $commentary_displayer_debug } );
-   
+
+    "main"->install_sub( { debug_message => $commentary_displayer_debug } );
+
 }

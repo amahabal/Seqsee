@@ -21,6 +21,7 @@ sub BUILD {
     my ( $self, $id, $opts ) = @_;
     confess "Need mag" unless defined $opts->{mag};
     $mag_of{$id} = int( $opts->{mag} );
+    $self->describe_as($S::NUMBER);
 }
 
 # method: create

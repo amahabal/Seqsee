@@ -11,7 +11,8 @@ use Memoize;
 use SUtil;
 use List::Util qw(sum shuffle);
 
-my %relation_finder_of :ATTR(:get<relation_finder> :set<relation_finder>);
+my %relation_finder_of : ATTR(:get<relation_finder> :set<relation_finder>);
+
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $relation_finder_of{$id} = $opts_ref->{relation_finder} || undef;
@@ -20,14 +21,14 @@ sub BUILD {
 use Class::Multimethods;
 multimethod is_instance => qw(SCat::OfObj SObject) => sub {
     my ( $cat, $object ) = @_;
-    my $bindings =  $cat->Instancer( $object ) or return;
+    my $bindings = $cat->Instancer($object) or return;
     $object->add_category( $cat, $bindings );
 
     return $bindings;
 };
 
-sub is_metonyable{
-    my ( $self ) = @_;
+sub is_metonyable {
+    my ($self) = @_;
     return $S::IsMetonyable{$self};
 }
 
@@ -38,50 +39,52 @@ sub is_metonyable{
 #    $cat - The category the metonymy will be based on
 #    $object - the object whose metonymy is being sought
 #    $name - the name of the metonymy, as the cat may support several
-#     
+#
 #    Please note that the object must already have been seen as belonging to the category.
-#     
+#
 #    Example:
 #    >$cat->find_metonym( $object, $name )
 
-sub find_metonym{
+sub find_metonym {
     my ( $cat, $object, $name ) = @_;
 
-    my $finder = $cat->get_meto_finder( $name )
+    my $finder = $cat->get_meto_finder($name)
         or croak "No '$name' meto_finder installed for category $cat";
-    my $bindings = $object->GetBindingForCategory( $cat ) 
+    my $bindings = $object->GetBindingForCategory($cat)
         or croak "Object must belong to category";
 
-    my $obj =  $finder->( $object, $cat, $name, $bindings );
+    my $obj = $finder->( $object, $cat, $name, $bindings );
     ## next line kludgy
-    if (UNIVERSAL::isa($object, "SAnchored")) {
+    if ( UNIVERSAL::isa( $object, "SAnchored" ) ) {
         $obj->get_starred->set_edges( $object->get_edges );
     }
-    
+
     return $obj;
 }
 
-sub get_squintability_checker{
-    my ( $self ) = @_;
-    # XXX(Board-it-up): [2006/12/29] Currently just returns No. Should be different for some categories.
+sub get_squintability_checker {
+    my ($self) = @_;
+
+# XXX(Board-it-up): [2006/12/29] Currently just returns No. Should be different for some categories.
     return;
 }
 
 sub get_meto_types {
-    my ( $self ) = @_;
+    my ($self) = @_;
     return;
 }
 memoize('get_meto_types');
 multimethod 'find_relation_type';
+
 sub FindRelationBetween {
     my ( $self, $o1, $o2 ) = @_;
     my $relation_finder = $self->get_relation_finder() || \&Default_FindRelationBetween;
-    return $relation_finder->($self, $o1, $o2);
+    return $relation_finder->( $self, $o1, $o2 );
 }
 
 sub Default_FindRelationBetween {
     my ( $self, $o1, $o2 ) = @_;
-    my $cat = $self;
+    my $cat      = $self;
     my $opts_ref = {};
 
     $opts_ref->{first}  = $o1;
@@ -154,8 +157,7 @@ sub CalculateBindingsChange_no_slips {
     my $unchanged_ref = {};
     while ( my ( $k, $v1 ) = each %$bindings_1 ) {
         unless ( exists $bindings_2->{$k} ) {
-            confess
-              "In _find_reln($$$): binding for $k missing for second object!";
+            confess "In _find_reln($$$): binding for $k missing for second object!";
         }
         my $v2 = $bindings_2->{$k};
         if ( $v1 eq $v2 ) {
@@ -176,7 +178,7 @@ sub CalculateBindingsChange_with_slips {
     my ( $output_ref, $bindings_1, $bindings_2, $cat, $is_reverse ) = @_;
 
     # An explanation for $is_reverse:
-    # For a reln to be valid, it's reverse must be valid too. Thus, a reln 
+    # For a reln to be valid, it's reverse must be valid too. Thus, a reln
     # between 1 2 3 and 1 as ascending is not desirable, with no way to get back.
     # So I'll also check for reverse, and is_reverse is true if that is what is
     # happening.
@@ -187,7 +189,7 @@ sub CalculateBindingsChange_with_slips {
     ##CalculateBindingsChange_with_slips:
 
     my @attributes = uniq( keys(%$bindings_2), keys(%$bindings_1) );
-  LOOP: while ( my ( $k2, $v2 ) = each %$bindings_2 ) {
+LOOP: while ( my ( $k2, $v2 ) = each %$bindings_2 ) {
         for my $k ( shuffle(@attributes) ) {
             ## k2, k: $k2, $k
             my $v = $bindings_1->{$k};
@@ -213,12 +215,13 @@ sub CalculateBindingsChange_with_slips {
     ## look sufficient:
     unless ($is_reverse) {
         ## checking reverse:
-        return unless CalculateBindingsChange_with_slips({},# don't care
-                                                         $bindings_2,
-                                                         $bindings_1,
-                                                         $cat,
-                                                         1 # is_reverse true
-                                                             );
+        return unless CalculateBindingsChange_with_slips(
+            {},    # don't care
+            $bindings_2,
+            $bindings_1,
+            $cat,
+            1      # is_reverse true
+        );
         ## reverse ok :
         #print "H";
     }

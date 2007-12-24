@@ -18,9 +18,10 @@ use List::Util qw(sum);
 multimethod 'apply_reln_direction';
 
 my %str_of : ATTR(:get<text>);
-my %first_of : ATTR(:get<first>, :set<first>);      # First object in the relation. Not necessarily the left.
+my %first_of : ATTR(:get<first>, :set<first>)
+    ;    # First object in the relation. Not necessarily the left.
 my %second_of : ATTR(:get<second>, :set<second>);    # Second object.
-my %type_of : ATTR(:get<type>);        # Corresponding SRelnType::Simple object.
+my %type_of : ATTR(:get<type>);                      # Corresponding SRelnType::Simple object.
 
 sub get_pure {
     my ($self) = @_;
@@ -36,13 +37,15 @@ sub BUILD {
     $type_of{$id} = SRelnType::Simple->create( $arg_ref->{text} );
 }
 
-multimethod find_relation_string => ('#', '#') => sub {
+multimethod find_relation_string => ( '#', '#' ) => sub {
     my ( $a, $b ) = @_;
-    if ($a == $b) {
+    if ( $a == $b ) {
         return "same";
-    } elsif ($a + 1 == $b) {
+    }
+    elsif ( $a + 1 == $b ) {
         return "succ";
-    } elsif ($a - 1 == $b) {
+    }
+    elsif ( $a - 1 == $b ) {
         return "pred";
     }
     return;
@@ -58,28 +61,15 @@ multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     return apply_reln( $_[0]->get_type(), $_[1] );
 };
 
-multimethod apply_reln => qw(SReln::Simple SAnchored) => sub  {
+multimethod apply_reln => qw(SReln::Simple SAnchored) => sub {
     return;
 };
-
 
 multimethod find_reln => ( '$', '$' ) => sub {
     my ( $n1, $n2 ) = @_;
     print "Should Never reach here; If it does, it means that find_reln was called with funny",
         " arguments. These, in this case, are:\n\t'$n1'\n\t'$n2'\n";
     confess "find_reln error";
-};
-
-multimethod _find_reln => qw( SElement SElement ) => sub {
-    my ( $e1, $e2 ) = @_;
-    my $relation_string = find_relation_string( $e1->get_mag(), $e2->get_mag );
-    if ($relation_string) {
-        return SReln::Simple->new({text => $relation_string,
-                             first => $e1,
-                             second => $e2}
-                                 );
-    }
-    return;
 };
 
 sub as_text {
@@ -113,14 +103,14 @@ sub suggest_cat {
 
 }
 
-sub suggest_cat_for_ends{
-    my ( $self ) = @_;
+sub suggest_cat_for_ends {
+    my ($self) = @_;
     return;
 }
 
 sub UpdateStrength {
     my ($self) = @_;
-    my $strength = 20 * SLTM::GetRealActivationsForOneConcept($self->get_type);
+    my $strength = 20 * SLTM::GetRealActivationsForOneConcept( $self->get_type );
 
     # Holeyness penalty
     $strength *= 0.8 if $self->get_holeyness;
