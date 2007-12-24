@@ -54,6 +54,8 @@ sub get_pure           { return $type_of{ ident $_[0] } }
 sub get_base_category  { return $type_of{ ident $_[0] }->get_base_category() }
 sub get_base_meto_mode { return $type_of{ ident $_[0] }->get_base_meto_mode() }
 sub get_base_pos_mode  { return $type_of{ ident $_[0] }->get_base_pos_mode() }
+sub suggest_cat_for_ends { return $type_of{ ident $_[0]}->suggest_cat_for_ends() }
+
 
 sub get_changed_bindings_ref {
     return $type_of{ ident $_[0] }->get_changed_bindings_ref();
@@ -180,11 +182,6 @@ sub as_text {
 #    my ($self) = @_;#
 #
 #}
-
-sub suggest_cat_for_ends {
-    my ($self) = @_;
-    return $type_of{ ident $self}->suggest_cat_for_ends();
-}
 
 sub UpdateStrength {
     my ($self) = @_;
