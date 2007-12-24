@@ -1,5 +1,5 @@
 use SCat::OfObj;
-use SCat::OfCat;
+#use SCat::OfCat;
 use SCat::OfObj::Std;
 use SCat::OfObj::RelationTypeBased;
 use SCat::OfObj::Literal;

@@ -562,6 +562,10 @@ sub serialize {
 sub deserialize {
     my ( $package, $string ) = @_;
 }
+sub AreAttributesSufficientToBuild {
+    my ( $self, @atts ) = @_;
+ 
+}
 1;
 "
 
