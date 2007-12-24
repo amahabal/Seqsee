@@ -60,11 +60,9 @@ use SRuleApp;
 our $ASCENDING  = $SCat::ascending::ascending;
 our $DESCENDING = $SCat::descending::descending;
 our $MOUNTAIN   = $SCat::mountain::mountain;
-our $LITERAL    = $SCat::literal::literal;
 
 #our $number     = $SCat::number::number;
 our $SAMENESS   = $SCat::sameness::sameness;
-our $RELN_BASED = $SCat::reln_based::reln_based;
 our $AD_HOC     = $SCat::ad_hoc::AD_HOC;
 our $NUMBER     = $SCat::Number::Number;
 

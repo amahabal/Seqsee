@@ -6,7 +6,8 @@ INITIAL: {
             my @ret;
 
             my $structure = $core->get_structure();
-            FRINGE 100, $S::LITERAL->build( { structure => $structure } );
+            my $literal_cat = SCat::OfObj::Literal->Create($structure);
+            FRINGE 100, $literal_cat;
 
             if ( my $rel = $core->get_underlying_reln() ) {
                 FRINGE 50, $rel;
@@ -158,15 +159,16 @@ INITIAL: {
             my $mag = $core->get_mag();
             my @ret;
 
-            FRINGE 100, $S::LITERAL->build( { structure => [$mag] } );
 
             for ( @{ $core->get_categories() } ) {
                 next if $_ eq $S::RELN_BASED;
                 FRINGE 80, $_;
             }
 
-            FRINGE 30, $S::LITERAL->build( { structure => [ $mag + 1 ] } );
-            FRINGE 30, $S::LITERAL->build( { structure => [ $mag - 1 ] } );
+            my @literal_cats = map { SCat::OfObj::Literal->Create([$mag+$_])} (0, 1, -1);
+            FRINGE 100, $literal_cats[0];
+            FRINGE 30, $literal_cats[1];
+            FRINGE 30, $literal_cats[-1];
 
             my $pos     = $core->get_left_edge();
             my $abs_pos = "absolute_position_" . $pos;

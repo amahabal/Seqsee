@@ -37,7 +37,7 @@ RUN: {
             ## @structure
         }
 
-        my $lit_cat = $S::LITERAL->build( { structure => [@structure] } );
+        my $lit_cat = SCat::OfObj::Literal->Create([@structure]);
 ## $lit_cat, ident $lit_cat
         my $bindings = $object->describe_as($lit_cat)
             or confess "Hey, should NEVER have failed!";
