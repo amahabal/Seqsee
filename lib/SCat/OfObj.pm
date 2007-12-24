@@ -12,10 +12,12 @@ use SUtil;
 use List::Util qw(sum shuffle);
 
 my %relation_finder_of : ATTR(:get<relation_finder> :set<relation_finder>);
+my %relation_applier_of :ATTR(:get<relation_applier> :set<relation_applier>);
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     $relation_finder_of{$id} = $opts_ref->{relation_finder} || undef;
+    $relation_applier_of{$id} = $opts_ref->{relation_applier} || undef;
 }
 
 use Class::Multimethods;
@@ -75,11 +77,18 @@ sub get_meto_types {
 }
 memoize('get_meto_types');
 multimethod 'find_relation_type';
+multimethod 'apply_reln';
 
 sub FindRelationBetween {
     my ( $self, $o1, $o2 ) = @_;
     my $relation_finder = $self->get_relation_finder() || \&Default_FindRelationBetween;
     return $relation_finder->( $self, $o1, $o2 );
+}
+
+sub ApplyRelationType {
+    my ( $self, $relation_type, $object ) = @_;
+    my $relation_applier = $self->get_relation_applier() || \&Default_ApplyRelationType;
+    return $relation_applier->($self, $relation_type, $object);
 }
 
 sub Default_FindRelationBetween {
@@ -139,6 +148,110 @@ sub Default_FindRelationBetween {
     }
 
     return SReln::Compound->new($opts_ref);
+}
+
+sub Default_ApplyRelationType {
+    my ( $self, $relation_type, $original_object ) = @_;
+    my $cat = $self;
+    my $reln = $relation_type;
+
+    my $object = $original_object->GetEffectiveObject();
+
+    # Find category for new object
+    $reln->get_base_category() eq $cat or confess "relation_type and base category do not match";
+
+    # Make sure the object belongs to that category
+    my $bindings = $object->describe_as($cat) or return;
+    $bindings->TellDirectedStory( $object, $reln->get_base_pos_mode() );
+    ## $bindings
+    ## $cat->as_text
+
+    # Find the bindings for it.
+    my $bindings_ref         = $bindings->get_bindings_ref;
+    my $changed_bindings_ref = $reln->get_changed_bindings_ref;
+    my $slippages_ref        = $reln->get_slippages_ref();
+    my $new_bindings_ref     = {};
+
+    if (%$slippages_ref) {
+        for my $att ( keys %$slippages_ref ) {
+            my $old_attr = $slippages_ref->{$att} or next;
+            my $val = $bindings_ref->{$old_attr};
+            if ( exists $changed_bindings_ref->{$att} ) {
+                $new_bindings_ref->{$att} = apply_reln( $changed_bindings_ref->{$att}, $val );
+                next;
+            }
+            $new_bindings_ref->{$att} = $val;
+        }
+    }
+    else {
+
+        while ( my ( $k, $v ) = each %$bindings_ref ) {
+            ## $k, $v: $k, $v
+            if ( exists $changed_bindings_ref->{$k} ) {
+                ## cbr: $changed_bindings_ref->{$k}
+                $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k}, $v );
+                next;
+            }
+            ## handled
+            # no change...
+            $new_bindings_ref->{$k} = $v;
+        }
+    }
+
+    my $ret_obj = $cat->build($new_bindings_ref);
+    ## $new_bindings_ref
+    # We have not "applied the blemishes" yet, of course
+
+    my $reln_meto_mode   = $reln->get_base_meto_mode;
+    my $object_meto_mode = $bindings->get_metonymy_mode;
+    unless ( $reln_meto_mode == $object_meto_mode ) {
+        ## reln_meto_mode isnot object_meto_mode
+        return;
+    }
+
+    unless ( $reln_meto_mode == METO_MODE::NONE() ) {
+
+        # Calculate the metonymy type of the new object
+        my $new_metonymy_type
+            = apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
+        return unless $new_metonymy_type;
+
+        if ( $reln_meto_mode == METO_MODE::ALL() ) {
+            $ret_obj = $ret_obj->apply_blemish_everywhere($new_metonymy_type);
+        }
+        else {
+
+            # If we get here, position is relevant!
+            my $new_position = apply_reln( $reln->get_position_reln, $bindings->get_position );
+            ## new_blemish position: $new_position->get_name()
+            return unless $new_position;
+            ## $reln->get_position_reln()->get_text()
+            ## $bindings->get_position()->get_index
+            ## $new_position->get_index()
+            ## $reln_meto_mode
+
+            ## $bindings->get_metonymy_type()->get_info_loss()
+            ## $reln->get_metonymy_reln()->get_change_ref()
+            ## $new_metonymy_type->get_info_loss()
+
+            ## $new_object->get_structure
+            my $blemished;
+            eval { $blemished = $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position ); };
+            ## new object: $ret_obj->get_structure
+            return unless $blemished;
+            $ret_obj = $blemished;
+        }
+    }
+
+    $ret_obj->describe_as($cat);
+    $ret_obj->TellDirectedStory( $cat, $reln->get_base_pos_mode() );
+    my $rel_dir = $reln->get_direction_reln;
+    my $obj_dir = $object->get_direction;
+    my $new_dir = apply_reln( $rel_dir, $obj_dir );
+
+    $ret_obj->set_direction($new_dir);
+    $ret_obj->set_group_p(1);
+    return $ret_obj;
 }
 
 sub CalculateBindingsChange {
