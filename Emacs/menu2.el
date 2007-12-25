@@ -5,6 +5,8 @@
                     ["Show Uncommited Changes" seq-svn-diff t]
                     ["Search Seqsee Codebase" seq-search-codebase t]
                     ["Insert Category Creation Code" seqsee-category-type t]
+                    ["Global replace in lib/" seqsee-replace-lib t]
+                    ["Global replace in t/" seqsee-replace-t t]
 ))
 
 (tool-bar-add-item "seqsee-right-arrow" 'seq-svn-diff 'fookey
