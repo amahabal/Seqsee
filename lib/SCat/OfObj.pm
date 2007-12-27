@@ -76,6 +76,7 @@ sub get_meto_types {
     return;
 }
 memoize('get_meto_types');
+multimethod 'find_reln';
 multimethod 'find_relation_type';
 multimethod 'apply_reln';
 
@@ -178,6 +179,7 @@ sub Default_ApplyRelationType {
             my $val = $bindings_ref->{$old_attr};
             if ( exists $changed_bindings_ref->{$att} ) {
                 $new_bindings_ref->{$att} = apply_reln( $changed_bindings_ref->{$att}, $val );
+                return unless defined $new_bindings_ref->{$att};
                 next;
             }
             $new_bindings_ref->{$att} = $val;
@@ -190,6 +192,7 @@ sub Default_ApplyRelationType {
             if ( exists $changed_bindings_ref->{$k} ) {
                 ## cbr: $changed_bindings_ref->{$k}
                 $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k}, $v );
+                return unless defined $new_bindings_ref->{$k};
                 next;
             }
             ## handled
