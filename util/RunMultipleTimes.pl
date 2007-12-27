@@ -37,11 +37,11 @@ my $terms : shared;
 ( $times, $terms ) = @options{qw{times seq}};
 my @selected_feature_set : shared;
 @selected_feature_set = map {"-f=$_"} keys %Global::Feature;
-my $TIMES_TO_RUN = 10;
+my $TIMES_TO_RUN =$times ;
 
 my $MW = new MainWindow();
 
-my $Text = $MW->Scrolled( 'Text', -scrollbars => 'se', -width => 130 )->pack();
+my $Text = $MW->Scrolled( 'Text', -scrollbars => 'se', -width => 100 )->pack();
 $Text->tagConfigure( 'success',           -background => 'blue',    -foreground => 'white' );
 $Text->tagConfigure( 'qualified_success', -background => '#7777FF', -foreground => 'white' );
 $Text->tagConfigure( 'error',             -background => 'red',     -foreground => 'white' );

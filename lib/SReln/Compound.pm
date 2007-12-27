@@ -175,7 +175,11 @@ sub as_text {
     my $id = ident $self;
 
     my ($first, $second) = map { SUtil::StringifyForCarp($_) } ($first_of{$id}, $second_of{$id});
-    return "SReln::Compound($first ---> $second)";
+    my $rest;
+    if ($Global::Feature{debug}) {
+        $rest = SUtil::StringifyForCarp($type_of{$id});
+    }
+    return "SReln::Compound($first ---> $second) <$rest>";
 }
 
 #sub suggest_cat {

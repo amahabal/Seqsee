@@ -85,6 +85,7 @@ sub deserialize {
 
 sub AreAttributesSufficientToBuild {
     my ( $self, @atts ) = @_;
-    return 1;
+    return 1 if scalar(grep {/^part_no_/} (SUtil::uniq(@atts))) == $PartsCount_of{ident $self};
+    return;
 }
 1;

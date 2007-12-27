@@ -109,9 +109,9 @@ sub as_text {
         while ( my ( $new, $old ) = each %slippages ) {
             my $reln_for_this_attribute = $changed_bindings->{$new};
             if ($reln_for_this_attribute) {
-                $changed_bindings_string .= "$new => " . $reln_for_this_attribute->as_text();
+                $changed_bindings_string .= "($new => " . $reln_for_this_attribute->as_text();
                 $changed_bindings_string .= " (of $old)" if $old ne $new;
-                $changed_bindings_string .= ';';
+                $changed_bindings_string .= ');';
             }
             else {
                 if ( $old ne $new ) {
