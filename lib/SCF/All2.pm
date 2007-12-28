@@ -571,7 +571,7 @@ RUN: {
             SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
             $new_group = SAnchored->create(@unstarred_items);
             if ($new_group) {
-                $new_group->set_underlying_reln($a->get_underlying_reln()->get_rule());
+                $new_group->set_underlying_ruleapp($a->get_underlying_reln()->get_rule());
                 SWorkspace->add_group($new_group);
             }
         } CATCH {

@@ -424,7 +424,7 @@ sub redescribe_as {
 }
 
 # XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
-sub set_underlying_reln : CUMULATIVE {
+sub set_underlying_ruleapp : CUMULATIVE {
     my ( $self, $reln ) = @_;
     $reln or confess "Cannot set underlying relation to be an undefined value!";
     my $id = ident $self;
@@ -437,18 +437,9 @@ sub set_underlying_reln : CUMULATIVE {
         $ruleapp = $reln->CheckApplicability({
             objects => [@$self],
             direction => $self->get_direction(),
-        });
-        unless ($ruleapp) {
-            my $msg_string = "Object: " . $self->get_structure_string() . "\n";
-            $msg_string .= "in direction " . $self->get_direction()->as_text();
-            $msg_string .= "\n" . $reln->as_text();
-            $msg_string .= "The objects effective structure was: "
-                . $self->GetEffectiveStructureString();
-            SErr::UnderlyingRelnUnapplicable->throw("unable to apply underlying relation! $msg_string");
-        }
-
+        }); # could be undef.
     } else {
-        confess "Funny argument $reln to set_underlying_reln!";
+        confess "Funny argument $reln to set_underlying_ruleapp!";
     }
 
     $self->AddHistory("Underlying relation set: $ruleapp ");
@@ -855,4 +846,5 @@ sub GetEffectiveSlippages {
 
 
 1;
+
 

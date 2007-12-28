@@ -48,7 +48,7 @@ RUN: {
             SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
             $new_group = SAnchored->create(@unstarred_items);
             if ($new_group) {
-                TRY { $new_group->set_underlying_reln($reln); }
+                TRY { $new_group->set_underlying_ruleapp($reln); }
                     CATCH {
                       UnderlyingRelnUnapplicable: {
                             return;

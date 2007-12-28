@@ -223,7 +223,7 @@ sub Update {
     $self->recalculate_relations();
     $self->UpdateStrength();
     if ( my $underlying_reln = $self->get_underlying_reln() ) {
-        eval { $self->set_underlying_reln( $underlying_reln->get_rule() ) };
+        eval { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) };
         if ($EVAL_ERROR) {
             SWorkspace->remove_gp($self);
             return;
