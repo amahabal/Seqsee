@@ -10,3 +10,5 @@ for Background :Bundle«all»
 for SThought
 :family«bond_evaluator»        :prob«=certain»   :urgency«50»
  
+for bond_evaluator
+:family«group_evaluator»       :prob«=certain»   :urgency«50»

@@ -1,27 +1,56 @@
-This is going to be a huge list...
+*** A little unrelated: consolidate my four pmwiki installations to two: 
+public and private. Or maybe even 1, with a read password on part of the 
+group of one. This is probably best!
 
-* Unify runNoTk and runTk into one program called Seqsee which takes the option --tk.
-	Done * use Tk::Getopt for this if it works
-	Done * using BEGIN{} define the method main::GUI using constants
-	* Create framework for menus,
-	PARTLY * create windows for Info, Coderack, Slipnet and Stream
-	DONE * In each method that modifies the WS or coderack, have a call that looks like C<< if(::GUI) { ... a method that modifies the view ... }. This will be removed by the compiler in the non-GUI mode
-	PARTLY * In each package, define the method LOGGING_INFO and LOGGING_DEBUG similarly
-	PARTLY * write code in Tk::SWorkspace that'd be able to deal with bonds and groups etc. 
-	DONE * Think through and implement how I can make incremental changes.
-	MOSTLY * Check if just using splines removes the need for me to have to deal with how bonds go.
-	DONE * Think through how callbacks will happen
-	* Think about how I can let the program run several steps slowly stepping through without having to press the button each time.
+*** Quite a bit of moving code around may be needed.
 
-* experiment with C<< perl -MO=Xref prog.pl > dump >>
+*** Other Blemishes
+  ---> to ensure I have not hardcoded many assumptions
+  ---> other blemishes that take arguments, like "repeat"
+  ---> Explore whether and how I may compose() by default
 
-* I should maybe work on the workspace for a bit. Lots of stuff there that can be lifted to this new environment.
+*** Other Positions
+  ---> "the 3" or "the length 3"
+  ---> "after the peak", "after the 3"
 
-* Need to create groups.
+*** Other categories
+  ---> what I used to describe as literal categories, like "1 2 3"
+   ---> should not be hard, and also, needed for "the 3" and "the 123"
+  ---> could give a completely new look and feel to is_blearily_ok
+     ---> but I may still need something more literal like 
+	  is_blearily_ok around.
 
-* Write a lot of examples including descriptions, bonds, groups etc.
+*** SBuiltObj
+  ---> I really need to resolve the plethora of structure commands
 
-* Create class SObject (from which SElement and SGroup derive), and add stuff to this like promote/add/remove bonds and groups, and add similar functionality to the WS.
+*** Test::Seqsee
+  ---> consider splitting this up
+  ---> ensure uniformity in naming conventions
 
-* Write as_str() methods for the various classes.
+*** THINKING
+  ---> changes cannot be decoupled from descriptions
+    ---> write millions of examples and represent change/desc pairs
+  ---> Current describe is pretty brute-forcish
+    ---> thoughts on how the stream can be brought to bear?
+
+*** ANOTHER REFACTORING ROUND!
+
+*** Blemishes applied at several places ("everywhere", "somewhere")
+*** Fascinations. 
+*** Roll a release. Today, now!
+*** Clean up tests. More tests absolutely needed. Did I say clean up?
+*** Composing meta-categories?
+
+*** Perl6! Get a bunch of these things working in perl6. Should be absolutely doable!
+
+
+**** AFTER DISCUSSION WITH DAVID
+* Elusis?
+* Bug: 1 1 2 3/ 1 2 3 3 4/ 3 3 4 3/ 5 5 6 7 6 5
+* Explanation of why I cannot get at some pressures and how gennext would be a good place for that
+* Build up (two parts, where the first is a mountain), as well as down.
+* The user input can use parentheses to group things together. The easiest, and will do a lot to get harder things to happen. So many more categories that I can get at. A MUCH MUCH larger set of derived categories would become available.
+* I should write code for this today, perhaps. But No: I'll wait, plan a bit more and then do it. But the friday deadline for shipping this code is fast approaching!
+
+
 

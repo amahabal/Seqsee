@@ -1,6 +1,0 @@
-Revision history for Perl extension Seqsee.
-
-0.00_09  Tue Nov 16 11:31:27 2004
-	- original version; created by h2xs 1.23 with options
-		-A -B -v 0.00_09 -X -n Seqsee --use-new-tests Seqsee
-

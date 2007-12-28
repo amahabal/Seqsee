@@ -1,35 +1,34 @@
-use Test::More tests => 9;
-use Test::MockObject;
-use blib;
+use strict;
+use lib 'genlib';
+use Test::Seqsee;
+BEGIN { plan tests => 10; }
 
-use STestInit;
+# use MyFilter;
+use Test::MockObject;
+use lib 't/lib';
+use TestSCF;
 
 BEGIN {
-  Test::MockObject->fake_module('SCF::family_foo');
+  Test::MockObject->fake_module('SCF::family_malformed');
 }
 
-BEGIN{
-  $SCF::family_foo::logger = Log::Log4perl->get_logger('');
-  $SCF::family_foo::logger;
-  sub SCF::family_foo::run{
-    my $args = shift;
-    return (97 + $args->{a});
-  }
-}
+$Global::Steps_Finished = 20;
+my $cl = SCodelet->new( "family_foo", 10, { a => 3, b => 5 } );
 
+isa_ok $cl, "SCodelet";
+is $cl->[0], "family_foo";    # family name
+is $cl->[1], 10;              # urgency
+is $cl->[2], 20;              # epoch of birth
+is $cl->[3]{a}, 3;            # other args
 
-BEGIN {use_ok("SCodelet")};
+# Running, and its consequences
+is $cl->run(), 100;           # run
+is $Global::CurrentCodelet,       $cl;
+is $Global::CurrentCodeletFamily, "family_foo";
 
-$::CurrentEpoch = 20;
+my $cl2 = SCodelet->new( "family_nonexistant", 20 );
+throws_ok { $cl2->run() } "SErr::Code";
 
-my $cl = new SCodelet("family_foo", 10, a => 3, b => 5);
+my $cl3 = SCodelet->new( "family_malformed", 20 );
+throws_ok { $cl3->run() } "SErr::Code";
 
-isa_ok($cl, "SCodelet");
-cmp_ok($cl->[0], 'eq', "family_foo");
-cmp_ok($cl->[1], 'eq', "10");
-cmp_ok($cl->[2], 'eq', "20");
-cmp_ok($cl->[3]{a}, 'eq', 3);
-cmp_ok($cl->run(), 'eq', 100);
-
-cmp_ok($::CurrentCodelet,       'eq', $cl);
-cmp_ok($::CurrentCodeletFamily, 'eq', "family_foo");

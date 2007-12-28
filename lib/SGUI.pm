@@ -1,282 +1,265 @@
-package main;
-use Tk;
-use Tk::LabFrame;
-use Tk::Menu;
+package SGUI;
+use strict;
+use warnings;
+use Carp;
+use Config::Std;
+use English qw(-no_match_vars);
+use Smart::Comments;
 
-use Tk::SWorkspace;
-use Tk::SInfo;
-use Tk::SStream;
-use Tk::SCoderack;
-use Tk::SStream;
-use Tk::SNet;
-use Tk::Pod;
- 
 our $MW;
-our $WS_gui;
-our $Info_top;
-our $INFO;
-our $CODERACK_gui;
-our $SLIPNET_gui;
-our $CR_SN_top;
-our $MENU;
+our $Coderack;
+our $Stream;
+our $Components;
+our $Workspace;
+our $Info;
+our $Activations;
 
-Tk::Pod->Dir('.', './pod/sdd', './pod');
-
-sub setupGUI{
-  # This method creates windows etc...
-  $MW = new MainWindow(-title => "Workspace");
-  setup_menu();
-  $WS_gui = $MW->SWorkspace
-    (
-     -height      => 500,
-     -width       => 700,
-     # -background  => '#FCFCFC'
-    )
-      ->pack(-side => 'top');
-
-  # $CR_SN_top = $MW->Toplevel;
-  $Info_top = $MW->Toplevel(-title => "Information");
-  $INFO     = $Info_top->Scrolled
-    ('SInfo',
-     -scrollbars  => 'se',
-     -height      => 33,
-     -width       => 60,
-     #-background  => '#FCFCFC'
-    )
-      ->pack(-side => 'left');
-  my $frame = $Info_top->Frame()->pack(-side => 'right');
-  my $f2 = $frame->LabFrame(-label => "Coderack")
-    ->pack(-side => 'top');
-  $CODERACK_gui = $f2->Scrolled
-    ( 'SCoderack',
-      -scrollbars => 'oe',
-      -foreground => 'blue',
-      -width      => 40,
-      -height     => 12,
-    )->pack(-side => 'top');
-  $f2 = $frame->LabFrame(-label => "Slipnet")
-    ->pack(-side => 'top');
-  $SLIPNET_gui = $f2->Scrolled
-    ( 'SNet',
-      -scrollbars => 'oe',
-      -foreground => 'blue',
-      -width      => 40,
-      -height     => 18,
-    )->pack();
-  $SLIPNET_gui->redraw;
-  $STREAM_gui = $MW->SStream(-title => "Stream");
-
-  #$Stream_top = $MW->Toplevel;
-  #$STREAM_gui = $Stream_top->SCrolled
-  #  (
-  #
-  #				     )
-
-  $WS_gui->redraw;
-  $MW->Button(-text => "Step",
-	      -command => sub { Step(); 
-				print "Finished step $CurrentEpoch\n";
-			      }
-	     )->pack;
+sub setup {
+    my ($options_ref) = @_;
+    my $gui_config_name = $options_ref->{gui_config} or confess;
+    my $config_filename = "config/${gui_config_name}.conf";
+    ### Here
+    read_config $config_filename => my %config;
+    ### and here
+    CreateWidgets( \%config );
+    SetupButtons( \%config );
+    SetupBindings( \%config );
 }
 
-sub SElement::display_details{
-  my $self = shift;
-  $INFO->clear;
-  $INFO->head("$self\tMag: $self->{mag}");
-  $INFO->skip(1);
-  $self->display_descriptions;
-  $INFO->skip(3);
-  $self->display_fascinations;
-  $INFO->skip(3);
-  $self->display_memberships;
-  $INFO->skip(3);
-  $INFO->history($self);
-}
-
-sub SGroup::display_details{
-  my $self = shift;
-  $INFO->clear;
-  $INFO->head("$self\t$self->{str}");
-  $INFO->skip(1);
-  $self->display_descriptions;
-  $INFO->skip(3);
-  $self->display_fascinations;
-  $INFO->skip(3);
-  $self->display_memberships;
-  $INFO->skip(3);
-  $INFO->history($self);
-}
-
-
-sub SBond::display_details{
-  my $self = shift;
-  $INFO->clear;
-  $INFO->head("$self\t$self->{str}");
-  $INFO->skip(1);
-  $self->display_bdescriptions;
-  $INFO->skip(3);
-  $self->display_fascinations;
-  $INFO->skip(3);
-  $INFO->history($self);
-}
-
-sub SNode::display_details{
-  my $self = shift;
-  $INFO->clear;
-  $INFO->head("Node $self->{shortname}");
-  $INFO->skip(1);
-  $self->display_descriptions;
-  $INFO->skip(3);
-  $self->display_fascinations;
-}
-
-sub SDescs::display_descriptions{
-  my $self = shift;
-  my $depth = shift || 1;
-  my $title = $self->isa("SNode")? "Links" : "Descriptions";
-  $INFO->head2($title);
-  for my $desc (@{ $self->{descs} }) {
-    $INFO->description($desc, $depth);
-  }
-}
-
-sub SBDescs::display_bdescriptions{
-  my $self = shift;
-  my $depth = shift || 1;
-  $INFO->head2("Descriptions");
-  for my $desc (@{ $self->{descs} }) {
-    $INFO->bdescription($desc, $depth);
-  }
-}
-
-sub SObject::display_memberships{
-  my $self = shift;
-  my $depth = shift || 1;
-  $INFO->head2("Bonds");
-  foreach (values %{$self->{bonds}}, values %{$self->{bonds_p}}) {
-    $INFO->bond($_, $depth);
-  }
-  $INFO->skip(1);
-  $INFO->head2("Groups");
-  foreach (values %{$self->{groups}}, values %{$self->{groups_p}}) {
-    $INFO->group($_, $depth);
-  }
-}
-
-sub SFascination::display_fascinations{
-  my $self = shift;
-  $INFO->head2("Fascinations");
-  while (my ($k, $v) = each %{$self->{f}}) {
-    $INFO->body(1, "$k\t$v");
-  }
-}
-
-##### MENU SETUP
-sub setup_menu{
-  $MENU = $MW->Menu(-type => 'menubar');
-  $MW->configure(-menu => $MENU);
- 
-  # File
-  my $f = $MENU->cascade(-label => '~File', -tearoff => 0);
-  $f->command(-label => 'Exit', -command => ['exit']);
-
-  # Info
-  my $i = $MENU->cascade(-label => '~Information', -tearoff => 0);
-  $i->command(-label   => 'Codelet types',
-	      -command => [\&display_file, "SCF.list"],
-	     );
-  my $j = $i->cascade(-label => 'Who launches...', -tearoff => 0);
-  my $k = $i->cascade(-label => '... launched by', -tearoff => 0);
-  populate_launching_info($j, $k);
-
-  $i = $MENU->command(-label   => 'Help',
-		      -command => sub { 
-			$MW->Pod()->configure(-file => "index");
-		      }
-		     );
-}
-
-sub display_file{
-  my $filename = shift;
-  open(IN, $filename) or die "Could not open file $filename";
-  $INFO->clear;
-  $INFO->head($filename);
-  $INFO->skip(1);
-  while ($in = <IN>) {
-    $INFO->insert('end', $in);
-  }
-  close IN;
-}
-
-sub display_launching_info{
-  my ($launcher, $launchee) = @_;
-  $INFO->clear;
-  if ($launcher) {
-    open (IN, "perl GenCL.pl --info --launcher=$launcher|");
-    $INFO->head("Launched by $launcher");
-    while ($in = <IN>) {
-      # Read launcher in, ignore it.
-      my $family = <IN>; $family =~ s(^(.*)#)();
-      my $TAG = <IN>; $TAG =~ s(^(.*)#)(); chop($TAG);
-      my $key = <IN>; $key =~ s(^(.*)#)();
-      my $urgency = <IN>; $urgency =~ s(^(.*)#)();
-      my $prob = <IN>; $prob =~ s(^(.*)#)();
-      my $ignore = <IN>;
-      $INFO->skip(1);
-      $INFO->head2($family);
-      $INFO->body(1, "urgency      =>  $urgency");
-      $INFO->body(1, "probability  =>  $prob");
-      $INFO->body(1, "tag/key      =>  $TAG/$key");
+sub tags_to_aref {
+    my ($href) = @_;
+    my @ret = ();
+    while ( my ( $k, $v ) = each %$href ) {
+        push @ret, [ $k, split( /\s+/, $v ) ];
     }
-    close(IN);
-  } else {
-    open (IN, "perl GenCL.pl --info --launchee=$launchee|");
-    $INFO->head("Who launches $launchee");
-    while ($in = <IN>) {
-      my $launcher = $in; $launcher =~ s(^(.*)#)();
-      my $family = <IN>; $family =~ s(^(.*)#)();
-      my $TAG = <IN>; $TAG =~ s(^(.*)#)();chop($TAG);
-      my $key = <IN>; $key =~ s(^(.*)#)();
-      my $urgency = <IN>; $urgency =~ s(^(.*)#)();
-      my $prob = <IN>; $prob =~ s(^(.*)#)();
-      my $ignore = <IN>;
-      $INFO->skip(1);
-      $INFO->head2($launcher);
-      $INFO->body(1, "urgency      =>  $urgency");
-      $INFO->body(1, "probability  =>  $prob");       
-      $INFO->body(1, "tag/key      =>  $TAG/$key");
-    }
-    close(IN);
-  }
+    return \@ret;
 }
 
-sub populate_launching_info{
-  my ($who_launches, $launched_by) = @_;
-  $launched_by->command(-label   => "Startup",
-			-command => [\&display_launching_info, "StartUp"]
-		       );
-  $launched_by->command(-label   => "Background",
-			-command => [\&display_launching_info, "Background"]
-		       );
-  $launched_by->separator;
-  open(IN, "SCodeConfig.list");
-  while (my $in = <IN>) {
-    chop($in);
-    last unless $in;
-    next if $in eq "StartUp";
-    next if $in eq "Background";
-    $launched_by->command(-label => $in,
-			  -command => [\&display_launching_info, $in]
-			 );
-  }
-  while (my $in = <IN>) {
-    chop($in);
-    $who_launches->command(-label => $in,
-			  -command => [\&display_launching_info, '',  $in]
-			 );
-  }
-  close(IN);
+my $check_and_accept_input_sequence = sub {
+    my ( $v, $msg_label ) = @_;
+    if ( $v =~ /[^\d\s,-]/ ) {
+        $msg_label->configure( -text => "Illformed input: $v" );
+        return;
+    }
+    return unless $v =~ /\d/;
+    $v =~ s/^\s+//;
+    $v =~ s/\s+$//;
+    my @seq = split( /[,\s]+/, $v );
+    print "Return pressed; Seq is: @seq";
+    SWorkspace->clear();
+    SCoderack->clear();
+    $Global::MainStream->clear();
+
+    SWorkspace->insert_elements(@seq);
+    Update();
+    return 1;
+};
+
+BEGIN {
+    open my $in, 'config/sequence.list';
+    our @seq = <$in>;
+    chomp(@seq);
+    @seq = grep {/\d/} @seq;
+}
+
+sub ask_seq {
+    my $top = $MW->Toplevel( -title => "Seqsee Sequence Entry" );
+    $top->Label( -text => "Enter sequence(space separated): " )->pack( -side => 'left' );
+    $top->focusmodel('active');
+    my $label = $top->Label( -text => '' )->pack( -side => 'bottom' );
+    our @seq;
+    my $seq;    # selected sequence
+
+    my $f = $top->ComboEntry(
+        -invoke => sub {
+            my ($comboentry) = @_;
+            $seq = $comboentry->get();
+            if ( $check_and_accept_input_sequence->( $seq, $label ) ) {
+                $top->destroy;
+            }
+        },
+
+        # -list => ['1 1 2 1 2 3',
+        #                   '1 7 2 8 3 9',
+        #                   '1 7 1 2 8 1 2 3 9'],
+        -list     => \@seq,
+        -showmenu => 1,
+        -width    => 40,
+    )->pack( -side => 'top', -expand => 'true', -fill => 'both' );
+    $f->bind(
+        '<Return>' => sub {
+            $seq = $f->get();
+            if ( $check_and_accept_input_sequence->( $seq, $label ) ) {
+                $top->destroy;
+            }
+        }
+    );
+    $f->focus();
+    $top->Button(
+        -text    => 'Go',
+        -command => sub {
+            $seq = $f->get();
+            if ( $check_and_accept_input_sequence->( $seq, $label ) ) {
+                $top->destroy;
+            }
+        }
+    )->pack( -side => 'right' );
+    $SGUI::Commentary->MessageRequiringNoResponse( 'New Sequence Started: ', [], "$seq\n" );
+
+    #my $e = $top->Entry()->pack( -side => 'left' );
+    #$e->focus();
+    #$e->bind(
+    #     '<Return>' => sub {
+    #             my $v = $e->get();
+    #             $v =~ s/^\s+//;
+    #             $v =~ s/\s+$//;
+    #             my @seq = split( /[,\s]+/, $v );
+    #             print "Return pressed; Seq is: @seq";
+    #             SWorkspace->clear();
+    #             SWorkspace->insert_elements(@seq);
+    #             Update();
+    #             $top->destroy;
+    #         }
+    #);
+}
+
+sub ask_for_more_terms {
+    my $top = $MW->Toplevel( -title => "Request for more terms" );
+    $top->Label( -text => "I am stuck! Please provide more terms! (space separated): " )
+        ->pack( -side => 'top' );
+    $top->focusmodel('active');
+    my $e = $top->Entry()->pack( -side => 'top' );
+    $e->focus();
+    $e->bind(
+        '<Return>' => sub {
+            my $v = $e->get();
+            $v =~ s/^\s+//;
+            $v =~ s/\s+$//;
+            my @seq = split( /[,\s]+/, $v );
+            print "Return pressed; Seq is: @seq";
+            SWorkspace->insert_elements(@seq);
+            Update();
+            $top->destroy;
+        }
+    );
+    return $top;
+}
+
+sub SetupButtons {
+    my ($config_ref) = @_;
+
+    my $parent_name = $config_ref->{frames}{buttons_widget} or confess;
+    my $parent;
+    { no strict; $parent = ${$parent_name}; }
+    ## parent: $parent_name, $parent
+
+    my $button_order = $config_ref->{frames}{button_order} or confess;
+    my @buttons_names = map { s#^\s*##; s#\s*$##; s#\s+# #g; $_ } split( qq{\n}, $button_order );
+
+    my $options_ref = $config_ref->{Button};
+    my %options = ( defined $options_ref ) ? %$options_ref : ();
+
+    for (@buttons_names) {
+        my $command_string = $config_ref->{buttons}{$_} or confess;
+        my $command = eval qq{ sub {$command_string}; };
+        confess if $EVAL_ERROR;
+        $parent->Button( -text => $_, -command => $command, %options )->pack( -side => 'left' );
+    }
+}
+
+sub SetupBindings {
+    my ($config_ref) = @_;
+    my @names = keys %{ $config_ref->{bindings} };
+    for my $name (@names) {
+        ## $name: $name
+        my $command_string = $config_ref->{bindings}{$name} or confess;
+        my $command = eval qq{ sub {$command_string}; };
+        confess if $EVAL_ERROR;
+        $MW->bind( $name => $command );
+    }
+}
+
+{
+    my %SeqseeWidgets = map { $_ => 1 } qw( SCommentary);
+    my %Updatable     = map { $_ => 1 } qw(Seqsee);
+    my @to_Update     = ();
+
+    sub CreateWidgets {
+        my ($config_ref) = @_;
+
+        my $MW_options = $config_ref->{MainWindow} || {};
+        $MW = new MainWindow(%$MW_options);
+
+        if ( exists $config_ref->{frames}{geometry} ) {
+            $MW->geometry( $config_ref->{frames}{geometry} );
+        }
+
+        my $frames_string = $config_ref->{frames}{frames} or confess;
+        my @lines = split qq{\n}, $frames_string;
+        for my $line (@lines) {
+            $line =~ s#^\s*##;
+            $line =~ s#\s*$##;
+            my ( $name, $parent, $widget_type, $position, @rest ) = split( /\s+/, $line );
+            require "Tk/$widget_type.pm";
+            ## In CreateWidgets: $name, $parent, $widget_type, $position, @rest
+            no strict;
+            my $widget;
+
+            $widget
+                = ${$parent}->$widget_type( GetWidgetOptions( $widget_type, $config_ref, @rest ) );
+
+            $widget->pack( -side => $position ) if ( $widget_type ne 'Toplevel' );
+
+            ${$name} = $widget unless $name eq '_';
+
+            $Updatable{$widget_type} ||= ${ 'Tk::' . $widget_type . '::UPDATABLE' };
+
+            if ( $Updatable{$widget_type} ) {
+                push @to_Update, $widget;
+            }
+        }
+        $MW->focus();
+    }
+
+    sub GetWidgetOptions {
+        my ( $type, $config_ref, @rest ) = @_;
+        if ( exists $SeqseeWidgets{$type} ) {
+            exists( $config_ref->{$type} ) or confess "Missing config for $type";
+            my %ret = %{ $config_ref->{$type} };
+            for ( values %ret ) {
+                next unless m/^!(.*)/;
+                $_ = eval($1);
+            }
+            my $tags_config = $config_ref->{ $type . '_tags' };
+            if ( defined $tags_config ) {
+                $ret{'-tags_provided'} = tags_to_aref($tags_config);
+            }
+            return ( %ret, @rest );
+
+        }
+        else {
+            my $extra_config = $config_ref->{$type};
+            my %extra_config = ( defined $extra_config ) ? %$extra_config : ();
+            for ( values %extra_config ) {
+                next unless m/^!(.*)/;
+                $_ = eval($1);
+            }
+            return ( %extra_config, @rest );
+        }
+    }
+
+    sub Update {
+        for (@to_Update) {
+            $_->Update();
+        }
+
+        $MW->update();
+    }
+
+}
+
+sub Tk::Error {
+    carp "Tk Error! @_";
 }
 
 1;

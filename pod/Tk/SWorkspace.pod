@@ -1,3 +1,0 @@
-=head1 Workspace GUI
-
-Last Modified: Jan 21, 2005

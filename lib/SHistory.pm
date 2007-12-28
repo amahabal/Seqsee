@@ -1,37 +1,60 @@
+#####################################################
+#
+#    Package: SHistory
+#
+#####################################################
+#####################################################
+
 package SHistory;
 use strict;
+use Carp;
+use Class::Std;
+use base qw{};
 
-sub history_add{
-  my $self = shift;
-  my $msg = shift;
-  my $critical = shift;
-  my $date   = $::CurrentEpoch;
-  my $family = $::CurrentCodelet->[0];
-  unshift @{$self->{history}}, [$date, $msg, $critical, $family];
+my %messages_of : ATTR( :get<history>);
+my %message_count_of : ATTR();
+my %dob_of :ATTR();
+
+$Global::Steps_Finished        ||= '';
+$Global::CurrentRunnableString ||= '';
+
+sub BUILD {
+    my ( $self, $id, $opts ) = @_;
+    $messages_of{$id} = [ history_string("created") ];
+    $dob_of{$id} = $Global::Steps_Finished;
 }
 
-sub last_critical_change_time{
-  my $self = shift;
-  foreach (@{$self->{history}}) {
-    return $_->[0] if $_->[2];
-  }
-  return 0;
+sub history_string {
+    my ($msg) = @_;
+    my $steps = $Global::Steps_Finished || 0;
+    return "[$steps]$Global::CurrentRunnableString\t$msg";
 }
 
-sub is_outdated{ # Can only be called within a codelet body
-  my $self = shift;
-  $self->last_critical_change_time > $::CurrentCodelet->[2];
+sub AddHistory {
+    my ( $self, $msg ) = @_;
+    my $id = ident $self;
+    push @{ $messages_of{$id} }, history_string($msg);
+    $message_count_of{$id}++;
 }
 
-sub spill_history{
-  my $self = shift;
-  my $string;
-  my $critical;
-  foreach (@{$self->{history}}) {
-    $critical = $_->[2] ? "*" : " ";
-    $string .= "$critical   $_->[0]\t$_->[3]\t$_->[1]\n";
-  }
-  $string;
+sub search_history {
+    my ( $self, $re ) = @_;
+    return map { m/^ \[ (\d+) \]/ox; $1 } (grep $re,
+      @{ $messages_of{ ident $self} });
 }
+
+sub UnchangedSince {
+    my ( $self, $since ) = @_;
+    my $last_msg_str = $messages_of{ ident $self}->[-1];
+    $last_msg_str =~ /^ \[ (\d+) \]/ox or confess "Huh '$last_msg_str'";
+    return $1 > $since ? 0 : 1;
+}
+
+sub GetAge{
+    my ( $self ) = @_;
+    return $Global::Steps_Finished - $dob_of{ident $self};
+}
+
 
 1;
+

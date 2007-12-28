@@ -1,14 +1,11 @@
-use Test::More tests => 3;
-use Test::Exception;
-
 use strict;
-use blib;
+use lib 'genlib';
+use Test::Seqsee;
+BEGIN { plan tests => 4; }
 
 
-BEGIN{
-  use_ok("SElement");
-}
-
-my $e1 = SElement->new(3);
-isa_ok($e1, "SObject");
-cmp_ok($e1->{mag}, '==', 3);
+my $e = SElement->create( 5, 3 );
+isa_ok $e, "SElement";
+is $e->get_mag(), 5;
+is $e->get_left_edge(), 3;
+is $e->get_right_edge(), 3;

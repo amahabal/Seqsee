@@ -1,24 +1,50 @@
-use 5.008004;
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
 
 sub MY::postamble{
   return <<"MAKE_FRAG";
-lib/SCodeConfig.pm: SCodeConfig.txt GenCL.pl
-\t\tperl GenCL.pl
-\t\tperl GenCL.pl --info --list > SCodeConfig.list
-\t\tcp lib/SCodeConfig.pm blib/lib/SCodeConfig.pm
+smoke:
+\t\tmake
+\t\tperl util/run-smoke.pl . smoke.html
+\t\tcp smoke.html /u/amahabal/.hyplan/smoke.html
+
+test_cover:
+\t\tmake
+\t\tcover -delete
+\t\tHARNESS_PERL_SWITCHES=-MDevel::Cover make test
+\t\tcover
+
+docs:
+\t\tcd NaturalDocs; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -i /u/amahabal/SeqseeTree/summer05/pod -o HTML /u/amahabal/.hyplan/ND/ -p Proj 
+
+pdfdocs:
+\t\tcd NaturalDocs; \\rm -rf pdfout/* ; \\rm -rf pdfproj/* ; ./NaturalDocs -i /u/amahabal/SeqseeTree/summer05/lib -i /u/amahabal/SeqseeTree/summer05/Apps -i /u/amahabal/SeqseeTree/summer05/t -i /u/amahabal/SeqseeTree/summer05/util -o PDF pdfout -p pdfproj ; cd pdfout ; lmake --indices=Functions --indices=Classes merged ; lmake merged
+
 MAKE_FRAG
 }
-
 
 WriteMakefile(
     NAME              => 'Seqsee',
     VERSION_FROM      => 'lib/Seqsee.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1      
+    PREREQ_PM         => {
+        Class::Multimethods => 0,
+        Class::Std => 0,
+        Config::Std => 0,
+        Exception::Class => 0,
+        List::Util => 0,
+        Log::Log4perl => 0,
+        Perl6::Form => 0,
+        Scalar::Util => 0,
+        Smart::Comments => 0,
+        Sub::Installer => 0,
+        Test::Builder => 0,
+        Test::Deep => 0,
+        Test::Exception => 0,
+        Test::Stochastic => 0,
+        UNIVERSAL::require => 0,
+            }, # e.g., Module::Name => 1.1
+    test => { TESTS             => 't/*.t t/*/*.t t/*/*/*.t'},	      
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Seqsee.pm', # retrieve abstract from module
+      (
        AUTHOR         => 'Abhijit Mahabal <amahabal@cs.indiana.edu>',
       ) : ()),
 

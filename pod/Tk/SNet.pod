@@ -1,3 +1,0 @@
-=head1 Slipnet GUI
-
-Last Modified: Jan 21, 2005

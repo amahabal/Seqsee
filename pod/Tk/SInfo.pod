@@ -1,3 +1,0 @@
-=head1 GUI Info Pane
-
-Last Modified: Jan 21, 2005
