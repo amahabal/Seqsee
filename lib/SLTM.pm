@@ -33,7 +33,9 @@ our %CurrentlyInstalling;       # We are currently installing these. Needed to d
        SCat::OfObj::Literal
        SCat::OfObj::Interlaced
        SLTM::Platonic SRelnType::Simple
-    SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir);
+       SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir
+       SMetonymType
+          );
 
 sub init {
     print "Initializing SLTM...\n";
@@ -70,7 +72,7 @@ sub GetNodeCount { return $NodeCount; }
 sub GetMemoryIndex {
     ### ensure: $_[0] ne "SLTM"
     ## GetMemoryIndex called on: $_[0]
-    my $pure = $_[0]->get_pure();
+    my $pure = $_[0]->get_pure() or confess "No pure version of $_[0] available!";
     ## pure: $pure
     return $MEMORY{$pure} ||= InsertNode($pure);
 }
@@ -346,17 +348,19 @@ sub WeakenBy {
     SNodeActivation::WeakenSeveral( $amount, @ACTIVATIONS[ map{ GetMemoryIndex($_) } @concepts ] );
 }
 
-{
-my $chooser_given_nodes = SChoose->create({
-    map => q{$_->[SNodeActivation::REAL_ACTIVATION]}
-        });
 sub SpikeAndChoose {
     my ( $amount, @concepts ) = @_;
-    my @relevant_activations = @ACTIVATIONS[map{GetMemoryIndex($_)} @concepts];
+    #main::message("SpikeAndChoose: $amount, @concepts");
+    my @indices = map { GetMemoryIndex($_) } (@concepts);
+    #main::message("indices: @indices");
+    my @relevant_activations = @ACTIVATIONS[@indices];
+    #main::message("relevant_activations: @relevant_activations");
     SNodeActivation::SpikeSeveral($amount, @relevant_activations);
-    return $chooser_given_nodes->(\@relevant_activations);
+    return SChoose->choose([map { $_->[SNodeActivation::REAL_ACTIVATION] } @relevant_activations],
+                                  \@concepts
+                                      );
 }
-}
+
 my $DecayString = qq{
     sub {
         SNodeActivation::DecayManyTimes(1, \@ACTIVATIONS);

@@ -62,5 +62,40 @@ sub as_text{
     return "Metotype: $self";
 }
 
+sub GetCatAndName {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return ($category_of{$id}, $meto_name_of{$id});
+}
+
+sub get_memory_dependencies {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return grep { ref($_) } ($category_of{$id}, values %{$info_loss_of{$id}});
+}
+
+sub serialize {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return SLTM::encode($category_of{$id}, $meto_name_of{$id}, $info_loss_of{$id});
+}
+
+sub deserialize {
+    my ( $self, $str ) = @_;
+    my $id = ident $self;
+    my %opts;
+    @opts{'category', 'name', 'info_loss' } = SLTM::decode($str);
+    return SMetonymType->create(\%opts);
+}
+
+sub as_text {
+    my ( $self ) = @_;
+    return "SMetonymType";
+}
+
+sub get_pure {
+    return $_[0];
+}
+
 
 1;

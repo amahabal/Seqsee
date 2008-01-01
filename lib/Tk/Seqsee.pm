@@ -32,7 +32,7 @@ our @ViewOptions = (
     ['Workspace + Groups + Relations + Slipnet', [
         ['SGUI::Slipnet', 65, 0, 35, 50],
         [ 'SGUI::Workspace',  0, 0,  65, 50 ],
-        [ 'SGUI::Groups', 0, 50, 35, 50 ],
+        [ $ListGroupsViewer, 0, 50, 35, 50 ],
         [ 'SGUI::Relations', 35, 50, 65, 50 ],
             ]],
     ['Workspace', [['SGUI::Workspace', 0, 0, 100, 100]]],

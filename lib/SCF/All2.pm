@@ -347,15 +347,14 @@ INITIAL: {
 
     }
 RUN: {
-
-#main::message("Wonder if I can see " . $actual->as_text() . " as a " . $intended->get_structure_string());
-# XXX(Board-it-up): [2006/12/29] Clearly suboptimal, and also brute-forcey...
+        # main::message("In TryToSquint");
         my @potential_squints = $actual->CheckSquintability($intended) or return;
+        #main::message("potential_squints: @potential_squints");
+        my $chosen_squint = SLTM::SpikeAndChoose(10, @potential_squints);
+        #main::message("chosen_squint: $chosen_squint");
 
-        # XXX(Board-it-up): [2006/12/29] choose wisely!
-        my ( $cat, $name ) = @{ $potential_squints[0] };
-
-        #main::message("Squinting: $cat/$name");
+        my ($cat, $name) = $chosen_squint->GetCatAndName;
+        #main::message("CAT/NAME: $cat, $name");
         $actual->AnnotateWithMetonym( $cat, $name );
         $actual->SetMetonymActiveness(1);
 

@@ -268,7 +268,7 @@ sub CheckSquintabilityForCategory {
         my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
         next
             unless $squinted->get_starred()->get_structure_string() eq $intended_structure_string;
-        push @return, [ $category, $name ];
+        push @return, $squinted->get_type();
     }
     return @return;
 }
