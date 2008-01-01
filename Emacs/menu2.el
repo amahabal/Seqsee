@@ -9,6 +9,25 @@
                     ["Global replace in t/" seqsee-replace-t t]
 ))
 
+(setq tool-bar-map (make-sparse-keymap))
+(tool-bar-add-item-from-menu 'find-file "new")
+(tool-bar-add-item-from-menu 'menu-find-file-existing "open")
+  (tool-bar-add-item-from-menu 'kill-this-buffer "close")
+  (tool-bar-add-item-from-menu 'save-buffer "save" nil
+			       :visible '(or buffer-file-name
+					     (not (eq 'special
+						      (get major-mode
+							   'mode-class)))))
+  (tool-bar-add-item-from-menu (lookup-key menu-bar-edit-menu [cut])
+			       "cut" nil
+			       :visible '(not (eq 'special (get major-mode
+								'mode-class))))
+  (tool-bar-add-item-from-menu (lookup-key menu-bar-edit-menu [copy])
+			       "copy")
+  (tool-bar-add-item-from-menu (lookup-key menu-bar-edit-menu [paste])
+			       "paste" nil
+			       :visible '(not (eq 'special (get major-mode
+								'mode-class))))
 (tool-bar-add-item "seqsee-right-arrow" 'seq-svn-diff 'fookey
                    :help "Show uncommited changes"
                    )
@@ -26,4 +45,7 @@
                    )
 (tool-bar-add-item "zoom-out" 'seq-formula-insert 'seq-formula-insert-menu
                    :help "Insert a formula"
+                   )
+(tool-bar-add-item "seqsee-right-arrow" 'dabbrev-expand 'dabbrev-expand-menu
+                   :help "dabbrev-expand"
                    )
