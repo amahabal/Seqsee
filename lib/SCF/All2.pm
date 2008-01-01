@@ -350,7 +350,7 @@ RUN: {
         # main::message("In TryToSquint");
         my @potential_squints = $actual->CheckSquintability($intended) or return;
         #main::message("potential_squints: @potential_squints");
-        my $chosen_squint = SLTM::SpikeAndChoose(10, @potential_squints);
+        my $chosen_squint = SLTM::SpikeAndChoose(100, @potential_squints) or return;
         #main::message("chosen_squint: $chosen_squint");
 
         my ($cat, $name) = $chosen_squint->GetCatAndName;

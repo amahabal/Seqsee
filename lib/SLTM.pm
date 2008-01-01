@@ -350,16 +350,23 @@ sub WeakenBy {
 
 sub SpikeAndChoose {
     my ( $amount, @concepts ) = @_;
+
     #main::message("SpikeAndChoose: $amount, @concepts");
     my @indices = map { GetMemoryIndex($_) } (@concepts);
+
     #main::message("indices: @indices");
     my @relevant_activations = @ACTIVATIONS[@indices];
+
     #main::message("relevant_activations: @relevant_activations");
-    SNodeActivation::SpikeSeveral($amount, @relevant_activations);
-    return SChoose->choose([map { $_->[SNodeActivation::REAL_ACTIVATION] } @relevant_activations],
-                                  \@concepts
-                                      );
+    SNodeActivation::SpikeSeveral( $amount, @relevant_activations );
+    return SChoose->choose_if_non_zero(
+        [   map { my $a = $_->[SNodeActivation::REAL_ACTIVATION]; $a > 0.02 ? $a : 0 }
+                @relevant_activations
+        ],
+        \@concepts
+    );
 }
+
 
 my $DecayString = qq{
     sub {

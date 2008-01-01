@@ -168,6 +168,25 @@ sub choose {
     return $name_ref->[$idx];
 }
 
+sub choose_if_non_zero {
+    my ( $package, $number_ref, $name_ref ) = @_;
+    return unless @$number_ref;
+    $name_ref ||= $number_ref;
+
+    my $sum = sum(@$number_ref);
+    return unless $sum;
+
+    my $random = rand() *  $sum;
+    my $idx    = -1;
+    for (@$number_ref) {
+        $idx++;
+        last if $_ > $random;
+        $random -= $_;
+    }
+    return $name_ref->[$idx];
+}
+
+
 sub using_fascination {
     my ( $package, $array_ref, $fasc ) = @_;
     my @imp = map { $_->get_fascination($fasc) } @$array_ref;
