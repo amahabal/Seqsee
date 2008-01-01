@@ -333,19 +333,30 @@ sub SetRawActivationForIndex {
 }
 
 sub SpikeBy {
-    my ( $amount, $concept ) = @_;
+    my ( $amount, @concepts ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    SNodeActivation::SpikeSeveral( $amount, $ACTIVATIONS[ GetMemoryIndex($concept) ] );
+    SNodeActivation::SpikeSeveral( $amount, @ACTIVATIONS[ map { GetMemoryIndex($_) } @concepts ] );
 }
 
 sub WeakenBy {
-    my ( $amount, $concept ) = @_;
+    my ( $amount, @concepts ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    SNodeActivation::WeakenSeveral( $amount, $ACTIVATIONS[ GetMemoryIndex($concept) ] );
+    SNodeActivation::WeakenSeveral( $amount, @ACTIVATIONS[ map{ GetMemoryIndex($_) } @concepts ] );
 }
 
+{
+my $chooser_given_nodes = SChoose->create({
+    map => q{$_->[SNodeActivation::REAL_ACTIVATION]}
+        });
+sub SpikeAndChoose {
+    my ( $amount, @concepts ) = @_;
+    my @relevant_activations = @ACTIVATIONS[map{GetMemoryIndex($_)} @concepts];
+    SNodeActivation::SpikeSeveral($amount, @relevant_activations);
+    return $chooser_given_nodes->(\@relevant_activations);
+}
+}
 my $DecayString = qq{
     sub {
         SNodeActivation::DecayManyTimes(1, \@ACTIVATIONS);
