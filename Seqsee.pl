@@ -1,3 +1,4 @@
+# Copyright (C) 2005-2008, Abhijit Mahabal.
 use strict;
 use lib 'genlib/';
 use Carp::Seqsee;

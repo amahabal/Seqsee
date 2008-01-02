@@ -5,6 +5,9 @@
                     ["Show Uncommited Changes" seq-svn-diff t]
                     ["Search Seqsee Codebase" seq-search-codebase t]
                     ["Insert Category Creation Code" seqsee-category-type t]
+                    ["Insert CHANGES block" seqsee-CHANGES-block t]
+                    ["Insert Copyright" seqsee-Copyright-block t]
+                    ["Reload emacs code" restart-emacs t]
                     ["Global replace in lib/" seqsee-replace-lib t]
                     ["Global replace in t/" seqsee-replace-t t]
 ))

@@ -568,6 +568,26 @@ sub AreAttributesSufficientToBuild {
 }
 1;
 "
-
-
 )
+
+(define-skeleton seqsee-CHANGES-block
+  ""
+  nil
+  "
+Version 
+ New features, enhancements:
+      * 
+      * 
+      * 
+ Selected Bugfixes:
+      * 
+      * 
+      * 
+"
+  )
+
+(define-skeleton seqsee-Copyright-block
+  ""
+  nil
+"# Copyright (C) 2005-2008, Abhijit Mahabal.
+")

@@ -76,7 +76,7 @@
 	      auto-mode-alist))
 
 (defun restart-emacs ()
-  "Start emacs again b loading the file ~/.emacs"
+  "Start emacs again by loading the file ~/.emacs"
   (interactive)
   (load "~/.emacs")
 
