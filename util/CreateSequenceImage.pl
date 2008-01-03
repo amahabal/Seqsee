@@ -42,6 +42,18 @@ sub GenerateFilename {
     return $ret;
 }
 
+sub GenerateFilename_cleaner {
+    my ( $dir, $seq ) = @_;
+    $seq =~ tr#()[]{}<>#    ef  #;
+    $seq =~ s#\s##g;
+    $seq =~ s#fe#_#g;
+    $seq =~ s#[fe]##g;
+    my $ret = "$dir/$seq.eps";
+    print $ret;
+    return $ret;
+}
+
+
 
 use constant {
     WIDTH      => 500,
@@ -74,7 +86,7 @@ $MW->bind(
 );
 $MW->focusmodel('active');
 
-my $SequenceString = '{(1 1) 2 3} {1 (2 2) 3}{1 2 (3 3)}{1 ( 2 2 )3}{(1 1) 2 3}';
+my $SequenceString = '';
 my $SaveFilename;
 
 my $frame1 = $MW->Frame()->pack();
@@ -135,6 +147,7 @@ $frame1->Button(
     -text    => 'Draw',
     -command => sub {
         Show();
+        $SaveFilename = GenerateFilename_cleaner('D:/DISSERTATION/Chapters/SequenceEPS',$SequenceString );
     }
 )->pack();
 

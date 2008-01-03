@@ -94,7 +94,6 @@ ACTIONS_BLOCK
         use strict;
         use Carp;
         use Smart::Comments;
-        use Log::Log4perl;
         use English qw(-no_match_vars);
         use Class::Multimethods;
         use base qw{SThought};

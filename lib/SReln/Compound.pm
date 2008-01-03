@@ -41,7 +41,6 @@ use Class::Multimethods;
 use base qw{SReln SInstance };
 use Smart::Comments;
 use List::Util qw(sum shuffle);
-use List::MoreUtils qw(uniq);
 
 multimethod 'find_relation_string';
 multimethod 'find_relation_type';

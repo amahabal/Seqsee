@@ -155,16 +155,6 @@ sub INITIALIZE_for_testing {
     $Global::TestingOptionsRef     = Seqsee::_read_config( seq => '0' );    # Random
     $Global::Steps_Finished        = 0;
     $Global::CurrentRunnableString = "";
-    Log::Log4perl::init( \<<'NOLOG');
-log4perl.logger                  = FATAL, file
-
-log4perl.appender.file           = Log::Log4perl::Appender::File
-log4perl.appender.file.filename  = log/nolog
-log4perl.appender.file.autoflush = 1
-log4perl.appender.file.mode      = write
-log4perl.appender.file.layout    = PatternLayout
-
-NOLOG
 
     "main"->install_sub(
         {   message => sub {

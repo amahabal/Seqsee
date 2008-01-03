@@ -38,7 +38,6 @@ my $COMMON_PREAMBLE = q{
         use strict;
         use Carp;
         use Smart::Comments;
-        use Log::Log4perl;
         use English qw(-no_match_vars);
         use SCF;
         

@@ -17,7 +17,6 @@ use List::Util;
 use SUtil;
 use base qw{};
 
-use Perl6::Form;
 use Smart::Comments;
 use English qw(-no_match_vars);
 
