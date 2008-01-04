@@ -1,10 +1,12 @@
 package SLTM;
+use 5.10.0;
 use strict;
 use warnings;
 use Class::Multimethods;
 use File::Slurp;
 use Carp;
 use Smart::Comments;
+use English qw(-no_match_vars);
 
 use SLTM::Platonic;
 
@@ -185,6 +187,7 @@ sub SpreadActivationFrom {
 # method Dump( $package: Str $filename )
 sub Dump {
     my ( $package, $file ) = @_;
+    say "Dumping LTM to file $file";
     my $filehandle;
 
     if ( my $type = ref $file ) {
@@ -230,6 +233,7 @@ sub Dump {
 # method Load( $package: Str $filename )
 sub Load {
     my ( $package, $filename ) = @_;
+    say "Loading LTM from $filename";
     Clear();
     my $string = read_file($filename);
     my ( $nodes, $links ) = split( q{#####}, $string );
@@ -244,7 +248,13 @@ sub Load {
         my ( $type_and_sig, $val ) = split( /\n/, $_, 2 );
         my ( $type, $depth_reciprocal ) = split( /\s/, $type_and_sig, 2 );
         ## type, val: $type, $val
-        my $pure = $type->deserialize($val);
+        my $pure;
+        TRY{ $pure = $type->deserialize($val); }
+            CATCH {
+                DEFAULT: {
+                      SErr::LTM_LoadFailure->throw(what => "Unable to desrialize >>$val<< of type >>$type<<");
+                  }
+            }
         ## pure: $pure
         confess qq{Could not find pure: type='$type', val='$val'} unless defined($pure);
         my $index = InsertNode($pure);

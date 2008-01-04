@@ -2,6 +2,7 @@
 use strict;
 use Exception::Class (
     'SErr'                     => {},
+    'SErr::LTM_LoadFailure'    => { fields => ['what']},
     'SErr::Pos::OutOfRange'    => {},
     'SErr::Pos::UnExpMulti'    => {},
     'SErr::Pos::MultipleNamed' => {},

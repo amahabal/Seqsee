@@ -1,3 +1,4 @@
+use 5.10.0;
 use strict;
 use Test::More;
 use Test::Exception;
@@ -208,7 +209,6 @@ sub INITIALIZE_for_testing {
         {   ask_for_more_terms => sub { }
         }
     );
-
 }
 
 sub stochastic_test_codelet {
@@ -695,12 +695,33 @@ sub RunSeqsee {
     Global->SetFutureTerms(@$continuation);
     SCoderack->init($Global::TestingOptionsRef);
     $Global::MainStream->init($Global::TestingOptionsRef);
+
+    if ($Global::Feature{LTM}) {
+        eval { SLTM->Load('memory_dump.dat') };
+        if ($EVAL_ERROR) {
+            given (ref($EVAL_ERROR)) {
+                when ('SErr::LTM_LoadFailure') {
+                    say "Failure in loading LTM: ", $EVAL_ERROR->what();
+                    return  ResultOfTestRun->new(
+                        {   status => $TestOutputStatus::Crashed,
+                            steps  => $Global::Steps_Finished,
+                            error  => "Unable to load memory file! " . $EVAL_ERROR->what(),
+                        }
+                    );
+                }
+                # confess $EVAL_ERROR;
+            }
+        }
+    } else {
+        say "LTM not passed in as an option.";
+    }
     SLTM->init();
 
     # XXX(Board-it-up): [2006/10/23] Init memory here
     $SWorkspace::ReadHead = 0;
     Global->clear();
 
+    my $return;
     TRY {
         while (
             not Seqsee::Interaction_step_n(
@@ -715,16 +736,16 @@ sub RunSeqsee {
     }
     CATCH {
     FinishedTest: {
-            return ResultOfTestRun->new(
+            $return = ResultOfTestRun->new(
                 {   status => $TestOutputStatus::Successful,
                     steps  => $Global::Steps_Finished,
                     error  => undef,
                 }
             ) if $err->got_it();
-            confess "A SErr::FinishedTest thrown without getting it. Bad.";
+            confess "A SErr::FinishedTest thrown without getting it. Bad." unless $err->got_it();
         }
     NotClairvoyant: {
-            return ResultOfTestRun->new(
+          $return = ResultOfTestRun->new(
                 {   status => $TestOutputStatus::RanOutOfTerms,
                     steps  => $Global::Steps_Finished,
                     error  => undef,
@@ -732,7 +753,7 @@ sub RunSeqsee {
             );
         }
     FinishedTestBlemished: {
-            return ResultOfTestRun->new(
+            $return = ResultOfTestRun->new(
                 {   status => $TestOutputStatus::InitialBlemish,
                     steps  => $Global::Steps_Finished,
                     error  => undef,
@@ -740,7 +761,7 @@ sub RunSeqsee {
             );
         }
     DEFAULT: {
-            return ResultOfTestRun->new(
+          $return = ResultOfTestRun->new(
                 {   status => $TestOutputStatus::Crashed,
                     steps  => $Global::Steps_Finished,
                     error  => "Crashed!\n$err",
@@ -748,6 +769,16 @@ sub RunSeqsee {
             );
         }
     }
+
+
+    if ($Global::Feature{LTM}) {
+        SLTM->Dump('memory_dump.dat');
+    } else {
+        say "LTM not passed in as an option.";
+    }
+        if ($return) {
+            return $return;
+        }
 
     # So did not die.
     if ( $SWorkspace::ElementCount - scalar(@$seq) > $min_extension ) {

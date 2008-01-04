@@ -1,4 +1,5 @@
 # Copyright (C) 2005-2008, Abhijit Mahabal.
+use 5.10.0;
 use strict;
 use lib 'genlib/';
 use Carp::Seqsee;
@@ -86,7 +87,16 @@ sub INITIALIZE {
         SGUI->ask_seq();
     }
 
-    SLTM->Load('memory_dump.dat') if $Global::Feature{LTM};
+    if ($Global::Feature{LTM}) {
+        eval { SLTM->Load('memory_dump.dat') };
+        if ($EVAL_ERROR) {
+            given (ref($EVAL_ERROR)) {
+                when ('SErr::LTM_LoadFailure') {
+                    say "Failure in loading LTM: ", $EVAL_ERROR->what();
+                }
+            }
+        }
+    }
     SLTM->init();
 }
 
