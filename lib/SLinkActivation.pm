@@ -1,4 +1,5 @@
 package SLinkActivation;
+use 5.10.0;
 use strict;
 use warnings;
 use Carp;
@@ -28,7 +29,7 @@ for ( 0 .. 200 ) {
 my $Initial_Raw_Activation       = 1;
 my $Initial_Raw_Significance     = 1;
 my $Initial_Stability_Reciprocal = 1 / 50;
-my $Initial_Real_Activation = $PRECALCULATED[ $Initial_Raw_Activation + $Initial_Raw_Significance ];
+my $Initial_Real_Activation = $PRECALCULATED[ $Initial_Raw_Activation + $Initial_Raw_Significance ] // confess "Initial_Real_Activation not defined!";
 
 sub new {
     my ( $package, $modifier_index ) = @_;
@@ -41,7 +42,7 @@ sub new {
 our $DECAY_CODE = q{
      $_->[0]-- if $_->[0] > 1;
      $_->[1] -= $_->[2] if $_->[1] > 1;
-     $_->[4] = $PRECALCULATED[$_->[0] + $_->[1]];
+     $_->[3] = $PRECALCULATED[$_->[0] + $_->[1]];
 };
 
 our $SPIKE_CODE = q{
@@ -56,7 +57,7 @@ our $SPIKE_CODE = q{
         $_->[2] = 1 / ($stab + 3);
       }
     }
-    $_->[4] = $PRECALCULATED[$_->[0] + $_->[1]];
+    $_->[3] = $PRECALCULATED[$_->[0] + $_->[1]];
 };
 
 
@@ -87,7 +88,9 @@ sub AmountToSpread {
     my $amt1 =  $original_amount * $self->[RAW_SIGNIFICANCE] / $self->[STABILITY_RECIPROCAL];
     my $modifier = $self->[MODIFIER_NODE_INDEX];
     if ($modifier) {
-        my $modifier_activation = $SLTM::ACTIVATIONS[$modifier][REAL_ACTIVATION];
+        my $modifier_activation = $SLTM::ACTIVATIONS[$modifier][2]; # SNodeActivation::REAL_ACTIVATION()
+        $modifier_activation // 
+            confess "AmountToSpread: <$self>, <$modifier> <$SLTM::ACTIVATIONS[$modifier]> <$modifier_activation>";
         $amt1 *= ($modifier_activation * 3);
     }
     $amt1 /= 100;

@@ -1,5 +1,6 @@
 # SActivation will now be for links only...
 package SNodeActivation;
+use 5.10.0;
 use strict;
 use warnings;
 use Carp;
@@ -13,7 +14,7 @@ confess "Load order issues" unless @PRECALCULATED;
 
 use constant Initial_Raw_Activation   => 2;
 use constant Initial_Depth_Reciprocal => 1 / 5;
-my $Initial_Real_Activation = $PRECALCULATED[Initial_Raw_Activation];
+my $Initial_Real_Activation = $PRECALCULATED[Initial_Raw_Activation] // confess "Initial_Real_Activation not defined!";
 
 sub new {
     my ( $package, $depth_reciprocal ) = @_;

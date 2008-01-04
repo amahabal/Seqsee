@@ -17,6 +17,7 @@ use constant {
 
 our @PRECALCULATED = @SLinkActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
+use SNodeActivation;
 
 our %MEMORY;                    # Just has the index into @MEMORY.
 our @MEMORY;                    # Is 1-based, so that I can say $MEMORY{$x} || ...
@@ -148,7 +149,7 @@ sub SpreadActivationFrom {
     my %nodes_at_distance_below_1 = ( $root_index, 0 );    # Keys are nodes.
           # values are amount of activation pumped into them.
 
-    my $activation = $ACTIVATIONS[$root_index][$SNodeActivation::REAL_ACTIVATION];   # is fn faster?
+    my $activation = $ACTIVATIONS[$root_index][SNodeActivation::REAL_ACTIVATION()];   # is fn faster?
     for my $link_set ( @{ $OUT_LINKS[$root_index] } ) {
         while ( my ( $target_index, $link ) = each %$link_set ) {
             my $amount_to_spread = $link->AmountToSpread($activation);
@@ -200,7 +201,7 @@ sub Dump {
 
     for my $index ( 1 .. $NodeCount ) {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
-        my ($depth_reciprocal) = ( $activation->[SNodeActivation::DEPTH_RECIPROCAL], );
+        my ($depth_reciprocal) = ( $activation->[SNodeActivation::DEPTH_RECIPROCAL()], );
         print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n", $pure->serialize(),
             "\n";
     }
@@ -326,12 +327,12 @@ sub SetSignificanceAndStabilityForIndex {
 
 sub SetDepthReciprocalForIndex {
     my ( $index, $depth_reciprocal ) = @_;
-    $ACTIVATIONS[$index][SNodeActivation::DEPTH_RECIPROCAL] = $depth_reciprocal;
+    $ACTIVATIONS[$index][SNodeActivation::DEPTH_RECIPROCAL()] = $depth_reciprocal;
 }
 
 sub SetRawActivationForIndex {
     my ( $index, $activation ) = @_;
-    $ACTIVATIONS[$index]->[SLinkActivation::RAW_ACTIVATION] = $activation;
+    $ACTIVATIONS[$index]->[SLinkActivation::RAW_ACTIVATION()] = $activation;
 }
 
 sub SpikeBy {
@@ -449,7 +450,7 @@ sub FindActiveFollowers {
     my $node_id = GetMemoryIndex($node);
     my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
     return @MEMORY[
-        grep { $ACTIVATIONS[$_][ SLinkActivation::REAL_ACTIVATION() ] > $cutoff }
+        grep { $ACTIVATIONS[$_][ SNodeActivation::REAL_ACTIVATION() ] > $cutoff }
         keys %$follows_links_ref
     ];
 }

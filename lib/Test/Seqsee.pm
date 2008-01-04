@@ -162,6 +162,11 @@ sub INITIALIZE_for_testing {
         }
     );
     "main"->install_sub(
+        {   debug_message => sub {
+                }
+        }
+    );
+    "main"->install_sub(
         {   update_display => sub {
                 }
         }
