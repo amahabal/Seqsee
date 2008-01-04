@@ -4,7 +4,7 @@ use Smart::Comments;
 use Tk;
 use Carp;
 use Sort::Key qw(rikeysort);
-use Tk::JFileDialog;
+#use Tk::JFileDialog;
 
 use Getopt::Long;
 
@@ -95,14 +95,15 @@ my $Entry
     = $frame1->Entry( -width => 100, -textvariable => \$SequenceString )->pack( -side => 'left' );
 my $FileEntry
     = $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )->pack( -side => 'left' );
-my $fileDialog = $MW->JFileDialog(
-    -Title    => 'Select File To Save Image In',
-    -FPat     => '*.eps',
-    -HistFile => 'graveyard/history',
+ my $fileDialog;
+# = $MW->JFileDialog(
+#     -Title    => 'Select File To Save Image In',
+#     -FPat     => '*.eps',
+#     -HistFile => 'graveyard/history',
 
-    # -HistUsePath => 1,
-    -Path => 'D:/DISSERTATION/Chapters/SequenceEPS',
-);
+#     # -HistUsePath => 1,
+#     -Path => 'D:/DISSERTATION/Chapters/SequenceEPS',
+# );
 $frame2->Button(
     -text    => '...',
     -command => sub {

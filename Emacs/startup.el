@@ -12,6 +12,7 @@
 ;(load "cperl6-mode.el")
 (seq-change-to-dir)
 
+(type-break-mode)
 
 (defface cperl-pod-face-face
   (` (

@@ -26,6 +26,11 @@ sub new {
             my ( $group ) = @_;
             $group->set_is_locked_against_deletion(0);
         },
+        ShowFollowers => sub  {
+            my ( $group ) = @_;
+            my @followers = SLTM::FindActiveFollowers($group, 0.01);
+            main::message("Followers of $group: @followers", 1);
+        },
             };
     return $self;
 }
