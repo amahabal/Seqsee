@@ -157,7 +157,7 @@ sub serialize {
     return SLTM::encode(
         $base_category_of{$id}, $base_meto_mode_of{$id}, $pos_mode_of{$id},
         $position_reln_of{$id}, $metonymy_reln_of{$id},  $direction_reln_of{$id},
-        $changed_bindings_of_of{$id}
+        $changed_bindings_of_of{$id}, $slippages_of{$id}
     );
 }
 
@@ -166,7 +166,7 @@ sub deserialize {
     my %opts;
     @opts{
         qw(base_category base_meto_mode base_pos_mode position_reln
-            metonymy_reln dir_reln changed_bindings)
+            metonymy_reln dir_reln changed_bindings slippages)
         }
         = SLTM::decode($str);
     return $package->create( \%opts );

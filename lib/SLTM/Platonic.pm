@@ -47,5 +47,10 @@ sub deserialize {
     return $package->create($string);
 }
 
+sub get_pure {
+    return $_[0];
+}
+
+
 1;
 

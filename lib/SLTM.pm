@@ -17,6 +17,8 @@ use constant {
     LTM_TYPE_COUNT     => 3,    #
 };
 
+my %LinkType2Str = (1 => 'FOLLOWS', 2 => 'IS', 3 => 'CAN_BE_SEEN_AS');
+
 our @PRECALCULATED = @SLinkActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
 use SNodeActivation;
@@ -78,10 +80,12 @@ sub GetNodeCount { return $NodeCount; }
 
 # Always call as: SLTM::GetMemoryIndex($x), not SLTM->GetMemoryIndex($x)
 sub GetMemoryIndex {
+    # say "Inside GetMemoryIndex";
     ### ensure: $_[0] ne "SLTM"
     ## GetMemoryIndex called on: $_[0]
-    my $pure = $_[0]->get_pure() or confess "No pure version of $_[0] available!";
+    my $pure =  (ref($_[0]) ~~ %_PURE_CLASSES_ ? $_[0] : $_[0]->get_pure()) or confess "No pure version of $_[0] available!";
     ## pure: $pure
+    # say "\t\tpure=$pure";
     return $MEMORY{$pure} ||= InsertNode($pure);
 }
 
@@ -211,7 +215,8 @@ sub Dump {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
         my ($depth_reciprocal) = ( $activation->[SNodeActivation::DEPTH_RECIPROCAL()], );
         print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n", 
-            $MEMORIZED_SERIALIZED{$pure} || $pure->serialize(),
+            #$MEMORIZED_SERIALIZED{$pure} ||
+            $pure->serialize(),
             "\n";
     }
 
@@ -256,19 +261,22 @@ sub Load {
         my ( $type, $depth_reciprocal ) = split( /\s/, $type_and_sig, 2 );
         ## type, val: $type, $val
         my $pure;
-        TRY{ $pure = $type->deserialize($val); }
-            CATCH {
-                DEFAULT: {
-                      my $msg = "Unable to deserialize >>$val<< of type >>$type<<\n";
-                      $msg .= "Nodes inserted so far: $NodeCount.";
-                      SErr::LTM_LoadFailure->throw(what => $msg);
-                  }
-            }
+        # print "$val...";
+        eval { $pure = $type->deserialize($val) };
+        if ($EVAL_ERROR) {
+            my $msg = "Unable to deserialize >>$val<< of type >>$type<<\n";
+            $msg .= "Nodes inserted so far: $NodeCount.";
+            SErr::LTM_LoadFailure->throw(what => $msg);
+        }
+        
         ## pure: $pure
-        confess qq{Could not find pure: type='$type', val='$val'} unless defined($pure);
+        SErr::LTM_LoadFailure->throw(what => qq{Could not find pure: type='$type', val='$val'}) unless defined($pure);
+        # say "Done. $pure:" . $pure->as_text;
         my $index = InsertUnlessPresent($pure);
-        $MEMORIZED_SERIALIZED{$pure} = $val;
+        # say "\t\tStill here!";
+        #$MEMORIZED_SERIALIZED{$pure} = $val;
         $nodes_added++;
+        # say "\t$nodes_added, $NodeCount";
         unless ($nodes_added == $NodeCount) {
             SErr::LTM_LoadFailure->throw(what => "Should have only added $nodes_added nodes by now, but looks like $NodeCount");
         }
@@ -501,5 +509,36 @@ sub PrintNode {
 }
 
 }
+
+sub Print {
+    for my $index ( 1..$NodeCount) {
+        my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
+        my ($depth_reciprocal) = ( $activation->[SNodeActivation::DEPTH_RECIPROCAL()], );
+        print "=== $index: ", ref($pure), " $depth_reciprocal\n", 
+            $pure->as_text(),
+            "\n";
+        my $links_ref = $OUT_LINKS[$index];
+        for my $type ( 1 .. LTM_TYPE_COUNT ) {
+            my $links_of_this_type = $links_ref->[$type] || {};
+            next unless %$links_of_this_type;
+            say "\t$LinkType2Str{$type}";
+            while ( my ( $to_node, $link ) = each %$links_of_this_type ) {
+                my $modifier_index = $link->[SLinkActivation::MODIFIER_NODE_INDEX];
+                my ( $significance, $stability ) = (
+                    $link->[SLinkActivation::RAW_SIGNIFICANCE],
+                    $link->[SLinkActivation::STABILITY_RECIPROCAL]
+                );
+
+                my $modifier_name = '';
+                if ($modifier_index) {
+                    $modifier_name = $MEMORY[$modifier_index]->as_text();
+                }
+                my $to_name = $MEMORY[$to_node]->as_text();
+                say "\t\tTo: $to_name\n\t\tModifier: $modifier_name\n\n";
+            }
+        }
+    }
+}
+
 
 1;

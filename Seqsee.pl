@@ -94,6 +94,7 @@ sub INITIALIZE {
                 when ('SErr::LTM_LoadFailure') {
                     say "Failure in loading LTM: ", $EVAL_ERROR->what();
                 }
+                confess $EVAL_ERROR;
             }
         }
     }

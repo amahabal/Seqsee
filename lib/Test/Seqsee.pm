@@ -699,18 +699,12 @@ sub RunSeqsee {
     if ($Global::Feature{LTM}) {
         eval { SLTM->Load('memory_dump.dat') };
         if ($EVAL_ERROR) {
-            given (ref($EVAL_ERROR)) {
-                when ('SErr::LTM_LoadFailure') {
-                    say "Failure in loading LTM: ", $EVAL_ERROR->what();
-                    return  ResultOfTestRun->new(
-                        {   status => $TestOutputStatus::Crashed,
-                            steps  => $Global::Steps_Finished,
-                            error  => "Unable to load memory file! " . $EVAL_ERROR->what(),
-                        }
-                    );
+            return  ResultOfTestRun->new(
+                {   status => $TestOutputStatus::Crashed,
+                    steps  => $Global::Steps_Finished,
+                    error  => "Unable to load memory file! " . $EVAL_ERROR,
                 }
-                # confess $EVAL_ERROR;
-            }
+                    );
         }
     } else {
         say "LTM not passed in as an option.";

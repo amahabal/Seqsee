@@ -136,7 +136,9 @@ sub deserialize {
 }
 
 package METO_MODE;
+use 5.10.0;
 use strict;
+use Carp;
 use warnings;
 
 our $NONE      = bless { mode => 'NONE' },      'METO_MODE';
@@ -180,8 +182,20 @@ sub serialize {
 sub deserialize {
     my ( $package, $str ) = @_;
     no strict 'refs';
-    return ${$str};
+    given ($str) {
+        when ('NONE') { return $NONE }
+        when ('SINGLE') { return $SINGLE}
+        when ('ALLBUTONE') { return $ALLBUTONE}
+        when ('ALL') { return $ALL}
+        when ('OTHER') { return $OTHER}
+        confess "Unknown!";
+    }
 }
+
+sub get_pure {
+    return $_[0]
+}
+
 
 package EXTENDIBILE;
 

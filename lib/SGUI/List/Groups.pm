@@ -29,7 +29,7 @@ sub new {
         ShowFollowers => sub  {
             my ( $group ) = @_;
             my @followers = SLTM::FindActiveFollowers($group, 0.01);
-            main::message("Followers of $group: @followers", 1);
+            main::message("Followers of " . $group->as_text() . ':' . join(' and ', map { $_->as_text } @followers), 1);
         },
             };
     return $self;
