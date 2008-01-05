@@ -75,8 +75,10 @@ sub BUILD {
                 qw(base_category base_meto_mode metonymy_reln base_pos_mode
                     position_reln                                       )
                 },
-            join( ";", map { "$_=>" . $changed_bindings{$_}->get_type() } keys %changed_bindings ),
-            join( ';', %{ $opts{slippages} || {} } ),
+            join(';', SUtil::hash_sorted_as_array(%changed_bindings)),
+            join(';', SUtil::hash_sorted_as_array(%{$opts{slippages}})),
+            #join( ";", map { "$_=>" . $changed_bindings{$_}->get_type() } sort(keys %changed_bindings) ),
+            #join( ';', map { ($_, $opts{slippages}{$_}) } keys(%{ $opts{slippages} || {} }) ),
         );
 
         ## attempted creation: $string

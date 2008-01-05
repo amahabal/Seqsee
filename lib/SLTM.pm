@@ -30,6 +30,11 @@ our $NodeCount;                 # Number of nodes.
 our %_PURE_CLASSES_;            # List of pure classes: those that can be stored in the LTM.
 our %CurrentlyInstalling;       # We are currently installing these. Needed to detect cycles.
 
+our %MEMORIZED_SERIALIZED; # This is a hack to cover-up for a strange bug:
+# Sometimes while dumping there are multiple copies of the same concept (so far, always instances of
+# SRelnType::Compound). And a node's serialized version can refer to nodes with a higher index.
+# This hash freezes references.
+
 %_PURE_CLASSES_ = map { $_ => 1 }
     qw(SCat::OfObj::Std
        SCat::OfObj::RelationTypeBased
@@ -205,7 +210,8 @@ sub Dump {
     for my $index ( 1 .. $NodeCount ) {
         my ( $pure, $activation ) = ( $MEMORY[$index], $ACTIVATIONS[$index] );
         my ($depth_reciprocal) = ( $activation->[SNodeActivation::DEPTH_RECIPROCAL()], );
-        print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n", $pure->serialize(),
+        print {$filehandle} "=== $index: ", ref($pure), " $depth_reciprocal\n", 
+            $MEMORIZED_SERIALIZED{$pure} || $pure->serialize(),
             "\n";
     }
 
@@ -241,6 +247,7 @@ sub Load {
     ## links: $links
 
     my @nodes = split( qr{=== \d+:}, $nodes );
+    my $nodes_added = 0;
     for (@nodes) {
         s#^\s*##;
         s#\s*$##;
@@ -252,12 +259,19 @@ sub Load {
         TRY{ $pure = $type->deserialize($val); }
             CATCH {
                 DEFAULT: {
-                      SErr::LTM_LoadFailure->throw(what => "Unable to desrialize >>$val<< of type >>$type<<");
+                      my $msg = "Unable to deserialize >>$val<< of type >>$type<<\n";
+                      $msg .= "Nodes inserted so far: $NodeCount.";
+                      SErr::LTM_LoadFailure->throw(what => $msg);
                   }
             }
         ## pure: $pure
         confess qq{Could not find pure: type='$type', val='$val'} unless defined($pure);
-        my $index = InsertNode($pure);
+        my $index = InsertUnlessPresent($pure);
+        $MEMORIZED_SERIALIZED{$pure} = $val;
+        $nodes_added++;
+        unless ($nodes_added == $NodeCount) {
+            SErr::LTM_LoadFailure->throw(what => "Should have only added $nodes_added nodes by now, but looks like $NodeCount");
+        }
         SetDepthReciprocalForIndex( $index, $depth_reciprocal );
     }
     ## nodes: @nodes

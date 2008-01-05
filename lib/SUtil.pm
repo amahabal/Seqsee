@@ -292,4 +292,10 @@ sub StringifyForCarp {
     return $arg;
 }
 
+sub hash_sorted_as_array {
+    my ( %hash ) = @_;
+    my @keys = sort keys %hash;
+    return map { ($_, $hash{$_})} @keys;
+}
+
 1;
