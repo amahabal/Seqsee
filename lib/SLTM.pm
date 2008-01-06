@@ -25,7 +25,7 @@ use SNodeActivation;
 
 our %MEMORY;                    # Just has the index into @MEMORY.
 our @MEMORY;                    # Is 1-based, so that I can say $MEMORY{$x} || ...
-our @ACTIVATIONS;               # Also 1-based, an array of SLinkActivation objects.
+our @ACTIVATIONS;               # Also 1-based, an array of SNodeActivation objects.
 our @LINKS;                     # List of all links, for decay purposes.
 our @OUT_LINKS;                 # Also 1-based; Outgoing links from given node.
 our $NodeCount;                 # Number of nodes.
@@ -477,15 +477,21 @@ sub GetTopConcepts {
 }
 
 sub FindActiveFollowers {
-    my ( $node, $cutoff ) = @_;
+    my ( $concept, $cutoff ) = @_;
     $cutoff ||= 0.3;
 
-    my $node_id = GetMemoryIndex($node);
-    my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
-    return @MEMORY[
-        grep { $ACTIVATIONS[$_][ SNodeActivation::REAL_ACTIVATION() ] > $cutoff }
-        keys %$follows_links_ref
-    ];
+    my @categories = @{ $concept->get_categories() };
+    my @ret;
+    for my $cat (@categories) {
+        my $node_id = GetMemoryIndex($cat);
+        my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
+        while (my($relation_type_index, $link) = each %{$follows_links_ref}) {
+            my $relation_type = $MEMORY[$relation_type_index];
+            my $possible_next_object = $relation_type->apply_reln($concept) or next;
+            push @ret, $possible_next_object;
+        }
+    }
+    return @ret;
 }
 
 {
