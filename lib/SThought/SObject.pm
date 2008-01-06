@@ -37,6 +37,28 @@ INITIAL: {
             SLTM::InsertISALink($o2, $category)->Spike(10);
             SLTM::InsertFollowsLink($category, $relation)->Spike(15);
         };
+
+        sub ExtendFromMemory {
+            my ( $core ) = @_;
+            my $flush_right        = $core->IsFlushRight();
+            my $weighted_set = SLTM::FindActiveFollowers( $core, 0.01 );
+            my @active_followers = $weighted_set->get_elements();
+            if (@active_followers) {
+                for (@active_followers) {
+                    main::debug_message(
+                        $_->as_text()
+                            . " appears to be a promising follower of "
+                            . $core->as_text(),
+                        1, 1
+                    );
+                }
+                my $chosen_follower = $weighted_set->choose();
+                if ($flush_right and $SWorkspace::ElementCount <= 3) {
+                    my $exception = SErr::ElementsBeyondKnownSought->new(next_elements => $chosen_follower->get_flattened());
+                    $exception->Ask();
+                }
+            }
+        }
     }
 FRINGE: {
         return get_fringe_for( $core->GetEffectiveObject() );
@@ -98,21 +120,9 @@ ACTIONS: {
         }
 
         if ( $Global::Feature{LTM} ) {
-
             # Spread activation from corresponding node:
             SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
-            my $weighted_set = SLTM::FindActiveFollowers( $core, 0.01 );
-            my @active_followers = $weighted_set->get_elements();
-            if (@active_followers) {
-                for (@active_followers) {
-                    main::debug_message(
-                        $_->as_text()
-                            . " appears to be a promising follower of "
-                            . $core->as_text(),
-                        1, 1
-                    );
-                }
-            }
+            ExtendFromMemory($core);
         }
 
         my $poss_cat;
@@ -203,9 +213,12 @@ INITIAL: {
 ACTIONS: {
         SLTM::SpikeBy( 10, $core ) if $Global::Feature{LTM};
 
-        #my $index = SLTM::GetMemoryIndex($core);
-        #my ($activation) = @{SLTM::GetRealActivationsForIndices([$index])};
-        #main::message("[$index] $core spiked: $activation!");
+        if ( $Global::Feature{LTM} ) {
+            # Spread activation from corresponding node:
+            SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
+            SThought::SAnchored::ExtendFromMemory($core);
+        }
+
     }
 
 FRINGE: {
