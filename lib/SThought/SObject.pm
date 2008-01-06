@@ -28,6 +28,15 @@ INITIAL: {
 
             return \@ret;
         };
+        
+        sub StrengthenLink {
+            my ( $o1, $o2 ) = @_;
+            my $relation = $o1->get_relation($o2) || return;
+            my $category = $relation->isa('SReln::Simple') ? $S::NUMBER : $relation->get_base_category();
+            SLTM::InsertISALink($o1, $category)->Spike(10);
+            SLTM::InsertISALink($o2, $category)->Spike(10);
+            SLTM::InsertFollowsLink($category, $relation)->Spike(15);
+        };
     }
 FRINGE: {
         return get_fringe_for( $core->GetEffectiveObject() );
@@ -42,6 +51,8 @@ ACTIONS: {
         my $flush_right        = $core->IsFlushRight();
         my $flush_left         = $core->IsFlushLeft();
         my $span_fraction      = $core->get_span() / $SWorkspace::ElementCount;
+        my $underlying_reln    = $core->get_underlying_reln();
+        my $parts_count        = scalar(@$core);
 
         # extendibility checking...
         #if ( $flush_right and not($flush_left) ) {
@@ -146,7 +157,14 @@ ACTIONS: {
         if ( $span_fraction > 0.5 ) {
             CODELET 100, LargeGroup, { group => $core };
         }
-
+        
+        if ($Global::Feature{LTM}) {
+            if ($parts_count >= 3) {
+                for (0..$parts_count-2) {
+                    StrengthenLink($core->[$_], $core->[$_+1]);
+                }
+            }
+        }
     }
 }
 

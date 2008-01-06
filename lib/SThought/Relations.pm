@@ -39,7 +39,7 @@ ACTIONS: {
             core      => $core,
             direction => DIR::LEFT()
             };
-        SLTM::InsertFollowsLink( $core->get_ends(), $core )->Spike(5) if $Global::Feature{LTM};
+        # SLTM::InsertFollowsLink( $core->get_ends(), $core )->Spike(5) if $Global::Feature{LTM};
 
         my @ends = SWorkspace::__SortLtoRByLeftEdge( $end1, $end2 );
         my @intervening_objects

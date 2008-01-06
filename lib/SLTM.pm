@@ -131,10 +131,9 @@ sub __InsertLinkUnlessPresent {
 }
 
 sub InsertFollowsLink {
-    @_ == 3 or confess "Need 3 arguments";
-    my ( $from, $to, $relation ) = @_;
-    __InsertLinkUnlessPresent( GetMemoryIndex($from), GetMemoryIndex($to),
-        GetMemoryIndex($relation), LTM_FOLLOWS, );
+    my ( $category, $relation ) = @_;
+    __InsertLinkUnlessPresent( GetMemoryIndex($category), 
+        GetMemoryIndex($relation), 0, LTM_FOLLOWS, );
 }
 
 sub InsertISALink {
@@ -151,7 +150,9 @@ sub StrengthenLinkGivenIndex {
 
 sub StrengthenLinkGivenNodes {
     my ( $from, $to, $type, $amount ) = @_;
-    StrengthenLinkGivenIndex( GetMemoryIndex($from), GetMemoryIndex($to) );
+    StrengthenLinkGivenIndex( GetMemoryIndex($from), GetMemoryIndex($to),
+                              $type, $amount,
+                                  );
 }
 
 sub SpreadActivationFrom {
@@ -534,7 +535,8 @@ sub Print {
                     $modifier_name = $MEMORY[$modifier_index]->as_text();
                 }
                 my $to_name = $MEMORY[$to_node]->as_text();
-                say "\t\tTo: $to_name\n\t\tModifier: $modifier_name\n\n";
+                say "\t\tTo: $to_name\n\t\tModifier: $modifier_name";
+                say "\t\tSig: $significance, \tStab: $stability";
             }
         }
     }
