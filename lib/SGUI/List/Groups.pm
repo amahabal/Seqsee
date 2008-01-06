@@ -28,7 +28,8 @@ sub new {
         },
         ShowFollowers => sub  {
             my ( $group ) = @_;
-            my @followers = SLTM::FindActiveFollowers($group, 0.01);
+            my $weighted_set = SLTM::FindActiveFollowers($group, 0.01);
+            my @followers = $weighted_set->get_elements();
             main::message("Followers of " . $group->as_text() . ':' . join(' and ', map { $_->as_text } @followers), 1);
         },
             };

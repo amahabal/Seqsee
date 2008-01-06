@@ -101,7 +101,8 @@ ACTIONS: {
 
             # Spread activation from corresponding node:
             SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
-            my @active_followers = SLTM::FindActiveFollowers( $core, 0.01 );
+            my $weighted_set = SLTM::FindActiveFollowers( $core, 0.01 );
+            my @active_followers = $weighted_set->get_elements();
             if (@active_followers) {
                 for (@active_followers) {
                     main::debug_message(

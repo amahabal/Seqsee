@@ -7,7 +7,7 @@ use File::Slurp;
 use Carp;
 use Smart::Comments;
 use English qw(-no_match_vars);
-
+use Set::Weighted;
 use SLTM::Platonic;
 
 use constant {
@@ -481,17 +481,18 @@ sub FindActiveFollowers {
     $cutoff ||= 0.3;
 
     my @categories = @{ $concept->get_categories() };
-    my @ret;
+    my $ret = Set::Weighted->new();
     for my $cat (@categories) {
         my $node_id = GetMemoryIndex($cat);
         my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
         while (my($relation_type_index, $link) = each %{$follows_links_ref}) {
             my $relation_type = $MEMORY[$relation_type_index];
             my $possible_next_object = $relation_type->apply_reln($concept) or next;
-            push @ret, $possible_next_object;
+            $ret->insert([$possible_next_object, 1]); #XXX a dummy value currently.
         }
     }
-    return @ret;
+    $ret->merge_keys();
+    return $ret;
 }
 
 {
