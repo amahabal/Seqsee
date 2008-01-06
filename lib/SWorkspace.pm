@@ -1402,16 +1402,18 @@ sub GetSomethingLike {
         }
     }
 
-    for (@potentially_matching_objects) {
-        SCoderack->add_codelet(
-            SCodelet->new(
-                'TryToSquint',
-                200,
-                {   actual   => $_,
-                    intended => $object,
-                }
-            )
-        );
+    if ($Global::Feature{AllowSquinting}) {
+        for (@potentially_matching_objects) {
+            SCoderack->add_codelet(
+                SCodelet->new(
+                    'TryToSquint',
+                    200,
+                    {   actual   => $_,
+                        intended => $object,
+                    }
+                        )
+                    );
+        }
     }
 
     return $strength_chooser->( \@matching_objects );

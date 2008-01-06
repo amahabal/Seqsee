@@ -183,7 +183,7 @@ sub SpreadActivationFrom {
                 next if exists $nodes_at_distance_below_1{$target_index};
                 my $amount_to_spread = $link->AmountToSpread($activation);
                 $amount_to_spread *= 0.3;
-                $ACTIVATIONS[$target_index]->Spike( int($amount_to_spread) );
+                SNodeActivation::SpikeSeveral(int($amount_to_spread), $ACTIVATIONS[$target_index]);
                 my $node_name = $MEMORY[$target_index]->as_text();
                 main::debug_message(
                     "distance = 2 [$target_index] >$node_name< got an extra $amount_to_spread from >$root_name<",
