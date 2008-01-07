@@ -1346,13 +1346,12 @@ sub FightUntoDeath {
 
 sub GetSomethingLike {
     my ( $package, $opts_ref ) = @_;
-    my $object      = $opts_ref->{object} or confess;
-    my $start_pos   = $opts_ref->{start};
-    my $direction   = $opts_ref->{direction} or confess;
+    my $object      = $opts_ref->{object} // confess;
+    my $start_pos   = $opts_ref->{start} // confess;
+    my $direction   = $opts_ref->{direction} // confess;
     my $reason      = $opts_ref->{reason} || '';              # used for message for ask_user
-    my $trust_level = $opts_ref->{trust_level} or confess;    # used if ask_user
+    my $trust_level = $opts_ref->{trust_level} // confess;    # used if ask_user
     my $hilit_set   = $opts_ref->{hilit_set};
-    defined($start_pos) or confess;
 
     my @objects_at_that_location;
     if ( $direction eq $DIR::RIGHT ) {

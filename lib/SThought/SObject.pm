@@ -41,13 +41,25 @@ INITIAL: {
         sub ExtendFromMemory {
             my ( $core ) = @_;
             my $flush_right        = $core->IsFlushRight();
-            return unless ($flush_right and $SWorkspace::ElementCount <= 3);
-            my $weighted_set = SLTM::FindActiveFollowers( $core );
-            return unless $weighted_set->is_not_empty();
-
-            my $chosen_follower = $weighted_set->choose();
-            my $exception = SErr::ElementsBeyondKnownSought->new(next_elements => $chosen_follower->get_flattened());
-            $exception->Ask();
+            if ($flush_right and $SWorkspace::ElementCount <= 3) {
+                my $weighted_set = SLTM::FindActiveFollowers( $core );
+                return unless $weighted_set->is_not_empty();
+                
+                my $chosen_follower = $weighted_set->choose();
+                my $exception = SErr::ElementsBeyondKnownSought->new(next_elements => $chosen_follower->get_flattened());
+                $exception->Ask();
+            } elsif ($Global::Feature{LTM_expt}) {
+                my $weighted_set = SLTM::FindActiveFollowers( $core );
+                return unless $weighted_set->is_not_empty();
+                
+                my $chosen_follower = $weighted_set->choose();
+                my $next = SWorkspace->GetSomethingLike({object => $chosen_follower,
+                                                         start => $core->get_right_edge() + 1,
+                                                         direction => $DIR::RIGHT,
+                                                         trust_level => 50,
+                                                     }) || return;
+                CODELET 100, FindIfRelated, {a => $core, b=>$next};
+            }
         };
         sub AddCategoriesFromMemory {
             my ( $core ) = @_;
