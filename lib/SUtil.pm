@@ -1,4 +1,5 @@
 package SUtil;
+use 5.10.0;
 use strict;
 use warnings;
 use SPos;
@@ -268,6 +269,7 @@ sub StringifyForCarp {
             my %arg = %$arg;
             $arg = '{ ';
             while ( my ( $k, $v ) = each %arg ) {
+                $v //= 'undef';
                 $arg .= "$k => ";
                 if ( UNIVERSAL::can( $v, 'as_text' ) ) {
                     $arg .= '«' . $v->as_text() . '»';

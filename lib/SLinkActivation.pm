@@ -26,7 +26,7 @@ for ( 0 .. 200 ) {
     $PRECALCULATED[$_] = 0.4815 + 0.342 * atan2( 12 * ( $_ / 100 - 0.5 ), 1 );    # change!
 }
 
-our $Initial_Raw_Activation       = 1;
+our $Initial_Raw_Activation       = 5;
 our $Initial_Raw_Significance     = 1;
 our $Initial_Stability  = 50;
 our $Initial_Stability_Reciprocal = 1 / $Initial_Stability;
@@ -42,7 +42,10 @@ sub new {
 
 our $DECAY_CODE = q{
      $_->[0]-- if $_->[0] > 1;
-     $_->[1] -= $_->[2] if $_->[1] > 1;
+     if ($_->[0] <= 1) {
+        $_->[0] = 5;
+        $_->[1] -= $_->[2] if $_->[1] > 1;
+     }
      $_->[3] = $PRECALCULATED[$_->[0] + $_->[1]];
 };
 
@@ -51,9 +54,9 @@ our $SPIKE_CODE = q{
     $_->[0]+= $spike;
     if ($_->[0] > 99) {
       $_->[1] += 2;
-      $_->[0] = 95;
+      $_->[0] = 90;
       if ($_->[1] > 99) {
-        $_->[1] = 95;
+        $_->[1] = 90;
         my $stab = 1 / $_->[2];
         $_->[2] = 1 / ($stab + 3);
       }

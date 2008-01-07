@@ -113,7 +113,7 @@ sub Show {
                 my $to_name = $MEMORY[$to_node]->as_text();
                 $TB->insert('end', "\t\t", '', $to_name, 'LinkTarget', "\n\t\t", '',
                             $significance, 'Significance', '  ', '',
-                            $stability, 'Stability', "\n\n");
+                            int(1/$stability), 'Stability', "\n\n");
             }
         }
     }
