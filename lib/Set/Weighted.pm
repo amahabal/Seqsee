@@ -10,6 +10,11 @@ sub new {
     return $self;
 }
 
+sub is_not_empty {
+    return @{$_[0]} ? 1 : 0;
+}
+
+
 sub insert {
     my $self = shift;
     push @$self, @_;

@@ -58,6 +58,15 @@ INITIAL: {
                     $exception->Ask();
                 }
             }
+        };
+        sub AddCategoriesFromMemory {
+            my ( $core ) = @_;
+            my $weighted_set = SLTM::FindActiveCategories($core);
+            $weighted_set->delete_below_threshold(0.3);
+            if ($weighted_set->is_not_empty()) {
+                my $category = $weighted_set->choose();
+                CODELET 100, CheckIfInstance, { obj => $core, cat => $category};
+            }
         }
     }
 FRINGE: {
@@ -123,6 +132,8 @@ ACTIONS: {
             # Spread activation from corresponding node:
             SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
             ExtendFromMemory($core);
+
+            AddCategoriesFromMemory($core);
         }
 
         my $poss_cat;
@@ -217,6 +228,8 @@ ACTIONS: {
             # Spread activation from corresponding node:
             SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
             SThought::SAnchored::ExtendFromMemory($core);
+
+            SThought::SAnchored::AddCategoriesFromMemory($core);
         }
 
     }

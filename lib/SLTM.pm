@@ -17,7 +17,7 @@ use constant {
     LTM_TYPE_COUNT     => 3,    #
 };
 
-my %LinkType2Str = (1 => 'FOLLOWS', 2 => 'IS', 3 => 'CAN_BE_SEEN_AS');
+our %LinkType2Str = (1 => 'FOLLOWS', 2 => 'IS', 3 => 'CAN_BE_SEEN_AS');
 
 our @PRECALCULATED = @SLinkActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
@@ -477,8 +477,7 @@ sub GetTopConcepts {
 }
 
 sub FindActiveFollowers {
-    my ( $concept, $cutoff ) = @_;
-    $cutoff ||= 0.3;
+    my ( $concept ) = @_;
 
     my @categories = @{ $concept->get_categories() };
     my $ret = Set::Weighted->new();
@@ -495,6 +494,18 @@ sub FindActiveFollowers {
     return $ret;
 }
 
+sub FindActiveCategories {
+    my ( $concept ) = @_;
+    my @current_categories = @{ $concept->get_categories() };
+    my $ret = Set::Weighted->new();
+    my $isa_links_ref = ($OUT_LINKS[GetMemoryIndex($concept)][LTM_IS] ||= {});
+    while (my ($category_index, $link) = each %{$isa_links_ref}) {
+        my $category = $MEMORY[$category_index];
+        next if $category ~~ @current_categories;
+        $ret->insert([$category, $ACTIVATIONS[$category_index][SNodeActivation::REAL_ACTIVATION]]);
+    }
+    return $ret;
+}
 {
 my %NodesAlreadyPrinted;
 sub LogActivations {

@@ -26,9 +26,10 @@ for ( 0 .. 200 ) {
     $PRECALCULATED[$_] = 0.4815 + 0.342 * atan2( 12 * ( $_ / 100 - 0.5 ), 1 );    # change!
 }
 
-my $Initial_Raw_Activation       = 1;
-my $Initial_Raw_Significance     = 1;
-my $Initial_Stability_Reciprocal = 1 / 50;
+our $Initial_Raw_Activation       = 1;
+our $Initial_Raw_Significance     = 1;
+our $Initial_Stability  = 50;
+our $Initial_Stability_Reciprocal = 1 / $Initial_Stability;
 my $Initial_Real_Activation = $PRECALCULATED[ $Initial_Raw_Activation + $Initial_Raw_Significance ] // confess "Initial_Real_Activation not defined!";
 
 sub new {
