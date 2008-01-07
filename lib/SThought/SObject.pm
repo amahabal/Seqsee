@@ -41,23 +41,13 @@ INITIAL: {
         sub ExtendFromMemory {
             my ( $core ) = @_;
             my $flush_right        = $core->IsFlushRight();
-            my $weighted_set = SLTM::FindActiveFollowers( $core, 0.01 );
-            my @active_followers = $weighted_set->get_elements();
-            if (@active_followers) {
-                for (@active_followers) {
-                    main::debug_message(
-                        $_->as_text()
-                            . " appears to be a promising follower of "
-                            . $core->as_text(),
-                        1, 1
-                    );
-                }
-                my $chosen_follower = $weighted_set->choose();
-                if ($flush_right and $SWorkspace::ElementCount <= 3) {
-                    my $exception = SErr::ElementsBeyondKnownSought->new(next_elements => $chosen_follower->get_flattened());
-                    $exception->Ask();
-                }
-            }
+            return unless ($flush_right and $SWorkspace::ElementCount <= 3);
+            my $weighted_set = SLTM::FindActiveFollowers( $core );
+            return unless $weighted_set->is_not_empty();
+
+            my $chosen_follower = $weighted_set->choose();
+            my $exception = SErr::ElementsBeyondKnownSought->new(next_elements => $chosen_follower->get_flattened());
+            $exception->Ask();
         };
         sub AddCategoriesFromMemory {
             my ( $core ) = @_;

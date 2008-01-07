@@ -768,7 +768,7 @@ sub RunSeqsee {
     if ($Global::Feature{LTM}) {
         SLTM->Dump('memory_dump.dat');
     } else {
-        say "LTM not passed in as an option.";
+        say "LTM not passed in as an option, so no need to save.";
     }
         if ($return) {
             return $return;

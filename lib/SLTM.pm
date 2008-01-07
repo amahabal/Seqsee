@@ -486,7 +486,7 @@ sub FindActiveFollowers {
         my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
         while (my($relation_type_index, $link) = each %{$follows_links_ref}) {
             my $relation_type = $MEMORY[$relation_type_index];
-            my $possible_next_object = $relation_type->apply_reln($concept) or next;
+            my $possible_next_object = eval { $relation_type->apply_reln($concept) } or next;
             $ret->insert([$possible_next_object, 1]); #XXX a dummy value currently.
         }
     }
