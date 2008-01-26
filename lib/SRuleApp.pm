@@ -383,13 +383,11 @@ sub suggest_cat {
 
 sub suggest_cat_for_ends {
     my ($self) = @_;
-    my $relations_ref = $Rule_of{ ident $self}->get_relations();
-    if ( scalar(@$relations_ref) == 1 ) {
-        return $relations_ref->[0]->suggest_cat_for_ends();
-    }
-    else {
-        return;
-    }
+    my $id = ident($self);
+    my @items = @{$Items_of{$id}};
+    return unless scalar(@items) >= 2;
+    my $first_relation = $items[0]->get_relation($items[1]) or return;
+    return $first_relation->suggest_cat_for_ends();
 }
 
 sub get_span {

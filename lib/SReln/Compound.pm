@@ -48,6 +48,7 @@ multimethod 'find_relation_type';
 my %type_of : ATTR(:get<type>);        # The SRelnType::Compound object.
 my %first_of : ATTR( :get<first>, :set<first> );    # First object. Not necessarily the left.
 my %second_of : ATTR( :get<second>, :set<second> );  # Second object.
+my %unchanged_bindings_of :ATTR(:name<unchanged_bindings>);
 
 sub get_pure           { return $type_of{ ident $_[0] } }
 sub get_base_category  { return $type_of{ ident $_[0] }->get_base_category() }
