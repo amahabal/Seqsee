@@ -34,6 +34,7 @@ sub new {
                 next unless $gp->is_of_category_p($category);
                 SWorkspace::__AddBarLines($gp->get_left_edge);
             }
+            SWorkspace::__RemoveGroupsCrossingBarLines();
         }
             };
     return $self;

@@ -829,6 +829,31 @@ sub __ClosestBarLineToRightGivenIndex {
     return $BarLines[ $count + 1 ];
 }
 
+sub __RemoveGroupsCrossingBarLines {
+    my @groups = GetGroups();
+    for my $group (@groups) {
+        next unless __CheckLiveness($group);
+        if (__CheckIfCrossesBarLinesInappropriately($group)) {
+            __DeleteGroup($group);
+        }
+    }
+}
+
+sub __CheckIfCrossesBarLinesInappropriately {
+    my ( $group ) = @_;
+    my ($l, $r) = ($LeftEdge_of{$group}, $RightEdge_of{$group});
+    my $closest_bar_line_before_end = __ClosestBarLineToLeftGivenIndex($r) // return;
+    return if $closest_bar_line_before_end <= $l; # No crossing!
+    
+    # Crossing exists. It is appropriate if there are bar lines at either ends.
+    return 1 unless __ClosestBarLineToLeftGivenIndex($l) == $l;
+    my $rightward_closest = __ClosestBarLineToRightGivenIndex($r) // return;
+    return 1 unless $rightward_closest == $r + 1;
+    return;
+}
+
+##########
+
 sub __UpdateObjectStrengths {
     for ( values(%relations), values(%Objects) ) {
         $_->UpdateStrength();
