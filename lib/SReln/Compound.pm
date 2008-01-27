@@ -54,7 +54,23 @@ sub get_pure           { return $type_of{ ident $_[0] } }
 sub get_base_category  { return $type_of{ ident $_[0] }->get_base_category() }
 sub get_base_meto_mode { return $type_of{ ident $_[0] }->get_base_meto_mode() }
 sub get_base_pos_mode  { return $type_of{ ident $_[0] }->get_base_pos_mode() }
-sub suggest_cat_for_ends { return $type_of{ ident $_[0]}->suggest_cat_for_ends() }
+sub suggest_cat_for_ends { 
+    my $self = shift;
+    my $id = ident $self;
+    my $based_on_type = $type_of{$id}->suggest_cat_for_ends();
+
+    my %unchanged_bindings = %{$unchanged_bindings_of{$id}};
+    if (%unchanged_bindings) {
+        my $cat = $self->get_base_category;
+        my $assuming = SCat::OfObj::Assuming->Create($cat, \%unchanged_bindings);
+        #main::message("Assuming: $assuming");
+        SLTM::SpikeBy(20, $assuming);
+        #main::message("Finished spiking");
+        return $assuming unless $based_on_type;
+        return SLTM::SpikeAndChoose(10, $assuming, $based_on_type);
+    }
+    return $based_on_type;
+}
 
 
 sub get_changed_bindings_ref {

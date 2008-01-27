@@ -82,7 +82,7 @@ sub get_name {
 sub get_memory_dependencies {
     my ( $self ) = @_;
     my $id = ident $self;
-    return ($BaseCategory_of{$id}, values %{$AssumingRef_of{$id}});
+    return ($BaseCategory_of{$id}, (grep { ref($_) } values %{$AssumingRef_of{$id}}));
 }
 
 sub serialize {

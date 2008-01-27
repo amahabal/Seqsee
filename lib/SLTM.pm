@@ -42,6 +42,7 @@ our %MEMORIZED_SERIALIZED; # This is a hack to cover-up for a strange bug:
        SCat::OfObj::RelationTypeBased
        SCat::OfObj::Literal
        SCat::OfObj::Interlaced
+       SCat::OfObj::Assuming
        SLTM::Platonic SRelnType::Simple
        SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir
        SMetonymType
@@ -372,14 +373,17 @@ sub SpikeBy {
     my ( $amount, @concepts ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    SNodeActivation::SpikeSeveral( $amount, @ACTIVATIONS[ map { GetMemoryIndex($_) } @concepts ] );
+    # main::message("Spiking @concepts", 1);
+    my @indices = map { GetMemoryIndex($_) } grep {ref($_)} @concepts;
+    SNodeActivation::SpikeSeveral( $amount, @ACTIVATIONS[@indices] );
 }
 
 sub WeakenBy {
     my ( $amount, @concepts ) = @_;
     ## Mem index: GetMemoryIndex($concept)
     ## @ACTIVATIONS: @ACTIVATIONS
-    SNodeActivation::WeakenSeveral( $amount, @ACTIVATIONS[ map{ GetMemoryIndex($_) } @concepts ] );
+    my @indices = map { GetMemoryIndex($_) } grep {ref($_)} @concepts;
+    SNodeActivation::WeakenSeveral( $amount, @ACTIVATIONS[@indices] );
 }
 
 sub SpikeAndChoose {
