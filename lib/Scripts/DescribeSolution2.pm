@@ -20,7 +20,16 @@ STEP: {
         SLTM->Dump('memory_dump.dat') if $Global::Feature{LTM};
     }
 STEP: {
-        main::message("That finishes the description!");
+        main::message("That finishes the description!", 1);
+    }
+STEP: {
+        my $response = $SGUI::Commentary->MessageRequiringAResponse(
+            ['Yes', 'No'],
+            "Does this generate the sequence you had in mind?"
+                );
+        my $rule = $group->get_underlying_reln()->get_rule();
+        my $group_position = SWorkspace::__GetPositionStructureAsString($group);
+        main::message("That response corresponded to $rule and group at $group_position");
     }
 }
 

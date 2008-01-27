@@ -300,4 +300,12 @@ sub hash_sorted_as_array {
     return map { ($_, $hash{$_})} @keys;
 }
 
+sub StringifyDeepArray {
+    my ( $item ) = @_;
+    if (ref($item)) {
+        return '[' . join(', ', map StringifyDeepArray($_), @$item) .']';
+    }
+    return $item;
+}
+
 1;

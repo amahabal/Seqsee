@@ -55,6 +55,7 @@ use SLTM;
 use SRule;
 use SRuleApp;
 
+use PositionStructure;
 # use SUtil;
 
 our $ASCENDING  = $SCat::ascending::ascending;

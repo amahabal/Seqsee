@@ -1037,6 +1037,24 @@ sub __GetRelationChoiceProbabilityDistribution {
     return ( \@distribution_values, \@distribution_objects );
 }
 
+sub __GetPositionStructure {
+    my ( $group ) = @_;
+    use 5.10.0;
+    given (ref($group)) {
+        when ('SElement') {
+            return $LeftEdge_of{$group};
+        }
+        when ('SAnchored') {
+            return [map {__GetPositionStructure($_) } @{$group}];
+        }
+    }
+}
+
+sub __GetPositionStructureAsString {
+    my ( $group ) = @_;
+    SUtil::StringifyDeepArray(__GetPositionStructure($group));
+}
+
 # method: read_object
 sub read_object {
     my ($package) = @_;
