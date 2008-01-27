@@ -1,5 +1,17 @@
 CodeletFamily DescribeSolution( $group ! ) does scripted {
 STEP: {
+        my $ruleapp = $group->get_underlying_reln();
+        unless ($ruleapp) {
+            RETURN;
+        }
+        my $rule = $ruleapp->get_rule;
+        my $position_structure = PositionStructure->Create($group);
+        if (SolutionConfirmation->HasThisBeenRejected($rule, $position_structure)) {
+            # main::message("There is a rule I like. Alas, it has been rejected!");
+            RETURN;
+        }
+}
+STEP: {
         if ( my $ruleapp = $group->get_underlying_reln() ) {
             SWorkspace::DeleteObjectsInconsistentWith($ruleapp);
         }
@@ -28,8 +40,13 @@ STEP: {
             "Does this generate the sequence you had in mind?"
                 );
         my $rule = $group->get_underlying_reln()->get_rule();
-        my $group_position = SWorkspace::__GetPositionStructureAsString($group);
-        main::message("That response corresponded to $rule and group at $group_position");
+        my $group_position = PositionStructure->Create($group);
+        # main::message("That response corresponded to $rule and group at $group_position");
+        if ($response eq 'Yes') {
+            SolutionConfirmation->SetAcceptedSolution($rule, $group_position);
+        } else {
+            SolutionConfirmation->AddRejectedSolution($rule, $group_position);
+        }
     }
 }
 

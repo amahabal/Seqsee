@@ -160,6 +160,29 @@ sub HasRuleBeenRejected {
     return (exists($RejectedRules{$rule}) ? 1 : 0);
 }
 
+package SolutionConfirmation;
+my %Rejected; # Keys are rules, values are array of PositionStructure objects.
+my $AcceptedRule;
+my $AcceptedPositionStructure;
 
+sub AddRejectedSolution {
+    my ( $package, $rule, $position_structure ) = @_;
+    $Rejected{$rule} ||= [];
+    push @{$Rejected{$rule}}, $position_structure;
+}
 
+sub SetAcceptedSolution {
+    my ( $package, $rule, $position_structure ) = @_;
+    $AcceptedRule = $rule;
+    $AcceptedPositionStructure = $position_structure;
+}
+
+sub HasThisBeenRejected {
+    my ( $package, $rule, $position_structure ) = @_;
+    my @rejects_for_rule = @{ $Rejected{$rule} ||= []  };
+    for my $reject (@rejects_for_rule) {
+        return 1 if $reject->IsASubsetOf($position_structure);
+    }
+    return;
+}
 1;
