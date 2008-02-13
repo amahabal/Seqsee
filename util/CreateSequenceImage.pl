@@ -8,26 +8,9 @@ use Sort::Key qw(rikeysort);
 
 use Getopt::Long;
 
-my $AUTOPILOT;
 my $GENERATE_FILE_NAME;
 my %options;
-GetOptions( \%options, 'autopilot!', 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
-
-if ($options{autopilot}) {
-    if (!$options{sequence}) {
-        confess "Need sequence";
-    }
-    if ($options{generate_filename}) {
-        unless ($options{dir}) {
-            confess "With generate_filename, need dir";
-        }
-        $options{filename} = GenerateFilename($options{dir}, $options{sequence});
-    } elsif (!$options{filename}) {
-        confess "Need filename";
-    }
-    print "Will run on autopilot\n";
-    $AUTOPILOT = 1;
-}
+GetOptions( \%options, 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
 
 sub GenerateFilename {
     my ( $dir, $seq ) = @_;
@@ -162,15 +145,6 @@ $MW->Scale(
 )->pack();
 my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -background => BACKGROUND() )
     ->pack();
-if ($AUTOPILOT) {
-    $SequenceString = $options{sequence};
-    $SaveFilename = $options{filename};
-    Show();
-    sleep(1);
-    #Save();
-    #sleep(1);
-    # exit();
-}
 MainLoop();
 
 sub Show {
