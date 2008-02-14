@@ -9,6 +9,7 @@ use Sort::Key qw(rikeysort);
 use Getopt::Long;
 
 my $GENERATE_FILE_NAME;
+my $IS_MOUNTAIN;
 my %options;
 GetOptions( \%options, 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
 
@@ -46,7 +47,7 @@ use constant {
 
     #FONT                     => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
     FONT      => 'Lucida 14',
-    MAX_TERMS => 20,
+    MAX_TERMS => 25,
     MIN_TERMS => 10,
 };
 
@@ -60,7 +61,8 @@ use constant {
 my $MW = new MainWindow();
 my $WIDTH_PER_TERM;
 my $Y_DELTA_PER_UNIT_SPAN;
-my $OVAL_MINOR_AXIS_FRACTION = 30;
+my $OVAL_MINOR_AXIS_FRACTION = 15;
+my $OVAL_MINOR_AXIS_MIN = 10;
 
 $MW->bind(
     '<KeyPress-q>' => sub {
@@ -138,17 +140,33 @@ $frame1->Button(
 $MW->Scale(
     -orient       => 'horizontal',
     -length       => 200,
-    -from         => 9,
+    -from         => 0,
     -to           => 50,
     -tickinterval => 1,
     -variable     => \$OVAL_MINOR_AXIS_FRACTION,
 )->pack();
+$MW->Scale(
+    -orient       => 'horizontal',
+    -length       => 200,
+    -from         => 0,
+    -to           => 50,
+    -tickinterval => 1,
+    -variable     => \$OVAL_MINOR_AXIS_MIN,
+)->pack();
+$MW->CheckBox(-label => 'mountain?',
+              -textvariable => \$IS_MOUNTAIN,
+                  )->pack();
 my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -background => BACKGROUND() )
     ->pack();
 MainLoop();
 
 sub Show {
+    if ($IS_MOUNTAIN) {
+        ShowMountain();
+        return;
+    }
     my $string = $SequenceString;
+
     print "Will Parse: >$SequenceString<\n";
     my ( $Elements_ref, $GroupA_ref, $GroupB_ref ) = Parse($string);
 
@@ -174,6 +192,37 @@ sub Show {
     #$Canvas->createLine(0, HEIGHT - $distance_from_edge, WIDTH(), HEIGHT - $distance_from_edge);
 }
 
+sub ShowMountain {
+    my $string = $SequenceString;
+    $string =~ s#^\D+##;
+    $string =~ s#\D+$##;
+    my @numbers = split(/\D+/, $string);
+    my $min = List::Util::min(@numbers);
+    my $max = List::Util::max(@numbers);
+    my $ht_per_range = ($max - $min) ? HEIGHT() / ($max - $min + 2) : 0;
+
+    my $ElementsCount = scalar(@numbers);
+    confess "Too mant elements!" if $ElementsCount > MAX_TERMS;
+
+    my $PretendWeHaveElements = ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS: $ElementsCount;
+    $WIDTH_PER_TERM = WIDTH / ( $PretendWeHaveElements + 1 );
+
+    my $x_pos = $WIDTH_PER_TERM * 0.5;
+    $Canvas->delete('all');
+    for my $elt (@numbers) {
+        my $y_pos = HEIGHT() - 10 - ($elt - $min) * $ht_per_range;
+        $Canvas->createText(
+            $x_pos, $y_pos,
+            -text   => $elt,
+            -font   => FONT,
+            -fill   => 'black',
+            -anchor => 'center',
+        );
+        $x_pos += $WIDTH_PER_TERM;
+    }
+}
+
+
 sub DrawElements {
     my ($Elements_ref) = @_;
     my $x_pos = $WIDTH_PER_TERM * 0.5;
@@ -193,7 +242,7 @@ sub DrawGroup {
     my ( $start, $end, $options_ref ) = @_;
     my $span = $end - $start;
     my ( $x1, $x2 ) = ( $WIDTH_PER_TERM * ( $start + 0.1 ), $WIDTH_PER_TERM * ( $end - 0.1 ) );
-    my $y_delta = $span * $Y_DELTA_PER_UNIT_SPAN;
+    my $y_delta = $OVAL_MINOR_AXIS_MIN + $span * $Y_DELTA_PER_UNIT_SPAN;
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
     $Canvas->createOval( $x1, $y1, $x2, $y2, @$options_ref );
 }
