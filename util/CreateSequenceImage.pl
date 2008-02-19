@@ -4,6 +4,8 @@ use Smart::Comments;
 use Tk;
 use Carp;
 use Sort::Key qw(rikeysort);
+use Exception::Class ('Y_TOO_BIG' => {});
+use English qw(-no_match_vars );
 #use Tk::JFileDialog;
 
 use Getopt::Long;
@@ -28,10 +30,22 @@ sub GenerateFilename {
 
 sub GenerateFilename_cleaner {
     my ( $dir, $seq ) = @_;
+    use 5.10.0;
+    say $seq;
     $seq =~ tr#()[]{}<>#    ef  #;
-    $seq =~ s#\s##g;
-    $seq =~ s#fe#_#g;
+    say $seq;
+    $seq =~ s#\s+#.#g;
+    say $seq;
+    $seq =~ s#\.*f\.*e\.*#_#g;
+    $seq =~ s#\.*[ef]\.*#_#g;
+    say $seq;
     $seq =~ s#[fe]##g;
+    say $seq;
+    $seq =~ s#^\.+##; $seq =~ s#\.+$##;
+    if ($IS_MOUNTAIN) {
+        $seq = "mountain_$seq";
+    }
+
     my $ret = "$dir/$seq.eps";
     print $ret;
     return $ret;
@@ -71,7 +85,7 @@ $MW->bind(
 );
 $MW->focusmodel('active');
 
-my $SequenceString = '';
+my $SequenceString = $options{sequence} || '';
 my $SaveFilename;
 
 my $frame1 = $MW->Frame()->pack();
@@ -81,14 +95,7 @@ my $Entry
 my $FileEntry
     = $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )->pack( -side => 'left' );
  my $fileDialog;
-# = $MW->JFileDialog(
-#     -Title    => 'Select File To Save Image In',
-#     -FPat     => '*.eps',
-#     -HistFile => 'graveyard/history',
 
-#     # -HistUsePath => 1,
-#     -Path => 'D:/DISSERTATION/Chapters/SequenceEPS',
-# );
 $frame2->Button(
     -text    => '...',
     -command => sub {
@@ -112,9 +119,7 @@ $frame2->Button(
 $Entry->focus();
 
 $Entry->bind(
-    '<Return>' => sub {
-        Show();
-    }
+    '<Return>' => \&UpdateImage,
 );
 $Entry->bind(
     '<KeyPress-,>' => sub {
@@ -129,11 +134,16 @@ $Entry->bind(
     }
 );
 
+$Entry->bind(
+    '<F10>' => sub {
+        Save() if $SaveFilename;
+    }
+);
+
 $frame1->Button(
     -text    => 'Draw',
     -command => sub {
-        Show();
-        $SaveFilename = GenerateFilename_cleaner('D:/DISSERTATION/Chapters/SequenceEPS',$SequenceString );
+        UpdateImage();
     }
 )->pack();
 
@@ -180,10 +190,10 @@ sub Show {
 
         $Canvas->delete('all');
     for (@$GroupA_ref) {
-        DrawGroup( @$_, GROUP_A_OPTIONS );
+        DrawGroup( @$_, 3, GROUP_A_OPTIONS );
     }
     for (@$GroupB_ref) {
-        DrawGroup( @$_, GROUP_B_OPTIONS );
+        DrawGroup( @$_, 0, GROUP_B_OPTIONS );
     }
     DrawElements($Elements_ref);
 
@@ -199,7 +209,6 @@ sub ShowMountain {
     my @numbers = split(/\D+/, $string);
     my $min = List::Util::min(@numbers);
     my $max = List::Util::max(@numbers);
-    my $ht_per_range = ($max - $min) ? HEIGHT() / ($max - $min + 2) : 0;
 
     my $ElementsCount = scalar(@numbers);
     confess "Too mant elements!" if $ElementsCount > MAX_TERMS;
@@ -207,16 +216,19 @@ sub ShowMountain {
     my $PretendWeHaveElements = ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS: $ElementsCount;
     $WIDTH_PER_TERM = WIDTH / ( $PretendWeHaveElements + 1 );
 
-    my $x_pos = $WIDTH_PER_TERM * 0.5;
+    my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
     $Canvas->delete('all');
+    my $available_height = 2 * (HEIGHT() - Y_CENTER() - 9);
+    my $height_bottom = Y_CENTER() + $available_height / 2;
+    my $ht_per_range = ($max - $min) ? $available_height / ($max - $min + 2) : 0;
     for my $elt (@numbers) {
-        my $y_pos = HEIGHT() - 10 - ($elt - $min) * $ht_per_range;
+        my $y_pos = $height_bottom - ($elt - $min) * $ht_per_range;
         $Canvas->createText(
             $x_pos, $y_pos,
             -text   => $elt,
             -font   => FONT,
             -fill   => 'black',
-            -anchor => 'center',
+            -anchor => 's',
         );
         $x_pos += $WIDTH_PER_TERM;
     }
@@ -225,7 +237,7 @@ sub ShowMountain {
 
 sub DrawElements {
     my ($Elements_ref) = @_;
-    my $x_pos = $WIDTH_PER_TERM * 0.5;
+    my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
     for my $elt (@$Elements_ref) {
         $Canvas->createText(
             $x_pos, Y_CENTER,
@@ -239,10 +251,16 @@ sub DrawElements {
 }
 
 sub DrawGroup {
-    my ( $start, $end, $options_ref ) = @_;
+    my ( $start, $end, $extra_width, $options_ref ) = @_;
     my $span = $end - $start;
-    my ( $x1, $x2 ) = ( $WIDTH_PER_TERM * ( $start + 0.1 ), $WIDTH_PER_TERM * ( $end - 0.1 ) );
-    my $y_delta = $OVAL_MINOR_AXIS_MIN + $span * $Y_DELTA_PER_UNIT_SPAN;
+    my ( $x1, $x2 ) = ( 3 + $WIDTH_PER_TERM * ( $start + 0.1 ) - $extra_width, 3 + $WIDTH_PER_TERM * ( $end - 0.1 ) + $extra_width );
+    my $y_delta = $OVAL_MINOR_AXIS_MIN + $extra_width + $span * $Y_DELTA_PER_UNIT_SPAN;
+
+    if ($y_delta > Y_CENTER() - 7) { # Center is off a bit.
+        $OVAL_MINOR_AXIS_FRACTION--;
+        Y_TOO_BIG->throw();
+    }
+
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
     $Canvas->createOval( $x1, $y1, $x2, $y2, @$options_ref );
 }
@@ -312,7 +330,24 @@ sub DrawGroup {
 
 sub Save {
     my $filename = $SaveFilename;
-    die "File exists. Fix this bug first." if -e $filename;
+    use 5.10.0;
+    if (-e $filename) {
+        say "File exists, perhaps you already saved this? \n ***NOT SAVING AGAIN***";
+        return;
+    }
     $Canvas->postscript( -file => $filename, -pageheight => PAGEHEIGHT, -height => HEIGHT );
     # or confess "Failed to save $filename";
+    say "Saved file $filename";
+}
+
+sub UpdateImage {
+    eval { Show() };
+    if ($EVAL_ERROR) {
+        my $counter = 0;
+        while ($counter < 10 and $EVAL_ERROR) {
+            confess $EVAL_ERROR unless UNIVERSAL::isa($EVAL_ERROR, 'Y_TOO_BIG');
+            eval { Show() };
+        }
+    }
+    $SaveFilename = GenerateFilename_cleaner('D:/DISSERTATION/Chapters/SequenceEPS',$SequenceString );
 }
