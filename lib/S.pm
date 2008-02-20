@@ -29,6 +29,7 @@ use SCat::Load;
 use SObject;
 use SAnchored;
 use SElement;
+use SInt;
 use SWorkspace;
 
 use ResultOfCanBeSeenAs;
