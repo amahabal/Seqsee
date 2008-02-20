@@ -22,6 +22,7 @@ sub BUILD {
     confess "Need mag" unless defined $opts->{mag};
     $mag_of{$id} = int( $opts->{mag} );
     $self->describe_as($S::NUMBER);
+    $self->describe_as($S::PRIME) if SCat::Prime::IsPrime($opts->{mag});
 }
 
 # method: create

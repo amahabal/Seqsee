@@ -24,9 +24,14 @@ multimethod find_relation_type => ('#', '#') => sub  {
     return SRelnType::Simple->create($string);
 };
 
+multimethod '_find_reln';
 multimethod find_relation_type => ('SElement', 'SElement') => sub  {
     my ( $a, $b ) = @_;
-    return find_relation_type($a->get_mag(), $b->get_mag());
+    if (my $rel = $a->get_relation($b)) {
+        return $rel->get_type;
+    }
+    my $rel = _find_reln($a, $b) or return;
+    return $rel->get_type();
 };
 
 multimethod find_relation_type => ('#', 'SElement') => sub  {

@@ -123,8 +123,7 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     ## @common_categories
     return unless @common_categories;
 
-# XXX(Board-it-up): [2006/11/07] change: SLTM::ChooseConceptGivenConcept(\@common_categories)
-    my $cat = $common_categories[0];
+    my $cat = SLTM::SpikeAndChoose(0, @common_categories) || SChoose->uniform(\@common_categories);
 
     ## $cat
 

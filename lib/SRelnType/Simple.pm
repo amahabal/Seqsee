@@ -101,6 +101,12 @@ multimethod apply_reln => ( 'SRelnType::Simple', '#' ) => sub {
 
 multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
     my ( $rel, $el ) = @_;
+    my $cat = $category_of{ident $rel};
+
+    if ($cat) {
+        return $cat->ApplyRelationType($rel, $el);
+    }
+
     my $new_mag = apply_reln( $rel, $el->get_mag() );
     say "This (SElement) apply_reln still used!";
 
@@ -158,6 +164,10 @@ sub get_complexity_penalty {
 sub IsEffectivelyASamenessRelation {
     my ( $self ) = @_;
     return $string_of{ident $self} eq 'same' ? 1 : 0;
+}
+
+sub get_complexity_penalty {
+    return 1;
 }
 
 

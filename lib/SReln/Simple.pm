@@ -56,14 +56,23 @@ multimethod find_relation_string => ( '#', '#' ) => sub {
 
 multimethod apply_reln => ( 'SReln::Simple', '#' ) => sub {
     my ( $reln, $num ) = @_;
+    my $cat = $reln->get_type()->get_category;
+    if ($cat) {
+        return $cat->ApplyRelationType($reln->get_type(), $num);
+    }
     say "apply_reln(SReln::Simple #) called";
     return apply_reln( $type_of{ ident $reln}, $num );
 };
 
 multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     ## In apply_reln SReln Simple SElement
+    my ($self, $el) = @_;
+    my $cat = $self->get_type()->get_category;
+    if ($cat) {
+        return $cat->ApplyRelationType($self->get_type(), $el);
+    }
     say "apply_reln(SReln::Simple SElement) called";
-    return apply_reln( $_[0]->get_type(), $_[1] );
+    return apply_reln( $self->get_type(), $el );
 };
 
 multimethod apply_reln => qw(SReln::Simple SAnchored) => sub {
@@ -114,7 +123,13 @@ sub UpdateStrength {
 
 sub FlippedVersion {
     my ($self) = @_;
-    return find_reln( reverse( $self->get_ends() ) );
+    my $cat = $self->get_type()->get_category;
+    if ($cat) {
+        return find_reln( reverse( $self->get_ends() ), $cat );
+    } else {
+        return find_reln( reverse( $self->get_ends() ));
+    }
+
 }
 
 1;

@@ -203,11 +203,12 @@ INITIAL: {
 
 
             for ( @{ $core->get_categories() } ) {
-                next if $_ eq $S::RELN_BASED;
+                next if $_ eq $S::NUMBER;
+                SLTM::SpikeBy(10, $_);
                 FRINGE 80, $_;
             }
 
-            my @literal_cats = map { SCat::OfObj::Literal->Create([$mag+$_])} (0, 1, -1);
+            my @literal_cats = map { SCat::OfObj::Literal->Create([$mag+$_])->as_text } (0, 1, -1);
             FRINGE 100, $literal_cats[0];
             FRINGE 30, $literal_cats[1];
             FRINGE 30, $literal_cats[-1];
@@ -217,8 +218,8 @@ INITIAL: {
             FRINGE 80, $abs_pos;
             my $prev_abs_pos = "absolute_position_" . ( $pos - 1 );
             my $next_abs_pos = "absolute_position_" . ( $pos + 1 );
-            FRINGE 30, $prev_abs_pos;
-            FRINGE 30, $next_abs_pos;
+            FRINGE 20, $prev_abs_pos;
+            FRINGE 20, $next_abs_pos;
             return \@ret;
         };
 
