@@ -4,6 +4,7 @@ use strict;
 use Class::Std;
 use Carp;
 
+our $Prime;
 my @Primes = qw{2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59
     61 67 71 73 79 83 89 91 97};
 my %Primes = map { $_ => 1 } @Primes;
@@ -12,7 +13,7 @@ my $LargestPrime = List::Util::max(@Primes);
 sub IsPrime {
     my ($num) = @_;
     my $reply = $num ~~ %Primes ? 1 : 0;
-    say "IsPrime called on >>$num<< ==> $reply";
+    # say "IsPrime called on >>$num<< ==> $reply";
     return $reply;
 }
 
@@ -69,7 +70,8 @@ my $relation_finder = sub {
     return SReln::Simple->new(
         {   first  => $e1,
             second => $e2,
-            text   => $text
+            text   => $text,
+            category => $Prime
         }
     );
 };
@@ -77,7 +79,7 @@ my $relation_finder = sub {
 my $relation_applier = sub {
     my ( $cat, $relation_type, $original_object ) = @_;
     my $text = $relation_type->get_text() // return;
-    my $mag = $original_object->get_mag;
+    my $mag = ref($original_object) ? $original_object->get_mag() : $original_object;
     my $new_mag;
 
     given ($text) {
@@ -87,11 +89,11 @@ my $relation_applier = sub {
     }
 
     $new_mag // return;
-    return $cat->build( { mag => $new_mag } );
+    return ref($original_object)? $cat->build( { mag => $new_mag } ) : $new_mag;
 
 };
 
-our $Prime = SCat::OfObj::Std->new(
+$Prime = SCat::OfObj::Std->new(
     {   name               => 'Prime',
         to_recreate        => '$S::PRIME',
         builder            => $builder,

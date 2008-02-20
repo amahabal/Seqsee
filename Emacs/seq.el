@@ -591,3 +591,8 @@ Version
   nil
 "# Copyright (C) 2005-2008, Abhijit Mahabal.
 ")
+
+(define-skeleton seq-use-510
+  ""
+  nil
+  "use 5.10.0;" \n)

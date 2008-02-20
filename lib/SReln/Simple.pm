@@ -7,6 +7,7 @@
 #####################################################
 
 package SReln::Simple;
+use 5.10.0;
 use strict;
 use Carp;
 use Class::Std;
@@ -34,7 +35,9 @@ sub BUILD {
 
     $first_of{$id}  = $arg_ref->{first}  if $arg_ref->{first};
     $second_of{$id} = $arg_ref->{second} if $arg_ref->{second};
-    $type_of{$id} = SRelnType::Simple->create( $arg_ref->{text} );
+    $type_of{$id} = SRelnType::Simple->create( $arg_ref->{text},
+                                               $arg_ref->{category}
+                                                   );
 }
 
 multimethod find_relation_string => ( '#', '#' ) => sub {
@@ -53,11 +56,13 @@ multimethod find_relation_string => ( '#', '#' ) => sub {
 
 multimethod apply_reln => ( 'SReln::Simple', '#' ) => sub {
     my ( $reln, $num ) = @_;
+    say "apply_reln(SReln::Simple #) called";
     return apply_reln( $type_of{ ident $reln}, $num );
 };
 
 multimethod apply_reln => qw(SReln::Simple SElement) => sub {
     ## In apply_reln SReln Simple SElement
+    say "apply_reln(SReln::Simple SElement) called";
     return apply_reln( $_[0]->get_type(), $_[1] );
 };
 
@@ -74,12 +79,12 @@ multimethod find_reln => ( '$', '$' ) => sub {
 
 sub as_text {
     my ($self) = @_;
-    return $self->get_text;
+    return $self->get_type()->as_text;
 }
 
 multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {
     my ( $r1, $r2 ) = @_;
-    return $r1->get_text() eq $r2->get_text();
+    return ($r1->get_type() eq $r2->get_type());
 };
 
 # XXX(Board-it-up): [2007/02/03] Should the next two methods be removed?
@@ -88,19 +93,7 @@ multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {
 #
 sub suggest_cat {
     my ($self) = @_;
-    my $id     = ident $self;
-    my $str    = $str_of{$id};
-
-    if ( $str eq "same" ) {
-        return $S::SAMENESS;
-    }
-    elsif ( $str eq "succ" ) {
-        return $S::ASCENDING;
-    }
-    elsif ( $str eq "pred" ) {
-        return $S::DESCENDING;
-    }
-
+    return $self->get_type()->suggest_cat();
 }
 
 sub suggest_cat_for_ends {

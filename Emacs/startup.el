@@ -207,12 +207,14 @@
   "" 'seq-comment-var-nd 0)
 (define-abbrev cperl-mode-abbrev-table "sub"
   "" 'seq-sub-body 0)
-(define-abbrev cperl-mode-abbrev-table "method"
+(define-abbrev cperl-mode-abbrev-table "meth"
   "" 'seq-method-body 0)
 (define-abbrev cperl-mode-abbrev-table "optg"
   "" 'seq-pull-opt 0)
 (define-abbrev cperl-mode-abbrev-table "optgd"
   "" 'seq-pull-opt-with-default 0)
+(define-abbrev cperl-mode-abbrev-table "use5"
+  "" 'seq-use-510 0)
 
 (define-abbrev cperl-mode-abbrev-table "sxt"
   "" 'seq-expansion-test 0)
