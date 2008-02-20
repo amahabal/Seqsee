@@ -11,5 +11,6 @@ use SCat::descending;
 use SCat::mountain;
 use SCat::sameness;
 use SCat::Number;
+use SCat::Prime;
 
 1;

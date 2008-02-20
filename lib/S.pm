@@ -66,6 +66,7 @@ our $MOUNTAIN   = $SCat::mountain::mountain;
 our $SAMENESS   = $SCat::sameness::sameness;
 our $AD_HOC     = $SCat::ad_hoc::AD_HOC;
 our $NUMBER     = $SCat::Number::Number;
+our $PRIME      = $SCat::Prime::Prime;
 
 our $DOUBLE = SMetonymType->new(
     {   category  => $S::SAMENESS,
