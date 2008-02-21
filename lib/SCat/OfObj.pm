@@ -107,7 +107,7 @@ sub Default_FindRelationBetween {
 
     $opts_ref->{base_category} = $cat;
 
-    ## Base Category found: $cat
+    ## Base Category found: $cat->as_text
 
     # Meto mode
     my $meto_mode = $b1->get_metonymy_mode;
@@ -119,10 +119,7 @@ sub Default_FindRelationBetween {
     CalculateBindingsChange( $opts_ref, $b1->get_bindings_ref(), $b2->get_bindings_ref(), $cat )
         or return;
 
-    ## bindings: %bindings_1, %bindings_2
-    ## changed_bindings found: $changed_ref
-    ## unchanged_bindings found: $unchanged_ref
-
+    ## Binding change: $opts_ref
     if ( $meto_mode->is_metonymy_present() ) {
 
         # So other stuff is relevant, too!
@@ -258,10 +255,6 @@ sub Default_ApplyRelationType {
 }
 
 sub CalculateBindingsChange {
-
-    # my ( $output_ref, $bindings_1, $bindings_2, $cat ) = @_;
-    ##CalculateBindingsChange:
-
     return 1 if CalculateBindingsChange_no_slips(@_);
     return CalculateBindingsChange_with_slips(@_);
 }
@@ -276,6 +269,7 @@ sub CalculateBindingsChange_no_slips {
             confess "In _find_reln($$$): binding for $k missing for second object!";
         }
         my $v2 = $bindings_2->{$k};
+        ##  CalculateBindingsChange_no_slips: $k, $v1, $v2
         if ( $v1 eq $v2 ) {
             $unchanged_ref->{$k} = $v1;
             next;
@@ -283,10 +277,12 @@ sub CalculateBindingsChange_no_slips {
         my $rel = find_relation_type( $v1, $v2 );
         ## k, v1, v2, rel: $k, $v1, $v2, $rel
         return unless $rel;
+        ### Changed binding seen :$rel
         $changed_ref->{$k} = $rel;
     }
     $output_ref->{changed_bindings}   = $changed_ref;
     $output_ref->{unchanged_bindings} = $unchanged_ref;
+    ##  CalculateBindingsChange_no_slips: $output_ref
     return 1;
 }
 

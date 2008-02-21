@@ -33,7 +33,7 @@ sub run {
             # Probably already a confess..
             die("Encountered a confess while running a codelet:\n$EVAL_ERROR");
         } else {
-            confess("Encountered C<die> while running a codelet:\n $EVAL_ERROR");
+            confess("Encountered C<die> while running a codelet. Family => $self->[0]. Arguments => $self->[3]\n $EVAL_ERROR");
         }
     }
 }

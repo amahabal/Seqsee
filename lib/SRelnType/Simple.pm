@@ -83,7 +83,7 @@ multimethod apply_reln => ( 'SRelnType::Simple', '#' ) => sub {
         return $cat->ApplyRelationType($reln, $num);
     }
 
-    say "This apply_reln still used!";
+   # say "This apply_reln still used!";
     if ( $text eq "same" ) {
         return $num;
     }
@@ -99,7 +99,8 @@ multimethod apply_reln => ( 'SRelnType::Simple', '#' ) => sub {
 
 };
 
-multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
+{
+my $apply_reln = sub {
     my ( $rel, $el ) = @_;
     my $cat = $category_of{ident $rel};
 
@@ -108,7 +109,7 @@ multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
     }
 
     my $new_mag = apply_reln( $rel, $el->get_mag() );
-    say "This (SElement) apply_reln still used!";
+    #say "This (SElement) apply_reln still used!";
 
     # Need to return an selement, but unanchored. Sigh.
     my $ret = SElement->create( $new_mag, 0 );
@@ -121,7 +122,9 @@ multimethod apply_reln => qw(SRelnType::Simple SElement) => sub {
 
     return $ret;
 };
-
+multimethod apply_reln => qw(SRelnType::Simple SElement) => $apply_reln;
+multimethod apply_reln => qw(SRelnType::Simple SInt) => $apply_reln;
+}
 multimethod apply_reln => qw(SRelnType::Simple SAnchored) => sub {
     return;
 };

@@ -57,7 +57,8 @@ my $instancer = sub {
 my $relation_finder = sub {
     my ( $cat, $e1, $e2 ) = @_;
     *__ANON__ = "((__ANON__ Prime-specific relation_finder))";
-    my ( $m1, $m2 ) = ( $e1->get_mag(), $e2->get_mag() );
+    my ( $m1, $m2 ) = ( (ref $e1 ? $e1->get_mag() : $e1), 
+                        (ref $e2 ? $e2->get_mag() : $e2) );
     my $text;
     say "$m1 and $m2: ", NextPrime($m1), ' and ', PreviousPrime($m1);
     if    ( $m2 == $m1 )                { $text = 'same'; }

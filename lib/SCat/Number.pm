@@ -10,6 +10,7 @@ use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
+use Smart::Comments;
 use base qw{};
 
 my $builder = sub {
@@ -54,7 +55,9 @@ multimethod 'find_relation_string';
 my $relation_finder = sub {
     my ( $self, $e1, $e2 ) = @_;
     *__ANON__ = "((__ANON__ Number-specific relation_finder))";
-    my $relation_string = find_relation_string( $e1->get_mag(), $e2->get_mag );
+    my $relation_string = find_relation_string( (ref $e1 ? $e1->get_mag() : $e1),
+                                                (ref $e2 ? $e2->get_mag() : $e2 ));
+    ### relation_string: $relation_string
     if ($relation_string) {
         return SReln::Simple->new(
             {   text   => $relation_string,

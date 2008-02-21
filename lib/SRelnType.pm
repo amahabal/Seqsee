@@ -65,4 +65,15 @@ multimethod find_relation_type => ('SAnchored', 'SAnchored') => sub  {
    return $reln->get_type;
 };
 
+multimethod find_relation_type => ('SInt', 'SInt') => sub  {
+    my ( $a, $b ) = @_;
+    use 5.10.0;
+    say "find_relation_type: ", $a, ' and ', $b;
+    my $cat = SLTM::SpikeAndChoose(0, $a->get_common_categories($b)) or return;
+    say "cat: $cat";
+    my $rel =  $cat->FindRelationBetween($a->[0], $b->[0]) or return;
+    say "rel: $rel";
+    return $rel->get_type;
+};
+
 1;

@@ -25,7 +25,7 @@ my $builder = sub {
     $args_ref->{end} ||= $end;
     $args_ref->{length} ||= $start -$end + 1;
 
-    my $ret = SObject->create( reverse( $args_ref->{end} .. $args_ref->{start} ) );
+    my $ret = SObject->create( reverse( $args_ref->{end}->get_mag() .. $args_ref->{start}->get_mag() ) );
     $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
     $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
     return $ret;

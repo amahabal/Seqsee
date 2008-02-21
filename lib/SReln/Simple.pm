@@ -60,21 +60,24 @@ multimethod apply_reln => ( 'SReln::Simple', '#' ) => sub {
     if ($cat) {
         return $cat->ApplyRelationType($reln->get_type(), $num);
     }
-    say "apply_reln(SReln::Simple #) called";
+    # say "apply_reln(SReln::Simple #) called";
     return apply_reln( $type_of{ ident $reln}, $num );
 };
 
-multimethod apply_reln => qw(SReln::Simple SElement) => sub {
-    ## In apply_reln SReln Simple SElement
-    my ($self, $el) = @_;
-    my $cat = $self->get_type()->get_category;
-    if ($cat) {
-        return $cat->ApplyRelationType($self->get_type(), $el);
-    }
-    say "apply_reln(SReln::Simple SElement) called";
-    return apply_reln( $self->get_type(), $el );
-};
-
+{
+    my $apply_reln = sub  {
+        ## In apply_reln SReln Simple SElement
+        my ($self, $el) = @_;
+        my $cat = $self->get_type()->get_category;
+        if ($cat) {
+            return $cat->ApplyRelationType($self->get_type(), $el);
+        }
+        #say "apply_reln(SReln::Simple SElement) called";
+        return apply_reln( $self->get_type(), $el );
+    };
+    multimethod apply_reln => qw(SReln::Simple SElement) => $apply_reln;
+    multimethod apply_reln => qw(SReln::Simple SInt) => $apply_reln;
+}
 multimethod apply_reln => qw(SReln::Simple SAnchored) => sub {
     return;
 };
@@ -88,7 +91,8 @@ multimethod find_reln => ( '$', '$' ) => sub {
 
 sub as_text {
     my ($self) = @_;
-    return $self->get_type()->as_text;
+    my $type = $self->get_type()  or return;
+    return $type->as_text;
 }
 
 multimethod are_relns_compatible => qw{SReln::Simple SReln::Simple} => sub {

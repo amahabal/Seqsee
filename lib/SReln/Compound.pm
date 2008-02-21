@@ -131,6 +131,17 @@ multimethod _find_reln => qw(SObject SObject) => sub {
     # return _find_reln( $o1, $o2, $cat );
 };
 
+multimethod _find_reln => ('SInt', 'SInt') => sub  {
+    my ( $o1, $o2 ) = @_;
+    my @common_categories = $o1->get_common_categories($o2);
+    ## @common_categories
+    return unless @common_categories;
+    my $cat = SLTM::SpikeAndChoose(0, @common_categories) || SChoose->uniform(\@common_categories);
+
+    ## $cat
+    return $cat->FindRelationBetween($o1, $o2);
+};
+
 multimethod find_relation_string => ('#', 'SElement') => sub {
     my ( $num, $elt ) = @_;
     return find_relation_string($num, $elt->get_mag());

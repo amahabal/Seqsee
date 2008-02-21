@@ -164,7 +164,7 @@ sub BUILD {
                 and $type_ref->{$k} eq 'int' )
             {
                 if ( ref($subobject) eq "SElement" ) {
-                    return $subobject->get_mag;
+                    return SInt->new( $subobject->get_mag );
                 }
                 else {
                     return;
@@ -190,7 +190,7 @@ sub BUILD {
                 and $type_ref->{$k} eq 'int' )
             {
                 if ( ref($subobject) eq "SElement" ) {
-                    return $subobject->get_mag;
+                    return SInt->new($subobject->get_mag);
                 }
                 else {
                     return;
