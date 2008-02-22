@@ -77,6 +77,26 @@ my $relation_finder = sub {
     );
 };
 
+my $FindTransformForCat = sub  {
+    my ( $me, $a, $b ) = @_;
+    # Assume $a, $b are integers.
+
+    my $str;
+    if ( $a == $b ) {
+        $str = "same";
+    }
+    elsif ( NextPrime($a) == $b ) {
+        $str = "succ";
+    }
+    elsif ( PreviousPrime($a) == $b ) {
+        $str = "pred";
+    } else {
+        return;
+    }
+    return Transform::Numeric->create($str, $me);
+};
+
+
 my $relation_applier = sub {
     my ( $cat, $relation_type, $original_object ) = @_;
     my $text = $relation_type->get_text() // return;

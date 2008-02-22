@@ -69,6 +69,25 @@ my $relation_finder = sub {
     return;
 };
 
+my $FindTransformForCat = sub  {
+    my ( $me, $a, $b ) = @_;
+    # Assume $a, $b are integers.
+
+    my $str;
+    if ( $a == $b ) {
+        $str = "same";
+    }
+    elsif ( $a + 1 == $b ) {
+        $str = "succ";
+    }
+    elsif ( $a - 1 == $b ) {
+        $str = "pred";
+    } else {
+        return;
+    }
+    return Transform::Numeric->create($str, $me);
+};
+
 our $Number = SCat::OfObj::Std->new(
     {   name               => 'number',
         to_recreate        => '$S::NUMBER',

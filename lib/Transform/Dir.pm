@@ -34,4 +34,9 @@ multimethod FindTransform => qw(DIR DIR) => sub  {
     }
 };
 
+sub FlippedVersion {
+    return $_[0];
+}
+
+
 1;
