@@ -43,7 +43,7 @@ sub Instancer {
 
     return SBindings->new(
         {   raw_slippages => $object->GetEffectiveSlippages(),
-            bindings      => { first => $parts[0], last => $parts[-1], length => $parts_count },
+            bindings      => { first => $parts[0], last => $parts[-1], length => SInt->new($parts_count) },
             object        => $object,
         }
     );
@@ -58,10 +58,11 @@ sub build {
     # xxx: only uses start and length for now.
     my $start  = $opts_ref->{first}  or return;
     my $length = $opts_ref->{length} or return;
-    return unless $length > 0;
+    my $length_as_num = ref($length) ? $length->[0] : $length;
+    return unless $length_as_num > 0;
     my @ret         = ($start);
     my $current_end = $start;
-    for ( 1 .. $length - 1 ) {
+    for ( 1 .. $length_as_num - 1 ) {
         my $next = apply_reln( $relation_type, $current_end ) or return;
         push @ret, $next;
         $current_end = $next;

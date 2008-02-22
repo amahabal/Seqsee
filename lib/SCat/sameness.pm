@@ -22,7 +22,7 @@ my $builder = sub {
     confess q{need each}   unless exists $args_ref->{each};
     confess q{need length} unless exists $args_ref->{length};
 
-    my @items = map { $args_ref->{each} } ( 1 .. $args_ref->{length} );
+    my @items = map { $args_ref->{each} } ( 1 .. $args_ref->{length}[0] );
 
     my $cnt = scalar(@items);
     ## $cnt
@@ -40,7 +40,7 @@ my $builder = sub {
 
 my $length_finder = sub {
     my ( $object, $name ) = @_;
-    return $object->get_parts_count;
+    return SInt->new($object->get_parts_count);
 };
 
 my $each_finder = sub {

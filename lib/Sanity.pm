@@ -20,8 +20,13 @@ multimethod SanityCheck => () => sub {
 };
 
 multimethod SanityCheck => qw(SElement) => sub {
-    my ($el) = @_;
-
+    my ($gp) = @_;
+    for my $cat (@{$gp->get_categories}) {
+        my $bindings = $gp->GetBindingForCategory($cat) or SanityFail("No bindings?");
+        while (my ($k, $v) = each %{$bindings->get_bindings_ref()}) {
+            ref($v) or SanityFail("Non-ref in bindings: $k => $v for ". $cat->get_name);
+        }
+    }
 };
 
 multimethod SanityCheck => qw(SAnchored) => sub {
@@ -41,6 +46,13 @@ multimethod SanityCheck => qw(SAnchored) => sub {
     for my $part (@parts) {
         $part->isa('SAnchored') or SanityFail("Unanchored part!");
         $part->get_is_a_metonym() and SanityFail("Group has metonym as part");
+    }
+
+    for my $cat (@{$gp->get_categories}) {
+        my $bindings = $gp->GetBindingForCategory($cat) or SanityFail("No bindings?");
+        while (my ($k, $v) = each %{$bindings->get_bindings_ref()}) {
+            ref($v) or SanityFail("Non-ref in bindings: $k => $v for ". $cat->get_name);
+        }
     }
 };
 
