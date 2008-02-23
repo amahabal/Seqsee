@@ -35,4 +35,11 @@ sub get_memory_dependencies {
     return $category_of{$id};
 }
 
+sub FlippedVersion {
+    my ($self) = @_;
+    my $id = ident $self;
+    state %FlipName = qw{same same pred succ succ pred};
+    return Transform::Numeric->create( $FlipName{ $name_of{$id} }, $category_of{$id} );
+}
+
 1;
