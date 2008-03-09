@@ -92,10 +92,11 @@ sub _think_the_current_thought {
         )->schedule();
     }
 
+    my @codelets;
     for my $x ( $thought->get_actions() ) {
         my $x_type = ref $x;
         if ( $x_type eq "SCodelet" ) {
-            SCoderack->add_codelet($x);
+            push @codelets, $x;
         }
         elsif ( $x_type eq "SAction" ) {
 
@@ -112,6 +113,12 @@ sub _think_the_current_thought {
             confess "Huh? non-codelet '$x' returned by get_actions";
         }
     }
+
+    my @choose2
+        = scalar(@codelets) > 2
+        ? SChoose->choose_a_few_nonzero( 2, [ map { $_->[1] } @codelets ], \@codelets )
+        : @codelets;
+    SCoderack->add_codelet($_) for @choose2;
 }
 
 # method: _maybe_expell_thoughts
