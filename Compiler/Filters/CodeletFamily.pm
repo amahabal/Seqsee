@@ -98,7 +98,7 @@ HERE
     return Compiler::Filter::tidy($serialized);
 }
 
-my %AllowedBlocks = map {$_ => 1 } qw(INITIAL RUN FINAL);
+my %AllowedBlocks = map {$_ => 1 } qw(INITIAL NAME RUN FINAL);
 sub GenerateFamilyCode {
     my ( $package_name, $arguments, $blocks ) = @_;
     $package_name = "SCF::$package_name";
@@ -111,7 +111,11 @@ sub GenerateFamilyCode {
     my $INITIAL_BLOCK = $blocks->{INITIAL} || '';
     my $FINAL_BLOCK = $blocks->{FINAL} || '';
     my $RUN_BLOCK = $blocks->{RUN} || confess "No run block?";
-
+    my $NAME = $blocks->{NAME} // $package_name;
+    $NAME =~ s#^\s*##;
+    $NAME =~ s#\s*$##;
+    $NAME =~ s#\s+# #;
+    
     for ($INITIAL_BLOCK, $FINAL_BLOCK, $RUN_BLOCK) {
         $_ = filterCodelet($_);
         $_ = filterAction($_);
@@ -126,6 +130,7 @@ sub GenerateFamilyCode {
 
 package $package_name;
 our \$package_name_ = '$package_name';
+our \$NAME = '$NAME';
 $COMMON_PREAMBLE
 $INITIAL_BLOCK
 

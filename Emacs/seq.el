@@ -596,3 +596,13 @@ Version
   ""
   nil
   "use 5.10.0;" \n)
+
+(define-skeleton seq-new-codelet-family
+  ""
+  nil
+  "CodeletFamily " (setq v1 (skeleton-read "Name of new family: "))
+  "(   " ("Argument: " str ", ") -2  ") does {" \n
+  "NAME: {" (skeleton-read "Name of family: " v1) "}" \n
+  "RUN: {}" \n
+  "}" \n
+)
