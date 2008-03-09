@@ -17,8 +17,8 @@ my $builder = sub {
     croak q{need foot} unless $args_ref->{foot};
     croak q{need peak} unless $args_ref->{peak};
 
-    my $ret = SObject->create( $args_ref->{foot} .. $args_ref->{peak},
-        reverse( $args_ref->{foot} .. $args_ref->{peak} - 1 ) );
+    my $ret = SObject->create( $args_ref->{foot}->get_mag() .. $args_ref->{peak}->get_mag(),
+        reverse( $args_ref->{foot}->get_mag() .. $args_ref->{peak}->get_mag() - 1 ) );
     $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
     return $ret;
 };

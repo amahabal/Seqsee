@@ -130,7 +130,7 @@ ExtraStuff: {
         }
 
 
-        sub SReln::draw_ws3 {
+        sub SRelation::draw_ws3 {
             my ( $self, $display ) = @_;
             ## draw relation: @_
             my @ends = $self->get_ends();
@@ -146,6 +146,7 @@ ExtraStuff: {
                 ( $x1 + $x2 ) / 2,
                 $YOffset + $Margin + $RelnZenithFraction * $EffectiveHeight,
                 $x2, $y2, $display->find_relation_style($self, $is_hilit),
+                -arrowshape => [8, 12, 10],
             );
         }
         

@@ -12,7 +12,7 @@ use overload
 sub new {
     my ( $package, $mag ) = @_;
     my $self = bless [$mag, [$S::NUMBER]], $package;
-     $self->add_category($S::PRIME) if  SCat::Prime::IsPrime($mag);
+    $self->add_category($S::PRIME) if ($Global::Feature{Primes} and SCat::Prime::IsPrime($mag));
     $self;
 }
 
@@ -63,7 +63,7 @@ sub add_category {
 
 sub get_common_categories {
     my ( $o1, $o2 ) = @_;
-    ### SInt get_common_categories: $o1, $o2
+    ## SInt get_common_categories: $o1, $o2
     my @ret;
     my @second_object_cats = @{$o2->[1]};
     my $second_object_cats_count = scalar(@second_object_cats);
@@ -72,7 +72,7 @@ sub get_common_categories {
             push @ret, $cat if $second_object_cats[$_] eq $cat;
         }
     }
-    ### get_common_categories: @ret
+    ## get_common_categories: @ret
     @ret;
 }
 

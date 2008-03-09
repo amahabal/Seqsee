@@ -55,6 +55,19 @@ RUN: {
                         }
                     }
                 SWorkspace->add_group($new_group);
+       my $reln_type = $reln->get_type();
+        if ($reln_type->isa('Transform::Structural')
+                or $reln_type->get_category() ne $S::NUMBER
+                ) {
+            $new_group->describe_as(SCat::OfObj::RelationTypeBased->Create($reln))
+                || main::message("Unable to describe ". 
+                                     $new_group->as_text() ."  as based on " . $reln->as_text);
+        } else {
+            state $map = { same => $S::SAMENESS, succ => $S::ASCENDING,
+                           pred => $S::DESCENDING
+                       };
+            $new_group->describe_as($map->{$reln_type->get_name()} || confess "Should not be here ($reln_type)");
+        }
             }
 
         };
@@ -70,7 +83,6 @@ RUN: {
         }
 
         # confess "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
-
     }
 }
 
@@ -80,7 +92,7 @@ RUN: {
         my $span        = $gp->get_span;
         my $total_count = $SWorkspace::ElementCount;
         my $left_edge   = $gp->get_left_edge();
-        ### $span, $total_count
+        ## $span, $total_count
         #main::message( $right_extendibility);
 
         my $underlying_rule_app = $gp->get_underlying_reln();

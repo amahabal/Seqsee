@@ -30,6 +30,7 @@ GetOptions(
     "times=i",
     "steps=i",
     "f=s",
+    "filename=s",
 );
 
 my $times : shared;
@@ -78,7 +79,7 @@ $MW->MainLoop();
 use Storable;
 
 sub StartRun {
-    my $sequence_list_filename = 'config/sequence_list_for_multiple';
+    my $sequence_list_filename = $options{filename} // 'config/sequence_list_for_multiple';
     open my $LIST, '<', $sequence_list_filename or die "Failed to open list";
     my @sequence_list = <$LIST>;
     close $LIST;

@@ -39,12 +39,16 @@ our %MEMORIZED_SERIALIZED; # This is a hack to cover-up for a strange bug:
 
 %_PURE_CLASSES_ = map { $_ => 1 }
     qw(SCat::OfObj::Std
+       SCat::OfObj::Numeric
        SCat::OfObj::RelationTypeBased
        SCat::OfObj::Literal
        SCat::OfObj::Interlaced
        SCat::OfObj::Assuming
        SLTM::Platonic SRelnType::Simple
        SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir
+
+       Transform::Numeric Transform::Structural Transform::Position Transform::MetoType
+       Transform::Dir
        SMetonymType
           );
 

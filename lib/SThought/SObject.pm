@@ -15,8 +15,8 @@ INITIAL: {
 
             for my $category ( @{ $core->get_categories() } ) {
                 next if $category eq $S::RELN_BASED;
-                SLTM::SpikeBy( 5, $category );
                 FRINGE 100, $category;
+                SLTM::SpikeBy( 5, $category );
 
                 my $bindings  = $core->GetBindingForCategory($category);
                 my $meto_mode = $bindings->get_metonymy_mode();
@@ -139,8 +139,8 @@ ACTIONS: {
         }
 
         my $poss_cat;
-        $poss_cat = $core->get_underlying_reln()->suggest_cat()
-            if $core->get_underlying_reln;
+        my $first_reln = $core->[0]->get_relation($core->[1]);
+        $poss_cat = $first_reln->SuggestCategory() if $first_reln;
         if ($poss_cat) {
             my $is_inst = $core->is_of_category_p($poss_cat);
 
@@ -155,8 +155,7 @@ ACTIONS: {
 
         }
 
-        my $possible_category_for_ends = $core->get_underlying_reln()->suggest_cat_for_ends()
-            if $core->get_underlying_reln;
+        my $possible_category_for_ends = $first_reln->SuggestCategoryForEnds() if $first_reln;
         if ($possible_category_for_ends) {
             for ( @{ $core->get_underlying_reln()->get_items() } ) {
                 unless ( UNIVERSAL::isa( $_, "SAnchored" ) ) {
@@ -189,6 +188,13 @@ ACTIONS: {
                 }
             }
         }
+
+        my @categories = @{$core->get_categories()};
+        my $category = SLTM::SpikeAndChoose(0, @categories);
+        if ($category and SUtil::toss(0.5 * SLTM::SpikeBy(5, $category))) {
+            CODELET 100, FocusOn, {what => $category};
+        }
+
     }
 }
 

@@ -15,11 +15,10 @@ sub create {
 }
 
 
-my $Successor   = SReln::Position->create('succ');
-my $Predecessor = SReln::Position->create('pred');
-my $SamePos     = SReln::Position->create('same');
+my $Successor   = Transform::Position->create('succ');
+my $Predecessor = Transform::Position->create('pred');
+my $SamePos     = Transform::Position->create('same');
 my %ComplexityLookup = ($Successor => 0.9, $Predecessor => 0.9, $SamePos => 1);
-my %IsEffectivelyASamenessRelationLookup = ($Successor => 0, $Predecessor => 0, $SamePos => 1);
 
 sub get_memory_dependencies { return; }
 
@@ -27,13 +26,6 @@ sub CalculateComplexityPenalty {
     my ( $self ) = @_;
     return $ComplexityLookup{$self};
 }
-
-sub IsEffectivelyASamenessRelation {
-    my ( $self ) = @_;
-    confess "???" unless exists $IsEffectivelyASamenessRelationLookup{$self};
-    return $IsEffectivelyASamenessRelationLookup{$self};
-}
-
 
 sub serialize{
     my ( $self ) = @_;
@@ -69,7 +61,7 @@ multimethod FindTransform => qw(SPos SPos)                     => sub {
     return;
 };
 
-multimethod ApplyTransform => qw(SReln::Position SPos::Forward) => sub {
+multimethod ApplyTransform => qw(Transform::Position SPos::Forward) => sub {
     my ( $rel, $pos ) = @_;
     my $index = $pos->get_index();
           ( $rel eq $Successor )   ? return ( SPos->new( $index + 1, 'Forward' ) )
@@ -78,7 +70,7 @@ multimethod ApplyTransform => qw(SReln::Position SPos::Forward) => sub {
         :                            return;
 };
 
-multimethod ApplyTransform => qw(SReln::Position SPos::Backward) => sub {
+multimethod ApplyTransform => qw(Transform::Position SPos::Backward) => sub {
     my ( $rel, $pos ) = @_;
     my $index = $pos->get_index();
           ( $rel eq $Successor )   ? return ( SPos->new( $index + 1, 'Backward' ) )
@@ -87,7 +79,14 @@ multimethod ApplyTransform => qw(SReln::Position SPos::Backward) => sub {
         :                            return;
 };
 
+sub get_pure {
+    return $_[0];
+}
 
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    return $self eq $SamePos ? 1 : 0;
+}
 1;
 
 

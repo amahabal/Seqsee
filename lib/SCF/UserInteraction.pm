@@ -55,7 +55,7 @@ FINAL: {
         sub get_core_type_and_rule {
             my ($core) = @_;
             my $type_of_core =
-                  UNIVERSAL::isa( $core, 'SReln' ) ? 'relation'
+                  UNIVERSAL::isa( $core, 'SRelation' ) ? 'relation'
                 : UNIVERSAL::isa( $core, 'SRuleApp' ) ? 'ruleapp'
                 :                                       confess "Strange core $core";
             my $rule = ( $type_of_core eq 'relation' ) ? createRule($core) : $core->get_rule();

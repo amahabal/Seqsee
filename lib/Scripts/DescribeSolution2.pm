@@ -80,16 +80,9 @@ STEP: {
 
 CodeletFamily DescribeRule( $rule !, $ruleapp ! ) does scripted {
 STEP: {
-        my $state_count = $rule->get_state_count();
         main::debug_message( "Rule is $rule", 1 );
-        if ( $state_count > 1 ) {
-            main::message( "Complex rule display not implemented", 1 );
-            RETURN;
-        }
-        else {
-            my $reln = $rule->get_relations()->[0];
-            SCRIPT DescribeRelation, { reln => $reln, ruleapp => $ruleapp };
-        }
+        my $reln = $rule->get_transform;
+        SCRIPT DescribeTransform, { reln => $reln, ruleapp => $ruleapp };
         Global::SetRuleAppAsBest($ruleapp);
     }
 STEP: {
@@ -97,12 +90,12 @@ STEP: {
     }
 }
 
-CodeletFamily DescribeRelation( $reln !, $ruleapp = {0} ) does scripted {
+CodeletFamily DescribeTransform ( $reln !, $ruleapp = {0} ) does scripted {
 STEP: {
-        if ( $reln->isa('SRelnType::Compound') ) {
+        if ( $reln->isa('Transform::Structural') ) {
             SCRIPT DescribeRelationCompound, { reln => $reln, ruleapp => $ruleapp };
         }
-        elsif ( $reln->isa('SRelnType::Simple') ) {
+        elsif ( $reln->isa('Transform::Numeric') ) {
             SCRIPT DescribeRelationSimple, { reln => $reln };
         }
         else {
@@ -113,29 +106,35 @@ STEP: {
 
 CodeletFamily DescribeRelationSimple( $reln ! ) does scripted {
 STEP: {
-        my $string = $reln->get_text();
+        my $string = $reln->get_name();
         my $msg    = 'Each succesive term is the ';
         if ( $string eq 'succ' ) {
-            $msg .= 'numerical successor ';
+            $msg .= 'successor ';
         }
         elsif ( $string eq 'pred' ) {
-            $msg .= 'numerical predecessor ';
+            $msg .= 'predecessor ';
         }
         elsif ( $string eq 'same' ) {
             $msg .= 'same as ';
         }
-        $msg .= 'the previous term';
+        my $cat  = $reln->get_category() ;
+        if ($cat eq $S::NUMBER or $string eq 'same') {
+            $msg .= 'the previous term';
+        }  else {
+            $msg .=  "the previous term seen as a " . $cat->get_name();
+        }
+       
         main::message( $msg, 1 );
     }
 }
 
 CodeletFamily DescribeRelationCompound( $reln !, $ruleapp ! ) does scripted {
 STEP: {
-        my $category = $reln->get_base_category();
+        my $category = $reln->get_category();
         SCRIPT DescribeRelnCategory, { cat => $category };
     }
 STEP: {
-        my $meto_mode = $reln->get_base_meto_mode();
+        my $meto_mode = $reln->get_meto_mode();
         my $meto_reln = $reln->get_metonymy_reln();
         SCRIPT DescribeRelnMetoMode,
             {

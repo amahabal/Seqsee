@@ -114,7 +114,23 @@ my $relation_applier = sub {
 
 };
 
-$Prime = SCat::OfObj::Std->new(
+my $ApplyTransformForCat = sub {
+    my ( $cat, $transform, $object ) = @_;
+    # Assume $object is number..
+
+    my $name = $transform->get_name();
+    my $mag = $object;
+    my $new_mag;
+    given ($name) {
+        when ('same') { $new_mag = $mag }
+        when ('succ') { $new_mag = NextPrime($mag) }
+        when ('pred') { $new_mag = PreviousPrime($mag) }
+    }
+    $new_mag // return;
+    return $new_mag;
+};
+
+$Prime = SCat::OfObj::Numeric->new(
     {   name               => 'Prime',
         to_recreate        => '$S::PRIME',
         builder            => $builder,
@@ -123,6 +139,8 @@ $Prime = SCat::OfObj::Std->new(
         metonymy_unfinders => {},
         relation_finder    => $relation_finder,
         relation_applier   => $relation_applier,
+        find_transform     => $FindTransformForCat,
+        apply_transform    => $ApplyTransformForCat,
     }
 );
 

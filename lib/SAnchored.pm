@@ -17,7 +17,7 @@ use base qw{SObject};
 
 use List::Util qw(min max sum);
 use Class::Multimethods;
-multimethod 'apply_reln';
+multimethod 'ApplyTransform';
 
 my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);       # Left edge. 0 is leftmost.
 my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
@@ -241,7 +241,8 @@ sub FindExtension {
     return unless $direction_of_self->PotentiallyExtendible();
 
     my $underlying_ruleapp = $self->get_underlying_reln() or return;
-    return $underlying_ruleapp->FindExtension( $direction_to_extend_in, { skip => $skip } );
+    return $underlying_ruleapp->FindExtension( {direction_to_extend_in => $direction_to_extend_in,
+                                                skip_this_many_elements => $skip } );
 }
 
 sub CheckSquintability {

@@ -34,13 +34,22 @@ use SWorkspace;
 
 use ResultOfCanBeSeenAs;
 
-use SReln::Simple;
-use SReln::Compound;
-use SReln::Position;
-use SReln::MetoType;
-use SReln::Dir;
-use SRelnType::Compound;
-use SRelnType::Simple;
+use Transform;
+use Transform::Numeric;
+use Transform::Structural;
+use Transform::Position;
+use Transform::MetoType;
+use Transform::Dir;
+use SRelation;
+use SRelation::Structural;
+
+# use SReln::Simple;
+# use SReln::Compound;
+# use SReln::Position;
+# use SReln::MetoType;
+# use SReln::Dir;
+# use SRelnType::Compound;
+# use SRelnType::Simple;
 use SThought;
 use SStream2;
 use SWorkspace;

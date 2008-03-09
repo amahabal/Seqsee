@@ -35,6 +35,7 @@ FAMILY: 'CodeletFamily' Identifier '(' ArgList ')' 'does' OptionalScripted '{' N
 
 
 my $COMMON_PREAMBLE = q{
+        use 5.10.0;
         use strict;
         use Carp;
         use Smart::Comments;
@@ -42,6 +43,8 @@ my $COMMON_PREAMBLE = q{
         use SCF;
         
         use Class::Multimethods;
+        multimethod 'FindTransform';
+        multimethod 'ApplyTransform';
 };
 
 my %ScriptAllowedBlocks = map {$_ => 1 } qw(INITIAL FINAL STEP);

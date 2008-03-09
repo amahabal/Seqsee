@@ -48,7 +48,8 @@ multimethod SanityCheck => qw(SAnchored) => sub {
         $part->get_is_a_metonym() and SanityFail("Group has metonym as part");
     }
 
-    for my $cat (@{$gp->get_categories}) {
+    my @cat = @{$gp->get_categories()} or SanityFail("Group without any category:" . $gp->as_text);
+    for my $cat (@cat) {
         my $bindings = $gp->GetBindingForCategory($cat) or SanityFail("No bindings?");
         while (my ($k, $v) = each %{$bindings->get_bindings_ref()}) {
             ref($v) or SanityFail("Non-ref in bindings: $k => $v for ". $cat->get_name);
@@ -85,7 +86,7 @@ multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
     }
 };
 
-multimethod SanityCheck => qw(SReln) => sub {
+multimethod SanityCheck => qw(SRelation) => sub {
     my ($rel)  = @_;
     my (@ends) = $rel->get_ends();
     for (@ends) {

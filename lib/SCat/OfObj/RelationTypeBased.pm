@@ -1,4 +1,5 @@
 package SCat::OfObj::RelationTypeBased;
+use 5.10.0;
 use strict;
 use base qw{SCat::OfObj};
 use Class::Std;
@@ -6,24 +7,23 @@ use Smart::Comments;
 use Class::Multimethods;
 use Memoize;
 
-multimethod 'find_reln';
-multimethod 'apply_reln';
+multimethod 'FindTransform';
+multimethod 'ApplyTransform';
 
 my %RelationType_of : ATTR(:name<relation_type>);
 
-{
-    my %MEMO;
-
-    sub Create {
-        my ( $package, $relation_type ) = @_;
-        if ( $relation_type->isa('SReln') ) {
-            $relation_type = $relation_type->get_type;
-        }
-        ### require: $relation_type->isa("SRelnType");
-        return ( $MEMO{$relation_type} ||= $package->new( { relation_type => $relation_type,
-                                                        } ) );
+sub Create {
+    my ( $package, $relation_type ) = @_;
+    if ( $relation_type->isa('SRelation') ) {
+        $relation_type = $relation_type->get_type;
     }
+    ### require: $relation_type->isa("Transform");
+    state %MEMO;
+    # main::message("Relation type: $relation_type: " . $relation_type->as_text);
+    return ( $MEMO{$relation_type} //= $package->new( { relation_type => $relation_type,
+                                                    } ) );
 }
+
 
 sub Instancer {
     my ( $self, $object ) = @_;
@@ -37,8 +37,8 @@ sub Instancer {
     return if $parts_count == 0;
 
     for my $idx ( 0 .. $parts_count - 2 ) {
-        my $relation = find_reln( $parts[$idx], $parts[ $idx + 1 ] ) or return;
-        return unless $relation->get_type() eq $relation_type;
+        my $predicted_next = ApplyTransform($relation_type, $parts[$idx]);
+        return  unless $parts[ $idx + 1 ]->CanBeSeenAs($predicted_next->get_structure);
     }
 
     return SBindings->new(
@@ -63,7 +63,7 @@ sub build {
     my @ret         = ($start);
     my $current_end = $start;
     for ( 1 .. $length_as_num - 1 ) {
-        my $next = apply_reln( $relation_type, $current_end ) or return;
+        my $next = ApplyTransform( $relation_type, $current_end ) or return;
         push @ret, $next;
         $current_end = $next;
     }

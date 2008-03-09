@@ -1,6 +1,7 @@
 package Transform::Dir;
 use 5.10.0;
 use strict;
+use Class::Multimethods;
 
 sub create {
     my ( $package, $string ) = @_;
@@ -13,9 +14,18 @@ sub new {
     bless \$string, $package;
 }
 
+sub get_memory_dependencies {
+    return;
+}
+
 our $Same      = Transform::Dir->create('Same');
 our $Different = Transform::Dir->create('Different');
 our $Unknown   = Transform::Dir->create('Unknown');
+
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    return $self eq $Same ? 1 : 0;
+}
 
 multimethod FindTransform => qw(DIR DIR) => sub  {
     my ( $da, $db ) = @_;
@@ -34,7 +44,21 @@ multimethod FindTransform => qw(DIR DIR) => sub  {
     }
 };
 
+multimethod ApplyTransform => qw{Transform::Dir DIR} => sub  {
+    my ( $transform, $dir ) = @_;
+    if ($transform eq $Same) {
+        return $dir;
+    } elsif ($transform eq $Different) {
+        return $dir->Flip();
+    }
+    return $DIR::UNKNOWN;
+};
+
 sub FlippedVersion {
+    return $_[0];
+}
+
+sub get_pure {
     return $_[0];
 }
 

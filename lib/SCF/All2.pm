@@ -46,8 +46,8 @@ RUN: {
 
 CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
 INITIAL: {
-        multimethod 'find_reln';
-        multimethod 'apply_reln';
+        multimethod 'FindTransform';
+        multimethod 'ApplyTransform';
         multimethod '__PlonkIntoPlace';
     }
 RUN: {
@@ -56,10 +56,10 @@ RUN: {
 
         my ( $relation_to_consider, $obj1, $obj2 );
         if ( $direction eq $direction_of_core ) {
-            ( $relation_to_consider, $obj1, $obj2 ) = ( $core, $core->get_ends );
+            ( $relation_to_consider, $obj1, $obj2 ) = ( $core->get_type(), $core->get_ends );
         }
         else {
-            $relation_to_consider = $core->FlippedVersion() or return;
+            $relation_to_consider = $core->get_type()->FlippedVersion() or return;
             ( $obj2, $obj1 ) = $core->get_ends;
         }
 
@@ -72,7 +72,7 @@ RUN: {
         );
         return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
 
-        my $what_next = apply_reln( $relation_to_consider, $obj2->GetEffectiveObject() );
+        my $what_next = ApplyTransform( $relation_to_consider, $obj2->GetEffectiveObject() );
         return unless $what_next;
         return unless @$what_next;    # 0 elts also not okay
 
@@ -104,7 +104,7 @@ RUN: {
             return unless $plonk_result->PlonkWasSuccessful();
             my $wso = $plonk_result->get_resultant_object();
 
-            if ( $core->isa('SReln::Compound') ) {
+            if ( $core->isa('Transform::Structural') ) {
                 my $type = $core->get_base_category;
                 SLTM::SpikeBy( ««SpikeAmount , AttemptExtensionOfRelation::CoreCategory »», $type );
                 ## Describe as: $type
@@ -112,10 +112,16 @@ RUN: {
             }
             my $reln_to_add;
             if ( $direction eq $direction_of_core ) {
-                $reln_to_add = find_reln( $obj2, $wso );
+                my $transform = FindTransform($obj2, $wso);
+                $reln_to_add = SRelation->new({first => $obj2, second => $wso,
+                                               type => $transform
+                                           });
             }
             else {
-                $reln_to_add = find_reln( $wso, $obj2 );
+                my $transform = FindTransform($wso, $obj2);
+                $reln_to_add = SRelation->new({first => $wso, second => $obj2,
+                                               type => $transform
+                                           });
             }
             $reln_to_add->insert() if $reln_to_add;
         }
@@ -169,7 +175,7 @@ FINAL: {
 
 CodeletFamily FindIfRelated( $a !, $b ! ) does {
 INITIAL: {
-        multimethod 'find_reln';
+        multimethod 'FindTransform';
     }
 RUN: {
         if ( $a->overlaps($b) ) {
@@ -193,7 +199,11 @@ RUN: {
             ContinueWith( SThought->create($reln) );
         }
 
-        $reln = find_reln( $a, $b ) or return;
+        my $relntype = FindTransform($a, $b) // return;
+        $reln = SRelation->new({first => $a,
+                                second => $b,
+                                type => $relntype
+                               });
 
         my $type_activation = spike_reln_type($reln);
         return unless ( SUtil::toss($type_activation) );
@@ -305,7 +315,7 @@ RUN: {
         if ($underlying_reln) {
             SanityCheck( $object, $underlying_reln, "In AttemptExtensionOfGroup pre" );
         }
-        my $extension = $object->FindExtension( $direction, 0 ) or return;
+        my $extension = $object->FindExtension($direction, 0) or return;
         if ($underlying_reln) {
             SanityCheck( $object, $underlying_reln, "In AttemptExtensionOfGroup post" );
         }
@@ -576,5 +586,11 @@ RUN: {
         } CATCH {
           ConflictingGroups: { return }
         }
+    }
+}
+
+CodeletFamily FocusOn( $what!) does {
+  RUN: {
+        ContinueWith(SThought->create($what));
     }
 }

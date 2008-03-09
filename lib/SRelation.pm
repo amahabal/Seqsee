@@ -2,6 +2,9 @@ package SRelation;
 use strict;
 use 5.10.0;
 use Class::Std;
+use Carp;
+use English qw{-no_match_vars};
+use base qw(SHistory SFasc);
 
 my %first_of : ATTR(:name<first>);
 my %second_of : ATTR(:name<second>);
@@ -95,8 +98,9 @@ sub get_pure {
 sub SuggestCategory {
     my ($self) = @_;
     my $id = ident $self;
-    if ( $category_of{$id} eq $S::NUMBER ) {
-        my $str = $name_of{$id};
+    my $category = $type_of{$id}->get_category();
+    if ( $category eq $S::NUMBER ) {
+        my $str = $type_of{$id}->get_name();
         if ( $str eq "same" ) {
             return $S::SAMENESS;
         }
@@ -106,6 +110,8 @@ sub SuggestCategory {
         elsif ( $str eq "pred" ) {
             return $S::DESCENDING;
         }
+    } else {
+        return SCat::OfObj::RelationTypeBased->Create($type_of{$id});
     }
 }
 
@@ -113,5 +119,32 @@ sub SuggestCategoryForEnds {
     return;
 }
 
+sub UpdateStrength {
+    my ($self) = @_;
+    my $strength = 20 * SLTM::GetRealActivationsForOneConcept( $self->get_type );
 
+    # Holeyness penalty
+    $strength *= 0.8 if $self->get_holeyness;
+
+    $strength = 100 if $strength > 100;
+    $self->set_strength($strength);
+}
+
+sub as_text {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $first_location = $first_of{$id}->get_bounds_string();
+    my $second_location = $second_of{$id}->get_bounds_string();
+    return "$first_location --> $second_location: ". $type_of{$id}->as_text;
+}
+
+sub FlippedVersion {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $flipped_type = $type_of{$id}->FlippedVersion() // return;
+    return SRelation->new({first => $second_of{$id},
+                           second => $first_of{$id},
+                           type => $flipped_type,
+                       });
+}
 1;

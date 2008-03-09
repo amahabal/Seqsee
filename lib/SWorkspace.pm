@@ -958,8 +958,6 @@ multimethod _insert_element => ('SElement') => sub {
 };
 
 sub __ReadObjectOrRelation {
-
-    # return SUtil::toss(0.5) ? SWorkspace->read_object() : SWorkspace->read_relation();
     my ( $dist_likelihoods_ref, $dist_objects )
         = __GetObjectOrRelationChoiceProbabilityDistribution();
     my $chosen = SChoose->choose( $dist_likelihoods_ref, $dist_objects );
@@ -995,9 +993,10 @@ sub __GetObjectChoiceProbabilityDistribution {
     my $sum_of_numbers = 0;
     for my $object (@choose_from) {
         my $strength = $object->get_strength();
-        if ( $Global::Feature{choosebiased} ) {
-            $strength *= 2 if $Span_of{$object} > 4;
-        }
+        $strength *= 2 if $Span_of{$object} > 4;
+
+        $strength *= 0.3 if %{$SuperGroups_of{$object}};
+        
         next unless $strength;
         push @distribution_objects, $object;
         push @distribution_values,  $strength;
@@ -1020,9 +1019,9 @@ sub __GetRelationChoiceProbabilityDistribution {
     for my $object (@choose_from) {
         my $strength = $object->get_strength();
 
-        #if ($Global::Feature{choosebiased}) {
-        #    $strength *= 2 if $Span_of{$object} > 4;
-        #}
+        my ($end1, $end2) = $object->get_ends();
+        $strength *= 0.8 if (%{$SuperGroups_of{$end1}} or %{$SuperGroups_of{$end2}});
+
         next unless $strength;
         push @distribution_objects, $object;
         push @distribution_values,  $strength;
@@ -1053,31 +1052,6 @@ sub __GetPositionStructure {
 sub __GetPositionStructureAsString {
     my ( $group ) = @_;
     SUtil::StringifyDeepArray(__GetPositionStructure($group));
-}
-
-# method: read_object
-sub read_object {
-    my ($package) = @_;
-    my @choose_from;
-    my @all_objects = ( values %Objects );
-    if ( $Global::Feature{choosebiased} ) {
-        @choose_from = @all_objects;
-        push @choose_from, grep { $_->get_span() > 4 } @all_objects;
-    }
-    push @choose_from,
-        grep { $_->get_left_edge() <= $ReadHead and $_->get_right_edge() >= $ReadHead }
-        @all_objects;
-    my $object     = $strength_chooser->( \@choose_from );
-    my $right_edge = $object->get_right_edge;
-
-    if ( $right_edge == $ElementCount - 1 ) {
-        _saccade();
-    }
-    else {
-        $ReadHead = $right_edge + 1;
-    }
-
-    return $object;
 }
 
 {

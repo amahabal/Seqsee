@@ -6,12 +6,14 @@
 #####################################################
 
 package SCat::Number;
+use 5.10.0;
 use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
 use Smart::Comments;
 use base qw{};
+multimethod 'find_relation_string';
 
 my $builder = sub {
     my ( $self, $args_ref ) = @_;
@@ -51,7 +53,6 @@ my $meto_unfinder_square = sub {
     return $cat->build( { mag => $mag * $mag } );
 };
 
-multimethod 'find_relation_string';
 my $relation_finder = sub {
     my ( $self, $e1, $e2 ) = @_;
     *__ANON__ = "((__ANON__ Number-specific relation_finder))";
@@ -71,6 +72,7 @@ my $relation_finder = sub {
 
 my $FindTransformForCat = sub  {
     my ( $me, $a, $b ) = @_;
+    *__ANON__ = "(__ANON__ FindTransformForCat for Number)";
     # Assume $a, $b are integers.
 
     my $str;
@@ -88,7 +90,17 @@ my $FindTransformForCat = sub  {
     return Transform::Numeric->create($str, $me);
 };
 
-our $Number = SCat::OfObj::Std->new(
+my $ApplyTransformForCat = sub  {
+    my ( $me, $transform, $number ) = @_;
+    *__ANON__ = "(__ANON__ ApplyTransformForCat for Number)";
+    given ($transform->get_name()) {
+        when ('same') { return $number }
+        when ('succ') { return $number + 1}
+        when ('pred') { return $number - 1}
+    }
+};
+
+our $Number = SCat::OfObj::Numeric->new(
     {   name               => 'number',
         to_recreate        => '$S::NUMBER',
         builder            => $builder,
@@ -96,6 +108,8 @@ our $Number = SCat::OfObj::Std->new(
         metonymy_finders   => {},                 # square => $meto_finder_square},
         metonymy_unfinders => {},                 # square => $meto_unfinder_square},
         relation_finder    => $relation_finder,
+        find_transform     => $FindTransformForCat,
+        apply_transform    => $ApplyTransformForCat,
     }
 );
 

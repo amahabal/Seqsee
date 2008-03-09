@@ -186,6 +186,7 @@ sub ParseArrows {
     my @arrows;
     for (@lines) {
         my ( $descriptor, $value, $from_descriptor, $relation ) = split( /:/, $_, 4 );
+        $from_descriptor || next;
         trim( $descriptor, $value, $from_descriptor, $relation );
         say "Descriptor $descriptor non-existant!"
             unless exists $descriptor_to_index_ref->{$descriptor};

@@ -40,13 +40,12 @@ our $ActivationsLogHandle;
 use SStream2;
 our $MainStream = SStream2->CreateNew('MainStream');
 
-%PossibleFeatures = map { $_ => 1 } qw(relnact rules choosebiased debug LTM
+%PossibleFeatures = map { $_ => 1 } qw(relnact rules debug LTM
     CodeletTree NoGpOverlap LiteralCat AllowLeftwardRelations LogActivations AllowSquinting
-    LTM_expt
+    LTM_expt Primes
 );
 
 # Feature description:
-# choosebiased: Choose biased by recency etc.
 # rules, relnact: Seqsee maintains relntype activations if these are set.
 $LogString = '';
 

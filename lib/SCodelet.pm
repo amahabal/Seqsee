@@ -75,11 +75,15 @@ multimethod IsFresh => ( '*', '#' ) => sub {
     return 1;
 };
 
+multimethod IsFresh => ( 'HASH', '#' ) => sub {
+    return 1;
+};
+
 multimethod IsFresh => ( 'SAnchored', '#' ) => sub {
     my ( $obj, $since ) = @_;
     return $obj->UnchangedSince($since);
 };
-multimethod IsFresh => ( 'SReln', '#' ) => sub {
+multimethod IsFresh => ( 'SRelation', '#' ) => sub {
     my ( $rel, $since ) = @_;
     my @ends = $rel->get_ends();
     return ( $ends[0]->UnchangedSince($since) and $ends[1]->UnchangedSince($since) );

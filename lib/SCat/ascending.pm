@@ -50,7 +50,7 @@ our $ascending = SCat::OfObj::Std->new(
             'end:start' => 1,
             'length:start' => 1,
             'end:length' => 1,
-            'end:length:start' => 1, # stupid!!
+            'end:length:start' => 1,
         },
     }
 );

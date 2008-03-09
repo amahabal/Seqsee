@@ -18,7 +18,8 @@ use English qw(-no_match_vars);
 use base qw{SInstance SHistory SFasc};
 use overload (fallback => 1);
 
-multimethod 'find_reln';
+multimethod 'FindTransform';
+multimethod 'ApplyTransform';
 
 my %items_of : ATTR( :get<parts_ref> );    #    The items of this object.
 my %group_p_of : ATTR( :get<group_p> :set<group_p>);     #    Is this object a group?
@@ -429,7 +430,7 @@ sub set_underlying_ruleapp : CUMULATIVE {
     $reln or confess "Cannot set underlying relation to be an undefined value!";
     my $id = ident $self;
 
-    if (UNIVERSAL::isa($reln, "SReln")) {
+    if (UNIVERSAL::isa($reln, "SRelation")) {
         $reln = SRule->create( $reln );
     }
     my $ruleapp;
@@ -489,11 +490,11 @@ sub apply_reln_scheme {
         for my $i ( 0 .. ( $cnt - 2 ) ) {
             my ( $a, $b ) = ( $parts_ref->[$i], $parts_ref->[ $i + 1 ] );
             next if $a->get_relation($b);
-            my $rel = find_reln( $a, $b );
+            my $transform = FindTransform( $a, $b );
+            my $rel = SRelation->new({first=>$a, second=>$b,type=>$transform});
             $rel->insert() if $rel;
         }
         $self->AddHistory("Relation scheme \"chain\" applied");
-
     }
     else {
         confess "Relation scheme $scheme not implemented";
@@ -692,16 +693,12 @@ sub recalculate_relations {
     my ($self) = @_;
     my %hash = %{$reln_other_of{ ident $self}};
     while ( my ( $k, $v ) = each %hash ) {
-        my $new_rel;
-        if ( $v->isa("SReln::Simple") ) {
-            $new_rel = find_reln( $v->get_ends );
-        }
-        else {
-            my $cat = $v->get_base_category();
-            $new_rel = find_reln( $v->get_ends(), $cat );
-        }
+        my $type = $v->get_type();
+        my $new_type = $type->get_category()->FindTransformForCat( $v->get_ends ) or return;
 
-        if ($new_rel) {
+        if ($new_type) {
+            my ($f, $s) = $v->get_ends;
+            my $new_rel = SRelation->new({first => $f, second => $s, type => $new_type});
             $v->uninsert;
             $new_rel->insert;
         }

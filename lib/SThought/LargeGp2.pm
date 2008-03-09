@@ -20,31 +20,26 @@ RUN: {
         if ( !$flush_left ) {
             my $extension = $group->FindExtension( $DIR::LEFT, 0 );
             if ($extension) {
+                $group->Extend($extension, 0);
             }
             else {
-
                 # So there *is* a blemish!
                 #main::message("Start Blemish?");
                 my $underlying_ruleapp = $group->get_underlying_reln() or return;
                 my $underlying_rule = $underlying_ruleapp->get_rule();
-                my $statecount      = $underlying_rule->get_state_count();
-                if ( $statecount == 1 ) {
-                    my $reln = $underlying_rule->get_relations()->[0];
+                my $transform = $underlying_rule->get_transform();
 
-                    #main::message("Blemish reln: $reln");
-                    if ( $reln->isa("SRelnType::Compound") ) {
-                        my $cat = $reln->get_base_category();
-
-                        #main::message($cat->get_name());
-                        if ( $cat->get_name() =~ m#^Interlaced_(.*)#o ) {
-                            CODELET 100, InterlacedInitialBlemish,
-                                {
+                if ( $transform->isa("Transform::Structural") ) {
+                    my $cat = $transform->get_category();
+                    #main::message($cat->get_name());
+                    if ( $cat->get_name() =~ m#^Interlaced_(.*)#o ) {
+                        CODELET 100, InterlacedInitialBlemish,
+                            {
                                 count => $1,
                                 group => $group,
                                 cat   => $cat,
-                                };
-                            return;
-                        }
+                            };
+                        return;
                     }
                 }
 
@@ -63,7 +58,7 @@ RUN: {
         my @parts = @$group;
         Global::Hilit(1, @parts);
         main::message(
-            "I realize that there are $count interlaced groups in the sequence, and I have started on the wrong foot. Will shift the big group right one unit, see if that helps!!"
+            "I realize that there are $count interlaced groups in the sequence, and I have started on the wrong foot. I will shift the big group one unit, and see if that helps!!"
         );
         Global::ClearHilit();
         my @subparts = map {@$_} @parts;

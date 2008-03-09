@@ -6,18 +6,22 @@ use Carp;
 use Class::Std;
 use base qw{SInstance};
 use English qw(-no_match_vars);
-use Smart::Comments;
+#use Smart::Comments;
 use Memoize;
 use SUtil;
 use List::Util qw(sum shuffle);
 
-my %relation_finder_of : ATTR(:get<relation_finder> :set<relation_finder>);
-my %relation_applier_of :ATTR(:get<relation_applier> :set<relation_applier>);
+use Class::Multimethods;
+multimethod 'FindTransform';
+multimethod 'ApplyTransform';
+
+my %find_transform_of :ATTR(:get<find_transform>);
+my %apply_transform_of :ATTR(:get<apply_transform>);
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
-    $relation_finder_of{$id} = $opts_ref->{relation_finder} || undef;
-    $relation_applier_of{$id} = $opts_ref->{relation_applier} || undef;
+    $find_transform_of{$id} = $opts_ref->{find_transform} || undef;
+    $apply_transform_of{$id} = $opts_ref->{apply_transform} || undef;
 }
 
 use Class::Multimethods;
@@ -33,19 +37,6 @@ sub is_metonyable {
     my ($self) = @_;
     return $S::IsMetonyable{$self};
 }
-
-# method: find_metonym
-# finds a metonymy
-#
-#    Arguments:
-#    $cat - The category the metonymy will be based on
-#    $object - the object whose metonymy is being sought
-#    $name - the name of the metonymy, as the cat may support several
-#
-#    Please note that the object must already have been seen as belonging to the category.
-#
-#    Example:
-#    >$cat->find_metonym( $object, $name )
 
 sub find_metonym {
     my ( $cat, $object, $name ) = @_;
@@ -76,43 +67,41 @@ sub get_meto_types {
     return;
 }
 memoize('get_meto_types');
-multimethod 'find_reln';
-multimethod 'find_relation_type';
-multimethod 'apply_reln';
 
-sub FindRelationBetween {
+sub FindTransformForCat {
     my ( $self, $o1, $o2 ) = @_;
-    my $relation_finder = $self->get_relation_finder() || \&Default_FindRelationBetween;
+    my $relation_finder = $self->get_find_transform() || \&Default_FindTransform;
     return $relation_finder->( $self, $o1, $o2 );
 }
 
-sub ApplyRelationType {
+sub ApplyTransformForCat {
     my ( $self, $relation_type, $object ) = @_;
-    my $relation_applier = $self->get_relation_applier() || \&Default_ApplyRelationType;
+    my $relation_applier = $self->get_apply_transform() || \&Default_ApplyTransform;
     return $relation_applier->($self, $relation_type, $object);
 }
 
-sub Default_FindRelationBetween {
+sub Default_FindTransform {
+    scalar(@_) == 3 or confess "Need 3 arguments for Default_FindTransform";
     my ( $self, $o1, $o2 ) = @_;
     my $cat      = $self;
     my $opts_ref = {};
 
+    confess "Need SObjects, got >>$o1<< >>$o2<<" unless (UNIVERSAL::isa($o1, 'SObject') and UNIVERSAL::isa($o2, 'SObject'));
     $opts_ref->{first}  = $o1;
     $opts_ref->{second} = $o2;
 
     # Base category
     my $b1 = $o1->is_of_category_p($cat) or return;
-
     my $b2 = $o2->is_of_category_p($cat) or return;
 
-    $opts_ref->{base_category} = $cat;
+    $opts_ref->{category} = $cat;
 
     ## Base Category found: $cat->as_text
 
     # Meto mode
     my $meto_mode = $b1->get_metonymy_mode;
     return unless $meto_mode eq $b2->get_metonymy_mode;
-    $opts_ref->{base_meto_mode} = $meto_mode;
+    $opts_ref->{meto_mode} = $meto_mode;
 
     ## Base meto mode found: $meto_mode
 
@@ -124,50 +113,44 @@ sub Default_FindRelationBetween {
 
         # So other stuff is relevant, too!
         if ( $meto_mode->is_position_relevant() ) {    # Position relevant!
-            my $pos_mode = $b1->get_position_mode;
-            ## $b2->get_position_mode
-            return unless $pos_mode == $b2->get_position_mode;
-            $opts_ref->{base_pos_mode} = $pos_mode;
-            ## position_mode_found: $pos_mode
-
-            my $rel = find_reln( $b1->get_position(), $b2->get_position() );
+            my $rel = FindTransform( $b1->get_position(), $b2->get_position() );
             return unless $rel;
             $opts_ref->{position_reln} = $rel;
 
             my $meto_type_1 = $b1->get_metonymy_type;
             my $meto_type_2 = $b2->get_metonymy_type;
-            $rel = find_reln( $meto_type_1, $meto_type_2 );
+            $rel = FindTransform( $meto_type_1, $meto_type_2 );
             return unless $rel;
             $opts_ref->{metonymy_reln} = $rel;
 
             ## Starred relation, unstarred reln, metonymy_reln?
             ## Need to work that out
+        } else {
+            $opts_ref->{position_reln} = '';
         }
+    } else {
+        $opts_ref->{metonymy_reln} = '';
+        $opts_ref->{position_reln} = '';
     }
 
-    return SReln::Compound->new($opts_ref);
+    $opts_ref->{direction_reln} = $Transform::Dir::Same; #XXX?
+    $opts_ref->{slippages} //= {};
+    return Transform::Structural->create($opts_ref);
 }
 
-sub Default_ApplyRelationType {
-    my ( $self, $relation_type, $original_object ) = @_;
+sub Default_ApplyTransform {
+    my ( $self, $transform, $original_object ) = @_;
+    my $reln = $transform;
     my $cat = $self;
-    my $reln = $relation_type;
-
+    $original_object // confess "Missing original_object";
     my $object = $original_object->GetEffectiveObject();
+    $reln->get_category() eq $self or confess "relation_type and base category do not match";
 
-    # Find category for new object
-    $reln->get_base_category() eq $cat or confess "relation_type and base category do not match";
-
-    # Make sure the object belongs to that category
     my $bindings = $object->describe_as($cat) or return;
-    $bindings->TellDirectedStory( $object, $reln->get_base_pos_mode() );
-    ## $bindings
-    ## $cat->as_text
-
-    # Find the bindings for it.
+        # Find the bindings for it.
     my $bindings_ref         = $bindings->get_bindings_ref;
-    my $changed_bindings_ref = $reln->get_changed_bindings_ref;
-    my $slippages_ref        = $reln->get_slippages_ref();
+    my $changed_bindings_ref = $reln->get_changed_bindings;
+    my $slippages_ref        = $reln->get_slippages();
     my $new_bindings_ref     = {};
 
     if (%$slippages_ref) {
@@ -175,7 +158,7 @@ sub Default_ApplyRelationType {
             my $old_attr = $slippages_ref->{$att} or next;
             my $val = $bindings_ref->{$old_attr};
             if ( exists $changed_bindings_ref->{$att} ) {
-                $new_bindings_ref->{$att} = apply_reln( $changed_bindings_ref->{$att}, $val );
+                $new_bindings_ref->{$att} = ApplyTransform( $changed_bindings_ref->{$att}, $val );
                 return unless defined $new_bindings_ref->{$att};
                 next;
             }
@@ -183,13 +166,11 @@ sub Default_ApplyRelationType {
         }
     }
     else {
-
         while ( my ( $k, $v ) = each %$bindings_ref ) {
             ## $k, $v: $k, $v
             if ( exists $changed_bindings_ref->{$k} ) {
                 ## cbr: $changed_bindings_ref->{$k}
-                $new_bindings_ref->{$k} = apply_reln( $changed_bindings_ref->{$k}, $v );
-                return unless defined $new_bindings_ref->{$k};
+                $new_bindings_ref->{$k} = ApplyTransform( $changed_bindings_ref->{$k}, $v ) // return;
                 next;
             }
             ## handled
@@ -199,55 +180,39 @@ sub Default_ApplyRelationType {
     }
 
     my $ret_obj = $cat->build($new_bindings_ref);
-    ## $new_bindings_ref
-    # We have not "applied the blemishes" yet, of course
 
-    my $reln_meto_mode   = $reln->get_base_meto_mode;
+    # We have not "applied the blemishes" yet, of course
+    my $reln_meto_mode   = $reln->get_meto_mode;
     my $object_meto_mode = $bindings->get_metonymy_mode;
     unless ( $reln_meto_mode == $object_meto_mode ) {
-        ## reln_meto_mode isnot object_meto_mode
+        ## reln_meto_mode is not object_meto_mode
         return;
     }
 
     unless ( $reln_meto_mode == METO_MODE::NONE() ) {
-
         # Calculate the metonymy type of the new object
         my $new_metonymy_type
-            = apply_reln( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
+            = ApplyTransform( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
         return unless $new_metonymy_type;
 
         if ( $reln_meto_mode == METO_MODE::ALL() ) {
             $ret_obj = $ret_obj->apply_blemish_everywhere($new_metonymy_type);
         }
         else {
-
             # If we get here, position is relevant!
-            my $new_position = apply_reln( $reln->get_position_reln, $bindings->get_position );
-            ## new_blemish position: $new_position->get_name()
+            my $new_position = ApplyTransform( $reln->get_position_reln, $bindings->get_position );
             return unless $new_position;
-            ## $reln->get_position_reln()->get_text()
-            ## $bindings->get_position()->get_index
-            ## $new_position->get_index()
-            ## $reln_meto_mode
-
-            ## $bindings->get_metonymy_type()->get_info_loss()
-            ## $reln->get_metonymy_reln()->get_change_ref()
-            ## $new_metonymy_type->get_info_loss()
-
-            ## $new_object->get_structure
             my $blemished;
             eval { $blemished = $ret_obj->apply_blemish_at( $new_metonymy_type, $new_position ); };
-            ## new object: $ret_obj->get_structure
             return unless $blemished;
             $ret_obj = $blemished;
         }
     }
 
     $ret_obj->describe_as($cat);
-    $ret_obj->TellDirectedStory( $cat, $reln->get_base_pos_mode() );
-    my $rel_dir = $reln->get_direction_reln;
+    my $rel_dir = $reln->get_direction_reln() // $Transform::Dir::Same;
     my $obj_dir = $object->get_direction;
-    my $new_dir = apply_reln( $rel_dir, $obj_dir );
+    my $new_dir = ApplyTransform( $rel_dir, $obj_dir );
 
     $ret_obj->set_direction($new_dir);
     $ret_obj->set_group_p(1);
@@ -266,15 +231,15 @@ sub CalculateBindingsChange_no_slips {
     my $unchanged_ref = {};
     while ( my ( $k, $v1 ) = each %$bindings_1 ) {
         unless ( exists $bindings_2->{$k} ) {
-            confess "In _find_reln($$$): binding for $k missing for second object!";
+            confess "In CalculateBindingsChange_no_slips:: binding for $k missing for second object!";
         }
         my $v2 = $bindings_2->{$k};
         ##  CalculateBindingsChange_no_slips: $k, $v1, $v2
-        if ( $v1 eq $v2 ) {
-            $unchanged_ref->{$k} = $v1;
-            next;
-        }
-        my $rel = find_relation_type( $v1, $v2 );
+        #if ( $v1 eq $v2 ) {
+        #    $unchanged_ref->{$k} = $v1;
+        #    next;
+        #}
+        my $rel = FindTransform( $v1, $v2 );
         ## k, v1, v2, rel: $k, $v1, $v2, $rel
         return unless $rel;
         ### Changed binding seen :$rel
@@ -306,14 +271,13 @@ LOOP: while ( my ( $k2, $v2 ) = each %$bindings_2 ) {
             ## k2, k: $k2, $k
             my $v = $bindings_1->{$k};
             ## v2, v: $v2, $v
-            if ( $v eq $v2 ) {
-                $unchanged_ref->{$k2} = $v2;
-                $slips_ref->{$k2}     = $k;
-                ## v = v2:
-                next LOOP;
-            }
-            my $rel = find_relation_type( $v, $v2 );
-            next unless $rel;
+            #if ( $v eq $v2 ) {
+            #    $unchanged_ref->{$k2} = $v2;
+            #    $slips_ref->{$k2}     = $k;
+            #    ## v = v2:
+            #    next LOOP;
+            #}
+            my $rel = FindTransform( $v, $v2 ) // next;
             ## found rel:
             $changed_ref->{$k2} = $rel;
             $slips_ref->{$k2}   = $k;
@@ -340,5 +304,10 @@ LOOP: while ( my ( $k2, $v2 ) = each %$bindings_2 ) {
     $output_ref->{slippages} = $slips_ref;
     return 1;
 }
+
+sub IsNumeric {
+    return 0;
+}
+
 
 1;

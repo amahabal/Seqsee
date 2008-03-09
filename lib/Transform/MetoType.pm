@@ -99,4 +99,16 @@ sub as_text{
     return "SReln::MetoType[$id](change=>$change, category=>$category)";
 }
 
+sub get_pure {
+    return $_[0];
+}
+
+sub IsEffectivelyASamenessRelation {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    while (my($k, $v) = each %{$change_of_of{$id}}) {
+        return unless $v->IsEffectivelyASamenessRelation;
+    }
+    return 1;
+}
 1;

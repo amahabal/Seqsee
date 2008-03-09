@@ -1,7 +1,13 @@
+use 5.10.0;
 use strict;
-use Tk;
-use Tk::StatusBar;
 use Smart::Comments;
+use Tk;
+use Tk::ComboEntry;
+use Tk::StatusBar;
+
+use lib 'genlib';
+use Global;
+use Tk::Seqsee;
 
 $SIG{INT} = sub {
 
@@ -16,36 +22,24 @@ my $SB        = $MW->StatusBar();
 my $StatusMsg = "";
 $SB->addLabel( -textvariable => \$StatusMsg );
 
-my $button_frame = $MW->Frame()->pack( -side => 'bottom' );
-my $buttons_per_row = 3;
-
-CreateSeqseeLaunchingFrame('Run Seqsee',
-                           'config/sequence_list',
-                           'Seqsee.pl',
-                           [], # extra arguments
-                               );
-CreateSeqseeLaunchingFrame('Run Seqsee Multiple Times',
-                           'config/sequence_list_for_multiple',
-                           'util/RunMultipleTimes.pl',
-                           ['--times=10'], 
-                               );
-
-my @input_requiring_commands_config = (
-    [   "Search",    #command name
-        [            # inputs
-            [   "SearchString",    #input name
-                "S",               # default
-            ]
-        ],
-        [                          # Command constructor
-            'CreateRunPerlScriptCommand',
-            qw{util/Search.pl},
-            qq{\$SearchString},
-        ],
-    ],
-);
+CreateFrameForLaunchingSeqsee();
 
 INSERT_INPUT_REQUIRING_COMMANDS: {
+    my @input_requiring_commands_config = (
+        [   "Search",    #command name
+            [            # inputs
+                [   "SearchString",    #input name
+                    "S",               # default
+                ]
+            ],
+            [                          # Command constructor
+                'CreateRunPerlScriptCommand',
+                qw{util/Search.pl},
+                qq{\$SearchString},
+            ],
+        ],
+    );
+
     for my $cmd_config (@input_requiring_commands_config) {
         my ( $command_name, $inputs, $command ) = @$cmd_config;
         my $frame = $MW->LabFrame(
@@ -91,33 +85,45 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
     }
 }
 
-my @button_config = (
-    [ Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl') ],
-    [   DeleteGenlib => sub {
-            unlink(<genlib/*.pm>);
-            unlink(<genlib/*/*.pm>);
-            unlink(<genlib/*/*.pm>);
-            }
-    ],
-    [ CPAN     => CreateRunPerlScriptCommand(qw{-MCPAN -e shell}) ],
-    [ SVNDiff  => CreateRunPerlScriptCommand('util\ShowDiff.pl') ],
-    [ RunTests => CreateRunPerlScriptCommand( 'c:\Perl\bin\prove.bat', 't\*' ) ],
-    [   ClearMemory => sub {
-            open my $MEMORY_HANDLE, '>', 'memory_dump.dat';
-            print {$MEMORY_HANDLE} ' ';
-            close $MEMORY_HANDLE;
-            }
-    ],
-    [ CodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView') ],
-    [ TimestampedCodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView', '--Timestamps') ],
-    [ TreeLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--JustTrees') ],
-    [ LabeledCodeletLevelView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl', '--CodeletView', '--TreeNums') ],
-    [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
-    [ PressureView => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
-    [ ActivationViewer => CreateRunPerlScriptCommand('util\ActivationsViewer.pl') ],
-);
-
 INSERT_BUTTONS: {
+    my $button_frame = $MW->Frame()->pack( -side => 'bottom' );
+    my $buttons_per_row = 3;
+
+    my @button_config = (
+        [ Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl') ],
+        [   DeleteGenlib => sub {
+                unlink(<genlib/*.pm>);
+                unlink(<genlib/*/*.pm>);
+                unlink(<genlib/*/*.pm>);
+                }
+        ],
+        [ CPAN     => CreateRunPerlScriptCommand(qw{-MCPAN -e shell}) ],
+        [ SVNDiff  => CreateRunPerlScriptCommand('util\ShowDiff.pl') ],
+        [ RunTests => CreateRunPerlScriptCommand( 'c:\Perl\bin\prove.bat', 't\*' ) ],
+        [   ClearMemory => sub {
+                open my $MEMORY_HANDLE, '>', 'memory_dump.dat';
+                print {$MEMORY_HANDLE} ' ';
+                close $MEMORY_HANDLE;
+                }
+        ],
+        [   CodeletLevelView =>
+                CreateRunPerlScriptCommand( 'util\CodeletCallGraph.pl', '--CodeletView' )
+        ],
+        [   TimestampedCodeletLevelView => CreateRunPerlScriptCommand(
+                'util\CodeletCallGraph.pl', '--CodeletView', '--Timestamps'
+            )
+        ],
+        [   TreeLevelView => CreateRunPerlScriptCommand( 'util\CodeletCallGraph.pl', '--JustTrees' )
+        ],
+        [   LabeledCodeletLevelView => CreateRunPerlScriptCommand(
+                'util\CodeletCallGraph.pl', '--CodeletView', '--TreeNums'
+            )
+        ],
+        [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
+        [ PressureView       => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
+        [ ActivationViewer   => CreateRunPerlScriptCommand('util\ActivationsViewer.pl') ],
+    );
+
     my $button_count = 0;
     my $button_subframe;
     for my $button_info (@button_config) {
@@ -152,68 +158,21 @@ sub CreateRunPerlScriptCommand {
     return CreateRunSystemCommand( 'c:\Perl\bin\perl', @args );
 }
 
-sub CreateSeqseeLaunchingFrame {
-    my ($frame_label, $sequence_list_filename, $CommandToRun, $ExtraArgsRef) = @_;
+sub CreateFrameForLaunchingSeqsee {
     my $frame = $MW->LabFrame(
-        -label     => $frame_label,
-        -labelside => 'acrosstop'
+        -label      => "Run Seqsee",
+        -labelside  => 'acrosstop',
+        -background => '#CCCCCC',
     )->pack( -side => 'top' );
-    my $Sequence;
-    my $SequenceEntry;
-    {
-        open my $LIST, '<', $sequence_list_filename or die "Failed to open list";
-        my @sequence_list = <$LIST>;
-        close $LIST;
-        @sequence_list = grep {$_} map { s#^\s*##; s#\s*$##; $_ } @sequence_list;
-        my $subframe = $frame->Frame()->pack( -side => 'top' );
-        $subframe->Label( -text => "Sequence: " )->pack( -side => 'left' );
-        $SequenceEntry = $subframe->ComboEntry(
-            -itemlist => \@sequence_list,
-            -width    => 60
-        )->pack( -side => 'left' );
 
-        #$subframe->Entry(-textvariable => \$Sequence)->pack(-side=>'left');
-    }
-    my $View = 0;
-    {    # Should be a pulldown!
-        use lib 'genlib';
-        use Tk::Seqsee;
-        use Tk::ComboEntry;
-        my @view_options = @Tk::Seqsee::ViewOptions;
-        my @options_to_list;
-        my %names_to_values;
-
-        my $counter = 0;
-        for (@view_options) {
-            my $name = $_->[0];
-            $names_to_values{$name} = $counter++;
-            push @options_to_list, $name;
-        }
-        $names_to_values{''} = 0;
-
-        my $subframe = $frame->Frame()->pack( -side => 'top' );
-        $subframe->Label( -text => "View: " )->pack( -side => 'left' );
-
-        # $subframe->Entry(-textvariable => \$View)->pack(-side=>'left');
-        $subframe->ComboEntry(
-            -itemlist => \@options_to_list,
-            -invoke   => sub {
-                my ($comboentry) = @_;
-                my $choice = $comboentry->get();
-                $View = $names_to_values{$choice};
-            },
-            -width    => 40,
-            -showmenu => 1,
-        )->pack( -side => 'left' );
-    }
-    use lib 'genlib';
-    use Global;
     my %PossibleFeatures = %Global::PossibleFeatures;
     my %FeatureValues = map { $_ => 0 } keys %PossibleFeatures;
-    {
+
+SHOW_FEATURES: {
         my $subframe = $frame->LabFrame(
-            -label     => 'Optional Features',
-            -labelside => 'acrosstop'
+            -label      => 'Optional Features',
+            -labelside  => 'acrosstop',
+            -background => '#CCCCCC',
         )->pack( -side => 'top' );
         my @features                  = sort keys %FeatureValues;
         my $space_left_in_current_row = 0;
@@ -221,27 +180,170 @@ sub CreateSeqseeLaunchingFrame {
         while (@features) {
             if ( !$space_left_in_current_row ) {
                 $subsubframe = $subframe->Frame()->pack( -side => 'top' );
-                $space_left_in_current_row = 3;
+                $space_left_in_current_row = 6;
             }
             my $feature = shift(@features);
             $subsubframe->Checkbutton(
                 -variable => \$FeatureValues{$feature},
                 -text     => $feature,
             )->pack( -side => 'left' );
+            $space_left_in_current_row--;
         }
     }
-    $frame->Button(
-        -text    => 'RUN SEQSEE',
-        -command => sub {
-            $Sequence = $SequenceEntry->get();
-            my @features_turned_on        = grep { $FeatureValues{$_} } keys %FeatureValues;
-            my @feature_related_arguments = map  {"-f=$_"} @features_turned_on;
-            my @cmds
-                = ( $CommandToRun, qq{--seq=$Sequence}, qq{--view=$View}, @feature_related_arguments, @$ExtraArgsRef
-                );
-            my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
-            $subprocess_cmd->();
-            print "View was $View\n";
-        }
+
+    my $single_frame = $frame->LabFrame(
+        -label      => 'Run A Single Time',
+        -labelside  => 'acrosstop',
+        -background => '#CCCCCC',
     )->pack( -side => 'top' );
+
+    my $multiple_frame = $frame->LabFrame(
+        -label      => 'Run Multiple Time',
+        -labelside  => 'acrosstop',
+        -background => '#CCCCCC',
+    )->pack( -side => 'top' );
+
+    my $all_frame = $frame->LabFrame(
+        -label      => 'Run All Sequences Multiple Times',
+        -labelside  => 'acrosstop',
+        -background => '#CCCCCC',
+    )->pack( -side => 'top' );
+
+SINGLE_RUN: {
+        my $View;
+        my $Sequence;
+        my $SequenceEntry;
+    ENTRY: {
+            my $sequence_list_filename = 'config/sequence_list';
+            open my $LIST, '<', $sequence_list_filename
+                or die "Failed to open list $sequence_list_filename";
+            my @sequence_list = <$LIST>;
+            close $LIST;
+            @sequence_list = grep {$_} map { s#^\s*##; s#\s*$##; $_ } @sequence_list;
+            my $subframe = $single_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "Sequence: " )->pack( -side => 'left' );
+            $SequenceEntry = $subframe->ComboEntry(
+                -itemlist => \@sequence_list,
+                -width    => 60
+            )->pack( -side => 'left' );
+
+        }
+    VIEW: {
+            my @view_options = @Tk::Seqsee::ViewOptions;
+            my @options_to_list;
+            my %names_to_values;
+
+            my $counter = 0;
+            for (@view_options) {
+                my $name = $_->[0];
+                $names_to_values{$name} = $counter++;
+                push @options_to_list, $name;
+            }
+            $names_to_values{''} = 0;
+
+            my $subframe = $single_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "View: " )->pack( -side => 'left' );
+            $subframe->ComboEntry(
+                -itemlist => \@options_to_list,
+                -invoke   => sub {
+                    my ($comboentry) = @_;
+                    my $choice = $comboentry->get();
+                    $View = $names_to_values{$choice};
+                },
+                -width    => 40,
+                -showmenu => 1,
+            )->pack( -side => 'left' );
+        }
+        $single_frame->Button(
+            -text    => 'RUN ONCE',
+            -command => sub {
+                $Sequence = $SequenceEntry->get();
+                my @features_turned_on        = grep { $FeatureValues{$_} } keys %FeatureValues;
+                my @feature_related_arguments = map  {"-f=$_"} @features_turned_on;
+                my @cmds                      = (
+                    'Seqsee.pl',      qq{--seq=$Sequence},
+                    qq{--view=$View}, @feature_related_arguments
+                );
+                my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
+                $subprocess_cmd->();
+            }
+        )->pack( -side => 'top' );
+    }
+
+MULTIPLE_RUN: {
+        my $Sequence;
+        my $SequenceEntry;
+        my $TimesToRun = 10;
+    ENTRY: {
+            my $sequence_list_filename = 'config/sequence_list_for_multiple';
+            open my $LIST, '<', $sequence_list_filename
+                or die "Failed to open list $sequence_list_filename";
+            my @sequence_list = <$LIST>;
+            close $LIST;
+            @sequence_list = grep {$_} map { s#^\s*##; s#\s*$##; $_ } @sequence_list;
+            my $subframe = $multiple_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "Sequence: " )->pack( -side => 'left' );
+            $SequenceEntry = $subframe->ComboEntry(
+                -itemlist => \@sequence_list,
+                -width    => 60
+            )->pack( -side => 'left' );
+        }
+    TIMES: {
+            my $subframe = $multiple_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "Number of Times to Run " )->pack( -side => 'left' );
+            $subframe->Entry( -width => 5, -textvariable => \$TimesToRun )->pack( -side => 'left' );
+        }
+        $multiple_frame->Button(
+            -text    => 'RUN MULTIPLE TIMES',
+            -command => sub {
+                $Sequence = $SequenceEntry->get();
+                my @features_turned_on        = grep { $FeatureValues{$_} } keys %FeatureValues;
+                my @feature_related_arguments = map  {"-f=$_"} @features_turned_on;
+                my @cmds                      = (
+                    'util/RunMultipleTimes.pl', qq{--seq=$Sequence},
+                    qq{--times=$TimesToRun},    @feature_related_arguments
+                );
+                my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
+                $subprocess_cmd->();
+            }
+        )->pack( -side => 'top' );
+    }
+ALL_MULTIPLE_TIMES: {
+        my $TimesToRun    = 10;
+        my $StepsToRunFor = 10000;
+        my $FILENAME = 'config/sequence_list_for_multiple';
+    TIMES: {
+            my $subframe = $all_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "Number of Times to Run " )->pack( -side => 'left' );
+            $subframe->Entry( -width => 5, -textvariable => \$TimesToRun )->pack( -side => 'left' );
+        }
+    STEPS: {
+            my $subframe = $all_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "Maximum Number of Steps " )->pack( -side => 'left' );
+            $subframe->Entry( -width => 5, -textvariable => \$StepsToRunFor )
+                ->pack( -side => 'left' );
+        }
+    FILENAME: {
+            my $subframe = $all_frame->Frame()->pack( -side => 'top' );
+            $subframe->Label( -text => "Filename with sequences " )->pack( -side => 'left' );
+            $subframe->Entry( -width => 50, -textvariable => \$FILENAME )
+                ->pack( -side => 'left' );
+        }
+        $all_frame->Button(
+            -text    => 'RUN FOR ALL SEQUENCES',
+            -command => sub {
+                my @features_turned_on        = grep { $FeatureValues{$_} } keys %FeatureValues;
+                my @feature_related_arguments = map  {"-f=$_"} @features_turned_on;
+                my @cmds                      = (
+                    'util/RunAllMultipleTimes.pl', qq{--times=$TimesToRun},
+                    qq{--steps=$StepsToRunFor}, 
+                    qq{--filename=$FILENAME},
+                    @feature_related_arguments
+                );
+                my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
+                $subprocess_cmd->();
+            }
+        )->pack( -side => 'top' );
+
+    }
 }

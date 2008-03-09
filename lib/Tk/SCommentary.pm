@@ -64,7 +64,7 @@ sub Populate {
 
 sub MessageRequiringNoResponse {
     my ( $self, @msg ) = @_;
-    ### SAW: join("+++", @msg)
+    ## SAW: join("+++", @msg)
     $Text->insert( 'end', @msg );
     $Text->see('end');
 }
@@ -72,7 +72,7 @@ sub MessageRequiringNoResponse {
 sub MessageRequiringAResponse {
     my ( $self, $response_ref, @msg ) = @_;
     SGUI::Update();
-    ### SAW: join("+++", @msg)
+    ## SAW: join("+++", @msg)
     $Text->insert( 'end', @msg );
     $Text->see('end');
 
