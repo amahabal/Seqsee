@@ -44,9 +44,19 @@ sub delete_below_threshold {
     @$self = grep {$_->[1] >= $threshold} @$self;
 }
 
+sub delete_key {
+    my ( $self, $key ) = @_;
+    $self->merge_keys();
+    @$self = grep { $_->[0] ne $key } @$self;
+}
+
 sub choose {
     my ( $self ) = @_;
     return SChoose->choose([map($_->[1], @$self)], [map($_->[0], @$self)]);
 }
 
+sub choose_a_few_nonzero {
+    my ( $self, $howmany ) = @_;
+    return SChoose->choose_a_few_nonzero($howmany, [map($_->[1], @$self)], [map($_->[0], @$self)]);
+}
 1;

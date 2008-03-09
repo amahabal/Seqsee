@@ -150,9 +150,6 @@ sub create {
     return $ret;
 }
 
-# method: choose
-#
-#
 sub choose {
     my ( $package, $number_ref, $name_ref ) = @_;
     return unless @$number_ref;
@@ -166,6 +163,31 @@ sub choose {
         $random -= $_;
     }
     return $name_ref->[$idx];
+}
+
+sub choose_a_few_nonzero {
+    my ( $package, $how_many, $number_ref, $name_ref ) = @_;
+    my @numbers = @$number_ref;
+    my @names = @{ $name_ref // $number_ref };
+    my $sum = sum(@numbers);
+    my @chosen;
+    my $still_to_choose = $how_many;
+
+    while ($still_to_choose and $sum > 0) {
+        my $random = rand() * $sum;
+        my $idx = -1;
+        for (@numbers) {
+            $idx++;
+            last if $_ > $random;
+            $random -= $_;
+        }
+        push @chosen, $names[$idx];
+        $sum -= $numbers[$idx];
+        $numbers[$idx] = 0;
+        $still_to_choose--;
+    }
+
+    return @chosen;
 }
 
 sub choose_if_non_zero {

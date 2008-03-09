@@ -1054,6 +1054,25 @@ sub __GetPositionStructureAsString {
     SUtil::StringifyDeepArray(__GetPositionStructure($group));
 }
 
+sub __GetObjectsBelongingToCategory {
+    my ( $cat ) = @_;
+    return grep { $_->is_of_category_p($cat) } (values %Objects);
+}
+
+sub __GetObjectsBelongingToSimilarCategories {
+    my ( $object ) = @_;
+    my @cats = @{$object->get_categories()} or return;
+
+    my $wset = Set::Weighted->new();
+    for my $cat (@cats) {
+        my $activation_level = SLTM::GetRealActivationsForOneConcept($cat);
+        my @objects = __GetObjectsBelongingToCategory($cat);
+        $wset->insert(map {[$_, $activation_level]} @objects);
+    }
+    $wset->delete_key($object);
+    return $wset;
+}
+
 {
 
     sub read_relation {
