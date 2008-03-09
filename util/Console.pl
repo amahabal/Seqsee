@@ -147,9 +147,10 @@ sub CreateRunSystemCommand {
     my (@cmd) = @_;
     return sub {
         system("cls");
-        $StatusMsg = "Starting subprocess...";
-        system(@cmd);
-        $StatusMsg = "Done.";
+        $StatusMsg = "Running $cmd[1]";
+        $SB->update();
+        my $ret = system(@cmd) ? "Maybe there was an error" : "OK";
+        $StatusMsg = "Finished $cmd[1]: $ret";
     };
 }
 
