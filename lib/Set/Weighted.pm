@@ -14,6 +14,10 @@ sub is_not_empty {
     return @{$_[0]} ? 1 : 0;
 }
 
+sub is_empty {
+    return @{$_[0]} ? 0: 1;
+}
+
 
 sub insert {
     my $self = shift;

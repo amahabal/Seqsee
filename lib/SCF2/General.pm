@@ -13,4 +13,16 @@ RUN: {
         my $object = SWorkspace::__ReadObjectOrRelation() // return;
         ContinueWith( SThought->create($object) );
     }
+};
+
+CodeletFamily LookForSimilarGroups( $group!) does {
+  NAME: {Look for Similar Groups}
+  RUN: {
+        my $wset = SWorkspace::__GetObjectsBelongingToSimilarCategories($group);
+        return if $wset->is_empty();
+
+        for ($wset->choose_a_few_nonzero(3)) {
+            CODELET 50, FocusOn, { what => $_ };
+        }
+    }
 }

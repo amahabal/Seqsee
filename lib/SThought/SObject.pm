@@ -195,6 +195,8 @@ ACTIONS: {
             CODELET 100, FocusOn, {what => $category};
         }
 
+        CODELET 20, LookForSimilarGroups, { group => $core };
+
     }
 }
 
