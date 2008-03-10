@@ -789,6 +789,17 @@ OUTER: while ( $possible_leftmost_position >= 0 ) {
     return;
 }
 
+sub __FindSetsOfObjectsWithOverlappingSubgroups {
+    my ( @objects ) = @_;
+    my %subgroup_to_objects;
+    for my $obj (@objects) {
+        for my $subobj (@$obj) {
+            push @{$subgroup_to_objects{$subobj}}, $obj;
+        }
+    }
+    return grep { scalar(@$_) >= 2 } (values %subgroup_to_objects);
+}
+
 #############################################
 # BAR LINES
 #############################################
