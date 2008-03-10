@@ -59,9 +59,9 @@ RUN: {
         if ($reln_type->isa('Transform::Structural')
                 or $reln_type->get_category() ne $S::NUMBER
                 ) {
-            $new_group->describe_as(SCat::OfObj::RelationTypeBased->Create($reln))
+            $new_group->describe_as(SCat::OfObj::RelationTypeBased->Create($reln_type))
                 || main::message("Unable to describe ". 
-                                     $new_group->as_text() ."  as based on " . $reln->as_text);
+                                     $new_group->as_text() ."  as based on " . $reln_type->as_text);
         } else {
             state $map = { same => $S::SAMENESS, succ => $S::ASCENDING,
                            pred => $S::DESCENDING

@@ -168,7 +168,7 @@ RUN: {
             my ( $ul_a, $ul_b ) = ( $a->get_underlying_reln(), $b->get_underlying_reln() );
             return unless ( $ul_a and $ul_b );
             return unless $ul_a->get_rule() eq $ul_b->get_rule();
-            CODELET ««Urgencies , FindIfRelated::AttemptGroupMerge»», AttemptGroupMerge, { a => $a, b => $b };
+            CODELET ««Urgencies , FindIfRelated::MergeGroups»», MergeGroups, { a => $a, b => $b };
             return;
         }
         return unless SWorkspace::__CheckLiveness( $a, $b );
@@ -552,26 +552,3 @@ RUN: {
             };
     }
 }
-
-CodeletFamily AttemptGroupMerge( $a !, $b ! ) does {
-RUN: {
-        return if $a eq $b;
-        SWorkspace::__CheckLiveness($a, $b) or return;
-        my @items = SWorkspace::__SortLtoRByLeftEdge(@$a, @$b);
-        return if SWorkspace::__AreThereHolesOrOverlap(@items);
-        my $new_group;
-        TRY {
-            my @unstarred_items = map { $_->GetUnstarred() } @items;
-            ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
-            SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
-            $new_group = SAnchored->create(@unstarred_items);
-            if ($new_group) {
-                $new_group->set_underlying_ruleapp($a->get_underlying_reln()->get_rule());
-                SWorkspace->add_group($new_group);
-            }
-        } CATCH {
-          ConflictingGroups: { return }
-        }
-    }
-}
-

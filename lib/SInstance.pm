@@ -20,7 +20,7 @@ my %cats_of_of : ATTR( :get<cats_hash> );    # Keys categories, values bindings.
 # Called automatically by new() of derivative classes
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
-    $cats_of_of{$id}     = {};
+    $cats_of_of{$id} = {};
 }
 
 #
@@ -44,7 +44,7 @@ sub add_category {
     $bindings->isa("SBindings") or die "Need SBinding";
     $cat->isa("SCat::OfObj")    or die "Need SCat";
 
-    my $cat_ref     = $cats_of_of{$id};
+    my $cat_ref = $cats_of_of{$id};
 
     $self->AddHistory( "Added category " . $cat->get_name );
 
@@ -60,7 +60,7 @@ sub remove_category {
     my $id = ident $self;
     $cat->isa("SCat::OfObj") or die "Need SCat";
 
-    my $cat_ref     = $cats_of_of{$id};
+    my $cat_ref = $cats_of_of{$id};
 
     if ( exists $cat_ref->{$cat} ) {
         $self->AddHistory( "Removed category " . $cat->get_name );
@@ -84,11 +84,10 @@ sub get_categories {
 }
 
 sub get_categories_as_string {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $id = ident $self;
-    return join(', ', keys %{$cats_of_of{$id}});
+    return join( ', ', keys %{ $cats_of_of{$id} } );
 }
-
 
 # method: is_of_category_p
 # Given a category, says if the object belongs to that category
@@ -167,13 +166,24 @@ sub get_blemish_cats {
 }
 
 sub HasNonAdHocCategory {
-    my ( $item ) = @_;
-    for (keys %{$cats_of_of{ident $item}}) {
+    my ($item) = @_;
+    for ( keys %{ $cats_of_of{ ident $item} } ) {
         return 1 unless $_ =~ m#Interlaced#;
     }
     return 0;
 }
 
-
+sub CopyCategoriesTo {
+    my ( $from, $to ) = @_;
+    my $any_failure_so_far;
+    for my $category ( @{ $from->get_categories() } ) {
+        my $bindings;
+        unless ( $bindings = $to->describe_as($category) ) {
+            $any_failure_so_far++;
+            next;
+        }
+    }
+    return $any_failure_so_far ? 0 : 1;
+}
 1;
 

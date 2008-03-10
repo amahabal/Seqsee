@@ -12,7 +12,7 @@ WeakenAmount => {
 Urgencies => {
     AttemptExtensionOfRelation::MaybeAsk          => 500,
     AttemptExtensionOfRelation::AreTheseGroupable => 100,
-    FindIfRelated::AttemptGroupMerge              => 100,
+    FindIfRelated::MergeGroups                    => 100,
     FindIfRelatedRelns::AreTheseGroupable         => 100,
     AttemptExtensionOfGroup::AreWeDone            => 100,
 };
