@@ -1,17 +1,3 @@
-CodeletFamily Reader() does {
-RUN: {
-        if ( SUtil::toss(««Codelet, Reader::HuntsSameness»») ) {
-            SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
-            return;
-        }
-        my $object = SWorkspace::__ReadObjectOrRelation();
-        return unless $object;
-
-        # I am changing things so that thoughts do not sit in the coderack at all.
-        ContinueWith( SThought->create($object) );
-    }
-}
-
 CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
 RUN: {
         if ( $obj->describe_as($cat) ) {

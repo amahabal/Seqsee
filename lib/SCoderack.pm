@@ -141,9 +141,9 @@ sub get_next_runnable {
     $Global::LogString = "\n\n=======\nLogged Message:\n===\n";
 
     unless ($CODELET_COUNT) {
-        my $new_reader = SCodelet->new( 'Reader', 100, {} );
+        my $new_reader = SCodelet->new( 'FocusOn', 100, {} );
         if ( $Global::Feature{CodeletTree} ) {
-            print {$Global::CodeletTreeLogHandle} "Background\n\t$new_reader\tReader\t100\n";
+            print {$Global::CodeletTreeLogHandle} "Background\n\t$new_reader\tFocusOn\t100\n";
         }
         return $new_reader;
     }
@@ -177,7 +177,7 @@ sub AttentionDistribution {
     my %return_distribution;
     my $reader_urgencies_sum = 0;
     for my $cl (@CODELETS) {
-        if ($cl->[0] eq 'Reader') {
+        if ($cl->[0] eq 'FocusOn') {
             $reader_urgencies_sum += $cl->[1];
             next;
         }
@@ -196,7 +196,7 @@ sub AttentionDistribution {
         for (@$reader_dist_objects) {
             my $prob = shift(@probs);
             $return_distribution{$_} += $prob * $reader_urgencies_sum;
-            # print "\t[Reader] $_ updated by $prob * $reader_urgencies_sum\n";
+            # print "\t[FocusOn] $_ updated by $prob * $reader_urgencies_sum\n";
         }
     }
 

@@ -1,4 +1,4 @@
-Codelet => { Reader::HuntsSameness => 0.1 };
+Codelet => { FocusOn::HuntsSameness => 0.1 };
 SpikeAmount => {
     CheckIfInstance::Link                    => 5,
     CheckIfInstance::Category                => 10,
