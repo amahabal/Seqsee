@@ -158,13 +158,11 @@ sub ArgumentsToString {
     for my $argument (@$arguments_array) {
         if ($argument->{required}) {
             my $name = $argument->{var};
-            $ret .= qq{\tmy \$$name = \$opts_ref->{$name};\n};
-            $ret .= qq{\tdefined(\$$name) \nor confess "Needed '$name', only got " . join(';', keys \%\$opts_ref);\n};
+            $ret .= qq{\tmy \$$name = \$opts_ref->{$name} // confess "Needed '$name', only got " . join(';', keys \%\$opts_ref);\n};
         } else {
             my $name = $argument->{var};
             my $default = $argument->{default};
-            $ret .= qq{\tmy \$$name = \$opts_ref->{$name};\n};
-            $ret .= qq{\t\$$name = $default unless defined(\$$name);\n};
+            $ret .= qq{\tmy \$$name = \$opts_ref->{$name} // $default;\n};
         }
     }
     return $ret;

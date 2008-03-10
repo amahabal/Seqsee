@@ -589,8 +589,3 @@ RUN: {
     }
 }
 
-CodeletFamily FocusOn( $what!) does {
-  RUN: {
-        ContinueWith(SThought->create($what));
-    }
-}

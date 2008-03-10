@@ -55,6 +55,7 @@ use SStream2;
 use SWorkspace;
 
 use SCF::Load;
+use SCF2::Load;
 use SThought::Load;
 use Scripts::Load;
 
