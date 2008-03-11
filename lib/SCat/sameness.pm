@@ -89,6 +89,7 @@ our $sameness = SCat::OfObj::Std->new(
 
         metonymy_finders   => { each => $meto_finder_each },
         metonymy_unfinders => { each => $meto_unfinder_each },
+        sufficient_atts => { 'each:length' => 1, },
     }
 
 );
