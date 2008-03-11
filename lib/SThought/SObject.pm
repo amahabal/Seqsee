@@ -197,6 +197,17 @@ ACTIONS: {
 
         CODELET 20, LookForSimilarGroups, { group => $core };
         CODELET 20, CleanUpGroup, { group => $core };
+
+        if ($underlying_reln) {
+            my $transform = $underlying_reln->get_rule()->get_transform();
+            if ($transform->isa('Transform::Structural')
+                    and not($transform->get_category()->isa('SCat::OfObj::Interlaced'))
+                    ) {
+                my $urgency = 30 * SLTM::GetRealActivationsForOneConcept($transform); 
+                CODELET 100, DoTheSameThing, { transform => $transform };
+            }
+        }
+
     }
 }
 

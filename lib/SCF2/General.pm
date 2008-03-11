@@ -42,7 +42,7 @@ RUN: {
             ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
             SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
             $new_group = SAnchored->create(@unstarred_items);
-            if ($new_group) {
+            if ($new_group and $a->get_underlying_reln()) {
                 $new_group->set_underlying_ruleapp($a->get_underlying_reln()->get_rule());
                 $a->CopyCategoriesTo($new_group);
                 SWorkspace->add_group($new_group);
@@ -63,5 +63,66 @@ RUN: {
         SWorkspace::__DeleteNonSubgroupsOfFrom({ of => [$group],
                                                  from => \@potential_cruft,
                                              });
+    }
+}
+
+CodeletFamily DoTheSameThing( $group = {0}, $category = {0}, $direction = {0}, $transform ! ) does {
+INITIAL: { multimethod '__PlonkIntoPlace'; }
+NAME: { Do The Same Thing }
+RUN: {
+        unless ( $group or $category ) {
+            $category = $transform->get_category();
+        }
+        if ( $group and $category ) {
+            confess "Need exactly one of group and category: got both.";
+        }
+        $direction ||= SChoose->choose( [ 1, 1 ], [ $DIR::LEFT, $DIR::RIGHT ] );
+        unless ($group) {
+            my @groups_of_cat = SWorkspace::__GetObjectsBelongingToCategory($category) or return;
+            state $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
+            $group = $strength_chooser->( \@groups_of_cat );
+        }
+
+        #main::message("DoTheSameThing: group=" . $group->as_text()." transform=".$transform->as_text());
+        my $effective_transform
+            = $direction eq $DIR::RIGHT ? $transform : $transform->FlippedVersion();
+        $effective_transform or return;
+
+        my $expected_next_object = ApplyTransform( $effective_transform, $group ) or return;
+        @$expected_next_object or return;
+
+        my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
+            {   from_object => $group,
+                direction   => $direction,
+                distance    => DISTANCE::Zero(),
+            }
+        );
+        return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
+
+        my $is_this_what_is_present;
+        TRY {
+            $is_this_what_is_present = SWorkspace->check_at_location(
+                {   start     => $next_pos,
+                    direction => $direction,
+                    what      => $expected_next_object,
+                }
+            );
+        }
+        CATCH {
+        ElementsBeyondKnownSought: {
+              return;
+            }
+        };
+        
+        if ($is_this_what_is_present) {
+            my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $expected_next_object );
+            return unless $plonk_result->PlonkWasSuccessful();
+            my $wso = $plonk_result->get_resultant_object() or return;
+
+            $wso->describe_as($effective_transform->get_category());
+            my @ends = ($direction eq $DIR::RIGHT) ? ($group, $wso) : ($wso, $group);
+            SRelation->new({first=>$ends[0], second => $ends[1], type => $transform})->insert();
+            #main::message("yeah, that was present!");
+        }
     }
 }
