@@ -14,14 +14,6 @@ multimethod 'FindTransform';
 my %Transform_of : ATTR(:name<transform>);
 my %Flipped_Transform_of : ATTR(:name<flipped_transform>);
 
-#sub BUILD {
-#    my ( $self, $id, $opts_ref ) = @_;
-#    main::message("New rule!\n\tTransform=$opts_ref->{transform}: ". $opts_ref->{transform}->as_text()
-#                      ."\n\tFlipped=$opts_ref->{flipped_transform}: ".
-#                      $opts_ref->{flipped_transform}->as_text()
-#                      );
-#}
-
 sub create {
     my ($package) = shift;
     createRule(@_);
@@ -35,8 +27,10 @@ multimethod createRule => qw(SRelation) => sub {
 multimethod createRule => qw(Transform) => sub {
     my ($transform) = @_;
     state %MEMO;
+    my $flipped_transform = $transform->FlippedVersion() or return;
+    confess unless $flipped_transform->CheckSanity();
     return $MEMO{$transform} ||= SRule->new( { transform => $transform,
-                                               flipped_transform => $transform->FlippedVersion(),
+                                               flipped_transform => $flipped_transform,
                                            } );
 };
 

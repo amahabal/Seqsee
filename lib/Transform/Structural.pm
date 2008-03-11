@@ -59,7 +59,7 @@ sub FlippedVersion {
     my $new_direction_reln = $direction_reln_of{$id}->FlippedVersion()
         if ref( $direction_reln_of{$id} );
 
-    return Transform::Structural->create(
+    my $flipped = Transform::Structural->create(
         {   category         => $category_of{$id},
             meto_mode        => $meto_mode_of{$id},
             position_reln    => $new_position_reln,
@@ -69,6 +69,8 @@ sub FlippedVersion {
             slippages        => $new_slippages,
         }
     );
+    $flipped->CheckSanity() or main::message( "Flip problematic!" . join(';', %$new_bindings_change));
+    return $flipped;
 }
 
 memoize('FlippedVersion');
@@ -76,7 +78,8 @@ memoize('FlippedVersion');
 sub _FlipChangedBindings {
     my ($old_bindings, $slippages) = @_;
     my %new_bindings;
-    while ( my ( $k, $v ) = each %$old_bindings ) {
+    my %old_bindings = %$old_bindings;
+    while ( my ( $k, $v ) = each %old_bindings ) {
         my $new_v = $v->FlippedVersion() // return;
         my $new_k;
         if (exists $slippages->{$k}) {
@@ -90,10 +93,11 @@ sub _FlipChangedBindings {
 }
 
 sub _FlipSlippages {
-    my ($old_slipages) = @_;
+    my ($old_slippages) = @_;
     my %new_slippages;
     my %keys_seen;
-    while ( my ( $k, $v ) = each %$old_slipages ) {
+    my %old_slippages = %$old_slippages; 
+    while ( my ( $k, $v ) = each %old_slippages ) {
         return if $keys_seen{$v}++;
         $new_slippages{$v} = $k;
     }

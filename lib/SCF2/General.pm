@@ -87,6 +87,7 @@ RUN: {
         my $effective_transform
             = $direction eq $DIR::RIGHT ? $transform : $transform->FlippedVersion();
         $effective_transform or return;
+        $effective_transform->CheckSanity() or confess "Transform insane!";
 
         my $expected_next_object = ApplyTransform( $effective_transform, $group ) or return;
         @$expected_next_object or return;

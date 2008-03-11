@@ -431,7 +431,7 @@ sub set_underlying_ruleapp : CUMULATIVE {
     my $id = ident $self;
 
     if (UNIVERSAL::isa($reln, "SRelation")) {
-        $reln = SRule->create( $reln );
+        $reln = SRule->create( $reln ) or return;
     }
     my $ruleapp;
     if (UNIVERSAL::isa($reln, "SRule")) {

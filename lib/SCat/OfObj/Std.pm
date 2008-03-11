@@ -423,7 +423,7 @@ sub derive_blemished {
 sub AreAttributesSufficientToBuild {
     my ( $self, @atts ) = @_;
     my $sufficient_atts_ref = $sufficient_atts_of_of{ ident $self};
-    my $string = join( ':', @atts );
+    my $string = join( ':', sort(@atts) );
     return exists( $sufficient_atts_ref->{$string} ) ? 1 : 0;
 }
 

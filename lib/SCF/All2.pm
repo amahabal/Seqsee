@@ -46,6 +46,7 @@ RUN: {
         }
         else {
             $relation_to_consider = $core->get_type()->FlippedVersion() or return;
+            $relation_to_consider->CheckSanity() or confess "Flip failed!";
             ( $obj2, $obj1 ) = $core->get_ends;
         }
 
