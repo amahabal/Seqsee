@@ -53,3 +53,15 @@ RUN: {
 
     }
 }
+
+CodeletFamily CleanUpGroup( $group ! ) does {
+NAME: { Clean Up Group }
+RUN: { 
+        return unless SWorkspace::__CheckLiveness($group);
+        my @edges = $group->get_edges();
+        my @potential_cruft = SWorkspace::__GetObjectsWithEndsNotBeyond(@edges);
+        SWorkspace::__DeleteNonSubgroupsOfFrom({ of => [$group],
+                                                 from => \@potential_cruft,
+                                             });
+    }
+}

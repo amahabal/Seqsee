@@ -1527,4 +1527,28 @@ sub DeleteObjectsInconsistentWith {
     }
 }
 
+sub __DeleteNonSubgroupsOfFrom {
+    my ( $opts_ref ) = @_;
+    my $of = $opts_ref->{of} or confess "need of";
+    my $from = $opts_ref->{from} or confess "need from";
+
+    my %groups_to_keep;
+    # Use BFT to mark groups to keep.
+    my @queue = @$of;
+    while (@queue) {
+        my $front = shift(@queue);
+        next if $front->isa('SElement');
+        $groups_to_keep{$front} = 1;
+        push @queue, @$front;
+    }
+
+    for my $potential_delete (@$from) {
+        next if $potential_delete ~~ %groups_to_keep;
+        next if $potential_delete->isa('SElement');
+        next unless __CheckLiveness($potential_delete);
+        # main::message("Deleting cruft: " . $potential_delete->as_text());
+        __DeleteGroup($potential_delete);
+    }
+
+}
 1;

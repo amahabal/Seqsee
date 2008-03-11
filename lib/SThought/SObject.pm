@@ -196,7 +196,7 @@ ACTIONS: {
         }
 
         CODELET 20, LookForSimilarGroups, { group => $core };
-
+        CODELET 20, CleanUpGroup, { group => $core };
     }
 }
 
