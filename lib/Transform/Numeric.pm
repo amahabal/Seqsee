@@ -5,6 +5,7 @@ use Carp;
 use Class::Std;
 use Smart::Comments;
 use base qw{Transform};
+use Memoize;
 
 my %name_of : ATTR(:name<name>);
 my %category_of : ATTR(:name<category>);
@@ -57,9 +58,11 @@ sub IsEffectivelyASamenessRelation {
 sub as_text {
     my ( $self ) = @_;
     my $id = ident $self;
-    my $cat = $category_of{$id}->as_text;
-    return "Transform::Numeric($name_of{$id} of $cat)";
+    my $cat = $category_of{$id};
+    my $cat_string = ($cat eq $S::NUMBER) ? '' : $cat->as_text() . ' ';
+    return "$cat_string$name_of{$id}";
 }
+memoize('as_text');
 
 sub get_complexity_penalty {
     my ( $self ) = @_;

@@ -30,7 +30,7 @@ sub create {
     }
 
     my $string = join( '#',
-        ( map { $opts_ref->{$_} } qw(category meto_mode metonymy_reln position_reln) ),
+        ( map { $opts_ref->{$_} } qw(category meto_mode metonymy_reln position_reln direction_reln) ),
         join( ';', SUtil::hash_sorted_as_array( %{ $opts_ref->{changed_bindings} } ) ),
         join( ';', SUtil::hash_sorted_as_array( %{ $opts_ref->{slippages} } ) ),
     );
@@ -199,4 +199,20 @@ sub as_text {
     chop($changed_bindings_string);
     return "[$cat_name$metonymy_presence] $changed_bindings_string";
 }
+
+sub serialize {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return SLTM::encode($category_of{$id}, $meto_mode_of{$id}, $metonymy_reln_of{$id}, $direction_reln_of{$id},
+                        $position_reln_of{$id}, $changed_bindings_of_of{$id}, $slippages_of{$id}
+                            );
+}
+
+sub deserialize {
+    my ( $package, $string ) = @_;
+    my %opts;
+    @opts{qw{category meto_mode metonymy_reln direction_reln position_reln changed_bindings slippages}} = SLTM::decode($string);
+    $package->create(\%opts);
+}
+
 1;

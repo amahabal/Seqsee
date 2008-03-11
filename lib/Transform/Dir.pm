@@ -62,5 +62,14 @@ sub get_pure {
     return $_[0];
 }
 
+sub serialize {
+    my ( $self ) = @_;
+    return $$self;
+}
+
+sub deserialize {
+    my ( $package, $str ) = @_;
+    $package->create($str);
+}
 
 1;

@@ -10,10 +10,10 @@ if ($EVAL_ERROR) {
     given ( ref($EVAL_ERROR) ) {
         when ('SErr::LTM_LoadFailure') {
             say "Failure in loading LTM: ", $EVAL_ERROR->what();
-            exit;
+            exit(1);
         }
         say "In error handler: something failed! $EVAL_ERROR";
-        exit;
+        exit(1);
     }
 }
 SLTM->init();

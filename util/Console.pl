@@ -122,6 +122,7 @@ INSERT_BUTTONS: {
         [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
         [ PressureView       => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
         [ ActivationViewer   => CreateRunPerlScriptCommand('util\ActivationsViewer.pl') ],
+        [ ViewLTM   => CreateRunPerlScriptCommand('util\ShowLTM.pl') ],
     );
 
     my $button_count = 0;

@@ -271,7 +271,8 @@ sub Load {
         eval { $pure = $type->deserialize($val) };
         if ($EVAL_ERROR) {
             my $msg = "Unable to deserialize >>$val<< of type >>$type<<\n";
-            $msg .= "Nodes inserted so far: $NodeCount.";
+            $msg .= $EVAL_ERROR;
+            $msg .= "\nNodes inserted so far: $NodeCount.";
             SErr::LTM_LoadFailure->throw(what => $msg);
         }
         

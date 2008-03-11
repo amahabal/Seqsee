@@ -10,7 +10,7 @@ INITIAL: {
             FRINGE 100, $literal_cat;
 
             if ( my $rel = $core->get_underlying_reln() ) {
-                FRINGE 50, $rel;
+                FRINGE 50, $rel->get_rule()->get_transform;
             }
 
             for my $category ( @{ $core->get_categories() } ) {
@@ -32,7 +32,7 @@ INITIAL: {
         sub StrengthenLink {
             my ( $o1, $o2 ) = @_;
             my $relation = $o1->get_relation($o2) || return;
-            my $category = $relation->isa('SReln::Simple') ? $S::NUMBER : $relation->get_base_category();
+            my $category = $relation->get_type()->get_category();
             SLTM::InsertISALink($o1, $category)->Spike(10);
             SLTM::InsertISALink($o2, $category)->Spike(10);
             SLTM::InsertFollowsLink($category, $relation)->Spike(15);
