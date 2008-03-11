@@ -21,9 +21,12 @@ use SGUI::List;
 use SGUI::List::Groups;
 use SGUI::List::Categories;
 use SGUI::List::Rules;
+use SGUI::List::Stream;
+
 my $ListGroupsViewer = SGUI::List::Groups->new();
 my $ListCatViewer = SGUI::List::Categories->new();
 my $ListRulesViewer = SGUI::List::Rules->new();
+my $ListStreamViewer = SGUI::List::Stream->new();
 my $Canvas;
 my ( $Width, $Height );
 Construct Tk::Widget 'Seqsee';
@@ -67,6 +70,10 @@ our @ViewOptions = (
     ['Workspace + Stream', [
         [ 'SGUI::Workspace',  0, 0,  100, 50 ],
         [ 'SGUI::Stream', 0, 50, 100, 50 ],
+            ]],
+    ['Workspace + Stream2', [
+        [ 'SGUI::Workspace',  0, 0,  100, 50 ],
+        [ $ListStreamViewer, 0, 50, 100, 50 ],
             ]],
         );
 
