@@ -6,6 +6,7 @@ use SCat::OfObj::RelationTypeBased;
 use SCat::OfObj::Literal;
 use SCat::OfObj::Interlaced;
 use SCat::OfObj::Assuming;
+use SCat::OfObj::Alternating;
 
 use SCat::ascending;
 use SCat::descending;

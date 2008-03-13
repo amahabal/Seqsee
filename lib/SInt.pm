@@ -80,5 +80,9 @@ sub get_mag {
     $_[0][0];
 }
 
+sub get_pure {
+    return SLTM::Platonic->create($_[0][0]);
+}
+
 
 1;

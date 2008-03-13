@@ -98,13 +98,6 @@ sub as_text {
 memoize('get_name');
 memoize('as_text');
 
-sub AreAttributesSufficientToBuild {
-    my ( $self, @atts ) = @_;
-    my $string = join(':', sort @atts);
-    return 1 if ($string eq 'first:length' or $string eq 'first:last:length');
-    return 0;
-}
-
 sub get_pure {
     return $_[0];    
 }
