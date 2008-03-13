@@ -1,5 +1,5 @@
 ThoughtType SRelation( $core ! ) does {
-AS_TEXT: { return "Relation" }
+AS_TEXT: { return $self->get_core()->as_text }
 INITIAL: {
         multimethod 'createRule';
     }

@@ -127,7 +127,12 @@ sub deserialize {
     return $package->Create($type);
 }
 
-
+sub AreAttributesSufficientToBuild {
+    my ( $self, @atts ) = @_;
+    return unless 'first' ~~ @atts;
+    return unless 'length' ~~ @atts;
+    return 1;
+}
 
 
 1;

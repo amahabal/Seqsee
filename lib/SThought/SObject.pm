@@ -1,5 +1,5 @@
 ThoughtType SAnchored( $core ! ) does {
-AS_TEXT: { return "Group " . $self->get_core()->get_structure_string }
+AS_TEXT: { return "Group " . $self->get_core()->as_text }
 INITIAL: {
         multimethod get_fringe_for => ('SAnchored') => sub {
             my ($core) = @_;
@@ -212,7 +212,7 @@ ACTIONS: {
 }
 
 ThoughtType SElement( $core !, $magnitude = {0} ) does {
-AS_TEXT: { return "Element (" . $self->get_magnitude . ")" }
+AS_TEXT: { return "Element " . $self->get_core()->as_text()  }
 INITIAL: {
 
         multimethod get_fringe_for => ('SElement') => sub {

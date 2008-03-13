@@ -92,4 +92,10 @@ sub scat_literal_as_string {
         return $structure;
     }
 }
+
+sub AreAttributesSufficientToBuild {
+    1;
+}
+
+
 1;
