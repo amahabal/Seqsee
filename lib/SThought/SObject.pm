@@ -69,7 +69,23 @@ INITIAL: {
                 my $category = $weighted_set->choose();
                 CODELET 100, CheckIfInstance, { obj => $core, cat => $category};
             }
+        };
+        sub IsThisAMountainUpslope {
+            my ( $core ) = @_;
+            return 0 unless $core->is_of_category_p($S::ASCENDING);
+            my @parts = @$core;
+            return 0 if scalar(@parts) == 1;
+            my $last_part = $parts[-1];
+            my $left_end_of_last_part = $last_part->get_left_edge();
+            my @groups_starting_here
+                = SWorkspace::__GetObjectsWithEndsExactly( $left_end_of_last_part, undef );
+            my @possible_downslopes = grep {
+                $_->is_of_category_p($S::DESCENDING) and scalar(@$_) == scalar(@parts) and $_->[0] eq $last_part
+            } @groups_starting_here;
+            return 0 unless @possible_downslopes;
+            return $possible_downslopes[0]; # There can only be 1.
         }
+        
     }
 FRINGE: {
         return get_fringe_for( $core->GetEffectiveObject() );
@@ -206,6 +222,15 @@ ACTIONS: {
                 my $urgency = 30 * SLTM::GetRealActivationsForOneConcept($transform); 
                 CODELET 100, DoTheSameThing, { transform => $transform };
             }
+        }
+
+        if (my $downslope = IsThisAMountainUpslope($core)) {
+            my @upslope = @$core;
+            my @downslope = @$downslope;
+            shift(@downslope);
+            CODELET 100, CreateGroup, { items => [@upslope, @downslope],
+                                        category => $S::MOUNTAIN,
+                                    };
         }
 
     }

@@ -37,7 +37,7 @@ sub Instancer {
     return if $parts_count == 0;
 
     for my $idx ( 0 .. $parts_count - 2 ) {
-        my $predicted_next = ApplyTransform($relation_type, $parts[$idx]);
+        my $predicted_next = ApplyTransform($relation_type, $parts[$idx]) or return;
         return  unless $parts[ $idx + 1 ]->CanBeSeenAs($predicted_next->get_structure);
     }
 

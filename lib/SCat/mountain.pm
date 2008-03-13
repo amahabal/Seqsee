@@ -41,6 +41,7 @@ our $mountain = SCat::OfObj::Std->new(
 
         positions        => { foot => SPos->new(1), },
         position_finders => { peak => $peak_finder },
+        sufficient_atts => {'foot:peak' => 1},
     }
 );
 

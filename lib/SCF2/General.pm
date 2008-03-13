@@ -127,3 +127,35 @@ RUN: {
         }
     }
 }
+
+CodeletFamily CreateGroup( $items !, $category = {0}, $transform = {0} ) does {
+NAME: { Create Group }
+RUN: {
+        unless ($category or $transform) {
+            confess "At least one of category or transform needed. Got neither.";
+        }
+        if ($category and $transform) {
+            confess "Exactly one of  category or transform needed. Got both.";
+        }
+
+        unless ($category) {
+            # Generate from transform.
+            confess "transform should be a Transform!" unless $transform->isa('Transform');
+            if ($transform->isa('Transform::Numeric')) {
+                $category = $transform->GetRelationBasedCategory();
+            } else {
+                $category = SCat::OfObj::RelationTypeBased->Create($transform);
+            }
+        }
+
+        my @unstarred_items = map { $_->GetUnstarred() } @$items;
+        ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
+        SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
+        my $new_group = SAnchored->create(@unstarred_items);
+        $new_group->describe_as($category) or return;
+        if ($transform) {
+            $new_group->set_underlying_ruleapp($transform);
+        }
+        SWorkspace->add_group($new_group);
+    }
+}

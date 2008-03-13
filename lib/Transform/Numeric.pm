@@ -49,26 +49,41 @@ sub FlippedVersion {
 }
 
 sub IsEffectivelyASamenessRelation {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $id = ident $self;
     return $name_of{$id} eq 'same' ? 1 : 0;
 }
 
-
 sub as_text {
-    my ( $self ) = @_;
-    my $id = ident $self;
-    my $cat = $category_of{$id};
-    my $cat_string = ($cat eq $S::NUMBER) ? '' : $cat->as_text() . ' ';
+    my ($self) = @_;
+    my $id     = ident $self;
+    my $cat    = $category_of{$id};
+    my $cat_string = ( $cat eq $S::NUMBER ) ? '' : $cat->as_text() . ' ';
     return "$cat_string$name_of{$id}";
 }
 memoize('as_text');
 
 sub get_complexity_penalty {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $id = ident $self;
     state $ComplexityLookup = {qw{same 1 succ 0.9 pred 0.9}};
-    my $category_compexity = ($category_of{$id} eq $S::NUMBER) ? 1 : 0.8;
-    return $ComplexityLookup->{$name_of{$id}} * $category_compexity;
+    my $category_compexity = ( $category_of{$id} eq $S::NUMBER ) ? 1 : 0.8;
+    return $ComplexityLookup->{ $name_of{$id} } * $category_compexity;
 }
+
+sub GetRelationBasedCategory {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    return SCat::OfObj::RelationTypeBased->Create($self) unless $category_of{$id} eq $S::NUMBER;
+
+    my $name = $name_of{$id};
+    given ($name) {
+        when ('succ') { return $S::ASCENDING; }
+        when ('same') { return $S::SAMENESS; }
+        when ('pred') { return $S::DESCENDING; }
+        default { confess "Should not reach herre" }
+    }
+}
+
 1;
