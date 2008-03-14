@@ -42,7 +42,7 @@ our $MainStream = SStream2->CreateNew('MainStream');
 
 %PossibleFeatures = map { $_ => 1 } qw(relnact rules debug LTM
     CodeletTree NoGpOverlap LiteralCat AllowLeftwardRelations LogActivations AllowSquinting
-    LTM_expt Primes
+    LTM_expt Primes Alternating
 );
 
 # Feature description:

@@ -13,9 +13,9 @@ RUN: {
                     b => $b_core
                     };
             }
-            elsif ( $a_core->isa("SReln") and $b_core->isa("SReln") ) {
+            elsif ( $a_core->isa("SRelation") and $b_core->isa("SRelation") ) {
                 ## I am comparing two relations!
-                ACTION 100, FindIfRelatedRelns,
+                ACTION 100, FindIfRelatedRelations,
                     {
                     a => $a_core,
                     b => $b_core

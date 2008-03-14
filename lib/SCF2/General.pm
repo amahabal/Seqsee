@@ -151,11 +151,47 @@ RUN: {
         my @unstarred_items = map { $_->GetUnstarred() } @$items;
         ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
         SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
-        my $new_group = SAnchored->create(@unstarred_items);
+        my $new_group;
+        TRY { $new_group = SAnchored->create(@unstarred_items); }
+        CATCH {
+        HolesHere: { return; }
+        };
+        return unless $new_group;
         $new_group->describe_as($category) or return;
         if ($transform) {
             $new_group->set_underlying_ruleapp($transform);
         }
         SWorkspace->add_group($new_group);
+    }
+}
+
+CodeletFamily FindIfRelatedRelations( $a ! , $b ! ) does {
+NAME: { Find if Relations are Related }
+RUN: {
+        my ( $af, $as, $bf, $bs ) = ( $a->get_ends(), $b->get_ends() );
+        if ($bs eq $af) {
+            # Switch the two...
+            ($af, $as, $a, $bf, $bs, $b) = ($bf, $bs, $b, $af, $as, $a);
+        }
+
+        return unless $as eq $bf;
+
+        my ($a_transform, $b_transform) = ($a->get_type(), $b->get_type());
+        if ($a_transform eq $b_transform) {
+            CODELET 100, CreateGroup, { items => [$af, $as, $bs],
+                                        transform => $a_transform,
+                                    };
+        } elsif ($Global::Feature{Alternating} and
+            $a_transform->get_category() eq $b_transform->get_category()) {
+            # There is a chance that these are somehow alternating...
+            my $new_transform = SCat::OfObj::Alternating->CheckForAlternation(
+                $a_transform->get_category(),
+                $af, $as, $bs);
+            if ($new_transform) {
+                CODELET 100, CreateGroup, { items => [$af, $as, $bs],
+                                            transform => $new_transform,
+                                        };
+            }
+        }
     }
 }

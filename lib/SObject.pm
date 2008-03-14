@@ -430,7 +430,7 @@ sub set_underlying_ruleapp : CUMULATIVE {
     $reln or confess "Cannot set underlying relation to be an undefined value!";
     my $id = ident $self;
 
-    if (UNIVERSAL::isa($reln, "SRelation")) {
+    if (UNIVERSAL::isa($reln, "SRelation") or UNIVERSAL::isa($reln, 'Transform')) {
         $reln = SRule->create( $reln ) or return;
     }
     my $ruleapp;
