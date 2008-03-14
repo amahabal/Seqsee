@@ -146,20 +146,6 @@ FINAL: {
     }
 }
 
-CodeletFamily flipReln( $reln ! ) does {
-INITIAL: {
-        multimethod 'find_reln';
-    }
-RUN: {
-        my $new_reln = $reln->FlippedVersion() or return;
-        $reln->uninsert;
-        $new_reln->insert;
-    }
-FINAL: {
-
-    }
-}
-
 CodeletFamily FindIfRelated( $a !, $b ! ) does {
 INITIAL: {
         multimethod 'FindTransform';
@@ -227,61 +213,6 @@ FINAL: {
 
             return $type_activation;
         }
-
-    }
-}
-
-CodeletFamily FindIfRelatedRelns( $a !, $b ! ) does {
-INITIAL: {
-        multimethod 'are_relns_compatible';
-    }
-RUN: {
-        my ( $af, $as, $bf, $bs ) = ( $a->get_ends(), $b->get_ends() );
-
-        # check if there is any intersection at all
-        my %edge_hash;
-        my $hit;
-        for ( $af, $as, $bf, $bs ) {
-            my $count = ++$edge_hash{$_};
-            $hit = $_ if $count > 1;
-        }
-        return unless $hit;
-
-        # It could be that af=bf or as=bs, which'd mean that we may want to flip one of them.
-        # or it could be that bs=af, in which case their roles will need to be switched
-
-        if ( $af eq $bf or $as eq $bs ) {
-
-            # If they are in the same direction, they are unrelated.
-            my $da = $a->get_direction();
-            my $db = $b->get_direction();
-            return if ( !$da->IsLeftOrRight() or !$db->IsLeftOrRight() );
-            return if $da eq $db;
-
-            # choose one of these to flip
-            # XXX weaker!!
-            my $maybe_check_flippability = SChoose->choose( [ $a, $b ] );
-            my $tht = CODELET 100, ShouldIFlip, { reln => $maybe_check_flippability };
-            return;
-        }
-
-        if ( $af eq $bs ) {    # need to flip roles!
-            ( $a, $b, $af, $bf, $as, $bs ) = ( $b, $a, $bf, $af, $bs, $as );
-        }
-
-        # Must be teh case that as is bf. Now we need to see if they are compatible
-        my $compatibility = are_relns_compatible( $a, $b );
-        if ($compatibility) {
-            CODELET «« Urgencies, FindIfRelatedRelns::AreTheseGroupable »», AreTheseGroupable,
-                {
-                items => [ $af, $as, $bs ],
-                reln  => $a,
-                };
-            return;
-        }
-
-    }
-FINAL: {
 
     }
 }

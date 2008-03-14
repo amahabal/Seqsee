@@ -146,22 +146,4 @@ FINAL: {
     }
 }
 
-CodeletFamily ShouldIFlip( $reln ! ) does {
-RUN: {
-        return unless $Global::Feature{AllowLeftwardRelations};
-
-        #if this is part of a group, the answer is NO, don't flip!
-        my ( $l, $r ) = $reln->get_extent();
-        if ( SWorkspace::__GetObjectsWithEndsBeyond( $l, $r ) ) {
-            return;
-        }
-        else {
-
-            #okay, so we *may* switch... lets go ahead for now
-            CODELET 100, flipReln, { reln => $reln };
-        }
-
-    }
-}
-
 1;
