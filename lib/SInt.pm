@@ -7,6 +7,7 @@ use overload
     '+' => \&add_SInt,
     '-' => \&subtract_SInt,
     'eq' => \&SInt_eq,
+    'ne' => \&SInt_ne,
     '""' => \&as_text;
 
 sub new {
@@ -42,6 +43,12 @@ sub SInt_eq {
     return 1 if $s_mag == $f->[0];
 }
 
+sub SInt_ne {
+    my ( $f, $s ) = @_;
+    my $s_mag = ref($s) ? $s->[0] : $s;
+    return 1 if $s_mag != $f->[0];
+}
+
 #remove.
 sub get_direction {
     return DIR::RIGHT();
@@ -72,6 +79,5 @@ sub get_mag {
 sub get_pure {
     return SLTM::Platonic->create($_[0][0]);
 }
-
 
 1;

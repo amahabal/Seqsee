@@ -71,7 +71,7 @@ sub GetCatAndName {
 sub get_memory_dependencies {
     my ( $self ) = @_;
     my $id = ident $self;
-    return grep { ref($_) } ($category_of{$id}, values %{$info_loss_of{$id}});
+    return map { $_->get_pure() }grep { ref($_) } ($category_of{$id}, values %{$info_loss_of{$id}});
 }
 
 sub serialize {
