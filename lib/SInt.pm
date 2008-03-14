@@ -62,18 +62,7 @@ sub add_category {
 }
 
 sub get_common_categories {
-    my ( $o1, $o2 ) = @_;
-    ## SInt get_common_categories: $o1, $o2
-    my @ret;
-    my @second_object_cats = @{$o2->[1]};
-    my $second_object_cats_count = scalar(@second_object_cats);
-    for my $cat (@{$o1->[1]}) {
-        for (0..$second_object_cats_count-1) {
-            push @ret, $cat if $second_object_cats[$_] eq $cat;
-        }
-    }
-    ## get_common_categories: @ret
-    @ret;
+    return SInstance::get_common_categories(@_);
 }
 
 sub get_mag {

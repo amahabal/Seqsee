@@ -233,6 +233,20 @@ ACTIONS: {
                                     };
         }
 
+        if ($Global::Feature{Alternating}) {
+            # Look for adjacent objects. If all 3 belong to the some common category, check for
+            # alternatingness.
+            my $left_neighbour = SWorkspace::__ChooseByStrength(SWorkspace::__GetObjectsWithEndsExactly(undef, $core->get_left_edge() - 1));
+            my $right_neighbour = SWorkspace::__ChooseByStrength(SWorkspace::__GetObjectsWithEndsExactly($core->get_right_edge() + 1, undef));
+            if ($left_neighbour and $right_neighbour) {
+                if (my ($cat) = $core->get_common_categories($left_neighbour, $right_neighbour)) {
+                    CODELET 100, CheckIfAlternating, { first => $left_neighbour,
+                                                       second => $core,
+                                                       third => $right_neighbour,
+                                                   };
+                }
+            }
+        }
     }
 }
 

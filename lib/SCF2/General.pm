@@ -185,7 +185,7 @@ RUN: {
             $a_transform->get_category() eq $b_transform->get_category()) {
             # There is a chance that these are somehow alternating...
             my $new_transform = SCat::OfObj::Alternating->CheckForAlternation(
-                $a_transform->get_category(),
+                # $a_transform->get_category(),
                 $af, $as, $bs);
             if ($new_transform) {
                 CODELET 100, CreateGroup, { items => [$af, $as, $bs],
@@ -193,5 +193,23 @@ RUN: {
                                         };
             }
         }
+    }
+}
+
+CodeletFamily CheckIfAlternating( $first !, $second !, $third ! ) does {
+NAME: { Check if Alternating }
+RUN: { 
+        my $transform_to_consider;
+
+        my $t1 = FindTransform($first, $second);
+        my $t2 = FindTransform($second, $third);
+        if ($t1 and $t1 eq $t2) {
+            $transform_to_consider = $t1;
+        } else {
+            $transform_to_consider = SCat::OfObj::Alternating->CheckForAlternation($first, $second, $third) or return;
+        }
+        CODELET 100, CreateGroup, { items => [$first, $second, $third],
+                                    transform => $transform_to_consider,
+                                };
     }
 }

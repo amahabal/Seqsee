@@ -139,14 +139,17 @@ sub is_of_category_ok {
 #
 
 sub get_common_categories {
-    my ( $o1, $o2 ) = @_;
-    ## $o1, $o2
-    my $hash_ref1 = $cats_of_of{ ident $o1};
-    my $hash_ref2 = $cats_of_of{ ident $o2};
-    ## $hash_ref1, $hash_ref2
-    my @common_strings
-        = grep { defined $_ } map { exists( $hash_ref2->{$_} ) ? $_ : undef } keys %$hash_ref1;
-    ## @common_strings
+    my @objects = @_;
+    my $count = scalar(@objects);
+
+    my %key_count;
+    for my $object (@objects) {
+        confess "Funny arg $object" unless ref($object);
+        my @categories_for_object = @{$object->get_categories()};
+        $key_count{$_}++ for @categories_for_object;
+    }
+
+    my @common_strings = grep { $key_count{$_} == $count } keys %key_count;
     return map { $S::Str2Cat{$_} } @common_strings;
 }
 

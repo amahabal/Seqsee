@@ -140,8 +140,7 @@ sub build {
 sub get_name {
     my ($self) = @_;
     my $id = ident $self;
-    return 'Alternate between '
-        . $Object1_of{$id}->as_text() . ' and '
+    return  $Object1_of{$id}->as_text() . ' or '
         . $Object2_of{$id}->as_text();
 }
 
@@ -182,8 +181,8 @@ sub deserialize {
 }
 
 sub CheckForAlternation {
-    my ( $package, $cat, $first, $second, $third ) = @_;
-    main::message("CheckForAlternation: " . join('; ', $cat->as_text, $first, $second, $third, ref($first), ref($second), ref($third)), 1);
+    my ( $package, $first, $second, $third ) = @_;
+    main::message("CheckForAlternation: " . join('; ', $first, $second, $third, ref($first), ref($second), ref($third)), 1);
     if ($first->get_pure() eq $third->get_pure()) {
         my $alternating_category = $package->Create($first->get_pure(),
                                                     $second->get_pure(),
@@ -198,10 +197,8 @@ sub CheckForAlternation {
         return $alternating_category->FlippingTransform();
     }
 
-    if (my $transform = FindTransform($first, $second)) {
-        # If in this function, we know that there is no direct relation. 
-        return if $transform->isa('Transform::Numeric');
-    }
+    my ($cat) = $first->get_common_categories($second, $third) or return;
+    return if $cat->IsNumeric(); # No structure to descend into!
 
     my $b1 = $first->is_of_category_p($cat) or return;
     my $b2 = $second->is_of_category_p($cat) or return;
@@ -218,15 +215,13 @@ sub CheckForAlternation {
         my $t2 = FindTransform($v2, $v3);
         if ($t1 and $t1 eq $t2) {
             $changed_bindings{$key} = $t1;
-        } elsif ($t1 and $t2 and $t1->get_category() eq $t2->get_category()) {
-            main::message("CheckForAlternation recursing (for $key)!", 1);
-            my $new_transform = $package->CheckForAlternation($t1->get_category(),
-                                                              $v1, $v2, $v3
-                                                                  ) or return;
-            $changed_bindings{$key} = $new_transform;
-        } else {
-            return;
-        }
+            next;
+        } 
+
+        main::message("CheckForAlternation recursing (for $key)!", 1);
+        my $new_transform = $package->CheckForAlternation( $v1, $v2, $v3
+                                                              ) or return;
+        $changed_bindings{$key} = $new_transform;
     }
     return Transform::Structural->create({
         category => $cat,

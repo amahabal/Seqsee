@@ -1084,6 +1084,11 @@ sub __GetObjectsBelongingToSimilarCategories {
     return $wset;
 }
 
+sub __ChooseByStrength {
+    $strength_chooser->([@_]);
+}
+
+
 {
 
     sub read_relation {
