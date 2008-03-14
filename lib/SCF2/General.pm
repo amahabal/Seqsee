@@ -79,8 +79,7 @@ RUN: {
         $direction ||= SChoose->choose( [ 1, 1 ], [ $DIR::LEFT, $DIR::RIGHT ] );
         unless ($group) {
             my @groups_of_cat = SWorkspace::__GetObjectsBelongingToCategory($category) or return;
-            state $strength_chooser = SChoose->create( { map => \&SFasc::get_strength } );
-            $group = $strength_chooser->( \@groups_of_cat );
+            $group = SWorkspace::__ChooseByStrength( @groups_of_cat );
         }
 
         #main::message("DoTheSameThing: group=" . $group->as_text()." transform=".$transform->as_text());

@@ -225,12 +225,20 @@ ACTIONS: {
         }
 
         if (my $downslope = IsThisAMountainUpslope($core)) {
-            my @upslope = @$core;
-            my @downslope = @$downslope;
-            shift(@downslope);
-            CODELET 100, CreateGroup, { items => [@upslope, @downslope],
-                                        category => $S::MOUNTAIN,
-                                    };
+            IFUPSLOPE: {
+                  my @upslope = @$core;
+                  my @downslope = @$downslope;
+                  shift(@downslope);
+                  my $mountain_activation = SLTM::SpikeBy(10, $S::MOUNTAIN);
+                  last IFUPSLOPE unless (SUtil::significant($mountain_activation) and SUtil::toss($mountain_activation));
+                  CODELET 100, CreateGroup, { items => [@upslope, @downslope],
+                                              category => $S::MOUNTAIN,
+                                          };
+              };
+        }
+
+        if ($Global::Feature{AllowSquinting} and $core->IsThisAMetonymedObject()) {
+            
         }
 
         if ($Global::Feature{Alternating}) {
