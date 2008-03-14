@@ -44,6 +44,7 @@ our %MEMORIZED_SERIALIZED; # This is a hack to cover-up for a strange bug:
        SCat::OfObj::Literal
        SCat::OfObj::Interlaced
        SCat::OfObj::Assuming
+       SCat::OfObj::Alternating
        SLTM::Platonic SRelnType::Simple
        SRelnType::Compound METO_MODE POS_MODE SReln::Position SReln::MetoType SReln::Dir
 

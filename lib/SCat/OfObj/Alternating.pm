@@ -23,15 +23,15 @@ my $FindTransformForCat = sub  {
 
     if ($a_pure eq $b_pure) {
         if ($a_pure eq $object1 or $a_pure eq $object2) {
-            return Transform::Numeric->create($me, 'no_flip');
+            return Transform::Numeric->create('no_flip', $me);
         } else {
             return;
         }
     } else {
         if ($a_pure eq $object1 and $b_pure eq $object2) {
-            return Transform::Numeric->create($me, 'flip');
+            return Transform::Numeric->create('flip', $me);
         } elsif ($a_pure eq $object2 and $b_pure eq $object1) {
-            return Transform::Numeric->create($me, 'flip');
+            return Transform::Numeric->create('flip', $me);
         } else {
             return;
         }
@@ -71,7 +71,7 @@ my $ApplyTransformForCat = sub  {
 
 sub FlippingTransform {
     my ( $self ) = @_;
-    return Transform::Numeric->create($self, 'flip');
+    return Transform::Numeric->create('flip', $self);
 }
 
 sub Create {
@@ -95,10 +95,10 @@ sub Instancer {
     my $pure = $object->get_pure();
     my $which;
     if ( $pure eq $Object1_of{$id} ) {
-        $which = 'first';
+        $which = SInt->new(0);
     }
     elsif ( $pure eq $Object2_of{$id} ) {
-        $which = 'second';
+        $which = SInt->new(1);
     }
     else {
         return;
@@ -117,9 +117,9 @@ sub build {
     my $id = ident $self;
     my $which = $opts_ref->{which} or confess "need which";
     my $structure_of_object;
-    given ($which) {
-        when ('first')  { $structure_of_object = $Object1_of{$id}->get_structure() }
-        when ('second') { $structure_of_object = $Object2_of{$id}->get_structure() }
+    given ($which->get_mag) {
+        when (0)  { $structure_of_object = $Object1_of{$id}->get_structure() }
+        when (1) { $structure_of_object = $Object2_of{$id}->get_structure() }
         default         { confess "Should not be here" };
     }
     my $object = SObject->create($structure_of_object);
@@ -205,7 +205,7 @@ sub CheckForAlternation {
             $changed_bindings{$key} = $t1;
         } elsif ($t1 and $t2 and $t1->get_category() eq $t2->get_category()) {
             my $new_transform = $package->CheckForAlternation($t1->get_category(),
-                                                              map {$_->get_pure} ($v1, $v2, $v3)
+                                                              $v1, $v2, $v3
                                                                   ) or return;
             $changed_bindings{$key} = $new_transform;
         } else {
