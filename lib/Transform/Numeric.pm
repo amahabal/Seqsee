@@ -12,6 +12,7 @@ my %category_of : ATTR(:name<category>);
 
 sub create {
     my ( $package, $name, $category ) = @_;
+    die "Transform::Numeric creation attempted without name!" unless $name;
     state %MEMO;
     return $MEMO{ SLTM::encode( $name, $category ) } //= $package->new(
         {   name     => $name,
@@ -44,7 +45,7 @@ sub get_pure {
 sub FlippedVersion {
     my ($self) = @_;
     my $id = ident $self;
-    state $FlipName = {qw{same same pred succ succ pred}};
+    state $FlipName = {qw{same same pred succ succ pred flip flip no_flip no_flip}};
     return Transform::Numeric->create( $FlipName->{ $name_of{$id} }, $category_of{$id} );
 }
 

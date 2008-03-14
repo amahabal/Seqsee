@@ -40,29 +40,39 @@ my $FindTransformForCat = sub  {
 
 my $ApplyTransformForCat = sub  {
     my ( $me, $transform, $object ) = @_;
+    #main::message("ApplyTransformForCat: $transform and $object " . $transform->as_text);
     my $id = ident $me;
+    my $is_object_a_ref = ref($object);
 
-    my ($object_pure) = ($object->get_pure);
+    my ($object_pure) = $is_object_a_ref ? $object->get_pure() : SLTM::Platonic->create($object);
     my ($object1, $object2) = ($Object1_of{$id}, $Object2_of{$id});
     
     my $name = $transform->get_name();
+    unless ($name) {
+        confess "transform without name! ".$transform->as_text;
+    }
+
     given ($name) {
         when ('flip') {
             if ($object_pure eq $object1) {
-                return SObject->create($object2->get_structure);
+                my $structure = $object2->get_structure();
+                return $is_object_a_ref ? SObject->create($structure) : $structure;
             } elsif ($object_pure eq $object2) {
-                return SObject->create($object1->get_structure);
+                my $structure = $object1->get_structure();
+                return $is_object_a_ref ? SObject->create($structure) : $structure;
             } else {
-                confess "Should not be here!";
+                return;
             }
         }
         when ('no_flip') {
             if ($object_pure eq $object1) {
-                return SObject->create($object1->get_structure);
+                my $structure = $object1->get_structure();
+                return $is_object_a_ref ? SObject->create($structure) : $structure;
             } elsif ($object_pure eq $object2) {
-                return SObject->create($object2->get_structure);
+                my $structure = $object2->get_structure();
+                return $is_object_a_ref ? SObject->create($structure) : $structure;
             } else {
-                confess "Should not be here!";
+                return;
             }
         }
         default { confess "Should not be here!"; }
@@ -173,12 +183,17 @@ sub deserialize {
 
 sub CheckForAlternation {
     my ( $package, $cat, $first, $second, $third ) = @_;
+    main::message("CheckForAlternation: " . join('; ', $cat->as_text, $first, $second, $third, ref($first), ref($second), ref($third)), 1);
     if ($first->get_pure() eq $third->get_pure()) {
         my $alternating_category = $package->Create($first->get_pure(),
                                                     $second->get_pure(),
                                                         );
         for ($first, $second, $third) {
-            $_->describe_as($alternating_category);
+            if ($_->isa('SInt')) {
+                $_->add_category($alternating_category);
+            } else {
+                $_->describe_as($alternating_category);
+            }
         }
         return $alternating_category->FlippingTransform();
     }
@@ -204,6 +219,7 @@ sub CheckForAlternation {
         if ($t1 and $t1 eq $t2) {
             $changed_bindings{$key} = $t1;
         } elsif ($t1 and $t2 and $t1->get_category() eq $t2->get_category()) {
+            main::message("CheckForAlternation recursing (for $key)!", 1);
             my $new_transform = $package->CheckForAlternation($t1->get_category(),
                                                               $v1, $v2, $v3
                                                                   ) or return;
