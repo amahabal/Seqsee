@@ -6,6 +6,7 @@ use Class::Std;
 use Smart::Comments;
 use Class::Multimethods;
 use Memoize;
+use Carp;
 
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';
@@ -53,6 +54,7 @@ sub build {
     my ( $self, $opts_ref ) = @_;
     my $id = ident $self;
     my $which = $opts_ref->{which} or confess "need which";
+    my @structure_of_object;
     given ($which) {
         when ('first')  { return $Object1_of{$id} }
         when ('second') { return $Object2_of{$id} }
