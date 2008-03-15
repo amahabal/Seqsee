@@ -213,3 +213,57 @@ RUN: {
                                 };
     }
 }
+
+CodeletFamily FindIfRelated(   $a!, $b!) does {
+  NAME: {Check Whether Related}
+  RUN: {
+        return unless SWorkspace::__CheckLiveness( $a, $b );
+        ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
+        if ( $a->overlaps($b) ) {
+            my ( $ul_a, $ul_b ) = ( $a->get_underlying_reln(), $b->get_underlying_reln() );
+            return unless ( $ul_a and $ul_b );
+            return unless $ul_a->get_rule() eq $ul_b->get_rule();
+            return unless ($a->[-1] ~~ @$b); #i.e., actual subgroups overlap.
+            CODELET 200, MergeGroups, { a => $a, b => $b };
+            return;
+        }
+
+        if (my $relation = $a->get_relation($b)) {
+            SLTM::SpikeBy(10, $relation->get_type());
+            CODELET 100, FocusOn, { what => $relation };
+            return;
+        }
+
+        my $reln_type = FindTransform($a, $b) || return;
+        SLTM::SpikeBy(10, $reln_type);
+        
+        # insert relation with certain probability:
+        my $transform_complexity = $reln_type->get_complexity();
+        my $transform_activation = SLTM::GetRealActivationsForOneConcept($reln_type);
+        my $distance = SWorkspace::__FindDistance($a, $b, $DISTANCE_MODE::ELEMENT)->GetMagnitude();
+        my $sense_in_continuing = ShouldIContinue($transform_complexity,
+                                                  $transform_activation,
+                                                  $distance
+                                                      );
+        main::message("Sense in continuing=$sense_in_continuing") if $Global::debugMAX;
+        return unless SUtil::toss($sense_in_continuing);
+
+        SLTM::SpikeBy(10, $reln_type);
+        my $relation = SRelation->new({first => $a,
+                                       second => $b,
+                                       type => $reln_type
+                                           });
+        $relation->insert();
+        CODELET 200, FocusOn, { what => $relation };
+    }
+  FINAL: {
+        sub ShouldIContinue {
+            my ( $transform_complexity, $transform_activation, $distance ) = @_;
+            # transform_activation and transform_complexity are between 0 and 1
+
+            my $not_continue = (1 - $transform_complexity) * (1 - $transform_activation)
+                * sqrt($distance);
+            return 1 - $not_continue;
+        }
+    }
+}

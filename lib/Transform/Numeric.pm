@@ -87,4 +87,26 @@ sub GetRelationBasedCategory {
     }
 }
 
+sub get_complexity {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    my $category = $category_of{$id};
+    my $name = $name_of{$id};
+
+    given ($category) {
+        when ($S::NUMBER) {
+            given ($name) {
+                when ('same') { return 0; }
+                default { return 0.1; }
+            }
+        }
+        when ($_->isa('SCat::OfObj::Alternating')) {
+            return 0.7;
+        }
+        default { return 0.4; }
+    }
+}
+
+memoize('get_complexity');
+
 1;

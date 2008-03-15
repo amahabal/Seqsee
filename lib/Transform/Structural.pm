@@ -219,4 +219,36 @@ sub deserialize {
     $package->create(\%opts);
 }
 
+sub get_complexity {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    my $complexity_of_category;
+    given ( $category_of{$id} ) {
+        when ( [ $S::ASCENDING, $S::DESCENDING, $S::SAMENESS ] ) { $complexity_of_category = 0.1 }
+        when ( $_->isa('SCat::OfObj::Interlaced') ) {
+            $complexity_of_category = 0.1 * $_->get_parts_count();
+        }
+        default { $complexity_of_category = 0.3;}
+    }
+
+    my $total_complexity = $complexity_of_category;
+    given ($meto_mode_of{$id}) {
+        when ($METO_MODE::NONE) {}
+        default { $total_complexity += 0.2; }
+    }
+
+    for (values %{$changed_bindings_of_of{$id}}) {
+        $total_complexity += $_->get_complexity();
+    }
+
+    my %slippages = %{$slippages_of{$id}};
+    while (my($k, $v) = each %slippages) {
+        $total_complexity += 0.2 unless $k eq $v;
+    }
+
+    $total_complexity = 0.9 if $total_complexity > 0.9;
+    return $total_complexity;
+}
+
 1;
