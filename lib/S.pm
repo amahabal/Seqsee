@@ -43,13 +43,6 @@ use Transform::Dir;
 use SRelation;
 use SRelation::Structural;
 
-# use SReln::Simple;
-# use SReln::Compound;
-# use SReln::Position;
-# use SReln::MetoType;
-# use SReln::Dir;
-# use SRelnType::Compound;
-# use SRelnType::Simple;
 use SThought;
 use SStream2;
 use SWorkspace;

@@ -7,10 +7,6 @@ use Carp::Seqsee;
 use Config::Std;
 use Getopt::Long;
 
-use S;
-use SUtil;
-use Seqsee;
-
 use Carp;
 use Tk::Carp qw{tkdie};
 use Tk::Menustrip;
@@ -34,6 +30,10 @@ use Tk::ROText;
 use Tk;
 use SGUI;
 use UI::Graphical;
+
+use S;
+use SUtil;
+use Seqsee;
 
 # variable: $OPTIONS_ref
 #    final configuration hash

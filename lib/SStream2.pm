@@ -121,7 +121,10 @@ sub _think_the_current_thought {
         = scalar(@codelets) > 2
         ? SChoose->choose_a_few_nonzero( 2, [ map { $_->[1] } @codelets ], \@codelets )
         : @codelets;
-    SCoderack->add_codelet($_) for @choose2;
+    for (@choose2) {
+        main::message("codelet added by thought: " . SUtil::StringifyForCarp($_)) if $Global::debugMAX;
+        SCoderack->add_codelet($_);
+    }
 }
 
 # method: _maybe_expell_thoughts

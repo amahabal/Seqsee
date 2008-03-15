@@ -150,8 +150,19 @@ sub CreateRunSystemCommand {
         system("cls");
         $StatusMsg = "Running $cmd[1]";
         $SB->update();
-        my $ret = system(@cmd) ? "Maybe there was an error" : "OK";
+        my $any_error = system(@cmd) ? 1 : 0;
+        my $ret = $any_error ? "Maybe there was an error" : "OK";
         $StatusMsg = "Finished $cmd[1]: $ret";
+
+        if ($any_error) {
+            use Tk::MsgBox;
+            my $d = $MW->MsgBox(-title => "Error running $cmd[1]",
+                                -type => 'ok',
+                                -icon => 'warning',
+                                -message => "There might have been an error while running $cmd[1]"
+                                    )->Show();
+        }
+
     };
 }
 
