@@ -164,17 +164,20 @@ sub Update {
                     '', join( ', ', sort { $a <=> $b } @times_when_successful ),
                     '', "\n"
                 );
+                my ($min, $max, $avg) = (min(@times_when_successful), max(@times_when_successful),
+                                         sprintf( '%5.3f',
+                                                  sum(@times_when_successful) / scalar(@times_when_successful) ),
+                                         );
                 $ResultsText->insert(
                     'end',
-                    "\nMinimum steps: " . min(@times_when_successful),
+                    "\nMinimum steps: $min",
                     '',
-                    "\nMaximum steps: " . max(@times_when_successful),
+                    "\nMaximum steps: $max",
                     '',
-                    "\nAverage:       "
-                        . sprintf( '%5.3f',
-                        sum(@times_when_successful) / scalar(@times_when_successful) ),
+                    "\nAverage:     : $avg  ",
                     '', "\n"
                 );
+                $ResultsSummaryText->insert('end', "[$min/$avg/$max]\n");
             }
 
             for (@RESULTS2) {
