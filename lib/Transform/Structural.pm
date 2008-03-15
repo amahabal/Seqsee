@@ -128,32 +128,6 @@ sub IsEffectivelyASamenessRelation {
     return 1;
 }
 
-sub CalculateComplexityPenalty {
-    my ( $self ) = @_;
-    my $id = ident $self;
-
-    my $return = 1;
-
-    # Slippages penalty
-    while (my($k, $v) = each %{$slippages_of{$id}}) {
-        $return *= 0.8 if $k ne $v; 
-    }
-
-    # Changed bindings penalty
-    while (my($k, $v) = each %{$changed_bindings_of_of{$id}}) {
-        $return *= $v->get_complexity_penalty;
-    }
-
-    # Complex metonymy change penalty
-    my $base_meto_mode = $meto_mode_of{$id};
-    if ($base_meto_mode->is_metonymy_present()) {
-        $return *= $position_reln_of{$id}->CalculateComplexityPenalty() if $base_meto_mode->is_position_relevant();
-        $return *= $metonymy_reln_of{$id}->CalculateComplexityPenalty();
-    }
-
-    return $return;
-}
-
 sub get_memory_dependencies {
     my ($self) = @_;
     my $id = ident $self;
@@ -165,12 +139,6 @@ sub get_memory_dependencies {
         values %{ $changed_bindings_of_of{$id} }
     );
 }
-
-sub get_complexity_penalty {
-    my ( $self ) = @_;
-    return $self->CalculateComplexityPenalty();
-}
-memoize('get_complexity_penalty');
 
 sub as_text {
     my ( $self ) = @_;

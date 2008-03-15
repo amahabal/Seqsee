@@ -64,14 +64,6 @@ sub as_text {
 }
 memoize('as_text');
 
-sub get_complexity_penalty {
-    my ($self) = @_;
-    my $id = ident $self;
-    state $ComplexityLookup = {qw{same 1 succ 0.9 pred 0.9}};
-    my $category_compexity = ( $category_of{$id} eq $S::NUMBER ) ? 1 : 0.8;
-    return $ComplexityLookup->{ $name_of{$id} } * $category_compexity;
-}
-
 sub GetRelationBasedCategory {
     my ($self) = @_;
     my $id = ident $self;

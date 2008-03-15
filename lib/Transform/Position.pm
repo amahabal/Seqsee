@@ -22,11 +22,6 @@ my %ComplexityLookup = ($Successor => 0.9, $Predecessor => 0.9, $SamePos => 1);
 
 sub get_memory_dependencies { return; }
 
-sub CalculateComplexityPenalty {
-    my ( $self ) = @_;
-    return $ComplexityLookup{$self};
-}
-
 sub serialize{
     my ( $self ) = @_;
     return $text_of{ident $self};
