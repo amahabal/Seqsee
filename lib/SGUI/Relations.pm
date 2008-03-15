@@ -51,7 +51,7 @@ ExtraStuff: {
                 $simplicity_x, $ypos,
                 -anchor => 'nw',
                 -font   => $Font,
-                -text   => sprintf( "%5.2f", $reln->get_type()->get_complexity_penalty() )
+                -text   => sprintf( "%5.2f", $reln->get_type()->get_complexity() )
             );
             $Canvas->createText(
                 $end1_x, $ypos,
