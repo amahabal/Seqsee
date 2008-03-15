@@ -32,6 +32,8 @@ our %GroupStrengthByConsistency;    # Strength confered on groups by consistency
 our $AcceptableTrustLevel = 0.5;    # Trust level above which questions can be asked.
                                     # Gets adjusted programatically ..
 
+our $debugMAX; # The highest level of debug setting...
+
 our $CodeletTreeLogfile = 'codelet_tree.log';
 our $CodeletTreeLogHandle;
 our $ActivationsLogfile = 'activations.log';
@@ -43,6 +45,7 @@ our $MainStream = SStream2->CreateNew('MainStream');
 %PossibleFeatures = map { $_ => 1 } qw(debug LTM
     CodeletTree NoGpOverlap LogActivations AllowSquinting
     LTM_expt Primes Alternating
+    debugMAX
 );
 
 $LogString = '';

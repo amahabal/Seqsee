@@ -41,6 +41,11 @@ sub conditionally_run {
     my ($self) = @_;
     my $id = ident $self;
 
+    if ($Global::debugMAX) {
+        main::message("About to take action $family_of{$id}: " .
+                          SUtil::StringifyForCarp($args_of_of{$id}));
+    }
+
     return unless ( SUtil::toss( $urgency_of{$id} / 100 ) );
     if ($Global::Feature{CodeletTree}) {
         print {$Global::CodeletTreeLogHandle} "\t$self\t$family_of{$id}\t100\n";

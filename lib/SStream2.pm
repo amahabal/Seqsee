@@ -46,6 +46,9 @@ sub add_thought {
     @_ == 2 or confess "new thought takes two arguments";
     my ( $self, $thought ) = @_;
 
+    if ($Global::debugMAX) {
+        main::message("Added thought: " . SUtil::StringifyForCarp($thought));
+    }
     if ( $Global::Feature{CodeletTree} ) {
         print {$Global::CodeletTreeLogHandle} "Chose $thought\n";
     }

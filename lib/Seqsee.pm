@@ -220,6 +220,8 @@ sub _read_commandline {
     $options{max_steps}  ||= $options{n}   if exists $options{n};
     $options{gui_config} ||= $options{gui} if exists $options{gui};
 
+    $Global::debugMAX = 1 if exists $Global::Feature{debugMAX};
+
     return %options;
 }
 

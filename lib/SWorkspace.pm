@@ -1008,6 +1008,8 @@ sub __GetObjectChoiceProbabilityDistribution {
 
         $strength *= 0.3 if %{$SuperGroups_of{$object}};
         
+        #$strength *= 100 if $LeftEdge_of{$object} eq $ReadHead;
+
         next unless $strength;
         push @distribution_objects, $object;
         push @distribution_values,  $strength;

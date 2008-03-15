@@ -176,7 +176,6 @@ RUN: {
                                 second => $b,
                                 type => $relntype
                                });
-
         my $type_activation = spike_reln_type($reln);
         return unless ( SUtil::toss($type_activation) );
 
@@ -207,7 +206,8 @@ FINAL: {
             return if $gap_size <= 0;    # Bacuase overlapping relation, anyway
             my $extra_boost = ( $reln->isa('SReln::Compound') ) ? 10 : 3;
             my $type_activation = SLTM::SpikeBy( $extra_boost + int( 10 / $gap_size ), $reln_type );
-            return $type_activation;
+            # return $type_activation;
+            return 1; # XXX 
         }
 
     }

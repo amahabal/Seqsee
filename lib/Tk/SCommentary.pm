@@ -60,6 +60,13 @@ sub Populate {
             }
         );
     }
+    $ButtonFrame->Button(
+        -text => 'Start Debug',
+        -command => sub { $Global::debugMAX = 1 - $Global::debugMAX;
+                          main::message("debugMAX=$Global::debugMAX", 1);
+                      },
+        -width   => 15,
+            )->pack( -side => 'bottom' );    
 }
 
 sub MessageRequiringNoResponse {

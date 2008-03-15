@@ -11,6 +11,7 @@ RUN: {
             return;
         }
         my $object = SWorkspace::__ReadObjectOrRelation() // return;
+        main::message("Focusing on: ".$object->as_text()) if $Global::debugMAX;
         ContinueWith( SThought->create($object) );
     }
 };
