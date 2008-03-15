@@ -228,31 +228,9 @@ sub _describe_position {
     my ( $self, $object, $index, $position_mode ) = @_;
     my $id = ident $self;
 
-    # XXX: Will only be fwd or backward, currently
-    # XXX(Board-it-up): [2006/10/14] Should be more biased...
-    unless ( defined $position_mode ) {
-        if (not $Global::PossibleFeatures{AllowLeftwardRelations}) {
-            $position_mode = POS_MODE::FORWARD();
-            # main::message("Position mode is $position_mode");
-        } else {
-            $position_mode =
-                SUtil::toss(0.5)
-                      ? POS_MODE::FORWARD()
-                          : POS_MODE::BACKWARD();
-            
-        }
-    }
-
+    $position_mode = POS_MODE::FORWARD(); # The only allowed now.
     $position_mode_of{$id} = $position_mode;
-
-    if ( $position_mode eq $POS_MODE::FORWARD ) {
-        return $position_of{$id} = SPos->new( $index + 1 );    # It is 1-based, input is 0-based
-    }
-    else {
-        my $object_size = $object->get_parts_count;
-        return $position_of{$id} = SPos->new( $index - $object_size );
-    }
-
+    return $position_of{$id} = SPos->new( $index + 1 ); # It is 1-based, input is 0-based
 }
 
 1;

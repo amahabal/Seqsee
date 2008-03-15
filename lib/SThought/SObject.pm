@@ -142,9 +142,10 @@ ACTIONS: {
             }
         }
 
-        if ( $Global::Feature{LiteralCat} ) {
+        if (SUtil::significant(SLTM::GetRealActivationsForOneConcept($core->get_pure))) {
             CODELET 100, SetLiteralCat, { object => $core };
         }
+        
 
         if ( $Global::Feature{LTM} ) {
             # Spread activation from corresponding node:
