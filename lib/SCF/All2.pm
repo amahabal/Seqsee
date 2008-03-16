@@ -10,7 +10,7 @@ RUN: {
     }
 }
 
-CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
+CodeletFamily AttemptExtensionOfRelation_old( $core !, $direction ! ) does {
 INITIAL: {
         multimethod 'FindTransform';
         multimethod 'ApplyTransform';

@@ -96,8 +96,9 @@ use Perl::Tidy;
 sub tidy {
     my ( $string ) = @_;
     my $ret;
-    perltidy(source => \$string, destination => \$ret);
-    return $ret;
+    # perltidy(source => \$string, destination => \$ret);
+    # return $ret;
+    return $string;
 }
 
 

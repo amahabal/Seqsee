@@ -267,3 +267,105 @@ CodeletFamily FindIfRelated(   $a!, $b!) does {
         }
     }
 }
+
+CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
+NAME: { Attempt Extension of Relation }
+INITIAL: { multimethod '__PlonkIntoPlace'; }
+RUN: { 
+        my $transform = $core->get_type();
+        my ($end1, $end2) = $core->get_ends();
+
+        my ($effective_transform, $object_at_end);
+        given ($direction) {
+            when ($DIR::RIGHT) {
+                ($effective_transform, $object_at_end) = ($transform, $end2);
+            }
+            when ($DIR::LEFT) {
+                $effective_transform = $transform->FlippedVersion() or return;
+                $object_at_end = $end1;
+            }
+        }
+
+        my $distance = SWorkspace::__FindDistance( $end1, $end2 );
+        my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
+            {   from_object => $object_at_end,
+                direction   => $direction,
+                distance    => $distance,
+            }
+        );
+        return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
+
+        my $what_next = ApplyTransform( $effective_transform,
+                                        $object_at_end->GetEffectiveObject() );
+        return unless $what_next;
+        return unless @$what_next;    # 0 elts also not okay
+
+                my $is_this_what_is_present;
+        TRY {
+            $is_this_what_is_present = SWorkspace->check_at_location(
+                {   start     => $next_pos,
+                    direction => $direction,
+                    what      => $what_next
+                }
+            );
+        }
+        CATCH {
+        ElementsBeyondKnownSought: {
+              return unless EstimateAskability($core, $transform, $end1, $end2);
+              CODELET 100, AskIfThisIsTheContinuation, {
+                  relation  => $core,
+                  exception => $err,
+                  expected_object => $what_next,
+                  start_position => $next_pos,
+                      };
+            }
+      };
+
+        if ($is_this_what_is_present) {
+            SLTM::SpikeBy(10, $transform);
+            
+            my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
+            return unless $plonk_result->PlonkWasSuccessful();
+            my $wso = $plonk_result->get_resultant_object();
+
+            my $cat = $transform->get_category();
+            SLTM::SpikeBy(10, $cat);
+            $wso->describe_as($cat) or return;
+
+            my $reln_to_add;
+            given ($direction) {
+                when ($DIR::RIGHT) { 
+                    $reln_to_add = SRelation->new({first => $end2,
+                                                   second => $wso,
+                                                   type => $transform,
+                                               });
+                }
+                when ($DIR::LEFT) {
+                    $reln_to_add = SRelation->new({first => $wso,
+                                                   second => $end1,
+                                                   type => $transform,
+                                               });
+                }
+            }
+            $reln_to_add->insert() if $reln_to_add;
+        }
+    }
+  FINAL: {
+        sub EstimateAskability {
+            my ( $relation, $transform, $end1, $end2 ) = @_;
+            if (SWorkspace->AreThereAnySuperSuperGroups($end1) or
+                    SWorkspace->AreThereAnySuperSuperGroups($end2)
+                    ) {
+                return 0;
+            }
+
+            my $supergroup_penalty = 0;
+            if (SWorkspace->GetSuperGroups($end1) or SWorkspace->GetSuperGroups($end2)) {
+                $supergroup_penalty = 0.6;
+            }
+
+            my $transform_activation = SLTM::GetRealActivationsForOneConcept($transform);
+            return $transform_activation * ( 1 - $supergroup_penalty );
+        }
+    }
+}

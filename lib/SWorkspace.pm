@@ -65,6 +65,14 @@ sub GetSuperGroups {
     return values %{ $SuperGroups_of{$group} };
 }
 
+sub AreThereAnySuperSuperGroups {
+    my ( $package, $group ) = @_;
+    for (values %{$SuperGroups_of{$group}}) {
+        return 1 if %{$SuperGroups_of{$_}};
+    }
+    return 0;
+}
+
 sub __Clear {
     $ElementCount   = 0;
     @Elements       = @ElementMagnitudes = %Objects = %NonEltObjects = ();
