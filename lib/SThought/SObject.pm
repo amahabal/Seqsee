@@ -6,8 +6,7 @@ INITIAL: {
             my @ret;
 
             my $structure = $core->get_structure();
-            my $literal_cat = SCat::OfObj::Literal->Create($structure);
-            FRINGE 100, $literal_cat;
+            FRINGE 100, $core->get_pure();
 
             if ( my $rel = $core->get_underlying_reln() ) {
                 FRINGE 50, $rel->get_rule()->get_transform;
@@ -141,11 +140,6 @@ ACTIONS: {
                     };
             }
         }
-
-        if (SUtil::significant(SLTM::GetRealActivationsForOneConcept($core->get_pure))) {
-            CODELET 100, SetLiteralCat, { object => $core };
-        }
-        
 
         if ( $Global::Feature{LTM} ) {
             # Spread activation from corresponding node:
