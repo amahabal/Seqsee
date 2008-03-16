@@ -1,8 +1,8 @@
-CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $ruleapp={0}, $exception!, $expected_object!, $start_position!) does {
+CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $group={0}, $exception!, $expected_object!, $start_position!) does {
   NAME: {Ask if This is the Continuation}
   INITIAL: { multimethod '__PlonkIntoPlace'; }
   RUN: {
-        unless ($relation or $ruleapp) {
+        unless ($relation or $group) {
             confess "Need relation or ruleapp";
         }
 
@@ -10,16 +10,34 @@ CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $ruleapp={0}, $except
         if ($relation) {
             $success = $exception->AskBasedOnRelation($relation, '');
         } else {
-            $success = $exception->AskBasedOnRuleApp($ruleapp, '');
+            $success = $exception->AskBasedOnGroup($group, '');
         }
 
-        if ($success) {
-            my $plonk_result = __PlonkIntoPlace( $start_position,
-                                                 $DIR::RIGHT,
-                                                 $expected_object );
-            unless ($plonk_result->PlonkWasSuccessful) {
-                main::message("From $start_position, could not insert " . $expected_object->as_text);
-            }
+        return unless $success;
+        my $plonk_result = __PlonkIntoPlace( $start_position,
+                                             $DIR::RIGHT,
+                                             $expected_object );
+        return unless ($plonk_result->PlonkWasSuccessful);
+
+        if ($relation) {
+            # We can establish the new relation!
+            my $transform = $relation->get_type();
+            my $new_relation = SRelation->new({first => $relation->get_second(),
+                                               second => $plonk_result->get_resultant_object(),
+                                               type => $transform,
+                                           });
+            $new_relation->insert();
+        } else {
+            # We can extend the group!
+            my $ruleapp = $group->get_underlying_reln() or return;
+            my $transform = $ruleapp->get_rule()->get_transform();
+            my $new_object = $plonk_result->get_resultant_object();
+            my $new_relation = SRelation->new({first => $group->[-1],
+                                               second => $new_object, 
+                                               type => $transform,
+                                           });
+            $new_relation->insert() or return;
+            $group->Extend($new_object, 1);
         }
     }
 }

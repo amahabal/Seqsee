@@ -26,6 +26,7 @@ use Sort::Key qw{rikeysort ikeysort};
 use ResultOfGetConflicts;
 use ResultOfAttributeCopy;
 use ResultOfPlonk;
+use ResultOfGetSomethingLike;
 
 #=============================================
 #=============================================
@@ -1609,6 +1610,9 @@ sub LookForSomethingLike {
                     };
         }
     };
+
+    $is_object_literally_present = [$start_position, $direction, $object]
+            if $is_object_literally_present;
 
     return ResultOfGetSomethingLike->new({
         to_ask => $to_ask,

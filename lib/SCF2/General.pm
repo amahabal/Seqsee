@@ -261,7 +261,7 @@ CodeletFamily FindIfRelated(   $a!, $b!) does {
             my ( $transform_complexity, $transform_activation, $distance ) = @_;
             # transform_activation and transform_complexity are between 0 and 1
 
-            my $not_continue = (1 - $transform_complexity) * (1 - $transform_activation)
+            my $not_continue = $transform_complexity * (1 - $transform_activation)
                 * sqrt($distance);
             return 1 - $not_continue;
         }
@@ -300,7 +300,7 @@ RUN: {
         return unless $what_next;
         return unless @$what_next;    # 0 elts also not okay
 
-                my $is_this_what_is_present;
+        my $is_this_what_is_present;
         TRY {
             $is_this_what_is_present = SWorkspace->check_at_location(
                 {   start     => $next_pos,
@@ -368,4 +368,79 @@ RUN: {
             return $transform_activation * ( 1 - $supergroup_penalty );
         }
     }
+}
+
+CodeletFamily AttemptExtensionOfGroup_proposed(   $object!, $direction!) does {
+  NAME: {Attempt Extension of Group}
+  INITIAL: { multimethod '__PlonkIntoPlace'; }
+  RUN: {
+        SWorkspace::__CheckLiveness($object) or return;
+        my $underlying_reln = $object->get_underlying_reln() or return;
+        my $transform = $underlying_reln->get_rule()->get_transform();
+
+        my ($next_position, $expected_next_object);
+        given ($direction) {
+            when ($DIR::RIGHT) {
+                $expected_next_object = ApplyTransform($transform, $object->[-1]) or return;
+                $next_position = $object->get_right_edge() + 1;
+            }
+            when ($DIR::LEFT) {
+                my $effective_transform = $transform->FlippedVersion() or return;
+                $expected_next_object = ApplyTransform($effective_transform, $object->[0]);
+                $next_position = $object->get_left_edge() - 1;
+                return if $next_position == -1;
+            }
+        }
+
+        my $result_of_something_like =
+            SWorkspace->LookForSomethingLike({
+                object => $expected_next_object,
+                start_position => $next_position,
+                direction => $direction,
+                    });
+
+        if (my $to_ask = $result_of_something_like->get_to_ask()) {
+            if (EstimateAskability($object)) {
+                CODELET 100, AskIfThisIsTheContinuation, {
+                    %$to_ask,
+                    group => $object,
+                        };
+                return;
+            }
+        }
+        if ($Global::Feature{AllowSquinting}) {
+            confess "IMPLEMENT ME!";
+        } else {
+            my $literally_present = $result_of_something_like->get_literally_present() or return;
+            my $plonk_result = __PlonkIntoPlace(@$literally_present);
+            my $new_object = $plonk_result->get_resultant_object() or return;
+
+            given ($direction) {
+                when ($DIR::RIGHT) {
+                    # main::message("In AttemptExtensionOfGroup: $object->[-1] and $new_object and $transform");
+                    my $new_relation = SRelation->new({first => $object->[-1],
+                                                       second => $new_object, 
+                                                       type => $transform,
+                                                   });
+                    $new_relation->insert() or return;
+                    $object->Extend($new_object, 1);
+                }
+                when ($DIR::LEFT) {
+                    my $effective_transform = $transform->FlippedVersion() or return;
+                    my $new_relation = SRelation->new({first => $new_object,
+                                                       second => $object->[0], 
+                                                       type => $effective_transform,
+                                                   });
+                    $new_relation->insert() or return;
+                    $object->Extend($new_object, 0);
+                }
+            }
+        }
+    }
+    FINAL: {
+          sub EstimateAskability {
+              my ( $group ) = @_;
+              
+          }
+      }
 }

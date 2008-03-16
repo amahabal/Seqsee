@@ -70,6 +70,14 @@ sub AskBasedOnRuleApp {
     return $reply;
 }
 
+sub AskBasedOnGroup {
+    my ( $self, $group, $msg_prefix ) = @_;
+    Global::Hilit(1, @{$group});
+    my $reply = $self->Ask($msg_prefix . ' extending group: ');
+    Global::ClearHilit();
+    return $reply;
+}
+
 
 sub DoInsertBookKeeping {
     my ($self) = @_;
