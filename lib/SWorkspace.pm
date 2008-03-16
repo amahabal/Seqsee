@@ -1566,4 +1566,56 @@ sub __DeleteNonSubgroupsOfFrom {
     }
 
 }
+
+sub LookForSomethingLike {
+    use 5.10.0;
+    my ( $package, $opts_ref ) = @_;
+    my $object = $opts_ref->{object} or confess "need object";
+    my $start_position = $opts_ref->{start_position} or confess "need start_position";
+    my $direction = $opts_ref->{direction} or confess "need direction";
+
+    my @objects_at_that_location;
+    given ($direction) {
+        when ($DIR::RIGHT) {
+            @objects_at_that_location = __GetObjectsWithEndsExactly($start_position, undef);
+        }
+        when ($DIR::LEFT) {
+            @objects_at_that_location = __GetObjectsWithEndsExactly(undef, $start_position);
+        }
+    }
+    
+    my $expected_structure_string = $object->get_structure_string();
+
+    my ( @matching_objects, @potentially_matching_objects );
+    for (@objects_at_that_location) {
+        if ( $_->GetEffectiveObject()->get_structure_string() eq $expected_structure_string ) {
+            push @matching_objects, $_;
+        }
+        else {
+            push @potentially_matching_objects, $_;
+        }
+    }
+
+    my $is_object_literally_present;
+    my $to_ask;
+    TRY {
+        $is_object_literally_present = SWorkspace->check_at_location(
+            { direction => $direction, start => $start_position, what => $object } );
+    }    CATCH {
+      ElementsBeyondKnownSought: {
+            $to_ask = { expected_object => $object,
+                        exception => $err,
+                        start_position => $start_position,
+                    };
+        }
+    };
+
+    return ResultOfGetSomethingLike->new({
+        to_ask => $to_ask,
+        literally_present => $is_object_literally_present,
+        probable_matches => \@matching_objects,
+        potential_matches => \@potentially_matching_objects,
+            });
+}
+
 1;

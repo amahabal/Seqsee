@@ -237,8 +237,6 @@ sub Update {
 sub FindExtension {
     @_ == 3 or confess "FindExtension for an object requires 3 args";
     my ( $self, $direction_to_extend_in, $skip ) = @_;
-    my $direction_of_self = $self->get_direction();
-    return unless $direction_of_self->PotentiallyExtendible();
 
     my $underlying_ruleapp = $self->get_underlying_reln() or return;
     return $underlying_ruleapp->FindExtension( {direction_to_extend_in => $direction_to_extend_in,
