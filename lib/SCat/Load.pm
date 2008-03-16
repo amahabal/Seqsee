@@ -3,7 +3,6 @@ use SCat::OfObj;
 use SCat::OfObj::Std;
 use SCat::OfObj::Numeric;
 use SCat::OfObj::RelationTypeBased;
-use SCat::OfObj::Literal;
 use SCat::OfObj::Interlaced;
 use SCat::OfObj::Assuming;
 use SCat::OfObj::Alternating;

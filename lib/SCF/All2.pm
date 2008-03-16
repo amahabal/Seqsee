@@ -10,26 +10,6 @@ RUN: {
     }
 }
 
-CodeletFamily SetLiteralCat( $object ! ) does {
-RUN: {
-        my @structure;
-        if ( $object->get_metonym_activeness ) {
-            @structure = $object->get_metonym()->get_starred->get_structure();
-        }
-        else {
-            @structure =
-                map { $_->get_structure }
-                map { $_->GetEffectiveObject } @{ $object->get_parts_ref };
-            ## @structure
-        }
-
-        my $lit_cat = SCat::OfObj::Literal->Create([@structure]);
-## $lit_cat, ident $lit_cat
-        my $bindings = $object->describe_as($lit_cat)
-            or confess "Hey, should NEVER have failed!";
-    }
-}
-
 CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
 INITIAL: {
         multimethod 'FindTransform';

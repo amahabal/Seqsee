@@ -269,7 +269,7 @@ INITIAL: {
                 FRINGE 80, $_;
             }
 
-            my @literal_cats = map { SCat::OfObj::Literal->Create([$mag+$_])->as_text } (0, 1, -1);
+            my @literal_cats = map { SLTM::Platonic->create($mag + $_) } (0, 1, -1);
             FRINGE 100, $literal_cats[0];
             FRINGE 30, $literal_cats[1];
             FRINGE 30, $literal_cats[-1];

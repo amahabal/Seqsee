@@ -41,7 +41,6 @@ our %MEMORIZED_SERIALIZED; # This is a hack to cover-up for a strange bug:
     qw(SCat::OfObj::Std
        SCat::OfObj::Numeric
        SCat::OfObj::RelationTypeBased
-       SCat::OfObj::Literal
        SCat::OfObj::Interlaced
        SCat::OfObj::Assuming
        SCat::OfObj::Alternating
