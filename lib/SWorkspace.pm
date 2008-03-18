@@ -210,6 +210,8 @@ sub __SortRtoLByRightEdge {
 
 sub __DeleteGroup {
     my ($group) = @_;
+
+    # main::message("Deleting group while running a [$Global::Steps_Finished] $Global::CurrentCodeletFamily! ".$group->as_text());
     my @super_groups = values %{ $SuperGroups_of{$group} };
 
     for my $super_group (@super_groups) {

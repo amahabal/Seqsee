@@ -131,6 +131,17 @@ RUN: {
 CodeletFamily CreateGroup( $items !, $category = {0}, $transform = {0} ) does {
 NAME: { Create Group }
 RUN: {
+      my ( @left_edges, @right_edges );
+        for (@$items) {
+            push @left_edges,  $_->get_left_edge;
+            push @right_edges, $_->get_right_edge;
+        }
+        my $left_edge  = List::Util::min(@left_edges);
+        my $right_edge = List::Util::max(@right_edges);
+        my $is_covering
+            = scalar( SWorkspace::__GetObjectsWithEndsBeyond( $left_edge, $right_edge ) );
+        return if $is_covering;
+
         unless ($category or $transform) {
             confess "At least one of category or transform needed. Got neither.";
         }
