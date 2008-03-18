@@ -1449,8 +1449,10 @@ sub GetSomethingLike {
             $trust_level *= 0.02;    # had multiplied by 50 for toss...
             if ( SUtil::toss($trust_level) ) {    # Kludge.
                 Global::Hilit( 1, @$hilit_set );
-                $err->Ask( "$reason. ", '' );
+                $err->Ask( "$reason. ", '' ) or return;
                 Global::ClearHilit();
+                eval { $is_object_literally_present = SWorkspace->check_at_location(
+                    { direction => $direction, start => $start_pos, what => $object } )};
             }
         }
     }
