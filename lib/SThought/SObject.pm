@@ -224,7 +224,7 @@ ACTIONS: {
                   my @upslope = @$core;
                   my @downslope = @$downslope;
                   shift(@downslope);
-                  my $mountain_activation = SLTM::SpikeBy(10, $S::MOUNTAIN);
+                  my $mountain_activation = SLTM::SpikeBy(20, $S::MOUNTAIN);
                   last IFUPSLOPE unless (SUtil::significant($mountain_activation) and SUtil::toss($mountain_activation));
                   CODELET 100, CreateGroup, { items => [@upslope, @downslope],
                                               category => $S::MOUNTAIN,

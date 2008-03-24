@@ -328,6 +328,7 @@ RUN: {
                   exception => $err,
                   expected_object => $what_next,
                   start_position => $next_pos,
+                  known_term_count => $SWorkspace::ElementCount,
                       };
             }
       };
@@ -415,6 +416,7 @@ CodeletFamily AttemptExtensionOfGroup_proposed(   $object!, $direction!) does {
                 CODELET 100, AskIfThisIsTheContinuation, {
                     %$to_ask,
                     group => $object,
+                    known_term_count => $SWorkspace::ElementCount,
                         };
                 return;
             }

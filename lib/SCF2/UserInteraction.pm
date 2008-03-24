@@ -1,7 +1,9 @@
-CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $group={0}, $exception!, $expected_object!, $start_position!) does {
+CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $group={0}, $exception!, $expected_object!, $start_position!, $known_term_count!) does {
   NAME: {Ask if This is the Continuation}
   INITIAL: { multimethod '__PlonkIntoPlace'; }
   RUN: {
+        return unless $SWorkspace::ElementCount == $known_term_count;
+
         unless ($relation or $group) {
             confess "Need relation or ruleapp";
         }
