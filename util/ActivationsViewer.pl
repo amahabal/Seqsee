@@ -1,4 +1,5 @@
 use strict;
+use 5.10.0;
 use Tk;
 use Carp;
 use Smart::Comments;
@@ -33,7 +34,15 @@ $frame->Button(
 
 )->pack( -side => 'left' );
 
-my $Canvas = $MW->Canvas( -height => 300, -width => 700 )->pack( -side => 'top' );
+my $WIDTH = 700;
+my $HEIGHT = 300;
+my $MARGIN = 25;
+my $EFFECTIVE_HEIGHT = $HEIGHT - 2 * $MARGIN;
+my $EFFECTIVE_WIDTH = $WIDTH - 2 * $MARGIN;
+
+my $Canvas = $MW->Canvas( 
+    -background => '#FFFFFF',
+    -height => $HEIGHT, -width => $WIDTH )->pack( -side => 'top' );
 MainLoop;
 
 
@@ -58,14 +67,54 @@ sub ReadFile {
 sub ShowGraph {
     my ($node) = @_;
     my %data = %{$Activations{$Names2Id{$node}}};
+    my $maximum_timestamp = $TimesWhenSampled[-1];
+    my $width_per_timestep = $EFFECTIVE_WIDTH / $maximum_timestamp;
+
+    my $x_tab_step;
+    given ($maximum_timestamp) {
+        when ($_ < 100) { $x_tab_step = 10 }
+        when ($_ < 1000) { $x_tab_step = 100 }
+        when ($_ < 10000) { 
+            my $approx_steps = $_/12;
+            $x_tab_step = 100 * int($approx_steps/100) }
+        $x_tab_step = 10000;
+    }
 
     $Canvas->delete('all');
-    $Canvas->create( 'rectangle', 10, 10, 690, 290 );
-    my $maximum_timestamp = $TimesWhenSampled[-1];
-    my $width_per_timestep = 680 / $maximum_timestamp;
+    for (my $xtab = 0; $xtab <= $maximum_timestamp; $xtab += $x_tab_step) {
+        my $x = $MARGIN + $xtab * $width_per_timestep;
+        $Canvas->create('line',
+                        $x, $HEIGHT - $MARGIN - 5, $x, $HEIGHT - $MARGIN + 5,
+                            );
+        $Canvas->create('line',
+                        $x, $HEIGHT - $MARGIN - 5, $x, $MARGIN,
+                        -fill => '#EEEEEE',
+                            );
+        $Canvas->create('text', $x, $HEIGHT - $MARGIN + 10, -anchor => 'n',
+                        -text => $xtab
+                            );
+    }
+
+    for (my $ytab = 0; $ytab <= 1; $ytab += 0.2) {
+        my $y = $MARGIN + $EFFECTIVE_HEIGHT * (1 - $ytab);
+        $Canvas->create('line',
+                        $MARGIN - 5, $y, $MARGIN + 5, $y,
+                            );
+        $Canvas->create('line',
+                        $WIDTH - $MARGIN, $y, $MARGIN + 5, $y,
+                        -fill => '#EEEEEE',
+                            );
+        $Canvas->create('text', $MARGIN - 7, $y, -anchor => 'e',
+                        -text => $ytab
+                            );
+    }
+
+    $Canvas->create( 'rectangle', $MARGIN, $MARGIN, $WIDTH - $MARGIN,
+                     $HEIGHT - $MARGIN, -outline => '#999999' );
+
     while (my($time, $value) = each %data) {
-        my $x = 10 + $time * $width_per_timestep;
-        my $y = 290 - 280 * $value;
-        $Canvas->create('line', $x, $y, $x, 290, -fill=>'#0000FF');
+        my $x = $MARGIN + $time * $width_per_timestep;
+        my $y = $HEIGHT - $MARGIN - $EFFECTIVE_HEIGHT * $value;
+        $Canvas->create('rectangle', $x, $y, $x+1, $y+1, -fill=>'#0000FF');
     }
 }

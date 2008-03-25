@@ -1,4 +1,5 @@
 use strict;
+use 5.10.0;
 use Tk;
 use Carp;
 use Smart::Comments;
@@ -46,7 +47,15 @@ $frame->Button(
 
 )->pack( -side => 'left' );
 
-my $Canvas = $MW->Canvas( -height => 300, -width => 700 )->pack( -side => 'top' );
+my $WIDTH = 700;
+my $HEIGHT = 300;
+my $MARGIN = 30;
+my $EFFECTIVE_HEIGHT = $HEIGHT - 2 * $MARGIN;
+my $EFFECTIVE_WIDTH = $WIDTH - 2 * $MARGIN;
+
+my $Canvas = $MW->Canvas( 
+    -background => '#FFFFFF',
+    -height => $HEIGHT, -width => $WIDTH )->pack( -side => 'top' );
 MainLoop;
 
 sub ReadFile {
@@ -160,24 +169,70 @@ sub ShowGraph {
     my ($family) = @_;
     my @data = map { $DistributionAtTime[$_]{$family} || 0 } 1 .. $RunnableCount;
 
+
     # print "@data\n";
     $Canvas->delete('all');
-    $Canvas->create( 'rectangle', 10, 10, 690, 290 );
-    my $width_per_runnable = 680 / $RunnableCount;
-    my $x                  = 10;
+
+    my $width_per_runnable = $EFFECTIVE_WIDTH / $RunnableCount;
+    my $width_per_timestep = $width_per_runnable;
+    my $x                  = $MARGIN;
+
+    my $maximum_timestamp = $RunnableCount;
+
+    my $x_tab_step;
+    given ($RunnableCount) {
+        when ($_ < 100) { $x_tab_step = 10 }
+        when ($_ < 1000) { $x_tab_step = 100 }
+        when ($_ < 10000) { 
+            my $approx_steps = $_/12;
+            $x_tab_step = 100 * int($approx_steps/100) }
+        $x_tab_step = 10000;
+    }
+
+    for (my $xtab = 0; $xtab <= $maximum_timestamp; $xtab += $x_tab_step) {
+        my $x = $MARGIN + $xtab * $width_per_timestep;
+        $Canvas->create('line',
+                        $x, $HEIGHT - $MARGIN - 5, $x, $HEIGHT - $MARGIN + 5,
+                            );
+        $Canvas->create('line',
+                        $x, $HEIGHT - $MARGIN - 5, $x, $MARGIN,
+                        -fill => '#EEEEEE',
+                            );
+        $Canvas->create('text', $x, $HEIGHT - $MARGIN + 10, -anchor => 'n',
+                        -text => $xtab
+                            );
+    }
+
+    for (my $ytab = 0; $ytab <= 100; $ytab += 20) {
+        my $y = $MARGIN + $EFFECTIVE_HEIGHT * (1 - $ytab * 0.01);
+        $Canvas->create('line',
+                        $MARGIN - 1, $y, $MARGIN + 5, $y,
+                            );
+        $Canvas->create('line',
+                        $WIDTH - $MARGIN, $y, $MARGIN + 5, $y,
+                        -fill => '#EEEEEE',
+                            );
+        $Canvas->create('text', $MARGIN - 3, $y, -anchor => 'e',
+                        -text => $ytab.'%'
+                            );
+    }
+
     for ( 0 .. $RunnableCount - 1 ) {
         $x += $width_per_runnable;
         my $data = $data[$_];
         next unless $data;
-        my $y = 290 - 280 * $data;
-        $Canvas->create('line', $x, $y, $x, 290, -fill=>'#0000FF');
+        my $y = $HEIGHT - $MARGIN - $EFFECTIVE_HEIGHT * $data;
+        $Canvas->create('line', $x, $y, $x, $HEIGHT - $MARGIN, -fill=>'#0000FF');
 
         if ($TypeRunAtTime[$_] eq $family) {
-            $Canvas->create('line', $x, 292, $x, 295,
+            $Canvas->create('line', $x, $HEIGHT - $MARGIN - 1, $x, $HEIGHT - $MARGIN - 3,
                             -width => 3,
                             -fill => '#FF0000');
         }
 
     }
+    $Canvas->create( 'rectangle', $MARGIN, $MARGIN, $WIDTH - $MARGIN,
+                     $HEIGHT - $MARGIN, -outline => '#999999' );
+
 }
 
