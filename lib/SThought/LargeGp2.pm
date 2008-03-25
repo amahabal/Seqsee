@@ -64,9 +64,17 @@ RUN: {
         my @subparts = map {@$_} @parts;
         SWorkspace::__DeleteGroup($group);
         SWorkspace::__DeleteGroup($_) for @parts;
+
+        # Also delete other interlaced groups of this category.
+        for my $object (SWorkspace::__GetObjectsBelongingToCategory($cat)) {
+            next unless SWorkspace::__CheckLiveness($object);
+            # main::message("Shifting, so Deleting " . $object->as_text());
+            SWorkspace::__DeleteGroup($object);
+        }
+
         shift(@subparts);
         my @newparts;
-        while ( @subparts > $count ) {
+        while ( @subparts >= $count ) {
             my @new_part;
             for ( 1 .. $count ) {
                 push @new_part, shift(@subparts);
@@ -76,9 +84,13 @@ RUN: {
             SWorkspace->add_group($newpart) or return;
             push @newparts, $newpart;
         }
-        my $new_gp = SAnchored->create(@newparts);
-        SWorkspace->add_group($new_gp);
-        ContinueWith(SThought->create($new_gp));
+        if (@newparts > 1) {
+            my $transform = FindTransform(@newparts[0,1]) or return;
+            my $new_gp = SAnchored->create(@newparts);
+            $new_gp->describe_as(SCat::OfObj::RelationTypeBased->Create($transform));
+            SWorkspace->add_group($new_gp);
+            ContinueWith(SThought->create($new_gp));
+        }
     }
 }
 
