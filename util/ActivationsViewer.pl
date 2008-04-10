@@ -74,10 +74,9 @@ sub ShowGraph {
     given ($maximum_timestamp) {
         when ($_ < 100) { $x_tab_step = 10 }
         when ($_ < 1000) { $x_tab_step = 100 }
-        when ($_ < 10000) { 
-            my $approx_steps = $_/12;
-            $x_tab_step = 100 * int($approx_steps/100) }
-        $x_tab_step = 10000;
+
+        my $approx_steps = $_/12;
+        $x_tab_step = 100 * int($approx_steps/100);
     }
 
     $Canvas->delete('all');

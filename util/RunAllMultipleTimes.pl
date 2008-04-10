@@ -119,6 +119,12 @@ sub StartRun {
             $SequencesRunSoFar++;
         }
     }
+
+    # Save to file.
+    open my $OUT, '>', 'results.dat';
+    my %Results_untied = map { $_ => [@{$RESULTS{$_}}]} keys %RESULTS;
+    print $OUT Storable::freeze(\%Results_untied), "\n";
+    close $OUT;
 }
 
 my $ResultCountAtLastUpdate = 0;

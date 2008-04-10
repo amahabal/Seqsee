@@ -11,6 +11,13 @@ use Scripts::Load;
 use Seqsee;
 use SStream2;
 
+use Tk;
+use Tk::GraphViz;
+
+my %Nodes;
+my %IncomingEdges;
+my %OutgoingEdges;
+
 my $graph = GraphViz->new(
     rankdir => 1,
     width   => 12,
@@ -21,34 +28,34 @@ my @codefamilies  = GetListOfCodefamilies();
 my @thought_types = GetListOfThoughts();
 my %OtherMethods  = (
     Background       => 'Seqsee::do_background_activity',
-    Stream           => 'SStream::_think_the_current_thought',
+    Stream           => 'SStream2::_think_the_current_thought',
     GetSomethingLike => 'SWorkspace::GetSomethingLike',
 );
 
 ## CREATE NODES
 for (@codefamilies) {
-    $graph->add_node(
-        $_,
-        shape => 'trapezium',
-        color => '0.5,0.2,0.8',
+    $Nodes{$_} = [
+        label => $_,
+        # shape => 'trapezium',
+        color => '#FF0000',
         style => 'filled'
-    );
+            ];
 }
 for (@thought_types) {
-    $graph->add_node(
-        $_,
+    $Nodes{$_} = [
+        label => $_,
         shape => 'octagon',
-        color => '0.6,0.2,0.8',
+        color => '#0000FF',
         style => 'filled'
-    );
+            ];
 }
 for ( keys %OtherMethods ) {
-    $graph->add_node(
-        $_,
+    $Nodes{$_} = [
+        label => $_,
         shape => 'triangle',
-        color => '0.7,0.2,0.8',
+        color => '#00FF00',
         style => 'filled'
-    );
+            ];
 }
 
 ## ADD EDGES:
@@ -57,7 +64,7 @@ for (@codefamilies) {
     AddEdges( $_, $code );
 }
 
-for (@thought_types) {
+for (@thought_types, 'SThought::??') {
     my $code = GetSubroutineCode("SThought::${_}::get_actions");
     AddEdges( $_, $code );
 }
@@ -67,8 +74,102 @@ while ( my ( $name, $subroutine_name ) = each %OtherMethods ) {
     AddEdges( $name, $code );
 }
 
-DisplayGraph();
+my $MW = new MainWindow();
+my $gv = $MW->GraphViz( -width => 1200, -height => 600 )->pack(
+    -expand => 'yes',
+    -fill   => 'both',
+    -side   => 'top'
+);
+$gv->bind(
+    'node',
+    '<Button-1>',
+    sub {
+        my @tags = $gv->gettags('current');
+        push @tags, undef unless ( @tags % 2 ) == 0;
+        my %tags = @tags;
+        Recenter( $tags{label} );
+
+        # printf( "Clicked node: '%s' => %s\n", $tags{node}, $tags{label} );
+    }
+);
+
+
+$MW->bind(
+    '<KeyPress-b>' => sub {
+        RedrawOriginal();
+    },
+);
+$MW->bind(
+    '<KeyPress-q>' => sub {
+        exit;
+    },
+);
+
+my $original = CreateGraphviz();
+RedrawOriginal();
+$gv->zoom( -in => 800 );
+MainLoop;
+
+sub Recenter {
+    my ($node) = @_;
+    $gv->show(
+        CreateSurroundingGraphViz( $node, 3 ),
+        layout     => 'dot',
+        graphattrs => [qw( overlap false spline true )]
+    );
+    $gv->fit();
+    $gv->zoom(-out => 2);
+}
+
+sub RedrawOriginal {
+    $gv->show( $original, layout => 'neato', graphattrs => [qw( overlap false spline true )] );
+    # $gv->fit();
+   # $gv->zoom(-out => 2);
+}
+
 ###############
+sub CreateGraphviz {
+    my $g = GraphViz->new(bgcolor=> 'green');
+    while ( my ( $k, $v ) = each %Nodes ) {
+        my %v = @{$v};
+        next unless $v{label};
+        $g->add_node($k, @$v);
+        ## outgoing: $k, $OutgoingEdges{$k}
+        for my $dest ( @{ $OutgoingEdges{$k} } ) {
+            next unless exists $Nodes{$dest};
+            $g->add_edge( $k, $dest );
+        }
+    }
+    return $g;
+}
+
+sub CreateSurroundingGraphViz {
+    my ( $center_node, $distance ) = @_;
+    my %NodesToKeep = ( $center_node, 1 );
+
+    my @left_expand = ($center_node);
+    for ( 1 .. $distance ) {
+        @left_expand = map { @{ $IncomingEdges{$_} || [] } } @left_expand;
+        $NodesToKeep{$_} = 1 for @left_expand;
+    }
+
+    my @right_expand = ($center_node);
+    for ( 1 .. $distance ) {
+        @right_expand = map { @{ $OutgoingEdges{$_} || [] } } @right_expand;
+        $NodesToKeep{$_} = 1 for @right_expand;
+    }
+
+    my $g = GraphViz->new(rankdir => 1);
+    while ( my ( $k, $v ) = each %NodesToKeep ) {
+        $g->add_node($k, @{$Nodes{$k}});
+        for my $dest ( @{ $OutgoingEdges{$k} } ) {
+            next unless $NodesToKeep{$dest};
+            $g->add_edge( $k, $dest );
+        }
+    }
+    return $g;
+}
+
 sub GetAllLaunches {
     my ($code)               = @_;
     my @codelet_launches     = GetCodeletLaunchesFromString($code);
@@ -86,18 +187,26 @@ sub AddEdges {
 
     for (@$codelet_ref) {
         $graph->add_edge( $name, $_ );
+        push @{$IncomingEdges{$_}}, $name;
+        push @{$OutgoingEdges{$name}}, $_;
     }
 
     for (@$actions_ref) {
         $graph->add_edge( $name, $_ );
+        push @{$IncomingEdges{$_}}, $name;
+        push @{$OutgoingEdges{$name}}, $_;
     }
 
     for (@$thought_ref) {
         $graph->add_edge( $name, $_ );
+        push @{$IncomingEdges{$_}}, $name;
+        push @{$OutgoingEdges{$name}}, $_;
     }
 
     if ($any_creation) {
         $graph->add_edge( $name, 'SThought::??' );
+        push @{$IncomingEdges{'SThought::??'}}, $name;
+        push @{$OutgoingEdges{$name}}, 'SThought::??';
     }
 }
 

@@ -1,9 +1,9 @@
 use strict;
 use Tk;
-use Tk::GraphViz;
+use GraphViz;
+use Tk::GraphViz 1.0;
 use strict;
 use Smart::Comments;
-use GraphViz;
 use Data::Dump::Streamer;
 
 use lib 'genlib';
@@ -12,7 +12,7 @@ use SThought::All2;
 use SThought::LargeGp2;
 use Scripts::DescribeSolution2;
 use Seqsee;
-use SStream;
+use SStream2;
 
 my %Nodes;
 my %IncomingEdges;
@@ -238,19 +238,23 @@ $MW->bind(
 
 my $original = CreateGraphviz();
 RedrawOriginal();
-$gv->zoom( -in => 800 );
+$gv->zoom( -in => 400 );
 MainLoop;
 
 sub Recenter {
     my ($node) = @_;
     $gv->show(
         CreateSurroundingGraphViz( $node, 2 ),
-        layout     => 'dot',
+        layout     => 'neato',
         graphattrs => [qw( overlap false spline true )]
     );
+    $gv->fit();
+    $gv->zoom(-out => 2);
 }
 
 sub RedrawOriginal {
     $gv->show( $original, layout => 'neato', graphattrs => [qw( overlap false spline true )] );
+    # $gv->fit();
+   # $gv->zoom(-out => 2);
 }
 
