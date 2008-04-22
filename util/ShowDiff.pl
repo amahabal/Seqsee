@@ -1,7 +1,7 @@
 use strict;
 use Text::Diff::Parser;
 
-open my $PIPE, q{C:\svn\svn-win32-1.4.4\bin\svn diff|};
+open my $PIPE, q{svn diff|} or die "Failed to open SVN";
 my $diff = join( '', <$PIPE> );
 close($PIPE);
 

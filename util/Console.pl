@@ -1,13 +1,26 @@
 use 5.10.0;
 use strict;
+use lib 'genlib';
+
+my $PAR_PREFIX = '';
+
+# Added to ensure that distribution runs with Par
+# If Seqsee.par missing, that is not an issue.
+BEGIN {
+    if (-e 'Seqsee.par' and not -e 'genlib') {
+        eval "use PAR 'Seqsee.par'";
+        $PAR_PREFIX = ' -MPAR=Seqsee ';
+    }
+}
+
 use Smart::Comments;
 use Tk;
 use Tk::ComboEntry;
 use Tk::StatusBar;
 
-use lib 'genlib';
 use Global;
 use Tk::Seqsee;
+use English qw{-no_match_vars};
 
 $SIG{INT} = sub {
 
@@ -168,7 +181,7 @@ sub CreateRunSystemCommand {
 
 sub CreateRunPerlScriptCommand {
     my (@args) = @_;
-    return CreateRunSystemCommand( 'c:\Perl\bin\perl', @args );
+    return CreateRunSystemCommand( "$EXECUTABLE_NAME $PAR_PREFIX", @args );
 }
 
 sub CreateFrameForLaunchingSeqsee {

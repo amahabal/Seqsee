@@ -2,6 +2,12 @@
 use 5.10.0;
 use strict;
 use lib 'genlib/';
+
+# Added to ensure that distribution runs with Par
+# If Seqsee.par missing, that is not an issue.
+BEGIN {
+    eval "use PAR 'Seqsee.par'" if (-e 'Seqsee.par' and not -e 'genlib');
+}
 use Carp::Seqsee;
 
 use Config::Std;
