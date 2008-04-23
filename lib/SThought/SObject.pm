@@ -267,6 +267,19 @@ INITIAL: {
                 next if $_ eq $S::NUMBER;
                 SLTM::SpikeBy(10, $_);
                 FRINGE 80, $_;
+
+                if ($_ eq $S::PRIME) {
+                    my $next = SCat::Prime::NextPrime($mag);
+                    my $prev = SCat::Prime::PreviousPrime($mag);
+                    if ($next) {
+                        my $plat = SLTM::Platonic->create($next);
+                        FRINGE 100, $plat;
+                    }
+                    if ($prev) {
+                        my $plat = SLTM::Platonic->create($prev);
+                        FRINGE 100, $plat;
+                    }
+                }
             }
 
             my @literal_cats = map { SLTM::Platonic->create($mag + $_) } (0, 1, -1);
