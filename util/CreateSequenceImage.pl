@@ -32,7 +32,7 @@ sub GenerateFilename_cleaner {
     my ( $dir, $seq ) = @_;
     use 5.10.0;
     say $seq;
-    $seq =~ tr#()[]{}<>#    ef  #;
+    $seq =~ tr#()[]{}<>|#    ef   #;
     say $seq;
     $seq =~ s#\s+#.#g;
     say $seq;
@@ -204,9 +204,10 @@ sub Show {
 
 sub ShowMountain {
     my $string = $SequenceString;
-    $string =~ s#^\D+##;
-    $string =~ s#\D+$##;
-    my @numbers = split(/\D+/, $string);
+    my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) = Parse($string);
+    ### barines: @$BarLines_ref
+
+    my @numbers = grep { /^\-?\d+$/ } @$Elements_ref;
     my $min = List::Util::min(@numbers);
     my $max = List::Util::max(@numbers);
 
@@ -216,10 +217,12 @@ sub ShowMountain {
     my $PretendWeHaveElements = ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS: $ElementsCount;
     $WIDTH_PER_TERM = WIDTH / ( $PretendWeHaveElements + 1 );
 
-    my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
+    my $initial_x_pos = 3 + $WIDTH_PER_TERM * 0.5;
+    my $x_pos = $initial_x_pos;
     $Canvas->delete('all');
     my $available_height = 2 * (HEIGHT() - Y_CENTER() - 9);
     my $height_bottom = Y_CENTER() + $available_height / 2;
+    my $height_top = Y_CENTER() - $available_height / 2;
     my $ht_per_range = ($max - $min) ? $available_height / ($max - $min + 2) : 0;
     for my $elt (@numbers) {
         my $y_pos = $height_bottom - ($elt - $min) * $ht_per_range;
@@ -232,6 +235,10 @@ sub ShowMountain {
         );
         $x_pos += $WIDTH_PER_TERM;
     }
+   for my $barline (@$BarLines_ref) {
+        my $x_pos = $initial_x_pos + ($barline - 0.5)* $WIDTH_PER_TERM;
+        $Canvas->createLine($x_pos, $height_top, $x_pos, $height_bottom)
+;    }
 }
 
 
@@ -268,6 +275,7 @@ sub DrawGroup {
 {
     my @GroupA;
     my @GroupB;
+    my @BarLines;
 
     sub Parse {
         my ($string) = @_;
@@ -278,6 +286,8 @@ sub DrawGroup {
         ReadGroups( \@tokens, '[', ']', \@GroupA );
         ReadGroups( \@tokens, '(', ')', \@GroupB );
         ReadGroups( \@tokens, '<', '>', \@GroupB );
+        @BarLines = ();
+        ReadBarLines( \@tokens, \@BarLines );
 
         ### GroupA: @GroupA
         ### GroupB: @GroupB
@@ -287,7 +297,7 @@ sub DrawGroup {
 
         ### GroupA: @GroupA
         ### GroupB: @GroupB
-        return ( \@Elements, \@GroupA, \@GroupB );
+        return ( \@Elements, \@GroupA, \@GroupB, \@BarLines );
     }
 
     sub Tokenize {
@@ -295,7 +305,7 @@ sub DrawGroup {
         print $string, "\n";
         $string =~ s#,# #g;
         print $string, "\n";
-        $string =~ s#([\(\)\[\]\<\>\{\}])# $1 #g;
+        $string =~ s#([\(\)\[\]\<\>\{\}\|])# $1 #g;
         $string =~ s#^\s*##;
         $string =~ s#\s*$##;
         print $string, "\n";
@@ -324,6 +334,20 @@ sub DrawGroup {
         }
         if ($stack_size) {
             die "Mismatched $start_token";
+        }
+    }
+
+    sub ReadBarLines {
+        my ( $tokens_ref, $barlines_ref ) = @_;
+        ### In ReadBarLines:
+        my $elements_seen = 0;
+        for my $token (@$tokens_ref) {
+            if ($token eq '|') {
+            ### Token: $token
+                push @$barlines_ref, $elements_seen;
+            } elsif ($token =~ m#^ \-? \d+ #x) {
+                $elements_seen++;
+            }
         }
     }
 }
