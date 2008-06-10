@@ -17,7 +17,7 @@ THOUGHTTYPE: 'ThoughtType' Identifier '(' ArgList ')' 'does' '{' NamedBlocksHash
 
 };
 
-my %AllowedBlocks = map { $_ => 1 } qw(INITIAL FINAL FRINGE ACTIONS BUILD AS_TEXT);
+my %AllowedBlocks = map { $_ => 1 } qw(INITIAL FINAL FRINGE ACTIONS BUILD AS_TEXT NAME);
 
 sub GenerateThoughtCode {
     my ( $package_name, $arguments, $blocks ) = @_;
@@ -29,6 +29,10 @@ sub GenerateThoughtCode {
 
     my $AS_TEXT_BLOCK = $blocks->{AS_TEXT} || "return '$package_name';";
 
+    my $NAME = $blocks->{NAME} // $package_name;
+    $NAME =~ s#^\s*##;
+    $NAME =~ s#\s*$##;
+    $NAME =~ s#\s+# #;
 
     $blocks->{BUILD} ||= '';
 
@@ -101,6 +105,7 @@ ACTIONS_BLOCK
         use Class::Std;
 
         our \@actions_ret;
+our \$NAME = '$NAME';
 
         $VAR_DECLARATIONS;
         $INITIAL_BLOCK;

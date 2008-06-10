@@ -21,7 +21,10 @@ sub family_to_name {
 memoize 'thought_to_name';
 sub thought_to_name {
     my ( $thought ) = @_;
-    return $thought;
+    no strict 'refs';
+    my $name_string = 'SThought::' . $thought . '::NAME';
+    my $name = ${$name_string} // confess "No name for thought $thought? [I looked for $name_string]";
+    return $name;
 }
 
 my %options;
@@ -243,7 +246,7 @@ sub CreateDisplay {
             return ( @position_text, $name, [$executed_tag] );
         }
         elsif ( $object =~ /^SThought::(.*?)=/ ) {
-            return ( @position_text, $1, [$executed_tag] );
+            return ( @position_text, thought_to_name($1), [$executed_tag] );
         }
     }
     else {

@@ -1,5 +1,6 @@
 ThoughtType SAnchored( $core ! ) does {
 AS_TEXT: { return "Group " . $self->get_core()->as_text }
+  NAME: {Focus on a Group}
 INITIAL: {
         multimethod get_fringe_for => ('SAnchored') => sub {
             my ($core) = @_;
