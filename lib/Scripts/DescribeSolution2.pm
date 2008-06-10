@@ -1,4 +1,5 @@
 CodeletFamily DescribeSolution( $group ! ) does scripted {
+  NAME: {Describe Solution}
 STEP: {
         my $ruleapp = $group->get_underlying_reln();
         unless ($ruleapp) {

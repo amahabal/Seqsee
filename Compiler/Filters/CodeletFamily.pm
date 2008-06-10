@@ -47,7 +47,7 @@ my $COMMON_PREAMBLE = q{
         multimethod 'ApplyTransform';
 };
 
-my %ScriptAllowedBlocks = map {$_ => 1 } qw(INITIAL FINAL STEP);
+my %ScriptAllowedBlocks = map {$_ => 1 } qw(INITIAL FINAL STEP NAME);
 sub GenerateScriptCode {
     my ( $package_name, $arguments, $blocks_list ) = @_;
 
@@ -67,6 +67,10 @@ sub GenerateScriptCode {
     my $FINAL_BLOCK = $block_hash{FINAL} || '';
     my $PARAMS = ArgumentsToStringForScript($arguments);
     my $RUN_BLOCK = GenerateScriptRunBlock(@STEPS);
+    my $NAME = $block_hash{NAME} // $package_name;
+    $NAME =~ s#^\s*##;
+    $NAME =~ s#\s*$##;
+    $NAME =~ s#\s+# #;
 
     for ($INITIAL_BLOCK, $FINAL_BLOCK, $RUN_BLOCK) {
         $_ = filterCodelet($_);
@@ -80,6 +84,7 @@ sub GenerateScriptCode {
 
 package SCF::$package_name;
 our \$package_name_ = '$package_name';
+our \$NAME = '$NAME';
 $COMMON_PREAMBLE
 $INITIAL_BLOCK
 

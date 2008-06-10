@@ -1,8 +1,23 @@
+use 5.10.0;
 use strict;
 use Tk;
 use Carp;
 use Smart::Comments;
 use Getopt::Long;
+
+use lib 'genlib';
+use S;
+
+use Memoize; 
+memoize 'family_to_name';
+sub family_to_name {
+    my ( $family ) = @_;
+    no strict 'refs';
+    my $name_string = 'SCF::' . $family . '::NAME';
+    my $name = ${$name_string} // confess "No name for family $family? [I looked for $name_string]";
+    return $name;
+}
+
 my %options;
 GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!",
     "TimeStamps!" );
@@ -218,7 +233,8 @@ sub CreateDisplay {
         @position_text = () unless $options{TimeStamps};
         if ( $object =~ /^SCodelet/ or $object =~ /^SAction/ ) {
             $details =~ m/^\s*(\S+)/;
-            return ( @position_text, $1, [$executed_tag] );
+            my $name = family_to_name($1);
+            return ( @position_text, $name, [$executed_tag] );
         }
         elsif ( $object =~ /^SThought::(.*?)=/ ) {
             return ( @position_text, $1, [$executed_tag] );
