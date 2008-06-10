@@ -1,4 +1,5 @@
 CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
+  NAME: {Check Whether Object is an Instance of this Category}
 RUN: {
         if ( $obj->describe_as($cat) ) {
             if ( $Global::Feature{LTM} ) {
@@ -11,6 +12,7 @@ RUN: {
 }
 
 CodeletFamily AttemptExtensionOfGroup( $object !, $direction ! ) does {
+  NAME: {Attempt Extension of Group}
 INITIAL: {
         multimethod 'SanityCheck';
     }
@@ -58,6 +60,7 @@ FINAL: {
 }
 
 CodeletFamily TryToSquint( $actual !, $intended ! ) does {
+NAME: {Try to See As}
 INITIAL: {
 
     }
@@ -80,6 +83,7 @@ FINAL: {
 }
 
 CodeletFamily ConvulseEnd( $object !, $direction ! ) does {
+  NAME: { Shake Group Boundries }
 INITIAL: {
 
     }
@@ -163,6 +167,7 @@ FINAL: {
 }
 
 CodeletFamily CheckProgress() does {
+  NAME: {Check Progress}
 INITIAL: {
         our $last_time_progresschecker_run = 0;
     }

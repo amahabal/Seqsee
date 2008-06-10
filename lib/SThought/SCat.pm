@@ -1,4 +1,5 @@
 ThoughtType SCat( $core ! ) does {
+  NAME: {Focusing on a Category}
 AS_TEXT: { return "Category " . $self->get_core()->as_text(); }
 FRINGE: { FRINGE 100, $self->get_core(); }
 ACTIONS: {

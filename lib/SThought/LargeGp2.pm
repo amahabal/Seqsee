@@ -1,4 +1,5 @@
 CodeletFamily LargeGroup( $group ! ) does {
+NAME: {I See a Large Group}
 RUN: {
         my $flush_right = $group->IsFlushRight();
         my $flush_left  = $group->IsFlushLeft();
@@ -13,6 +14,7 @@ RUN: {
 }
 
 CodeletFamily MaybeStartBlemish( $group ! ) does {
+NAME: {Maybe the Sequence Has an Initial Blemish}
 RUN: {
         #XXX runs too eagerly.
         my $flush_right = $group->IsFlushRight();
@@ -53,6 +55,7 @@ RUN: {
 }
 
 CodeletFamily InterlacedInitialBlemish( $count !, $group !, $cat ! ) does {
+  NAME: {One-off Error}
 RUN: {
         return unless SWorkspace::__CheckLiveness($group);
         my @parts = @$group;
@@ -95,6 +98,7 @@ RUN: {
 }
 
 CodeletFamily ArbitraryInitialBlemish( $group ! ) does {
+  NAME: {A Real Initial Blemish}
 RUN: {
         SErr::FinishedTestBlemished->throw() if $Global::TestingMode;
         ACTION 100, DescribeSolution, { group => $group };

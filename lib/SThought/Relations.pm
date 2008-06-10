@@ -1,4 +1,5 @@
 ThoughtType SRelation( $core ! ) does {
+  NAME: {Focusing on an Analogy}
 AS_TEXT: { return $self->get_core()->as_text }
 INITIAL: {
         multimethod 'createRule';

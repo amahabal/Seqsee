@@ -1,6 +1,6 @@
 ThoughtType SAnchored( $core ! ) does {
 AS_TEXT: { return "Group " . $self->get_core()->as_text }
-  NAME: {Focus on a Group}
+  NAME: {Focusing on a Group}
 INITIAL: {
         multimethod get_fringe_for => ('SAnchored') => sub {
             my ($core) = @_;
@@ -255,6 +255,7 @@ ACTIONS: {
 }
 
 ThoughtType SElement( $core !, $magnitude = {0} ) does {
+NAME: {Focusing on a Single Element}
 AS_TEXT: { return "Element " . $self->get_core()->as_text()  }
 INITIAL: {
 

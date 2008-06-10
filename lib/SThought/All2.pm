@@ -1,4 +1,5 @@
 CodeletFamily AreRelated( $a !, $b ! ) does {
+NAME: {Are These Two Objects Related?}
 RUN: {
         my $a_core = $a->can('get_core') ? $a->get_core() : undef;
         my $b_core = $b->can('get_core') ? $b->get_core() : undef;
@@ -26,6 +27,7 @@ RUN: {
 }
 
 CodeletFamily AreTheseGroupable( $items !, $reln ! ) does {
+NAME: {Can These Objects be Grouped?}
 RUN: {
 
         # Check if these are already grouped...
@@ -87,6 +89,7 @@ RUN: {
 }
 
 CodeletFamily AreWeDone( $group ! ) does {
+NAME: {Am I Near the Solution?}
 RUN: {
         my $gp          = $group;
         my $span        = $gp->get_span;

@@ -1,5 +1,5 @@
 CodeletFamily FocusOn( $what = {0} ) does {
-NAME: { Focus On }
+NAME: { Read from Workspace }
 RUN: {
         if ($what) {
             ContinueWith( SThought->create($what) );
@@ -177,7 +177,7 @@ RUN: {
 }
 
 CodeletFamily FindIfRelatedRelations( $a ! , $b ! ) does {
-NAME: { Find if Relations are Related }
+NAME: { Find if Analogies are Related }
 RUN: {
         my ( $af, $as, $bf, $bs ) = ( $a->get_ends(), $b->get_ends() );
         if ($bs eq $af) {
@@ -226,7 +226,7 @@ RUN: {
 }
 
 CodeletFamily FindIfRelated(   $a!, $b!) does {
-  NAME: {Check Whether Related}
+  NAME: {Check Whether Analogous}
   RUN: {
         return unless SWorkspace::__CheckLiveness( $a, $b );
         ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
@@ -280,7 +280,7 @@ CodeletFamily FindIfRelated(   $a!, $b!) does {
 }
 
 CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
-NAME: { Attempt Extension of Relation }
+NAME: { Attempt Extension of Analogy }
 INITIAL: { multimethod '__PlonkIntoPlace'; }
 RUN: { 
         my $transform = $core->get_type();
@@ -383,7 +383,7 @@ RUN: {
 }
 
 CodeletFamily AttemptExtensionOfGroup_proposed(   $object!, $direction!) does {
-  NAME: {Attempt Extension of Group}
+  NAME: {Attempt Extension of Group (proposed)}
   INITIAL: { multimethod '__PlonkIntoPlace'; }
   RUN: {
         SWorkspace::__CheckLiveness($object) or return;

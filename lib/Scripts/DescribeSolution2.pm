@@ -52,6 +52,7 @@ STEP: {
 }
 
 CodeletFamily DescribeInitialBlemish( $group ! ) does scripted {
+  NAME: { Describe Initial Blemish}
 STEP: {
         if ( my $le = $group->get_left_edge() ) {
             my @initial_bl = map { $_->get_mag() } ( SWorkspace::GetElements() )[ 0 .. $le - 1 ];
@@ -71,6 +72,7 @@ STEP: {
 }
 
 CodeletFamily DescribeBlocks( $group ! ) does scripted {
+  NAME: {Describe Groups}
 STEP: {
         my @parts = @$group;
         my $msg = join( '; ', map { $_->get_structure_string() } @parts );
@@ -80,6 +82,7 @@ STEP: {
 }
 
 CodeletFamily DescribeRule( $rule !, $ruleapp ! ) does scripted {
+  NAME: {Describe Rule}
 STEP: {
         main::debug_message( "Rule is $rule", 1 );
         my $reln = $rule->get_transform;
@@ -92,6 +95,7 @@ STEP: {
 }
 
 CodeletFamily DescribeTransform ( $reln !, $ruleapp = {0} ) does scripted {
+NAME: {Describe Analogy Between Groups}
 STEP: {
         if ( $reln->isa('Transform::Structural') ) {
             SCRIPT DescribeRelationCompound, { reln => $reln, ruleapp => $ruleapp };
@@ -106,6 +110,7 @@ STEP: {
 }
 
 CodeletFamily DescribeRelationSimple( $reln ! ) does scripted {
+  NAME: {Describe Simple Analogy}
 STEP: {
         my $string = $reln->get_name();
         my $msg    = 'Each succesive term is the ';
@@ -130,6 +135,7 @@ STEP: {
 }
 
 CodeletFamily DescribeRelationCompound( $reln !, $ruleapp ! ) does scripted {
+  NAME: { Describe Compound Analogy}
 STEP: {
         my $category = $reln->get_category();
         SCRIPT DescribeRelnCategory, { cat => $category };
@@ -147,6 +153,7 @@ STEP: {
 }
 
 CodeletFamily DescribeRelnCategory( $cat ! ) does scripted {
+  NAME: {Describe Category on which Analogy is Based}
 STEP: {
         my $name = $cat->get_name();
         main::message(
@@ -157,6 +164,7 @@ STEP: {
 }
 
 CodeletFamily DescribeRelnMetoMode( $meto_mode !, $meto_reln !, $ruleapp ! ) does scripted {
+  NAME: {Describe Change in Squinting}
 STEP: {
         unless ( $meto_mode->is_metonymy_present ) {
             RETURN;

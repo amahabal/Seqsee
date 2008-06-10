@@ -1,5 +1,5 @@
 CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $group={0}, $exception!, $expected_object!, $start_position!, $known_term_count!) does {
-  NAME: {Ask if This is the Continuation}
+  NAME: {Ask if This is the Intended Continuation}
   INITIAL: { multimethod '__PlonkIntoPlace'; }
   RUN: {
         return unless $SWorkspace::ElementCount == $known_term_count;
