@@ -4,7 +4,8 @@ use Carp;
 use Smart::Comments;
 use Getopt::Long;
 my %options;
-GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!", "TimeStamps!" );
+GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!",
+    "TimeStamps!" );
 
 my $filename = 'codelet_tree.log';
 
@@ -19,13 +20,13 @@ my $filename = 'codelet_tree.log';
 our %SeenCount;             # Needed to enable the #n naming described above.
 our @ExecuteOrder;          # Runnables, in the order they were run.
 our %ExecutedAtPosition;    # The same information as in @ExecuteOrder
-our @CreationOrder;         # indices are "time steps", elements are lists of objects.
-our %CreatedAtPosition;     # The same information as in @CreationOrder
+our @CreationOrder;   # indices are "time steps", elements are lists of objects.
+our %CreatedAtPosition;    # The same information as in @CreationOrder
 
-our %Progeny;               # Immediate descendents, or objects it launched.
-our %Parent;                # The parent.
+our %Progeny;              # Immediate descendents, or objects it launched.
+our %Parent;               # The parent.
 
-our %Details;               # A string, with such details as urgency, type, whatever.
+our %Details;    # A string, with such details as urgency, type, whatever.
 our %AlreadyPrinted;
 
 our $TreeCount = 0;
@@ -50,7 +51,7 @@ $text->tagConfigure( 'leaders',          -foreground => '#BBBBBB' );
 $text->tagConfigure( 'treenum',          -foreground => '#6666FF' );
 $text->tagConfigure(
     'Hilit',
-    -font      => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
+    -font => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
     -underline => 1
 );
 $MW->bind(
@@ -81,25 +82,27 @@ while ( my ( $k, $v ) = each %Details ) {
 ## ObjectTypesSeen: %ObjectTypesSeen
 my $frame = $MW->Frame()->pack( -side => 'top' );
 my $combo1 = $frame->ComboEntry(
-    -itemlist => [ sort grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
+    -itemlist =>
+      [ sort grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
     -width => 40,
 )->pack( -side => 'left' );
 $frame->Button(
     -text    => 'Search',
     -command => sub {
         MaybeHilit( $combo1->get() );
-        }
+      }
 
 )->pack( -side => 'left' );
 my $combo2 = $frame->ComboEntry(
-    -itemlist => [ sort grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
+    -itemlist =>
+      [ sort grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
     -width => 40
 )->pack( -side => 'left' );
 $frame->Button(
     -text    => 'Search',
     -command => sub {
         MaybeHilit( $combo2->get() );
-        }
+      }
 
 )->pack( -side => 'left' );
 $frame->Button(
@@ -166,10 +169,14 @@ sub CodeletView_Phase_Two {
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
         if ( $options{TreeNums} ) {
-            $text->insert( 'end', sprintf( "[tree #% 4d] ", $TreeNum{$object} ), 'treenum' );
+            $text->insert( 'end', sprintf( "[tree #% 4d] ", $TreeNum{$object} ),
+                'treenum' );
         }
-        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ) . ') ', 'execute_position' ) unless $options{TimeStamps};
-        $text->insert( 'end', CreateDisplay( $object, $idx + 1, $Details{$object} ), "\n" );
+        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ) . ') ',
+            'execute_position' )
+          unless $options{TimeStamps};
+        $text->insert( 'end',
+            CreateDisplay( $object, $idx + 1, $Details{$object} ), "\n" );
     }
 }
 
@@ -196,14 +203,16 @@ sub TreeView_Phase_Two {    # Print out the trees.
 
 sub CreateDisplay {
     my ( $object, $execute_position, $details ) = @_;
-    my $executed_tag = defined($execute_position) ? "was_executed" : "wasnt_executed";
-    $execute_position = sprintf( '% 5d', $execute_position ) if defined($execute_position);
+    my $executed_tag =
+      defined($execute_position) ? "was_executed" : "wasnt_executed";
+    $execute_position = sprintf( '% 5d', $execute_position )
+      if defined($execute_position);
 
     my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
     my @position_text =
-        defined($execute_position)
-        ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
-        : ( "[$creation_position/xxxxx]", "wasnt_executed" );
+      defined($execute_position)
+      ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
+      : ( "[$creation_position/xxxxx]", "wasnt_executed" );
 
     if ( $options{JustTrees} or $options{CodeletView} ) {
         @position_text = () unless $options{TimeStamps};
@@ -217,10 +226,15 @@ sub CreateDisplay {
     }
     else {
         if ( $object =~ /^SCodelet=ARRAY/ ) {
-            return ( @position_text, "Codelet $details", [ 'Codelet', $executed_tag ] );
+            return (
+                @position_text,
+                "Codelet $details",
+                [ 'Codelet', $executed_tag ]
+            );
         }
         elsif ( $object =~ /^SAction=SCALAR/ ) {
-            return ( @position_text, "Action $details", [ 'Action', $executed_tag ] );
+            return ( @position_text, "Action $details",
+                [ 'Action', $executed_tag ] );
         }
         elsif ( $object =~ /^SThought::(.*?)=/ ) {
             return ( @position_text, "$1", [ 'Thought', $executed_tag ] );
@@ -241,7 +255,8 @@ sub PrintProgeny {
         $text->insert( 'end', q{  |-- }, 'leaders' );
     }
 
-    $text->insert( 'end', CreateDisplay( $object, $execute_position, $Details{$object} ), "\n" );
+    $text->insert( 'end',
+        CreateDisplay( $object, $execute_position, $Details{$object} ), "\n" );
 
     $AlreadyPrinted{$object} = 1;
     my @progeny = @{ $Progeny{$object} || [] };
