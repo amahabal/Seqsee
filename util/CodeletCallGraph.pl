@@ -18,6 +18,12 @@ sub family_to_name {
     return $name;
 }
 
+memoize 'thought_to_name';
+sub thought_to_name {
+    my ( $thought ) = @_;
+    return $thought;
+}
+
 my %options;
 GetOptions( \%options, "JustTrees!", "CodeletView!", "TreeNums!",
     "TimeStamps!" );
@@ -98,7 +104,7 @@ while ( my ( $k, $v ) = each %Details ) {
 my $frame = $MW->Frame()->pack( -side => 'top' );
 my $combo1 = $frame->ComboEntry(
     -itemlist =>
-      [ sort grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
+      [ sort map { thought_to_name($_) } grep { $ObjectTypesSeen{$_} eq 'Thought' } keys %ObjectTypesSeen ],
     -width => 40,
 )->pack( -side => 'left' );
 $frame->Button(
@@ -110,7 +116,7 @@ $frame->Button(
 )->pack( -side => 'left' );
 my $combo2 = $frame->ComboEntry(
     -itemlist =>
-      [ sort grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
+      [ sort map { family_to_name($_) }grep { $ObjectTypesSeen{$_} ne 'Thought' } keys %ObjectTypesSeen ],
     -width => 40
 )->pack( -side => 'left' );
 $frame->Button(
