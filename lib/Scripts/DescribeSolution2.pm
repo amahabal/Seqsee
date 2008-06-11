@@ -225,6 +225,21 @@ CodeletFamily Describe2InterlacedCategory( $cat !, $ruleapp ! ) does scripted {
         main::message($msg, 1);
     }
 }
+CodeletFamily DescribeMultipleInterlacedCategory( $cat !, $ruleapp ! ) does scripted {
+  NAME: { Describe a Multiple-Interlaced-Sequences Category }
+  STEP: { 
+        my @items = @{$ruleapp->get_items()};
+        my @first_items = map { $_->[0] } @items;
+        my @second_items = map { $_->[1] } @items;
+
+        @first_items = @first_items[0..2] if @first_items > 3;
+        @second_items = @second_items[0..2] if @second_items > 3;
+
+        my $count = $cat->get_parts_count();
+        my $msg = "The sequence consists of $count interlaced sequences. The first of these consists of " . join(", ", map { $_->get_structure_string() } @first_items) . " and so forth, and the second of these $count sequences consists of ". join(", ", map { $_->get_structure_string() } @second_items ). " and so forth.";
+        main::message($msg, 1);
+    }
+}
 
 CodeletFamily DescribeRelnMetoMode( $meto_mode !, $meto_reln !, $ruleapp ! )
   does scripted {
