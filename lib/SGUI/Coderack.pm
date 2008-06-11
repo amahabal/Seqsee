@@ -6,6 +6,18 @@ Setup: {
         $RowHeight   = int( $EffectiveHeight / $MaxRows );
         $ColumnWidth = int( $EffectiveWidth / $MaxColumns );
     }
+InitialCode: {
+        use Memoize;
+        use Smart::Comments;
+        sub family_to_name {
+            my ( $family ) = @_;
+            no strict 'refs';
+            my $name =  $ {$family . '::NAME' };
+            ### family, name: $family, $name
+            return $name;
+        }
+        memoize 'family_to_name';
+}
 DrawIt: {
         my %count;
         my %sum;
@@ -76,7 +88,7 @@ DrawIt: {
             my $y_pos = $YOffset + $Margin + $rows_displayed * $RowHeight;
             $Canvas->createText(
                 $base_x_offset + $NameOffset, $y_pos,
-                -text   => $family,
+                -text   => family_to_name($family),
                 -anchor => 'nw',
             );
             $Canvas->createText(

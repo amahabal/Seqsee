@@ -280,7 +280,7 @@ ExtraStuff: {
             $Canvas->createText(
                 $Margin, $Height - $Margin,
                 -anchor => 'sw',
-                -text   => $Global::CurrentRunnableString
+                -text   => SGUI::Coderack::family_to_name($Global::CurrentRunnableString)
             );
         }
 
