@@ -88,4 +88,11 @@ sub AreAttributesSufficientToBuild {
     return 1 if scalar(grep {/^part_no_/} (SUtil::uniq(@atts))) == $PartsCount_of{ident $self};
     return;
 }
+
+sub longer_description {
+    my ( $self ) = @_;
+    my $count = $self->get_parts_count();
+    return "That is, the sequence consists of $count simpler sequences interlaced together";
+}
+
 1;

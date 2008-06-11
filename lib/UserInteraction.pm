@@ -57,7 +57,7 @@ sub Ask {
 sub AskBasedOnRelation {
     my ( $self, $relation, $msg_prefix ) = @_;
     Global::Hilit(1, $relation->get_ends(), $relation);
-    my $reply = $self->Ask($msg_prefix . ' extending relation: ');
+    my $reply = $self->Ask($msg_prefix . ' Extending analogy: ');
     Global::ClearHilit();
     return $reply;
 }
@@ -65,7 +65,7 @@ sub AskBasedOnRelation {
 sub AskBasedOnRuleApp {
     my ( $self, $ruleapp, $msg_prefix ) = @_;
     Global::Hilit(1, @{$ruleapp->get_items});
-    my $reply = $self->Ask($msg_prefix . ' extending relation: ');
+    my $reply = $self->Ask($msg_prefix . ' Extending analogy: ');
     Global::ClearHilit();
     return $reply;
 }
@@ -73,7 +73,7 @@ sub AskBasedOnRuleApp {
 sub AskBasedOnGroup {
     my ( $self, $group, $msg_prefix ) = @_;
     Global::Hilit(1, @{$group});
-    my $reply = $self->Ask($msg_prefix . ' extending group: ');
+    my $reply = $self->Ask($msg_prefix . ' Extending group: ');
     Global::ClearHilit();
     return $reply;
 }
