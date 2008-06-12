@@ -377,7 +377,7 @@ RUN: {
             }
 
             my $transform_activation = SLTM::GetRealActivationsForOneConcept($transform);
-            return $transform_activation * ( 1 - $supergroup_penalty );
+            return SUtil::toss($transform_activation * ( 1 - $supergroup_penalty ));
         }
     }
 }

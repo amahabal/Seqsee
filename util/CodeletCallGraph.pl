@@ -193,10 +193,10 @@ sub CodeletView_Phase_Two {
     for my $idx ( 0 .. $counter_of_executions - 1 ) {
         my $object = $ExecuteOrder[$idx];
         if ( $options{TreeNums} ) {
-            $text->insert( 'end', sprintf( "[tree #% 4d] ", $TreeNum{$object} ),
+            $text->insert( 'end', sprintf( "[ tree #% 4d ] ", $TreeNum{$object} ),
                 'treenum' );
         }
-        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ) . ') ',
+        $text->insert( 'end', sprintf( "% 5d", $idx + 1 ) . ' ) ',
             'execute_position' )
           unless $options{TimeStamps};
         $text->insert( 'end',
@@ -235,8 +235,8 @@ sub CreateDisplay {
     my $creation_position = sprintf( '% 5d', $CreatedAtPosition{$object} - 1 );
     my @position_text =
       defined($execute_position)
-      ? ( "[$creation_position/$execute_position] ", ['execute_position'] )
-      : ( "[$creation_position/xxxxx]", "wasnt_executed" );
+      ? ( "[ created at: $creation_position run at: $execute_position ] ", ['execute_position'] )
+      : ( "[ created at: $creation_position run at: never ]", "wasnt_executed" );
 
     if ( $options{JustTrees} or $options{CodeletView} ) {
         @position_text = () unless $options{TimeStamps};

@@ -107,14 +107,17 @@ ACTIONS: {
         #if ( $flush_right and not($flush_left) ) {
         #    next unless SUtil::toss(0.15);
         #}
-        CODELET 50, AttemptExtensionOfGroup,
-            {
-            object    => $core,
-            direction => DIR::RIGHT(),
-            };
 
-        if ( $core->get_left_edge() > 0 ) {
-            CODELET 100, AttemptExtensionOfGroup,
+        if ($flush_left or SUtil::toss(0.3)) {
+            CODELET 50, AttemptExtensionOfGroup_proposed,
+                {
+                    object    => $core,
+                    direction => DIR::RIGHT(),
+                };
+        }
+
+        if ( !$flush_left ) {
+            CODELET 100, AttemptExtensionOfGroup_proposed,
                 {
                 object    => $core,
                 direction => DIR::LEFT(),
