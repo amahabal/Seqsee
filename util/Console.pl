@@ -74,7 +74,7 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
             -text    => 'Go',
             -command => sub {
                 my ( $cmd_constructor, @args ) = @{$command};
-                ### old args: @args
+                ## old args: @args
                 @args = map {
                     my $string = $_;
                     $string =~ s<\$([a-zA-Z_][a-zA-Z0-9_]*)>
@@ -88,7 +88,7 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
                                            }>ge;
                     $string;
                 } @args;
-                ### new args: @args
+                ## new args: @args
                 #<STDIN>;
                 no strict;
                 my $cmd = $cmd_constructor->(@args);
@@ -142,7 +142,7 @@ INSERT_BUTTONS: {
     my $button_subframe;
     for my $button_info (@button_config) {
         my ( $text, $command ) = @{$button_info};
-        ### t, c: $text, $command
+        ## t, c: $text, $command
         if ( $button_count % $buttons_per_row == 0 ) {
             $button_subframe = $button_frame->Frame()->pack( -side => 'top' );
         }
@@ -160,11 +160,23 @@ MainLoop();
 sub CreateRunSystemCommand {
     my (@cmd) = @_;
     return sub {
-        system("cls");
+        # system("cls");
         $StatusMsg = "Running $cmd[1]";
         $SB->update();
+        ### Running: @cmd
         my $any_error = system(@cmd) ? 1 : 0;
-        my $ret = $any_error ? "Maybe there was an error" : "OK";
+
+        my $message;
+        if ($? == -1) {
+            $message = "failed to execute: $!";
+        }
+        elsif ($? & 127) {
+            $message = join('', "child died with signal %d, %s coredump\n",
+                ($? & 127),  ($? & 128) ? 'with' : 'without');
+        }
+
+
+        my $ret = $any_error ? "Maybe there was an error ($message)" : "OK";
         $StatusMsg = "Finished $cmd[1]: $ret";
 
         if ($any_error) {
@@ -181,7 +193,13 @@ sub CreateRunSystemCommand {
 
 sub CreateRunPerlScriptCommand {
     my (@args) = @_;
-    return CreateRunSystemCommand( "$EXECUTABLE_NAME $PAR_PREFIX", @args );
+    my $executable = "perl";
+    if ($OSNAME eq 'MSWin32') {
+        $executable = $EXECUTABLE_NAME;
+    } else {
+        $args[0] =~ s#\\#/#g;
+    }
+    return CreateRunSystemCommand( $executable, @args );
 }
 
 sub CreateFrameForLaunchingSeqsee {
