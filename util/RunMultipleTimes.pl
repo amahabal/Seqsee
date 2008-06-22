@@ -84,6 +84,8 @@ sub StartRun {
     for ( 1 .. $TIMES_TO_RUN ) {
         print ">>@cmd<<\n";
 
+        unlink 'foo';
+
         my $time_before = time();
         system @cmd;
         my $time_taken = time() - $time_before;
