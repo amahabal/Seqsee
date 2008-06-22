@@ -91,8 +91,14 @@ sub StartRun {
         $RESULTS{$terms}                = &share( [] );
         $WALLCLOCK_TIME{$terms}         = &share( [] );
         $EFFECTIVE_CODELET_RATE{$terms} = &share( [] );
-        my @cmd = (
-            'c:\perl\bin\perl',   'util/RunTestOnce.pl',
+        my @cmd;
+        if ($OSNAME eq 'MSWin32') {
+            @cmd = ( 'c:\perl\bin\perl',   'util/RunTestOnce.pl' );
+        } else {
+            @cmd = ('perl', 'util/RunTestOnce.pl');
+        }
+
+        push @cmd, (
             qq{--seq="$seq"},     qq{--continuation="$continuation"},
             qq{-max_steps=$MaxSteps}, qq{--min_extension=3},
             qq{--max_false=3},    @selected_feature_set,
