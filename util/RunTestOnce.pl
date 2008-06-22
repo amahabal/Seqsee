@@ -26,6 +26,8 @@ for (qw{seq continuation max_false min_extension max_steps}) {
 
 my ( $seq, $continuation, $max_steps, $max_false, $min_extension )
     = @options{qw{seq continuation max_steps max_false min_extension}};
+$seq =~ s#"##g;
+$continuation =~ s#"##g;
 SUtil::trim( $seq, $continuation );
 confess unless ( $seq and $continuation and $max_steps);
 my @seq          = split( /\s+/, $seq );

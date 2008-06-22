@@ -66,8 +66,15 @@ use Storable;
 
 sub StartRun {
     my ( $seq, $continuation ) = split( /\|/, $terms );
-    my @cmd = (
-        'c:\perl\bin\perl',   'util/RunTestOnce.pl',
+
+    my @cmd;
+    if ($OSNAME eq 'MSWin32') {
+        @cmd = ( 'c:\perl\bin\perl',   'util/RunTestOnce.pl' );
+    } else {
+        @cmd = ('perl', 'util/RunTestOnce.pl');
+    }
+
+    push @cmd, (
         qq{--seq="$seq"},     qq{--continuation="$continuation"},
         qq{-max_steps=10000}, qq{--min_extension=3},
         qq{--max_false=3},    @selected_feature_set,
@@ -82,7 +89,7 @@ sub StartRun {
         my $time_taken = time() - $time_before;
         push @WALLCLOCK_TIME, $time_taken;
 
-        open( my $RESULT, '<', "foo" ) or confess "Unable to open file >>foo<<";
+        open( my $RESULT, '<', "foo" ) or confess "Unable to open file >>foo<<: $! ";
         my $result_str = join( '', <$RESULT> );
         #my $result_object = Storable::thaw($result_str)
         #    or confess "Unable to thaw: >>$result_str<<!!";
