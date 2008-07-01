@@ -1,4 +1,5 @@
 # Great! Synchronized to give a centered image!
+use 5.10.0;
 use strict;
 use Smart::Comments;
 use Tk;
@@ -15,6 +16,8 @@ my $IS_MOUNTAIN;
 my $LABEL_ELEMENTS;
 my %options;
 GetOptions( \%options, 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
+
+my %ARROW_ANCHORS;
 
 sub GenerateFilename {
     my ( $dir, $seq ) = @_;
@@ -92,13 +95,19 @@ $MW->focusmodel('active');
 
 my $SequenceString = $options{sequence} || '';
 my $SaveFilename;
+my $Arrows;
 
 my $frame1 = $MW->Frame()->pack();
 my $frame2 = $MW->Frame()->pack();
+my $frame3 = $MW->Frame()->pack();
 my $Entry
     = $frame1->Entry( -width => 100, -textvariable => \$SequenceString )->pack( -side => 'left' );
 my $FileEntry
     = $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )->pack( -side => 'left' );
+my $ArrowsEntry = $frame3->Entry(-width => 100,
+                                 -textvariable => \$Arrows
+                                     )->pack(-side => 'left');
+
  my $fileDialog;
 
 $frame2->Button(
@@ -180,6 +189,7 @@ my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -backgroun
 MainLoop();
 
 sub Show {
+    %ARROW_ANCHORS = ();
     if ($IS_MOUNTAIN) {
         ShowMountain();
         return;
@@ -205,7 +215,7 @@ sub Show {
         DrawGroup( @$_, 0, GROUP_B_OPTIONS );
     }
     DrawElements($Elements_ref);
-
+    DrawArrows();
     #my $distance_from_edge = 2;
     #$Canvas->createLine(0, $distance_from_edge, WIDTH(), $distance_from_edge);
     #$Canvas->createLine(0, HEIGHT - $distance_from_edge, WIDTH(), HEIGHT - $distance_from_edge);
@@ -255,6 +265,7 @@ sub DrawElements {
     my ($Elements_ref) = @_;
     my $label = 'a';
     my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
+    my $count = 0;
     for my $elt (@$Elements_ref) {
         $Canvas->createText(
             $x_pos, Y_CENTER,
@@ -274,10 +285,36 @@ sub DrawElements {
                     );
             $label++;
         }
-
+        $ARROW_ANCHORS{"$count"} //= [$x_pos, Y_CENTER - 10 ];
+        $count++;
         $x_pos += $WIDTH_PER_TERM;
     }
 }
+
+sub DrawArrows {
+    $Arrows =~ s#\s##g;
+    return unless $Arrows;
+    my @pieces = split(/;/, $Arrows);
+    for my $piece (@pieces) {
+        $piece =~ m#^ ([\d,]+) : ([\d,]+) $#x or confess "Cannot parse $Arrows (specifically, the piece >>$piece<<)";
+        my ($left, $right) = ($1, $2);
+        my $left_arrow_pos = $ARROW_ANCHORS{$left} or confess "No group $left";
+        my $right_arrow_pos = $ARROW_ANCHORS{$right} or confess "No group $right";
+        my ($x1, $y1, $x2, $y2) = (@$left_arrow_pos, @$right_arrow_pos);
+        $Canvas->createLine(
+            $x1, $y1,
+            ( $x1 + $x2 ) / 2,
+            Y_CENTER - 30,
+            $x2, $y2,
+            -arrowshape => [8, 12, 10],
+            -smooth => 1,
+            -arrow => 'last',
+            -width => 2,
+            -fill => 'black',
+                );
+    }
+}
+
 
 sub DrawGroup {
     my ( $start, $end, $extra_width, $options_ref ) = @_;
@@ -292,6 +329,9 @@ sub DrawGroup {
 
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
     $Canvas->createOval( $x1, $y1, $x2, $y2, @$options_ref );
+    my $upto = $end - 1;
+    say "Drew >>$start,$upto<<";
+    $ARROW_ANCHORS{"$start,$upto"} //= [($x1 + $x2) / 2, $y1 ];
 }
 
 {
