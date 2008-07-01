@@ -12,6 +12,7 @@ use Getopt::Long;
 
 my $GENERATE_FILE_NAME;
 my $IS_MOUNTAIN;
+my $LABEL_ELEMENTS;
 my %options;
 GetOptions( \%options, 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
 
@@ -63,6 +64,10 @@ use constant {
     FONT      => 'Lucida 14',
     MAX_TERMS => 25,
     MIN_TERMS => 10,
+
+        LABEL_X_OFFSET => 0,
+            LABEL_Y_OFFSET => 12,
+                LABEL_FONT => 'Lucida 8',
 };
 
 use constant { Y_CENTER => 3 + HEIGHT() / 2, };
@@ -166,6 +171,10 @@ $MW->Scale(
 $MW->CheckBox(-label => 'mountain?',
               -textvariable => \$IS_MOUNTAIN,
                   )->pack();
+
+$MW->CheckBox(-label => 'label elements?',
+              -textvariable => \$LABEL_ELEMENTS,
+                  )->pack();
 my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -background => BACKGROUND() )
     ->pack();
 MainLoop();
@@ -244,6 +253,7 @@ sub ShowMountain {
 
 sub DrawElements {
     my ($Elements_ref) = @_;
+    my $label = 'a';
     my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
     for my $elt (@$Elements_ref) {
         $Canvas->createText(
@@ -253,6 +263,18 @@ sub DrawElements {
             -fill   => 'black',
             -anchor => 'center',
         );
+        if ($LABEL_ELEMENTS) {
+            $Canvas->createText(
+                $x_pos + LABEL_X_OFFSET,
+                Y_CENTER + LABEL_Y_OFFSET,
+                -text => $label,
+                -font => LABEL_FONT,
+                -fill => 'black',
+                -anchor => 'center',
+                    );
+            $label++;
+        }
+
         $x_pos += $WIDTH_PER_TERM;
     }
 }

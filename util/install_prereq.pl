@@ -1,50 +1,36 @@
+use 5.10.0;
 use CPAN;
 
 my @reqs = qw{
-Class::Multimethods
-Class::Std
-Config::Std
-Devel::StackTrace
-Digest::MD5
-Exception::Class
-File::Basename
-File::Glob
 File::Slurp
-File::Spec
-File::Spec::Unix
-File::Spec::Win32
-Filter::Simple
-Filter::Util::Call
-Getopt::Long
-List::Util
-Log::Log4perl
-Memoize
-Module::Compile
-POSIX
-Perl6::Export
-Perl6::Form
-Scalar::Util
 Smart::Comments
+Parse::RecDescent
+Class::Std
+Perl::Tidy
+Tk
+Tk::ComboEntry
+Tk::StatusBar
+Config::Std
 Sort::Key
-Sub::Installer
-Sub::Uplevel
-Sys::Hostname
-Test::Builder
-Test::Deep
-Test::Exception
-Test::More
-Test::Stochastic
-Text::Balanced
-Time::HiRes
-Tk::Carp
-Tk::MListbox
+# Needs FORCE: Tk::Carp
 UNIVERSAL::require
-XSLoader
-enum
-version
+Sub::Installer
+Exception::Class
+Class::Multimethods
+Carp::Source
+Text::Diff::Parser
 };
 
+my @forced_reqs = qw(
+Tk::Carp
+);
+
 for my $mod (@reqs) {
-    my $obj = CPAN::Shell->expand('Module',$mod);
+    my $obj = CPAN::Shell->expand('Module',$mod) // next;
     $obj->install;
+}
+
+for my $mod (@forced_reqs) {
+    my $obj = CPAN::Shell->expand('Module',$mod);
+    $obj->force('install');
 }
