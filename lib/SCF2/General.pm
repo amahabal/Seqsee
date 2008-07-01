@@ -383,7 +383,7 @@ RUN: {
 }
 
 CodeletFamily AttemptExtensionOfGroup_proposed(   $object!, $direction!) does {
-  NAME: {Attempt Extension of Group (proposed)}
+  NAME: {Attempt Extension of Group}
   INITIAL: { multimethod '__PlonkIntoPlace'; }
   RUN: {
         SWorkspace::__CheckLiveness($object) or return;
