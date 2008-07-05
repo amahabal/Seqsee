@@ -46,16 +46,28 @@ $MW->bind( '<F1>'  => \&Draw, );
 $MW->bind( '<F10>' => \&Save, );
 $MW->focusmodel('active');
 
+my $Offset = 0;
+
 #====
 my $button = $MW->Button(
     -text    => 'Draw',
     -command => \&Draw,
 )->pack( -side => 'top' );
+$MW->Button(
+    -text    => 'Save',
+    -command => \&Save,
+)->pack( -side => 'top' );
+
 $button->focus();
 {
     my $f = $MW->Frame()->pack( -side => 'top' );
     $f->Label( -text => 'Category' )->pack( -side => 'left' );
     $f->Entry( -textvariable => \$CATEGORY )->pack( -side => 'left' );
+}
+{
+    my $f = $MW->Frame()->pack( -side => 'top' );
+    $f->Label( -text => 'Offset' )->pack( -side => 'left' );
+    $f->Entry( -textvariable => \$Offset )->pack( -side => 'left' );
 }
 {
     my $f = $MW->Frame()->pack( -side => 'top' );
@@ -133,14 +145,14 @@ sub Draw {
         my $y_coordinate = index_to_y_coordinate($index);
         if ( $descriptor ~~ %firstobj_descriptions ) {
             $CANVAS->createText(
-                RIGHT_END_OF_FIRST(), $y_coordinate,
+                RIGHT_END_OF_FIRST() + $Offset, $y_coordinate,
                 -text   => "$descriptor = $firstobj_descriptions{$descriptor}",
                 -anchor => 'e',
             );
         }
         if ( $descriptor ~~ %secondobj_descriptions ) {
             $CANVAS->createText(
-                LEFT_END_OF_SECOND(), $y_coordinate,
+                LEFT_END_OF_SECOND() - $Offset, $y_coordinate,
                 -text   => "$descriptor = $secondobj_descriptions{$descriptor}",
                 -anchor => 'w',
             );
@@ -163,11 +175,11 @@ sub DrawArrow {
     my $y1 = index_to_y_coordinate($from_index);
     my $y2 = index_to_y_coordinate($to_index);
     $CANVAS->createLine(
-        ARROW_LEFT(), $y1, ARROW_33(), $y1, ARROW_66(), $y2,
-        ARROW_RIGHT(), $y2, -arrow => 'last'
+        ARROW_LEFT() + $Offset, $y1, ARROW_33 + $Offset, $y1, ARROW_66() - $Offset , $y2,
+        ARROW_RIGHT() - $Offset, $y2, -arrow => 'last'
     );
     $CANVAS->createText(
-        RIGHT_END_OF_LABEL(), $y2 - ARROW_LABEL_Y_OFFSET(),
+        RIGHT_END_OF_LABEL() - $Offset, $y2 - ARROW_LABEL_Y_OFFSET(),
         -text   => $relation,
         -anchor => 'se',
     );
@@ -260,24 +272,24 @@ sub GenerateFilename {
 }
 
 sub DrawBoxes {
-    $CANVAS->createRectangle( LEFT_END_OF_BOX1, TOP_OF_BOXES,
-        RIGHT_END_OF_BOX1, BOTTOM_OF_BOXES,
+    $CANVAS->createRectangle( LEFT_END_OF_BOX1 , TOP_OF_BOXES,
+        RIGHT_END_OF_BOX1 + $Offset , BOTTOM_OF_BOXES,
         -fill    => '#DDDDDD',
         -outline => '#BBBBBB',
     );
-    $CANVAS->createRectangle( LEFT_END_OF_BOX2, TOP_OF_BOXES,
+    $CANVAS->createRectangle( LEFT_END_OF_BOX2 - $Offset, TOP_OF_BOXES,
         RIGHT_END_OF_BOX2, BOTTOM_OF_BOXES,
         -fill    => '#DDDDDD',
         -outline => '#BBBBBB',
     );
     $CANVAS->createText(
-        ( LEFT_END_OF_BOX1 + RIGHT_END_OF_BOX1 ) / 2,
+        ( LEFT_END_OF_BOX1 + RIGHT_END_OF_BOX1 + $Offset ) / 2,
         TOP_OF_BOXES - 5,
         -anchor => 's',
         -text   => 'First object',
     );
     $CANVAS->createText(
-        ( LEFT_END_OF_BOX2 + RIGHT_END_OF_BOX2 ) / 2,
+        ( LEFT_END_OF_BOX2 + RIGHT_END_OF_BOX2 - $Offset ) / 2,
         TOP_OF_BOXES - 5,
         -anchor => 's',
         -text   => 'Second object',
