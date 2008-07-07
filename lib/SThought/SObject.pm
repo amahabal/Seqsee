@@ -109,7 +109,7 @@ ACTIONS: {
         #}
 
         if ($flush_left or SUtil::toss(0.3)) {
-            CODELET 50, AttemptExtensionOfGroup_proposed,
+            CODELET 50, AttemptExtensionOfGroup,
                 {
                     object    => $core,
                     direction => DIR::RIGHT(),
@@ -117,7 +117,7 @@ ACTIONS: {
         }
 
         if ( !$flush_left ) {
-            CODELET 100, AttemptExtensionOfGroup_proposed,
+            CODELET 100, AttemptExtensionOfGroup,
                 {
                 object    => $core,
                 direction => DIR::LEFT(),
