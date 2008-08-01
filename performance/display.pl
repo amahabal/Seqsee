@@ -14,8 +14,9 @@ use File::Slurp;
 my $text = read_file($ARGV[0]);
 my $result_set = Storable::thaw($text);
 
-say "Times: ", join(";", @{$result_set->get_times()});
-say "Rates: ", join(";", @{$result_set->get_rate()});
-say "Terms: ", $result_set->get_terms();
+say "Version:  ", $result_set->get_version();
+say "Times:    ", join(";", @{$result_set->get_times()});
+say "Rates:    ", join(";", @{$result_set->get_rate()});
+say "Terms:    ", $result_set->get_terms();
 say "Features: ", $result_set->get_features();
-say "Results: ", join(';', map { Storable::thaw($_)->get_status()->get_status_string } @{$result_set->get_results});
+say "Results:  ", join(';', map { Storable::thaw($_)->get_status()->get_status_string } @{$result_set->get_results});

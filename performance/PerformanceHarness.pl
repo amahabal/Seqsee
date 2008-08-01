@@ -24,22 +24,21 @@ my %options = (
 );
 GetOptions(
     \%options,
-    "seq=s",
-    "view=i",    # ignored
     "times=i",
     "steps=i",
     "f=s",
            "filename=s",
            "outputdir=s",
            "code_version=s",
+           'tempfilename=s',
 );
 
-my ($times, $MaxSteps, $sequence_list_filename, $outputdir, $code_version) = @options{'times', 'steps', 'filename', 'outputdir', 'code_version'};
-$times //= 10;
-$MaxSteps //= 10000;
+my ($times, $MaxSteps, $sequence_list_filename, $outputdir, $code_version,
+        $tempfilename) = @options{'times', 'steps', 'filename', 'outputdir', 'code_version', 'tempfilename'};
 $sequence_list_filename //= 'config/sequence_list_for_multiple';
 $outputdir // confess "Need outputdir";
 $code_version // confess "Need code_version";
+$tempfilename // confess "Need tempfilename";
 
 
 my @selected_feature_set = map {"-f=$_"} keys %Global::Feature;
@@ -63,20 +62,22 @@ for my $terms (@sequence_list) {
     push @cmd, (
                 qq{--seq="$seq"},     qq{--continuation="$continuation"},
                 qq{-max_steps=$MaxSteps}, qq{--min_extension=3},
-                qq{--max_false=3},    @selected_feature_set,
+                qq{--max_false=3},  qq{-tempfilename=$tempfilename},
+                @selected_feature_set,
                     );
     my (@WALLCLOCK_TIME, @RESULTS, @EFFECTIVE_CODELET_RATE);
     for ( 1 .. $times ) {
         say "++++++ $_";
         # print ">>@cmd<<\n";
 
-        unlink 'foo';
+        unlink $tempfilename;
         my $time_before = time();
         system @cmd;
         my $time_taken = time() - $time_before;
         push @WALLCLOCK_TIME, $time_taken;
 
-        open( my $RESULT, '<', "foo" ) or confess "Unable to open file >>foo<<";
+        open( my $RESULT, '<', $tempfilename ) 
+            or confess "Unable to open file >>$tempfilename<<";
         my $result_str = join( '', <$RESULT> );
 
         #my $result_object = Storable::thaw($result_str)

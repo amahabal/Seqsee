@@ -19,13 +19,13 @@ my %options = (
 );
 
 GetOptions( \%options, "seq=s", "max_steps=i", "continuation=s", 'f=s', 'max_false=i',
-    'min_extension=i', );
-for (qw{seq continuation max_false min_extension max_steps}) {
+    'min_extension=i', 'tempfilename=s');
+for (qw{seq continuation max_false min_extension max_steps tempfilename}) {
     confess "Missing required argument >>$_<<" unless exists $options{$_};
 }
 
-my ( $seq, $continuation, $max_steps, $max_false, $min_extension )
-    = @options{qw{seq continuation max_steps max_false min_extension}};
+my ( $seq, $continuation, $max_steps, $max_false, $min_extension, $tempfilename )
+    = @options{qw{seq continuation max_steps max_false min_extension tempfilename}};
 $seq =~ s#"##g;
 $continuation =~ s#"##g;
 SUtil::trim( $seq, $continuation );
@@ -35,6 +35,6 @@ my @continuation = split( /\s+/, $continuation );
 
 my $result = RunSeqsee(\@seq, \@continuation, $max_steps, $max_false, $min_extension);
 use Storable;
-open my $OUT, '>', 'foo';
+open my $OUT, '>', $tempfilename;
 print {$OUT} Storable::freeze($result);
 close $OUT;
