@@ -35,4 +35,12 @@ my %OutputStatus_of : ATTR(:name<status>);
 my %StepsTaken_of : ATTR(:name<steps>);
 my %ErrorMessage_of : ATTR(:name<error>);
 
+package ResultsOfTestRuns;
+use Class::Std::Storable;
+my %Wallclockimes_of :ATTR(:name<times>);
+my %Results_of :ATTR(:name<results>);
+my %Rates_of :ATTR(:name<rate>);
+my %Terms_of :ATTR(:name<terms>);
+my %Features_of :ATTR(:name<features>);
+my %Version_of :ATTR(:name<version>);
 1;
