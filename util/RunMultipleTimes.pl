@@ -77,7 +77,8 @@ sub StartRun {
     push @cmd, (
         qq{--seq="$seq"},     qq{--continuation="$continuation"},
         qq{-max_steps=10000}, qq{--min_extension=3},
-        qq{--max_false=3},    @selected_feature_set,
+        qq{--max_false=3},    qq{--tempfilename=foo},
+                @selected_feature_set,
     );
 
     # my $cmd = join(" ", @cmd);

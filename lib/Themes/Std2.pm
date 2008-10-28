@@ -54,6 +54,35 @@ fill: {
 width: {0}
 }
 
+STYLE Group2( $meto!, $category_name!, $is_largest!) is {
+  stipple:  {
+        if ($is_largest) {
+            undef
+        }
+        elsif ($category_name) { undef;
+                          } else {
+                              'gray75';
+                          }
+    }
+  fill: {
+        if ($meto) {
+            HSV(240 - 20 * $is_largest, 40, 60);
+        } else {
+            my $h;
+            if ($category_name eq 'ascending') {
+                HSV(180, 60, 80);
+            } elsif ($category_name eq 'descending') {
+                HSV(180, 60, 80);
+            } elsif ($category_name eq 'sameness') {
+                HSV(240, 40, 60);
+            } else {
+                HSV(120, 40, 60 + 20 * $is_largest);
+            }
+        }
+    }
+  width: {0}
+}
+
 STYLE GroupBorder( $hilit ! ) is {
 outline: {
         if ( $hilit == 1 ) {

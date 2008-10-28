@@ -121,7 +121,18 @@ ExtraStuff: {
         sub find_group_style {
             my ( $display, $group, $is_meto, $is_largest ) = @_;
             my $strength = $group->get_strength();
-            return Style::Group( $is_meto, $strength, $is_largest );
+
+            my $category_name;
+            if ($group->is_of_category_p($S::ASCENDING)) {
+                $category_name = 'ascending';
+            } elsif ($group->is_of_category_p($S::DESCENDING)) {
+                $category_name = 'descending';
+            } elsif ($group->is_of_category_p($S::SAMENESS)) {
+                $category_name = 'sameness';
+            } #elsif ($group->is_of_category_p()) {
+            #}
+            # return Style::Group( $is_meto, $strength, $is_largest );
+            return Style::Group2($is_meto, $category_name, $is_largest);
         }
 
         sub find_group_border_style {
