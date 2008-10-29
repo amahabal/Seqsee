@@ -24,7 +24,7 @@ Setup: {
     }
 DrawIt: {
         $self->PrepareForDrawing();
-        $self->DrawLegend( 10, 10 );
+        # $self->DrawLegend( 10, 10 );
         $GroupHtPerUnitSpan = ( $MaxGpHeight - $MinGpHeight ) / ( $SWorkspace::ElementCount || 1 );
         $SpacePerElement = $EffectiveWidth / ( $SWorkspace::ElementCount + 1 );
         %AnchorsForRelations = ();
