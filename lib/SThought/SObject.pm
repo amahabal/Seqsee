@@ -40,6 +40,7 @@ INITIAL: {
 
         sub ExtendFromMemory {
             my ( $core ) = @_;
+            my @actions_ret;
             my $flush_right        = $core->IsFlushRight();
             if ($flush_right and $SWorkspace::ElementCount <= 3) {
                 my $weighted_set = SLTM::FindActiveFollowers( $core );
@@ -58,17 +59,20 @@ INITIAL: {
                                                          direction => $DIR::RIGHT,
                                                          trust_level => 50,
                                                      }) || return;
-                CODELET 100, FindIfRelated, {a => $core, b=>$next};
+                CODELET 1000, FindIfRelated, {a => $core, b=>$next};
+                return @actions_ret;
             }
         };
         sub AddCategoriesFromMemory {
             my ( $core ) = @_;
+            my @actions_ret;
             my $weighted_set = SLTM::FindActiveCategories($core);
             $weighted_set->delete_below_threshold(0.3);
             if ($weighted_set->is_not_empty()) {
                 my $category = $weighted_set->choose();
                 CODELET 100, CheckIfInstance, { obj => $core, cat => $category};
             }
+            return @actions_ret;
         };
         sub IsThisAMountainUpslope {
             my ( $core ) = @_;
@@ -148,9 +152,9 @@ ACTIONS: {
         if ( $Global::Feature{LTM} ) {
             # Spread activation from corresponding node:
             SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
-            ExtendFromMemory($core);
+            push @actions_ret, ExtendFromMemory($core);
 
-            AddCategoriesFromMemory($core);
+            push @actions_ret, AddCategoriesFromMemory($core);
         }
 
         my $poss_cat;
