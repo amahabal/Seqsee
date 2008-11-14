@@ -22,4 +22,5 @@ for my $filename (<performance/data/*>) {
     say "Terms: ", $result_set->get_terms();
     say "Features: ", $result_set->get_features();
     say "Results: ", join(';', map { Storable::thaw($_)->get_status()->get_status_string } @{$result_set->get_results});
+    say "Steps: ",  join(';', map { Storable::thaw($_)->get_steps() } @{$result_set->get_results});
 }
