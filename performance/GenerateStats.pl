@@ -238,6 +238,26 @@ sub CompareVersions {
     return ( $v1[0] <=> $v2[0] ) || ( $v1[1] <=> $v2[1] );
 }
 
+sub GenerateGraph {
+    my ($outfile) = @_;
+    open my $OUT, '>', "/tmp/graph.perf";
+    say {$OUT} "title=Graph";
+    say {$OUT} "";
+    say {$OUT} "";
+    say {$OUT} "";
+
+    my $counter = 'a';
+    for my $seq (@SequencesOfInterest) {
+        my $steps_ref = $FilteredData{$seq}{steps};
+        my $vector = vector($steps_ref);
+        say {$OUT} $counter, "\t", mean($vector);
+        $counter++;
+    }
+    close $OUT;
+    system('perl performance/bargraph.pl -eps /tmp/graph.perf > ' . $outfile);
+}
+
+
 ReadSequencesInFile( $options{filename} );
 ReadAllData();
 
@@ -245,4 +265,5 @@ DecideFiltersAndApply();
 ### %FeatureDistribution: %FeatureDistribution
 ## %FilteredData: %FilteredData
 PrintFilteredData();
-
+GenerateGraph('/tmp/foo.eps');
+system('gv', '/tmp/foo.eps');
