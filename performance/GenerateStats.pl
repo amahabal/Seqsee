@@ -158,7 +158,7 @@ sub UndoLastFilter {
 
 sub PrintFilteredData {
     foreach my $seq (@SequencesOfInterest) {
-        my $steps_ref = $FilteredData{$seq}{steps};
+        my $steps_ref = $FilteredData{$seq}{steps} || [];
         print "$seq\n";
         PrintStats($steps_ref);
     }
@@ -250,7 +250,7 @@ sub GenerateGraph {
     for my $seq (@SequencesOfInterest) {
         my $steps_ref = $FilteredData{$seq}{steps};
         my $vector = vector($steps_ref);
-        say {$OUT} $counter, "\t", mean($vector);
+        say {$OUT} $counter, "\t", 0 + mean($vector);
         $counter++;
     }
     close $OUT;
