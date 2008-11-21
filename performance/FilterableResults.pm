@@ -31,10 +31,12 @@ my %results_by_sequence_of :
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
 
-    $result_set_of{$id} = $opts_ref->{result_set};
+    $result_set_of{$id}    = $opts_ref->{result_set};
     $filtered_data_of{$id} = [ @{ $result_set_of{$id}->get_data() } ];
+
+    $filters_of{$id} = $opts_ref->{filters} || [];
     for my $filter ( @{ $filters_of{$id} } ) {
-        $self->ApplyFilter();
+        $self->ApplyFilter($filter);
     }
 
     my %by_sequence;
@@ -56,13 +58,54 @@ sub BUILD {
 }
 
 sub PrintResults {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $id = ident $self;
 
     while ( my ( $seq, $rsir ) = each %{ $results_by_sequence_of{$id} } ) {
         print '=' x 20, "\n", $seq, "\n\n";
         $rsir->DisplayStatus();
     }
+}
+
+sub ApplyFilter {
+    my ( $self, $filter ) = @_;
+    my $id = ident $self;
+
+    my ( $name, @options ) = @$filter;
+    if ( $name eq 'version' ) {
+        my ( $min, $max ) = @options;
+        $self->FilterVersion( $min, $max );
+    }
+    elsif ( $name eq 'features' ) {
+        my ($features) = @options;
+        $self->FilterFeatures($features);
+    }
+    else {
+        die "Unknown filter $name";
+    }
+}
+
+sub FilterFeatures {
+    my ( $self, $features ) = @_;
+    my $id = ident $self;
+
+    @{ $filtered_data_of{$id} } =
+      grep { NormalizeFeatures( $_->get_features() ) eq $features }
+      @{ $filtered_data_of{$id} };
+}
+
+sub FilterVersion {
+    my ( $self, $min, $max ) = @_;
+    my $id = ident $self;
+
+    my ( $minv, $minr ) = split( ':', $min );
+    my ( $maxv, $maxr ) = split( ':', $max );
+
+    @{ $filtered_data_of{$id} } = grep {
+        my ( $v, $r ) = split( ':', $_->get_version() );
+        ( $minv < $v or ( $minv == $v and $minr <= $r ) )
+          and ( $maxv > $v or ( $maxv == $v and $maxr >= $r ) );
+    } @{ $filtered_data_of{$id} };
 }
 
 1;

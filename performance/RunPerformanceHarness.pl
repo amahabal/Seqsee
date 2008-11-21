@@ -27,8 +27,8 @@ my %options = (
 );
 GetOptions( \%options, "times=i", "steps=i", "f=s", "filename=s" );
 
-my $times = $options{times} || 10;
-my $steps = $options{steps} || 10000;
+my $times = $options{times} || 20;
+my $steps = $options{steps} || 25000;
 
 my @selected_feature_set = map { "-f=$_" } keys %Global::Feature;
 my $feature_set_string = join( ' ', @selected_feature_set );

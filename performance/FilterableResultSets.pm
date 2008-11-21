@@ -174,5 +174,18 @@ sub PrintResults {
     $unfiltered_result_sets_of{$id}->PrintResults();
 }
 
+sub HasMultipleVersions {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    scalar( @{ $versions_in_data_of{$id} } ) > 1 ? 1 : 0;
+}
+
+sub HasMultipleFeatureSets {
+    my ( $self, ) = @_;
+    my $id = ident $self;
+
+    scalar( @{ $feature_sets_in_data_of{$id} } ) > 1 ? 1 : 0;
+}
 
 1;
