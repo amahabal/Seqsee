@@ -445,8 +445,8 @@ sub RegTestHelper {
     my $err = $EVAL_ERROR;
     my $with_error = $err ? ( " (With Exception Thrown " . ref($err) . ")" ) : "";
     print STDERR "Done$with_error.\n";
-    ### Finished run, with steps: $Global::Steps_Finished
-    ### Workspace has this many elements: $SWorkspace::ElementCount
+    ## Finished run, with steps: $Global::Steps_Finished
+    ## Workspace has this many elements: $SWorkspace::ElementCount
 
     my $failed_requests = GetFailedRequests();
     if ( $failed_requests > $max_false_continuations ) {
@@ -578,7 +578,7 @@ sub RegTestHelper {
         my $VAR1;
         my $reg_out = join( "\n", <REG> );
         close REG;
-        ### $reg_out
+        ## $reg_out
         eval $reg_out;
         return $VAR1;
     }
@@ -631,7 +631,7 @@ sub RegHarness {
     $opts{min_extension} ||= 2;
     my $start_time = time();
     my $output     = RegStatShell( \%opts );
-    ### output: $output
+    ## output: $output
     $output->{avgcc} ||= 0;
     push @Results, @{ $output->{RESULTS} };
 
@@ -673,7 +673,7 @@ sub RegHarness {
 
     my @to_ret = ( \@improved, \@became_worse, \@Results, \%opts );
     use Smart::Comments;
-    ### to return: @to_ret
+    ## to return: @to_ret
     return @to_ret;
 }
 

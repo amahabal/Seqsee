@@ -61,7 +61,7 @@ for my $terms (@sequence_list) {
       );
     my ( @WALLCLOCK_TIME, @RESULTS, @EFFECTIVE_CODELET_RATE );
     for ( 1 .. $times ) {
-        say "++++++ $_";
+        say "++++++ $_ for [$seq] from $sequence_list_filename";
 
         # print ">>@cmd<<\n";
 

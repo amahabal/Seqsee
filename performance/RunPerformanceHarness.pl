@@ -25,7 +25,7 @@ my %options = (
         $Global::Feature{$feature_name} = 1;
     }
 );
-GetOptions( \%options, "times=i", "steps=i", "f=s", "filename=s" );
+GetOptions( \%options, "times=i", "steps=i", "f=s" );
 
 my $times = $options{times} || 20;
 my $steps = $options{steps} || 25000;
@@ -34,6 +34,7 @@ my @selected_feature_set = map { "-f=$_" } keys %Global::Feature;
 my $feature_set_string = join( ' ', @selected_feature_set );
 
 my $version = GetVersionOfCode();
+
 # Get a version of code fowhich testing was done.
 sub GetVersionOfCode {
     my ( $svn_version, $diff ) = FindLatestSVNVersion();
@@ -86,7 +87,13 @@ sub GetLatestStoredDiff {
     return ( $version, $svn_version, $diff );
 }
 
+my $counter = 'a';
 for my $filename (<performance/TestSets/*>) {
-    system
-        "perl performance/PerformanceHarness.pl --times=$times --outputdir=performance/data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$_ $feature_set_string &";
+    use IO::Prompt;
+#    if ( prompt "Run $filename?", '-yn' ) {
+        $counter++;
+        system
+            "perl performance/PerformanceHarness.pl --times=$times --outputdir=performance/data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$counter $feature_set_string &";
+    sleep(240);
+#    }
 }

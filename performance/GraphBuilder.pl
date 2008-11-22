@@ -109,8 +109,8 @@ sub DrawGraph {
     say {$OUT} "=table";
     my $counter = 'a';
     for my $seq (@sequences_of_interest) {
-        # my @times = map { $_->{$seq}->get_avg_time_to_success()  } @filtered_results_subindexed_by_seq ;
-        my @times = map { $_->{$seq}->get_success_percentage() } @filtered_results_subindexed_by_seq;
+        my @times = map { $_->{$seq}->get_avg_time_to_success()  } @filtered_results_subindexed_by_seq ;
+        #my @times = map { $_->{$seq}->get_success_percentage() } @filtered_results_subindexed_by_seq;
         say {$OUT} join(' ', $counter, @times);
         $counter++;
     }
