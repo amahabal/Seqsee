@@ -25,7 +25,12 @@ my %options = (
         $Global::Feature{$feature_name} = 1;
     }
 );
-GetOptions( \%options, "times=i", "steps=i", "f=s" );
+GetOptions( \%options, "times=i", "steps=i", "f=s", "ltm_tests!" );
+
+if ($options{ltm_tests}) {
+    $Global::Feature{LTM} = 1;
+    $Global::Feature{LTM_expt} = 1;
+}
 
 my $times = $options{times} || 20;
 my $steps = $options{steps} || 25000;
@@ -88,12 +93,19 @@ sub GetLatestStoredDiff {
 }
 
 my $counter = 'a';
-for my $filename (<performance/TestSets/*>) {
-    use IO::Prompt;
-#    if ( prompt "Run $filename?", '-yn' ) {
+if ( $options{ltm_tests} ) {
+    for my $filename (<performance/LTMTestSets/*>) {
         $counter++;
         system
-            "perl performance/PerformanceHarness.pl --times=$times --outputdir=performance/data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$counter $feature_set_string &";
-    sleep(240);
-#    }
+"perl performance/LTMPerformanceHarness.pl --times=$times --outputdir=performance/ltm_data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$counter $feature_set_string &";
+        sleep(240);
+    }
+}
+else {
+    for my $filename (<performance/TestSets/*>) {
+        $counter++;
+        system
+"perl performance/PerformanceHarness.pl --times=$times --outputdir=performance/data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$counter $feature_set_string &";
+        sleep(600);
+    }
 }

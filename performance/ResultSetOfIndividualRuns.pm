@@ -17,6 +17,8 @@ use IO::Prompt;
 
 use Class::Std;
 my %results_of : ATTR(:name<results>);
+my %successful_count_of :ATTR(:get<successful_count> :set<successful_count>);
+
 my %vector_of_successful_of :
   ATTR(:get<vector_of_successful> :set<vector_of_successful>);
 my %avg_time_to_success_of :
@@ -32,6 +34,7 @@ sub BUILD {
     my @results = @{ $results_of{$id} };
 
     unless (@results) {
+        $successful_count_of{$id} = 0;
         $avg_time_to_success_of{$id} = 0;
         $sdv_time_to_success_of{$id} = 0;
         $success_percentage_of{$id} = 0;
@@ -43,6 +46,7 @@ sub BUILD {
     my $vector = $vector_of_successful_of{$id} =
       vector( map { $_->get_steps() } @successful );
 
+    $successful_count_of{$id} = scalar(@successful);
     $avg_time_to_success_of{$id} = 0 + mean($vector);
     $sdv_time_to_success_of{$id} = 0 + stddev($vector);
     $success_percentage_of{$id} = 100 * scalar(@successful) / scalar(@results);

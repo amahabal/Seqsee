@@ -5,8 +5,9 @@ use Smart::Comments;
 use Tk;
 use Carp;
 use Sort::Key qw(rikeysort);
-use Exception::Class ('Y_TOO_BIG' => {});
+use Exception::Class ( 'Y_TOO_BIG' => {} );
 use English qw(-no_match_vars );
+
 #use Tk::JFileDialog;
 
 use Getopt::Long;
@@ -15,7 +16,8 @@ my $GENERATE_FILE_NAME;
 my $IS_MOUNTAIN;
 my $LABEL_ELEMENTS;
 my %options;
-GetOptions( \%options, 'generate_filename!', 'dir=s', 'sequence=s', 'filename=s' );
+GetOptions( \%options, 'generate_filename!', 'dir=s', 'sequence=s',
+    'filename=s' );
 
 my %ARROW_ANCHORS;
 
@@ -45,7 +47,9 @@ sub GenerateFilename_cleaner {
     say $seq;
     $seq =~ s#[fe]##g;
     say $seq;
-    $seq =~ s#^\.+##; $seq =~ s#\.+$##;
+    $seq =~ s#^\.+##;
+    $seq =~ s#\.+$##;
+
     if ($IS_MOUNTAIN) {
         $seq = "mountain_$seq";
     }
@@ -55,22 +59,20 @@ sub GenerateFilename_cleaner {
     return $ret;
 }
 
-
-
 use constant {
     WIDTH      => 500,
     HEIGHT     => 55,
     BACKGROUND => 'white',
     PAGEHEIGHT => '1c',
 
-    #FONT                     => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
+#FONT                     => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
     FONT      => 'Lucida 14',
     MAX_TERMS => 25,
     MIN_TERMS => 10,
 
-        LABEL_X_OFFSET => 0,
-            LABEL_Y_OFFSET => 12,
-                LABEL_FONT => 'Lucida 8',
+    LABEL_X_OFFSET => 0,
+    LABEL_Y_OFFSET => 12,
+    LABEL_FONT     => 'Lucida 8',
 };
 
 use constant { Y_CENTER => 3 + HEIGHT() / 2, };
@@ -84,7 +86,7 @@ my $MW = new MainWindow();
 my $WIDTH_PER_TERM;
 my $Y_DELTA_PER_UNIT_SPAN;
 my $OVAL_MINOR_AXIS_FRACTION = 15;
-my $OVAL_MINOR_AXIS_MIN = 10;
+my $OVAL_MINOR_AXIS_MIN      = 10;
 
 $MW->bind(
     '<KeyPress-q>' => sub {
@@ -100,15 +102,18 @@ my $Arrows;
 my $frame1 = $MW->Frame()->pack();
 my $frame2 = $MW->Frame()->pack();
 my $frame3 = $MW->Frame()->pack();
-my $Entry
-    = $frame1->Entry( -width => 100, -textvariable => \$SequenceString )->pack( -side => 'left' );
-my $FileEntry
-    = $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )->pack( -side => 'left' );
-my $ArrowsEntry = $frame3->Entry(-width => 100,
-                                 -textvariable => \$Arrows
-                                     )->pack(-side => 'left');
+my $Entry =
+  $frame1->Entry( -width => 100, -textvariable => \$SequenceString )
+  ->pack( -side => 'left' );
+my $FileEntry =
+  $frame2->Entry( -width => 100, -textvariable => \$SaveFilename )
+  ->pack( -side => 'left' );
+my $ArrowsEntry = $frame3->Entry(
+    -width        => 100,
+    -textvariable => \$Arrows
+)->pack( -side => 'left' );
 
- my $fileDialog;
+my $fileDialog;
 
 $frame2->Button(
     -text    => '...',
@@ -132,9 +137,7 @@ $frame2->Button(
 
 $Entry->focus();
 
-$Entry->bind(
-    '<Return>' => \&UpdateImage,
-);
+$Entry->bind( '<Return>' => \&UpdateImage, );
 $Entry->bind(
     '<KeyPress-,>' => sub {
         $OVAL_MINOR_AXIS_FRACTION--;
@@ -177,15 +180,20 @@ $MW->Scale(
     -tickinterval => 1,
     -variable     => \$OVAL_MINOR_AXIS_MIN,
 )->pack();
-$MW->CheckBox(-label => 'mountain?',
-              -textvariable => \$IS_MOUNTAIN,
-                  )->pack();
+$MW->CheckBox(
+    -label        => 'mountain?',
+    -textvariable => \$IS_MOUNTAIN,
+)->pack();
 
-$MW->CheckBox(-label => 'label elements?',
-              -textvariable => \$LABEL_ELEMENTS,
-                  )->pack();
-my $Canvas = $MW->Canvas( -height => HEIGHT() - 3, -width => WIDTH(), -background => BACKGROUND() )
-    ->pack();
+$MW->CheckBox(
+    -label        => 'label elements?',
+    -textvariable => \$LABEL_ELEMENTS,
+)->pack();
+my $Canvas = $MW->Canvas(
+    -height     => HEIGHT() - 3,
+    -width      => WIDTH(),
+    -background => BACKGROUND()
+)->pack();
 MainLoop();
 
 sub Show {
@@ -202,12 +210,14 @@ sub Show {
     my $ElementsCount = scalar(@$Elements_ref);
     confess "Too mant elements!" if $ElementsCount > MAX_TERMS;
 
-    my $PretendWeHaveElements = ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS: $ElementsCount;
+    my $PretendWeHaveElements =
+      ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS : $ElementsCount;
     $WIDTH_PER_TERM = WIDTH / ( $PretendWeHaveElements + 1 );
     $Y_DELTA_PER_UNIT_SPAN
-        = ( HEIGHT() * $OVAL_MINOR_AXIS_FRACTION * 0.1 ) / ( 2 * $PretendWeHaveElements ),
+      = ( HEIGHT() * $OVAL_MINOR_AXIS_FRACTION * 0.1 ) /
+      ( 2 * $PretendWeHaveElements ),
 
-        $Canvas->delete('all');
+      $Canvas->delete('all');
     for (@$GroupA_ref) {
         DrawGroup( @$_, 3, GROUP_A_OPTIONS );
     }
@@ -216,35 +226,39 @@ sub Show {
     }
     DrawElements($Elements_ref);
     DrawArrows();
-    #my $distance_from_edge = 2;
-    #$Canvas->createLine(0, $distance_from_edge, WIDTH(), $distance_from_edge);
-    #$Canvas->createLine(0, HEIGHT - $distance_from_edge, WIDTH(), HEIGHT - $distance_from_edge);
+
+#my $distance_from_edge = 2;
+#$Canvas->createLine(0, $distance_from_edge, WIDTH(), $distance_from_edge);
+#$Canvas->createLine(0, HEIGHT - $distance_from_edge, WIDTH(), HEIGHT - $distance_from_edge);
 }
 
 sub ShowMountain {
     my $string = $SequenceString;
-    my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) = Parse($string);
+    my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) =
+      Parse($string);
     ### barines: @$BarLines_ref
 
     my @numbers = grep { /^\-?\d+$/ } @$Elements_ref;
-    my $min = List::Util::min(@numbers);
-    my $max = List::Util::max(@numbers);
+    my $min     = List::Util::min(@numbers);
+    my $max     = List::Util::max(@numbers);
 
     my $ElementsCount = scalar(@numbers);
     confess "Too mant elements!" if $ElementsCount > MAX_TERMS;
 
-    my $PretendWeHaveElements = ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS: $ElementsCount;
+    my $PretendWeHaveElements =
+      ( $ElementsCount < MIN_TERMS ) ? MIN_TERMS : $ElementsCount;
     $WIDTH_PER_TERM = WIDTH / ( $PretendWeHaveElements + 1 );
 
     my $initial_x_pos = 3 + $WIDTH_PER_TERM * 0.5;
-    my $x_pos = $initial_x_pos;
+    my $x_pos         = $initial_x_pos;
     $Canvas->delete('all');
-    my $available_height = 2 * (HEIGHT() - Y_CENTER() - 9);
-    my $height_bottom = Y_CENTER() + $available_height / 2;
-    my $height_top = Y_CENTER() - $available_height / 2;
-    my $ht_per_range = ($max - $min) ? $available_height / ($max - $min + 2) : 0;
+    my $available_height = 2 * ( HEIGHT() - Y_CENTER() - 9 );
+    my $height_bottom    = Y_CENTER() + $available_height / 2;
+    my $height_top       = Y_CENTER() - $available_height / 2;
+    my $ht_per_range =
+      ( $max - $min ) ? $available_height / ( $max - $min + 2 ) : 0;
     for my $elt (@numbers) {
-        my $y_pos = $height_bottom - ($elt - $min) * $ht_per_range;
+        my $y_pos = $height_bottom - ( $elt - $min ) * $ht_per_range;
         $Canvas->createText(
             $x_pos, $y_pos,
             -text   => $elt,
@@ -254,18 +268,17 @@ sub ShowMountain {
         );
         $x_pos += $WIDTH_PER_TERM;
     }
-   for my $barline (@$BarLines_ref) {
-        my $x_pos = $initial_x_pos + ($barline - 0.5)* $WIDTH_PER_TERM;
-        $Canvas->createLine($x_pos, $height_top, $x_pos, $height_bottom)
-;    }
+    for my $barline (@$BarLines_ref) {
+        my $x_pos = $initial_x_pos + ( $barline - 0.5 ) * $WIDTH_PER_TERM;
+        $Canvas->createLine( $x_pos, $height_top, $x_pos, $height_bottom );
+    }
 }
-
 
 sub DrawElements {
     my ($Elements_ref) = @_;
-    my $label = 'a';
-    my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
-    my $count = 0;
+    my $label          = 'a';
+    my $x_pos          = 3 + $WIDTH_PER_TERM * 0.5;
+    my $count          = 0;
     for my $elt (@$Elements_ref) {
         $Canvas->createText(
             $x_pos, Y_CENTER,
@@ -278,14 +291,14 @@ sub DrawElements {
             $Canvas->createText(
                 $x_pos + LABEL_X_OFFSET,
                 Y_CENTER + LABEL_Y_OFFSET,
-                -text => $label,
-                -font => LABEL_FONT,
-                -fill => 'black',
+                -text   => $label,
+                -font   => LABEL_FONT,
+                -fill   => 'black',
                 -anchor => 'center',
-                    );
+            );
             $label++;
         }
-        $ARROW_ANCHORS{"$count"} //= [$x_pos, Y_CENTER - 10 ];
+        $ARROW_ANCHORS{"$count"} //= [ $x_pos, Y_CENTER - 10 ];
         $count++;
         $x_pos += $WIDTH_PER_TERM;
     }
@@ -294,35 +307,41 @@ sub DrawElements {
 sub DrawArrows {
     $Arrows =~ s#\s##g;
     return unless $Arrows;
-    my @pieces = split(/;/, $Arrows);
+    my @pieces = split( /;/, $Arrows );
     for my $piece (@pieces) {
-        $piece =~ m#^ ([\d,]+) : ([\d,]+) $#x or confess "Cannot parse $Arrows (specifically, the piece >>$piece<<)";
-        my ($left, $right) = ($1, $2);
+        $piece =~ m#^ ([\d,]+) : ([\d,]+) $#x
+          or confess
+          "Cannot parse $Arrows (specifically, the piece >>$piece<<)";
+        my ( $left, $right ) = ( $1, $2 );
         my $left_arrow_pos = $ARROW_ANCHORS{$left} or confess "No group $left";
-        my $right_arrow_pos = $ARROW_ANCHORS{$right} or confess "No group $right";
-        my ($x1, $y1, $x2, $y2) = (@$left_arrow_pos, @$right_arrow_pos);
+        my $right_arrow_pos = $ARROW_ANCHORS{$right}
+          or confess "No group $right";
+        my ( $x1, $y1, $x2, $y2 ) = ( @$left_arrow_pos, @$right_arrow_pos );
         $Canvas->createLine(
             $x1, $y1,
             ( $x1 + $x2 ) / 2,
             Y_CENTER - 30,
             $x2, $y2,
-            -arrowshape => [8, 12, 10],
-            -smooth => 1,
-            -arrow => 'last',
-            -width => 2,
-            -fill => 'black',
-                );
+            -arrowshape => [ 8, 12, 10 ],
+            -smooth     => 1,
+            -arrow      => 'last',
+            -width      => 2,
+            -fill       => 'black',
+        );
     }
 }
-
 
 sub DrawGroup {
     my ( $start, $end, $extra_width, $options_ref ) = @_;
     my $span = $end - $start;
-    my ( $x1, $x2 ) = ( 3 + $WIDTH_PER_TERM * ( $start + 0.1 ) - $extra_width, 3 + $WIDTH_PER_TERM * ( $end - 0.1 ) + $extra_width );
-    my $y_delta = $OVAL_MINOR_AXIS_MIN + $extra_width + $span * $Y_DELTA_PER_UNIT_SPAN;
+    my ( $x1, $x2 ) = (
+        3 + $WIDTH_PER_TERM * ( $start + 0.1 ) - $extra_width,
+        3 + $WIDTH_PER_TERM * ( $end - 0.1 ) + $extra_width
+    );
+    my $y_delta =
+      $OVAL_MINOR_AXIS_MIN + $extra_width + $span * $Y_DELTA_PER_UNIT_SPAN;
 
-    if ($y_delta > Y_CENTER() - 7) { # Center is off a bit.
+    if ( $y_delta > Y_CENTER() - 7 ) {    # Center is off a bit.
         $OVAL_MINOR_AXIS_FRACTION--;
         Y_TOO_BIG->throw();
     }
@@ -331,7 +350,7 @@ sub DrawGroup {
     $Canvas->createOval( $x1, $y1, $x2, $y2, @$options_ref );
     my $upto = $end - 1;
     say "Drew >>$start,$upto<<";
-    $ARROW_ANCHORS{"$start,$upto"} //= [($x1 + $x2) / 2, $y1 ];
+    $ARROW_ANCHORS{"$start,$upto"} //= [ ( $x1 + $x2 ) / 2, $y1 ];
 }
 
 {
@@ -343,7 +362,7 @@ sub DrawGroup {
         my ($string) = @_;
         @GroupA = @GroupB = ();
         my @tokens = Tokenize($string);
-        my @Elements = grep {m#\d#} @tokens;
+        my @Elements = grep { m#\d# } @tokens;
         ReadGroups( \@tokens, '{', '}', \@GroupA );
         ReadGroups( \@tokens, '[', ']', \@GroupA );
         ReadGroups( \@tokens, '(', ')', \@GroupB );
@@ -401,13 +420,14 @@ sub DrawGroup {
 
     sub ReadBarLines {
         my ( $tokens_ref, $barlines_ref ) = @_;
-        ### In ReadBarLines:
+        ## In ReadBarLines:
         my $elements_seen = 0;
         for my $token (@$tokens_ref) {
-            if ($token eq '|') {
-            ### Token: $token
+            if ( $token eq '|' ) {
+                ## Token: $token
                 push @$barlines_ref, $elements_seen;
-            } elsif ($token =~ m#^ \-? \d+ #x) {
+            }
+            elsif ( $token =~ m#^ \-? \d+ #x ) {
                 $elements_seen++;
             }
         }
@@ -417,11 +437,17 @@ sub DrawGroup {
 sub Save {
     my $filename = $SaveFilename;
     use 5.10.0;
-    if (-e $filename) {
-        say "File exists, perhaps you already saved this? \n ***NOT SAVING AGAIN***";
+    if ( -e $filename ) {
+        say
+"File exists, perhaps you already saved this? \n ***NOT SAVING AGAIN***";
         return;
     }
-    $Canvas->postscript( -file => $filename, -pageheight => PAGEHEIGHT, -height => HEIGHT );
+    $Canvas->postscript(
+        -file       => $filename,
+        -pageheight => PAGEHEIGHT,
+        -height     => HEIGHT
+    );
+
     # or confess "Failed to save $filename";
     say "Saved file $filename";
 }
@@ -430,10 +456,13 @@ sub UpdateImage {
     eval { Show() };
     if ($EVAL_ERROR) {
         my $counter = 0;
-        while ($counter < 10 and $EVAL_ERROR) {
-            confess $EVAL_ERROR unless UNIVERSAL::isa($EVAL_ERROR, 'Y_TOO_BIG');
+        while ( $counter < 10 and $EVAL_ERROR ) {
+            confess $EVAL_ERROR
+              unless UNIVERSAL::isa( $EVAL_ERROR, 'Y_TOO_BIG' );
             eval { Show() };
         }
     }
-    $SaveFilename = GenerateFilename_cleaner('D:/DISSERTATION/Chapters/SequenceEPS',$SequenceString );
+    $SaveFilename =
+      GenerateFilename_cleaner( 'D:/DISSERTATION/Chapters/SequenceEPS',
+        $SequenceString );
 }
