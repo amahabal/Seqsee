@@ -8,8 +8,6 @@ our $ExtendedABit    = new TestOutputStatus( { status_string => 'ExtendedABit' }
 our $NotEvenExtended = new TestOutputStatus( { status_string => 'NotEvenExtended' } );
 our $Crashed         = new TestOutputStatus( { status_string => 'Crashed' } );
 
-print "Crashed=$Crashed\n";
-
 sub IsSuccess {
     my ($self) = @_;
     return ( $self->get_status_string eq 'Successful' ) ? 1 : 0;

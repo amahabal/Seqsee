@@ -90,7 +90,7 @@ sub FilterFeatures {
     my $id = ident $self;
 
     @{ $filtered_data_of{$id} } =
-      grep { NormalizeFeatures( $_->get_features() ) eq $features }
+      grep { FilterableResultSets::NormalizeFeatures( $_->get_features() ) eq $features }
       @{ $filtered_data_of{$id} };
 }
 

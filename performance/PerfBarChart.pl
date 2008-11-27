@@ -115,7 +115,7 @@ my $OVAL_MINOR_AXIS_FRACTION = 15;
 my $OVAL_MINOR_AXIS_MIN = 10;
 my $WIDTH_PER_TERM;
 my $Y_DELTA_PER_UNIT_SPAN;
-
+my $FADE_AFTER;
 my %ARROW_ANCHORS;
 sub WIDTH {
     return $EFFECTIVE_WIDTH - $HORIZONTAL_OFFSET;
@@ -165,7 +165,7 @@ sub GraphSpecSeqToTestSetSeq {
         return $seq if $seq =~ m{^$revealed_part\|};
     }
 
-    die "<$gs_seq> not present!";
+    return;
 }
 
 my $Canvas = $MW->Canvas(
@@ -195,7 +195,7 @@ sub DrawChart {
 
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
         my $eff_seq =
-          GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref );
+          GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref ) or     die "$seq not present!";;
         my @ResForThisSequence = map { $_->{$eff_seq} } @ResultSetsIndexedBySeq;
 
         $Canvas->createText(
@@ -371,8 +371,9 @@ sub Show {
     my $string = $SequenceString;
 
     print "Will Parse: >$SequenceString<\n";
-    my ( $Elements_ref, $GroupA_ref, $GroupB_ref ) = Parse($string);
+    my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) = Parse($string);
 
+    $FADE_AFTER = $BarLines_ref->[0];
     my $ElementsCount = scalar(@$Elements_ref);
     confess "Too mant elements!" if $ElementsCount > $MAX_TERMS;
 
@@ -403,11 +404,12 @@ sub DrawElements {
     my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
     my $count = 0;
     for my $elt (@$Elements_ref) {
+        my $fill = ($count >= $FADE_AFTER) ? '#CCCCCC' : 'black';
         $Canvas->createText(
             SeqCoordToCanvasCoord( $seq_num, $x_pos + $HORIZONTAL_OFFSET, $SEQUENCE_HEIGHT / 2 ),
             -text   => $elt,
             -font   => FONT,
-            -fill   => 'black',
+            -fill   => $fill,
             -anchor => 'center',
         );
 
@@ -447,6 +449,7 @@ sub DrawArrows {
 
 sub DrawGroup {
     my ( $seq_num, $start, $end, $extra_width, $options_ref ) = @_;
+    my $faded = 1 if $end >= $FADE_AFTER;
     my $span = $end - $start;
     my ( $x1, $x2 ) = (
         3 + $WIDTH_PER_TERM * ( $start + 0.1 ) - $extra_width,

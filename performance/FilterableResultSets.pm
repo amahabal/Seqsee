@@ -26,6 +26,9 @@ my %sequences_to_track_href_of :
 );
 my %sequences_to_track_aref_of :
   ATTR(:get<sequences_to_track_aref> :set<sequences_to_track_aref>);
+my %acceptable_revealed_seqeunces_of :ATTR(:get<acceptable_revealed_seqeunces> :set<acceptable_revealed_seqeunces>);
+
+
 my %data_of : ATTR(:get<data> :set<data>);
 
 my %versions_in_data_of : ATTR(:get<versions_in_data> :set<versions_in_data>);
@@ -64,19 +67,29 @@ sub ReadSequencesToTrack {
     my @seq = ReadSequencesInFile($filename);
     @{ $self->get_sequences_to_track_aref() } = @seq;
     %{ $self->get_sequences_to_track_href() } = map { $_ => 1 } @seq;
+
+    my %acceptable_revealed_seqeunces;
+    for my $seq (@seq) {
+        $seq =~ m{ (.*) \|}x;
+        $acceptable_revealed_seqeunces{$1} = $seq;
+    }
+    $self->set_acceptable_revealed_seqeunces(\%acceptable_revealed_seqeunces);
 }
 
 sub ReadAllData {
     my $self                    = shift;
-    my $sequences_to_track_href = $self->get_sequences_to_track_href;
+    my $acceptable_revealed_seqeunces_href = $self->get_acceptable_revealed_seqeunces();
     my @all_data;
 
-    for my $filename (<performance/data/*>) {
+    for my $filename (<performance/data/* performance/human_data/*>) {
         my $text       = read_file($filename);
         my $result_set = Storable::thaw($text);
         my $sequence   = NormalizeTestSequence( $result_set->get_terms );
+        $sequence =~ m{ (.*) \|}x;
+        my $revealed = $1;
+        $sequence = $acceptable_revealed_seqeunces_href->{$revealed} or next;
+
         $result_set->set_terms($sequence);
-        next unless $sequences_to_track_href->{$sequence};
         push @all_data, $result_set;
     }
 
