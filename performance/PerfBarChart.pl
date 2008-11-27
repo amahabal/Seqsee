@@ -45,8 +45,12 @@ if ( exists $Config{General}{OnlyTheseFeatures} ) {
 }
 
 my @ResultSets;
+my @ClusterConfigs;
+
 for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
     my $cluster_config = $Config{"cluster_$cluster_num"} || {};
+    push @ClusterConfigs, $cluster_config;
+
     my $is_human_data = 0;
 
     my @cluster_specific_filters;
@@ -305,6 +309,8 @@ sub ClusterNumToYOffset {
 
 sub ClusterNumToColor {
     my ($cnum) = @_;
+    my $cluster_config = $ClusterConfigs[$cnum];
+    return '#00FF00' if $cluster_config->{Human};
     return '#FF0000';
 }
 
