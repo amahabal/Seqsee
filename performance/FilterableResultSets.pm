@@ -56,6 +56,7 @@ sub BUILD {
         {
             filters    => [],
             result_set => $self,
+            is_human_data => 0, # It could be mixed. We aren't using this. Fix.
         }
     );
 }

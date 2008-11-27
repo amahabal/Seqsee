@@ -47,6 +47,8 @@ if ( exists $Config{General}{OnlyTheseFeatures} ) {
 my @ResultSets;
 for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
     my $cluster_config = $Config{"cluster_$cluster_num"} || {};
+    my $is_human_data = 0;
+
     my @cluster_specific_filters;
     if (   exists $cluster_config->{MinVersion}
         or exists $cluster_config->{MaxVersion} )
@@ -61,11 +63,17 @@ for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
           [ 'features', $cluster_config->{OnlyTheseFeatures} ];
     }
 
+    if ( $cluster_config->{Human} ) {
+        $is_human_data = 1;
+        push @cluster_specific_filters, [ 'features', 'human' ];
+    }
+
     push @ResultSets,
       FilterableResults->new(
         {
-            result_set => $FRS,
-            filters    => [ @GeneralFilters, @cluster_specific_filters ]
+            result_set    => $FRS,
+            filters       => [ @GeneralFilters, @cluster_specific_filters ],
+            is_human_data => $is_human_data,
         }
       );
 }
@@ -109,14 +117,15 @@ my $EFFECTIVE_WIDTH =
 my $WIDTH  = $EFFECTIVE_WIDTH + 2 * $MARGIN;
 my $HEIGHT = $EFFECTIVE_HEIGHT + 2 * $MARGIN;
 
-my $MAX_TERMS = 25;
-my $MIN_TERMS = 10;
+my $MAX_TERMS                = 25;
+my $MIN_TERMS                = 10;
 my $OVAL_MINOR_AXIS_FRACTION = 15;
-my $OVAL_MINOR_AXIS_MIN = 10;
+my $OVAL_MINOR_AXIS_MIN      = 10;
 my $WIDTH_PER_TERM;
 my $Y_DELTA_PER_UNIT_SPAN;
 my $FADE_AFTER;
 my %ARROW_ANCHORS;
+
 sub WIDTH {
     return $EFFECTIVE_WIDTH - $HORIZONTAL_OFFSET;
 }
@@ -128,12 +137,11 @@ sub HEIGHT {
 sub Y_CENTER {
     $SEQUENCE_HEIGHT / 2;
 }
-    
 
 use constant {
     GROUP_A_OPTIONS => [ -fill => '#DDDDDD' ],
     GROUP_B_OPTIONS => [ -fill => '#BBBBBB' ],
-        FONT => 'Lucida 14',
+    FONT            => 'Lucida 14',
 };
 
 sub BarCoordToCanvasCoord {
@@ -194,8 +202,8 @@ sub DrawChart {
       map { $_->get_results_by_sequence } @ResultSets;
 
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
-        my $eff_seq =
-          GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref ) or     die "$seq not present!";;
+        my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
+          or die "$seq not present!";
         my @ResForThisSequence = map { $_->{$eff_seq} } @ResultSetsIndexedBySeq;
 
         $Canvas->createText(
@@ -371,7 +379,8 @@ sub Show {
     my $string = $SequenceString;
 
     print "Will Parse: >$SequenceString<\n";
-    my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) = Parse($string);
+    my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) =
+      Parse($string);
 
     $FADE_AFTER = $BarLines_ref->[0];
     my $ElementsCount = scalar(@$Elements_ref);
@@ -380,8 +389,8 @@ sub Show {
     my $PretendWeHaveElements =
       ( $ElementsCount < $MIN_TERMS ) ? $MIN_TERMS : $ElementsCount;
     $WIDTH_PER_TERM = WIDTH() / ( $PretendWeHaveElements + 1 );
-    $Y_DELTA_PER_UNIT_SPAN
-        = ( HEIGHT() * $OVAL_MINOR_AXIS_FRACTION * 0.1 ) /
+    $Y_DELTA_PER_UNIT_SPAN =
+      ( HEIGHT() * $OVAL_MINOR_AXIS_FRACTION * 0.1 ) /
       ( 2 * $PretendWeHaveElements );
 
     for (@$GroupA_ref) {
@@ -404,9 +413,13 @@ sub DrawElements {
     my $x_pos = 3 + $WIDTH_PER_TERM * 0.5;
     my $count = 0;
     for my $elt (@$Elements_ref) {
-        my $fill = ($count >= $FADE_AFTER) ? '#CCCCCC' : 'black';
+        my $fill = ( $count >= $FADE_AFTER ) ? '#CCCCCC' : 'black';
         $Canvas->createText(
-            SeqCoordToCanvasCoord( $seq_num, $x_pos + $HORIZONTAL_OFFSET, $SEQUENCE_HEIGHT / 2 ),
+            SeqCoordToCanvasCoord(
+                $seq_num,
+                $x_pos + $HORIZONTAL_OFFSET,
+                $SEQUENCE_HEIGHT / 2
+            ),
             -text   => $elt,
             -font   => FONT,
             -fill   => $fill,
@@ -436,7 +449,7 @@ sub DrawArrows {
         $Canvas->createLine(
             $x1, $y1,
             ( $x1 + $x2 ) / 2,
-            Y_CENTER - 30,
+            Y_CENTER -30,
             $x2, $y2,
             -arrowshape => [ 8, 12, 10 ],
             -smooth     => 1,

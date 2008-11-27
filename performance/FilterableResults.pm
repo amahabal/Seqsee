@@ -24,17 +24,30 @@ my %filtered_data_of : ATTR(:get<filtered_data>);
 # Filters in place.
 my %filters_of : ATTR(:name<filters>);
 
+my %is_human_data_of : ATTR(:name<is_human_data>);
+
 my %result_set_of : ATTR(:name<result_set>);
 my %results_by_sequence_of :
   ATTR(:get<results_by_sequence> :set<results_by_sequence>);
+
+my $HUMAN_FILTER = [ 'features', 'human' ];
+my $INHUMAN_FILTER = ['inhuman'];
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
 
     $result_set_of{$id}    = $opts_ref->{result_set};
     $filtered_data_of{$id} = [ @{ $result_set_of{$id}->get_data() } ];
+    my $is_human_data = $is_human_data_of{$id} = $opts_ref->{is_human_data};
 
-    $filters_of{$id} = $opts_ref->{filters} || [];
+    if ($is_human_data) {
+        $filters_of{$id} = [$HUMAN_FILTER];
+    }
+    else {
+        $filters_of{$id} = [ $INHUMAN_FILTER, @{ $opts_ref->{filters} } ]
+          || [$INHUMAN_FILTER];
+    }
+
     for my $filter ( @{ $filters_of{$id} } ) {
         $self->ApplyFilter($filter);
     }
@@ -43,6 +56,13 @@ sub BUILD {
     for my $result_set ( @{ $filtered_data_of{$id} } ) {
         my $seq = $result_set->get_terms;
         my @results = map { Storable::thaw($_) } @{ $result_set->get_results };
+
+        if ($is_human_data) {
+            for (@results) {
+                $_->set_steps( $_->get_steps() * 100 );
+            }
+        }
+
         push @{ $by_sequence{$seq} }, @results;
     }
 
@@ -80,6 +100,9 @@ sub ApplyFilter {
         my ($features) = @options;
         $self->FilterFeatures($features);
     }
+    elsif ( $name eq 'inhuman' ) {
+        $self->FilterInhuman();
+    }
     else {
         die "Unknown filter $name";
     }
@@ -90,8 +113,19 @@ sub FilterFeatures {
     my $id = ident $self;
 
     @{ $filtered_data_of{$id} } =
-      grep { FilterableResultSets::NormalizeFeatures( $_->get_features() ) eq $features }
-      @{ $filtered_data_of{$id} };
+      grep {
+        FilterableResultSets::NormalizeFeatures( $_->get_features() ) eq
+          $features
+      } @{ $filtered_data_of{$id} };
+}
+
+sub FilterInhuman {
+    my ($self) = @_;
+    my $id = ident $self;
+
+    @{ $filtered_data_of{$id} } = grep {
+        FilterableResultSets::NormalizeFeatures( $_->get_features() ) ne 'human'
+    } @{ $filtered_data_of{$id} };
 }
 
 sub FilterVersion {
