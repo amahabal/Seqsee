@@ -139,9 +139,10 @@ sub Y_CENTER {
 }
 
 use constant {
-    GROUP_A_OPTIONS => [ -fill => '#DDDDDD' ],
-    GROUP_B_OPTIONS => [ -fill => '#BBBBBB' ],
-    FONT            => 'Lucida 14',
+    GROUP_A_OPTIONS    => [ -fill    => '#DDDDDD' ],
+    GROUP_B_OPTIONS    => [ -fill    => '#BBBBBB' ],
+    DISTRACTOR_OPTIONS => [ -outline => '#0000FF', -width => 4 ],
+    FONT => 'Lucida 14',
 };
 
 sub BarCoordToCanvasCoord {
@@ -267,12 +268,30 @@ sub DrawSequences {
     my $seq_num      = 0;
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
         $Canvas->createText(
-            SeqCoordToCanvasCoord( $seq_num, 0, 0 ),
+            SeqCoordToCanvasCoord( $seq_num, 20, $SEQUENCE_HEIGHT / 2 ),
             -text   => $text_counter,
-            -anchor => 'nw'
+            -anchor => 'e'
         );
 
         Show( $seq_num, $seq, 0 );
+
+        my $seq_specific_config = $Config{ 'Sequence_' . ( $seq_num + 1 ) };
+        if ($seq_specific_config) {
+            my $distractor = $seq_specific_config->{distractor};
+            my @distractor;
+            if ( ref $distractor ) {
+                @distractor = @$distractor;
+            }
+            elsif ($distractor) {
+                @distractor = ($distractor);
+            }
+
+            for my $dist (@distractor) {
+                my ( $start, $end ) = split( ' ', $dist );
+                DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS );
+            }
+        }
+
         $text_counter++;
         $seq_num++;
     }
