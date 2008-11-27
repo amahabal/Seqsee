@@ -139,9 +139,10 @@ sub Y_CENTER {
 }
 
 use constant {
-    GROUP_A_OPTIONS    => [ -fill    => '#DDDDDD' ],
-    GROUP_B_OPTIONS    => [ -fill    => '#BBBBBB' ],
-    DISTRACTOR_OPTIONS => [ -outline => '#0000FF', -width => 4 ],
+    GROUP_A_OPTIONS     => [ -fill    => '#DDDDDD' ],
+    GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
+    FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -width => 0 ],
+    DISTRACTOR_OPTIONS  => [ -outline => '#0000FF', -width => 4 ],
     FONT => 'Lucida 14',
 };
 
@@ -481,7 +482,7 @@ sub DrawArrows {
 
 sub DrawGroup {
     my ( $seq_num, $start, $end, $extra_width, $options_ref ) = @_;
-    my $faded = 1 if $end >= $FADE_AFTER;
+    my $faded = 1 if $end > $FADE_AFTER;
     my $span = $end - $start;
     my ( $x1, $x2 ) = (
         3 + $WIDTH_PER_TERM * ( $start + 0.1 ) - $extra_width,
@@ -496,10 +497,13 @@ sub DrawGroup {
     #}
 
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
+
+    my @options = @$options_ref;
+    push @options, @{FADED_GROUP_OPTIONS()} if $faded;
     $Canvas->createOval(
         SeqCoordToCanvasCoord( $seq_num, $x1 + $HORIZONTAL_OFFSET, $y1 ),
         SeqCoordToCanvasCoord( $seq_num, $x2 + $HORIZONTAL_OFFSET, $y2 ),
-        @$options_ref
+        @options
     );
     my $upto = $end - 1;
     say "Drew >>$start,$upto<<";
