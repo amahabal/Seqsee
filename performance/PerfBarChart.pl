@@ -7,7 +7,7 @@ use Exception::Class ( 'Y_TOO_BIG' => {} );
 
 use lib 'genlib';
 use Global;
-use List::Util qw{min max sum};
+use List::Util qw{min max sum first};
 use Time::HiRes qw{time};
 use Getopt::Long;
 use Storable;
@@ -84,10 +84,10 @@ for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
 
 my $MARGIN                = 25;
 my $CHART_SEQ_SEPARATION  = 15;
-my $CHART_BAR_HEIGHT      = 30;
+my $CHART_BAR_HEIGHT      = 10 + 5 * $CLUSTER_COUNT;
 my $CHART_BAR_SEPARATION  = 10;
 my $SEQUENCE_HEIGHT       = 30;
-my $SEQUENCE_SEPARATION   = 10;
+my $SEQUENCE_SEPARATION   = 20;
 my $PERCENT_CORRECT_WIDTH = 150;
 my $NUM_CORRECT_WIDTH     = 40;
 my $CODELET_COUNT_WIDTH   = 300;
@@ -147,6 +147,9 @@ use constant {
     GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
     FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -width => 0 ],
     DISTRACTOR_OPTIONS  => [ -outline => '#0000FF', -width => 4 ],
+
+    SCALE_LINE_OPTIONS => [ -fill => '#EEEEEE' ],
+    SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#CCCCCC' ],
     FONT => 'Lucida 14',
 };
 
@@ -175,7 +178,7 @@ sub GraphSpecSeqToTestSetSeq {
     $revealed_part =~ s#\s+# #g;
 
     for my $seq (@$aref) {
-        ### revealed_part, $seq: $revealed_part, $seq
+        ## revealed_part, $seq: $revealed_part, $seq
         return $seq if $seq =~ m{^$revealed_part\|};
     }
 
@@ -202,14 +205,14 @@ if ( my $outfile = $options{outfile} ) {
         -text    => 'Save',
         -command => sub {
             $Canvas->postscript(
-                -file => $outfile,
+                -file       => $outfile,
                 -pageheight => '10c',
-                -height => $HEIGHT,
+                -height     => $HEIGHT,
             );
             exit;
           }
 
-            )->pack(-side => 'top');
+    )->pack( -side => 'top' );
 }
 MainLoop();
 
@@ -219,6 +222,31 @@ sub DrawChart {
     my $test_set_sequences_aref = $FRS->get_sequences_to_track_aref();
     my @ResultSetsIndexedBySeq =
       map { $_->get_results_by_sequence } @ResultSets;
+
+    ### MaxSteps
+    my $MaxSteps;
+    for my $seq ( @{ $Config{Sequences}{seq} } ) {
+        my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
+          or die "$seq not present!";
+        my @ResForThisSequence = map { $_->{$eff_seq} } @ResultSetsIndexedBySeq;
+
+        for my $stats (@ResForThisSequence) {
+            my $avg_time_to_success = $stats->get_avg_time_to_success();
+            $MaxSteps = $avg_time_to_success
+              if $avg_time_to_success > $MaxSteps;
+        }
+    }
+
+    $MaxSteps = first { $_ > $MaxSteps } (
+        500,
+        ( map { $_ * 1000 } ( 1 .. 10 ) ),
+        ( map { $_ * 5000 } ( 3 .. 100 ) )
+    );
+
+    DrawPercentCorrectScale();
+    ### MaxSteps: $MaxSteps
+    DrawCodeletCountScale($MaxSteps);
+    ### Scales Drawn
 
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
         my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
@@ -262,7 +290,6 @@ sub DrawChart {
             );
 
             # Draw Time Taken
-            my $MaxSteps = 20000;    # Fix?
             $x1 = $EFFECTIVE_WIDTH - $CODELET_COUNT_WIDTH;
             $x2 =
               $x1 +
@@ -282,6 +309,7 @@ sub DrawChart {
 }
 
 sub DrawSequences {
+    ### DrawSequences:
     my $text_counter = 'a';
     my $seq_num      = 0;
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
@@ -291,12 +319,12 @@ sub DrawSequences {
             -anchor => 'e'
         );
 
-        Show( $seq_num, $seq, 0 );
+        my $sequence_to_show = $seq;
+        my @distractor;
 
         my $seq_specific_config = $Config{ 'Sequence_' . ( $seq_num + 1 ) };
         if ($seq_specific_config) {
             my $distractor = $seq_specific_config->{distractor};
-            my @distractor;
             if ( ref $distractor ) {
                 @distractor = @$distractor;
             }
@@ -304,10 +332,16 @@ sub DrawSequences {
                 @distractor = ($distractor);
             }
 
-            for my $dist (@distractor) {
-                my ( $start, $end ) = split( ' ', $dist );
-                DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS );
+            if (my $instead = $seq_specific_config->{ShowInstead}) {
+                $sequence_to_show = $instead;
             }
+
+        }
+
+        Show( $seq_num, $sequence_to_show, 0 );
+        for my $dist (@distractor) {
+            my ( $start, $end ) = split( ' ', $dist );
+            DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS );
         }
 
         $text_counter++;
@@ -528,3 +562,80 @@ sub DrawGroup {
     say "Drew >>$start,$upto<<";
     $ARROW_ANCHORS{"$start,$upto"} //= [ ( $x1 + $x2 ) / 2, $y1 ];
 }
+
+sub DrawPercentCorrectScale {
+    my ( $left, $top ) = BarCoordToCanvasCoord( 0, $HORIZONTAL_OFFSET, 0 );
+    my $right = $left + $PERCENT_CORRECT_WIDTH;
+
+    my $width_per_percent = $PERCENT_CORRECT_WIDTH / 100;
+
+    my $bottom =
+      ( BarCoordToCanvasCoord( $SEQUENCE_COUNT - 1, 0, $CHART_BAR_HEIGHT ) )[1];
+
+    for ( 0, 25, 50, 75, 100 ) {
+        DrawScaleLine(
+            {
+                top    => $top,
+                bottom => $bottom,
+                label  => $_ . '%',
+                x      => $left + $_ * $width_per_percent
+            }
+        );
+    }
+}
+
+sub DrawCodeletCountScale {
+    my ($MaxSteps) = @_;
+    my $x_tab_step;
+    given ($MaxSteps) {
+        when ( $_ < 100 ) { $x_tab_step = 10 }
+        when ( $_ < 8000 ) {
+            my $approx_steps = $_ / 8;
+            $x_tab_step = 100 * int( $approx_steps / 100 );
+        }
+        when ( $_ < 50000 ) {
+            my $approx_steps = $_ / 8;
+            $x_tab_step = 1000 * int( $approx_steps / 1000 );
+        }
+        $x_tab_step = 10000;
+    }
+
+    ### x_tab_step: $x_tab_step
+
+    my ( $left, $top ) =
+      BarCoordToCanvasCoord( 0, $EFFECTIVE_WIDTH - $CODELET_COUNT_WIDTH, 0 );
+    my $right = $left + $CODELET_COUNT_WIDTH;
+
+    my $width_per_codelet = $CODELET_COUNT_WIDTH / $MaxSteps;
+
+    my $bottom =
+      ( BarCoordToCanvasCoord( $SEQUENCE_COUNT - 1, 0, $CHART_BAR_HEIGHT ) )[1];
+    for ( my $count = 0 ; $count <= $MaxSteps ; $count += $x_tab_step ) {
+        my $label = $count;
+        if ( $count % 1000 == 0 ) {
+            $label = ( $count / 1000 ) . 'k';
+        }
+        DrawScaleLine(
+            {
+                top    => $top,
+                bottom => $bottom,
+                label  => $label,
+                x      => $left + $count * $width_per_codelet,
+            }
+        );
+    }
+}
+
+sub DrawScaleLine {
+    my ($opts_ref) = @_;
+    my %opts_ref = %$opts_ref;
+    my ( $top, $bottom, $label, $x ) = @opts_ref{qw(top bottom label x)};
+    $Canvas->createLine( $x, $top - 3, $x, $bottom, @{ SCALE_LINE_OPTIONS() } );
+    $Canvas->createText(
+        $x, $top - 6,
+        -text   => $label,
+        -anchor => 's',
+        @{ SCALE_TEXT_OPTIONS() }
+    );
+}
+
