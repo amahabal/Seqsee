@@ -23,7 +23,7 @@ my $MW = new MainWindow();
 use FilterableResultSets;
 
 my %options;
-GetOptions \%options, "graph_spec=s";
+GetOptions \%options, "graph_spec=s", "outfile=s";
 read_config $options{graph_spec} => my %Config;
 
 my $CLUSTER_COUNT = $Config{General}{ClusterCount} ||= 1;
@@ -121,7 +121,7 @@ my $EFFECTIVE_WIDTH =
 my $WIDTH  = $EFFECTIVE_WIDTH + 2 * $MARGIN;
 my $HEIGHT = $EFFECTIVE_HEIGHT + 2 * $MARGIN;
 
-my $MAX_TERMS                = 25;
+my $MAX_TERMS                = 35;
 my $MIN_TERMS                = 10;
 my $OVAL_MINOR_AXIS_FRACTION = 15;
 my $OVAL_MINOR_AXIS_MIN      = 10;
@@ -197,7 +197,20 @@ $MW->focusmodel('active');
 
 DrawChart();
 DrawSequences();
+if ( my $outfile = $options{outfile} ) {
+    $MW->Button(
+        -text    => 'Save',
+        -command => sub {
+            $Canvas->postscript(
+                -file => $outfile,
+                -pageheight => '10c',
+                -height => $HEIGHT,
+            );
+            exit;
+          }
 
+            )->pack(-side => 'top');
+}
 MainLoop();
 
 sub DrawChart {
@@ -505,7 +518,7 @@ sub DrawGroup {
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
 
     my @options = @$options_ref;
-    push @options, @{FADED_GROUP_OPTIONS()} if $faded;
+    push @options, @{ FADED_GROUP_OPTIONS() } if $faded;
     $Canvas->createOval(
         SeqCoordToCanvasCoord( $seq_num, $x1 + $HORIZONTAL_OFFSET, $y1 ),
         SeqCoordToCanvasCoord( $seq_num, $x2 + $HORIZONTAL_OFFSET, $y2 ),
