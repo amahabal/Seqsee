@@ -370,7 +370,7 @@ sub ClusterNumToColor {
         my ($string) = @_;
         @GroupA = @GroupB = ();
         my @tokens = Tokenize($string);
-        my @Elements = grep { m#\d# } @tokens;
+        my @Elements = grep { m#\d|\.# } @tokens;
         ReadGroups( \@tokens, '{', '}', \@GroupA );
         ReadGroups( \@tokens, '[', ']', \@GroupA );
         ReadGroups( \@tokens, '(', ')', \@GroupB );
@@ -395,6 +395,7 @@ sub ClusterNumToColor {
         $string =~ s#,# #g;
         print $string, "\n";
         $string =~ s#([\(\)\[\]\<\>\{\}\|])# $1 #g;
+        $string =~ s#\.\.\.# ... #g;
         $string =~ s#^\s*##;
         $string =~ s#\s*$##;
         print $string, "\n";
@@ -417,7 +418,7 @@ sub ClusterNumToColor {
                 push @$groups_set, [ $group_start, $element_count ];
                 $stack_size--;
             }
-            elsif ( $token =~ m#^ \-? \d+ #x ) {
+            elsif ( $token =~ m#^ \-? \d+ | \.#x ) {
                 $element_count++;
             }
         }
