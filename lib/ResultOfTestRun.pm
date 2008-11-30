@@ -41,4 +41,13 @@ my %Rates_of :ATTR(:name<rate>);
 my %Terms_of :ATTR(:name<terms>);
 my %Features_of :ATTR(:name<features>);
 my %Version_of :ATTR(:name<version>);
+my %Is_ltm_result_of :ATTR(:get<is_ltm_result> :set<is_ltm_result>);
+my %Context_of :ATTR(:get<context> :set<context>);
+
+sub BUILD {
+    my ( $self, $id, $opts_ref ) = @_;
+    $Is_ltm_result_of{$id} = $opts_ref->{is_ltm_result} || 0;
+    $Context_of{$id} = $opts_ref->{context} || '';
+}
+
 1;

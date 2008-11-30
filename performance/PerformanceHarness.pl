@@ -55,8 +55,8 @@ for my $terms (@sequence_list) {
     push @cmd,
       (
         qq{--seq="$seq"},         qq{--continuation="$continuation"},
-        qq{-max_steps=$MaxSteps}, qq{--min_extension=3},
-        qq{--max_false=3},        qq{-tempfilename=$tempfilename},
+        qq{--max_steps=$MaxSteps}, qq{--min_extension=3},
+        qq{--max_false=3},        qq{--tempfilename=$tempfilename},
         @selected_feature_set,
       );
     my ( @WALLCLOCK_TIME, @RESULTS, @EFFECTIVE_CODELET_RATE );
