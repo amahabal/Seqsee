@@ -30,6 +30,8 @@ my %acceptable_revealed_seqeunces_of :ATTR(:get<acceptable_revealed_seqeunces> :
 
 
 my %data_of : ATTR(:get<data> :set<data>);
+my %ltm_data_of :ATTR(:get<ltm_data> :set<ltm_data>);
+
 
 my %versions_in_data_of : ATTR(:get<versions_in_data> :set<versions_in_data>);
 my %feature_sets_in_data_of :
@@ -48,6 +50,7 @@ sub BUILD {
 
     $self->ReadSequencesToTrack();
     $self->ReadAllData();
+    $self->ReadAllLTMData();
 
     ( $versions_in_data_of{$id}, $feature_sets_in_data_of{$id} ) =
       GetFeatureAndVersionDistribution( $data_of{$id} );
@@ -95,6 +98,24 @@ sub ReadAllData {
     }
 
     $self->set_data( \@all_data );
+}
+
+sub ReadAllLTMData {
+    my $self                    = shift;
+    my @all_data;
+
+    for my $filename (<performance/ltm_data/*>) {
+        my $text       = read_file($filename);
+        my $result_set = Storable::thaw($text);
+        my $sequence   = NormalizeTestSequence( $result_set->get_terms );
+        $sequence =~ m{ (.*) \|}x;
+        my $revealed = $1;
+        $result_set->set_terms($sequence);
+        
+        push @all_data, $result_set;
+    }
+
+    $self->set_ltm_data( \@all_data );
 }
 
 ## UTILITY FUNCTIONS:

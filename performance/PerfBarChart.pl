@@ -26,9 +26,24 @@ my %options;
 GetOptions \%options, "graph_spec=s", "outfile=s";
 read_config $options{graph_spec} => my %Config;
 
-my $CLUSTER_COUNT              = $Config{General}{ClusterCount} ||= 1;
-my $SEQUENCE_COUNT             = scalar( @{ $Config{Sequences}{seq} } );
-my $SEQUENCES_TO_DISPLAY_COUNT = $SEQUENCE_COUNT;
+$Config{Sequences}{seq} = [ $Config{Sequences}{seq} ]
+  unless ref $Config{Sequences}{seq};
+
+my $CLUSTER_COUNT = $Config{General}{ClusterCount} ||= 1;
+my $SEQUENCES_TO_PLOT_COUNT;
+my $SEQUENCES_TO_DISPLAY_COUNT;
+
+if ( $Config{General}{LTM_SELF_CONTEXT} ) {
+    $SEQUENCES_TO_PLOT_COUNT    = 10;
+    $SEQUENCES_TO_DISPLAY_COUNT = 1;
+    $CLUSTER_COUNT              = 1;
+    $Config{Sequences}{seq_to_plot} = [ map { "iteration_$_" } ( 1 .. 10 ) ];
+}
+else {
+    $SEQUENCES_TO_DISPLAY_COUNT = $SEQUENCES_TO_PLOT_COUNT =
+      scalar( @{ $Config{Sequences}{seq} } );
+    $Config{Sequences}{seq_to_plot} = [ @{ $Config{Sequences}{seq} } ];
+}
 
 my $FRS = new FilterableResultSets(
     { sequences_filename => $Config{General}{TestSet} } );
@@ -52,7 +67,9 @@ for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
     my $cluster_config = $Config{"cluster_$cluster_num"} || {};
     push @ClusterConfigs, $cluster_config;
 
-    my $is_human_data = 0;
+    my $is_human_data       = 0;
+    my $is_ltm              = 0;
+    my $is_ltm_self_context = 0;
 
     my @cluster_specific_filters;
     if (   exists $cluster_config->{MinVersion}
@@ -73,12 +90,25 @@ for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
         push @cluster_specific_filters, [ 'features', 'human' ];
     }
 
+    if ( $cluster_config->{LTM} ) {
+        $is_ltm = 1;
+    }
+
+    my @ltm_self_context_options;
+    if ( $cluster_config->{LTM_SELF_CONTEXT} ) {
+        push @ltm_self_context_options,
+          is_ltm_self_context => 1,
+          sequence            => $Config{Sequences}{seq}[0];
+    }
+
     push @ResultSets,
       FilterableResults->new(
         {
             result_set    => $FRS,
             filters       => [ @GeneralFilters, @cluster_specific_filters ],
             is_human_data => $is_human_data,
+            is_ltm        => $is_ltm,
+            @ltm_self_context_options,
         }
       );
 }
@@ -95,10 +125,10 @@ my $INTER_BAR_SEPARATION     = 5;
 my $MAX_BAR_WIDTH            = 10;
 
 #=== VERTICAL
-my $FIG_T_MARGIN              = 20;
-my $FIG_B_MARGIN              = 20;
-my $INTER_SEQUENCE_SEPARATION = 15;
-my $SEQUENCE_HEIGHT = 20;
+my $FIG_T_MARGIN               = 20;
+my $FIG_B_MARGIN               = 20;
+my $INTER_SEQUENCE_SEPARATION  = 15;
+my $SEQUENCE_HEIGHT            = 20;
 my $SEQUENCES_CHART_SEPARATION = 20;
 my $CHART_T_MARGIN             = 20;
 my $CHART_B_MARGIN             = 20;
@@ -113,7 +143,8 @@ my $CHART2_H_OFFSET = $CHART1_H_OFFSET + $CHART_WIDTH + $CHART_CHART_SEPARATION;
 my $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
 my $MAX_CLUSTER_WIDTH =
   ( $EFFECTIVE_CHART_WIDTH -
-      $INTER_CLUSTER_SEPARATION * ( $SEQUENCE_COUNT - 1 ) ) / $SEQUENCE_COUNT;
+      $INTER_CLUSTER_SEPARATION * ( $SEQUENCES_TO_PLOT_COUNT - 1 ) ) /
+  $SEQUENCES_TO_PLOT_COUNT;
 my $BAR_WIDTH = min( $MAX_BAR_WIDTH,
     ( $MAX_CLUSTER_WIDTH - $INTER_BAR_SEPARATION * ( $CLUSTER_COUNT - 1 ) ) /
       $CLUSTER_COUNT );
@@ -200,7 +231,6 @@ use constant {
     FONT => 'Lucida 14',
 };
 
-
 sub SeqCoordToCanvasCoord {
     my ( $seq_num, $x, $y ) = @_;
     my $new_y =
@@ -212,6 +242,9 @@ sub SeqCoordToCanvasCoord {
 
 sub GraphSpecSeqToTestSetSeq {
     my ( $gs_seq, $aref ) = @_;
+
+    return $gs_seq if $gs_seq =~ m#^ iteration_ #x;
+
     my ($revealed_part) = split( /\|/, $gs_seq );
     $revealed_part =~ s#\D# #g;
     $revealed_part =~ s#^\s*##;
@@ -266,10 +299,12 @@ sub DrawChart {
 
     ## MaxSteps
     my $MaxSteps;
-    for my $seq ( @{ $Config{Sequences}{seq} } ) {
+    for my $seq ( @{ $Config{Sequences}{seq_to_plot} } ) {
         my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
           or die "$seq not present!";
+
         my @ResForThisSequence = map { $_->{$eff_seq} } @ResultSetsIndexedBySeq;
+        ### eff_seq, @res: $eff_seq, @{$ResForThisSequence[0]->get_results()}
 
         for my $stats (@ResForThisSequence) {
             my $avg_time_to_success = $stats->get_avg_time_to_success();
@@ -289,7 +324,7 @@ sub DrawChart {
     DrawCodeletCountScale($MaxSteps);
     ## Scales Drawn
 
-    for my $seq ( @{ $Config{Sequences}{seq} } ) {
+    for my $seq ( @{ $Config{Sequences}{seq_to_plot} } ) {
         my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
           or die "$seq not present!";
         my @ResForThisSequence = map { $_->{$eff_seq} } @ResultSetsIndexedBySeq;
@@ -520,11 +555,7 @@ sub DrawElements {
     for my $elt (@$Elements_ref) {
         my $fill = ( $count >= $FADE_AFTER ) ? '#CCCCCC' : 'black';
         $Canvas->createText(
-            SeqCoordToCanvasCoord(
-                $seq_num,
-                $x_pos,
-                $SEQUENCE_HEIGHT / 2
-            ),
+            SeqCoordToCanvasCoord( $seq_num, $x_pos, $SEQUENCE_HEIGHT / 2 ),
             -text   => $elt,
             -font   => FONT,
             -fill   => $fill,
@@ -585,85 +616,89 @@ sub DrawGroup {
 
     my @options = @$options_ref;
     push @options, @{ FADED_GROUP_OPTIONS() } if $faded;
-    $Canvas->createOval(
-        SeqCoordToCanvasCoord( $seq_num, $x1 , $y1 ),
-        SeqCoordToCanvasCoord( $seq_num, $x2 , $y2 ),
-        @options
-    );
+    $Canvas->createOval( SeqCoordToCanvasCoord( $seq_num, $x1, $y1 ),
+        SeqCoordToCanvasCoord( $seq_num, $x2, $y2 ), @options );
     my $upto = $end - 1;
+
     # say "Drew >>$start,$upto<<";
     $ARROW_ANCHORS{"$start,$upto"} //= [ ( $x1 + $x2 ) / 2, $y1 ];
 }
 
- sub DrawPercentCorrectScale {
-     my ( $left, $bottom ) = BarCoordinateToFigCoordinate(1, 0, 0, -1, 0);
-     my $top = $bottom - $MAX_BAR_HEIGHT;
-     my ($right) = BarCoordinateToFigCoordinate(1, $SEQUENCE_COUNT - 1, $CLUSTER_COUNT, 1.1, 0);
+sub DrawPercentCorrectScale {
+    my ( $left, $bottom ) = BarCoordinateToFigCoordinate( 1, 0, 0, -1, 0 );
+    my $top = $bottom - $MAX_BAR_HEIGHT;
+    my ($right) = BarCoordinateToFigCoordinate( 1, $SEQUENCES_TO_PLOT_COUNT - 1,
+        $CLUSTER_COUNT, 1.1, 0 );
 
-     my $height_per_percent = $MAX_BAR_HEIGHT / 100;
+    my $height_per_percent = $MAX_BAR_HEIGHT / 100;
 
-     for ( 0, 25, 50, 75, 100 ) {
-         DrawScaleLine(
-             {
-                 left    => $left,
-                 right => $right,
-                 label  => $_ . '%',
-                 y   => $bottom - $_ * $height_per_percent
-             }
-         );
-     }
- }
+    for ( 0, 25, 50, 75, 100 ) {
+        DrawScaleLine(
+            {
+                left  => $left,
+                right => $right,
+                label => $_ . '%',
+                y     => $bottom - $_ * $height_per_percent
+            }
+        );
+    }
+}
 
- sub DrawCodeletCountScale {
-     my ($MaxSteps) = @_;
-     my $x_tab_step;
-     given ($MaxSteps) {
-         when ( $_ < 100 ) { $x_tab_step = 10 }
-         when ( $_ < 8000 ) {
-             my $approx_steps = $_ / 6;
-             $x_tab_step = 100 * int( $approx_steps / 100 );
-         }
-         when ( $_ < 50000 ) {
-             my $approx_steps = $_ / 6;
-             $x_tab_step = 1000 * int( $approx_steps / 1000 );
-         }
-         $x_tab_step = 10000;
-     }
+sub DrawCodeletCountScale {
+    my ($MaxSteps) = @_;
+    my $x_tab_step;
+    given ($MaxSteps) {
+        when ( $_ < 100 ) { $x_tab_step = 10 }
+        when ( $_ < 8000 ) {
+            my $approx_steps = $_ / 6;
+            $x_tab_step = 100 * int( $approx_steps / 100 );
+        }
+        when ( $_ < 50000 ) {
+            my $approx_steps = $_ / 6;
+            $x_tab_step = 1000 * int( $approx_steps / 1000 );
+        }
+        $x_tab_step = 10000;
+    }
 
-     ### x_tab_step: $x_tab_step
+    ### x_tab_step: $x_tab_step
+    $x_tab_step = $MaxSteps unless $x_tab_step;
+    my ( $left, $bottom ) = BarCoordinateToFigCoordinate( 2, 0, 0, -1, 0 );
+    my $top = $bottom - $MAX_BAR_HEIGHT;
+    my ($right) = BarCoordinateToFigCoordinate(
+        2,
+        $SEQUENCES_TO_PLOT_COUNT - 1,
+        $CLUSTER_COUNT - 1,
+        1.1, 0
+    );
 
-     my ( $left, $bottom ) = BarCoordinateToFigCoordinate(2, 0, 0, -1, 0);
-     my $top = $bottom - $MAX_BAR_HEIGHT;     
-     my ($right) = BarCoordinateToFigCoordinate(2, $SEQUENCE_COUNT - 1, $CLUSTER_COUNT - 1, 1.1, 0);
+    my $height_per_codelet = $MAX_BAR_HEIGHT / $MaxSteps;
 
-     my $height_per_codelet = $MAX_BAR_HEIGHT / $MaxSteps;
+    for ( my $count = 0 ; $count <= $MaxSteps ; $count += $x_tab_step ) {
+        my $label = $count;
+        if ( $count % 1000 == 0 ) {
+            $label = ( $count / 1000 ) . 'k';
+        }
+        DrawScaleLine(
+            {
+                left  => $left,
+                right => $right,
+                label => $label,
+                y     => $bottom - $count * $height_per_codelet,
+            }
+        );
+    }
+}
 
-     for ( my $count = 0 ; $count <= $MaxSteps ; $count += $x_tab_step ) {
-         my $label = $count;
-         if ( $count % 1000 == 0 ) {
-             $label = ( $count / 1000 ) . 'k';
-         }
-         DrawScaleLine(
-             {
-                 left => $left,
-                 right => $right,
-                 label  => $label,
-                 y      => $bottom - $count * $height_per_codelet,
-             }
-         );
-     }
- }
-
- sub DrawScaleLine {
-     my ($opts_ref) = @_;
-     my %opts_ref = %$opts_ref;
-     my ( $left, $right, $label, $y ) = @opts_ref{qw(left right label y)};
-     $Canvas->createLine( $left, $y, $right, $y, @{ SCALE_LINE_OPTIONS() } );
-     $Canvas->createText(
-         $left - 3, $y,
-         -text   => $label,
-         -anchor => 'e',
-         @{ SCALE_TEXT_OPTIONS() }
-     );
- }
+sub DrawScaleLine {
+    my ($opts_ref) = @_;
+    my %opts_ref = %$opts_ref;
+    my ( $left, $right, $label, $y ) = @opts_ref{qw(left right label y)};
+    $Canvas->createLine( $left, $y, $right, $y, @{ SCALE_LINE_OPTIONS() } );
+    $Canvas->createText(
+        $left - 3, $y,
+        -text   => $label,
+        -anchor => 'e',
+        @{ SCALE_TEXT_OPTIONS() }
+    );
+}
 

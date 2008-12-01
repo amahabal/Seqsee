@@ -25,6 +25,9 @@ my %filtered_data_of : ATTR(:get<filtered_data>);
 my %filters_of : ATTR(:name<filters>);
 
 my %is_human_data_of : ATTR(:name<is_human_data>);
+my %is_ltm_data_of : ATTR(:get<is_ltm_data> :set<is_ltm_data>);
+my %is_ltm_self_context_of :
+  ATTR(:get<is_ltm_self_context> :set<is_ltm_self_context>);
 
 my %result_set_of : ATTR(:name<result_set>);
 my %results_by_sequence_of :
@@ -36,9 +39,18 @@ my $INHUMAN_FILTER = ['inhuman'];
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
 
-    $result_set_of{$id}    = $opts_ref->{result_set};
-    $filtered_data_of{$id} = [ @{ $result_set_of{$id}->get_data() } ];
+    $result_set_of{$id} = $opts_ref->{result_set};
     my $is_human_data = $is_human_data_of{$id} = $opts_ref->{is_human_data};
+    my $is_ltm_data   = $is_ltm_data_of{$id}   = $opts_ref->{is_ltm_data};
+    my $is_ltm_self_context = $is_ltm_self_context_of{$id} =
+      $opts_ref->{is_ltm_self_context};
+
+    if ($is_ltm_data) {
+        $filtered_data_of{$id} = [ @{ $result_set_of{$id}->get_ltm_data() } ];
+    }
+    else {
+        $filtered_data_of{$id} = [ @{ $result_set_of{$id}->get_data() } ];
+    }
 
     if ($is_human_data) {
         $filters_of{$id} = [$HUMAN_FILTER];
@@ -53,21 +65,54 @@ sub BUILD {
     }
 
     my %by_sequence;
-    for my $result_set ( @{ $filtered_data_of{$id} } ) {
-        my $seq = $result_set->get_terms;
-        my @results = map { Storable::thaw($_) } @{ $result_set->get_results };
+    my @sequences_to_track;
+    if ($is_ltm_self_context) {
+        # Add stuff indexed by position, not sequence!
+        my $result_set = $result_set_of{$id};
+        ### result_set: $result_set
 
-        if ($is_human_data) {
-            for (@results) {
-                $_->set_steps( $_->get_steps() * 100 );
+        my @LTM_Results = @{$result_set->get_ltm_data()};
+        ### LTM_Results: @LTM_Results
+
+        my $sequence_under_consideration = $opts_ref->{sequence};
+        $sequence_under_consideration =~ m#(.*)\|#;
+        my $revealed_terms = FilterableResultSets::TrimSequence($1);
+        my @acceptable_LTM_results = grep {
+            my $terms = $_->get_terms;
+            $terms =~ m#(.*)\|#;
+            FilterableResultSets::TrimSequence($1) eq $revealed_terms;
+        } @LTM_Results;
+
+        ### acceptable_LTM_results: @acceptable_LTM_results
+
+        for my $results_of_test (@acceptable_LTM_results) {
+            my @results = map { Storable::thaw($_)} @{$results_of_test->get_results};
+            for my $idx (1..10) {
+                push @{ $by_sequence{"iteration_$idx"}}, $results[$idx - 1];
+                ### num, res: $idx, $results[$idx -1]
             }
         }
+        @sequences_to_track = map { "iteration_$_" } (1..10);
+        ### sequences_to_track: @sequences_to_track
+    }
+    else {
 
-        push @{ $by_sequence{$seq} }, @results;
+        for my $result_set ( @{ $filtered_data_of{$id} } ) {
+            my $seq = $result_set->get_terms;
+            my @results =
+              map { Storable::thaw($_) } @{ $result_set->get_results };
+
+            if ($is_human_data) {
+                for (@results) {
+                    $_->set_steps( $_->get_steps() * 100 );
+                }
+            }
+
+            push @{ $by_sequence{$seq} }, @results;
+        }
+        @sequences_to_track = @{ $result_set_of{$id}->get_sequences_to_track_aref() };
     }
 
-    my @sequences_to_track =
-      @{ $result_set_of{$id}->get_sequences_to_track_aref() };
     for my $seq (@sequences_to_track) {
         my $results_ref = $by_sequence{$seq} || [];
         my $rsir =
