@@ -26,8 +26,9 @@ my %options;
 GetOptions \%options, "graph_spec=s", "outfile=s";
 read_config $options{graph_spec} => my %Config;
 
-my $CLUSTER_COUNT = $Config{General}{ClusterCount} ||= 1;
-my $SEQUENCE_COUNT = scalar( @{ $Config{Sequences}{seq} } );
+my $CLUSTER_COUNT              = $Config{General}{ClusterCount} ||= 1;
+my $SEQUENCE_COUNT             = scalar( @{ $Config{Sequences}{seq} } );
+my $SEQUENCES_TO_DISPLAY_COUNT = $SEQUENCE_COUNT;
 
 my $FRS = new FilterableResultSets(
     { sequences_filename => $Config{General}{TestSet} } );
@@ -82,44 +83,90 @@ for my $cluster_num ( 1 .. $CLUSTER_COUNT ) {
       );
 }
 
-my $MARGIN                = 25;
-my $CHART_SEQ_SEPARATION  = 15;
-my $CHART_BAR_HEIGHT      = 10 + 5 * $CLUSTER_COUNT;
-my $CHART_BAR_SEPARATION  = 10;
-my $SEQUENCE_HEIGHT       = 30;
-my $SEQUENCE_SEPARATION   = 20;
-my $PERCENT_CORRECT_WIDTH = 150;
-my $NUM_CORRECT_WIDTH     = 40;
-my $CODELET_COUNT_WIDTH   = 300;
-my $HORIZONTAL_SEPARATION = 30;
-my $HORIZONTAL_OFFSET     = 30;
+#==== HORIZONTAL
+my $FIG_WIDTH                = 600;
+my $FIG_L_MARGIN             = 20;
+my $FIG_R_MARGIN             = 20;
+my $CHART_CHART_SEPARATION   = 20;
+my $CHART_L_MARGIN           = 10;
+my $CHART_R_MARGIN           = 10;
+my $INTER_CLUSTER_SEPARATION = 10;
+my $INTER_BAR_SEPARATION     = 5;
+my $MAX_BAR_WIDTH            = 10;
 
-my $Y_OFFSET_FOR_SEQUENCES =
-  $MARGIN +
-  $CHART_SEQ_SEPARATION +
-  $SEQUENCE_COUNT * ( $CHART_BAR_SEPARATION + $CHART_BAR_HEIGHT );
-my $UNIT_CANVAS_HEIGHT =
-  $CHART_BAR_HEIGHT +
-  $CHART_BAR_SEPARATION +
-  $SEQUENCE_HEIGHT +
-  $SEQUENCE_SEPARATION;
+#=== VERTICAL
+my $FIG_T_MARGIN              = 20;
+my $FIG_B_MARGIN              = 20;
+my $INTER_SEQUENCE_SEPARATION = 15;
+my $SEQUENCE_HEIGHT = 20;
+my $SEQUENCES_CHART_SEPARATION = 20;
+my $CHART_T_MARGIN             = 20;
+my $CHART_B_MARGIN             = 20;
+my $CHART_HEIGHT               = 100;
 
-my $SUB_BAR_SEPARATION = 3;
-my $SUB_BAR_HEIGHT =
-  ( $CHART_BAR_HEIGHT - ( $CLUSTER_COUNT - 1 ) * $SUB_BAR_SEPARATION ) /
-  $CLUSTER_COUNT;
-my $SUB_BAR_UNIT_OFFSET = $SUB_BAR_SEPARATION + $SUB_BAR_HEIGHT;
+#=== HORIZONTAL CALCULATED
+my $EFFECTIVE_FIG_WIDTH = $FIG_WIDTH - $FIG_L_MARGIN - $FIG_R_MARGIN;
+my $CHART_WIDTH        = ( $EFFECTIVE_FIG_WIDTH - $CHART_CHART_SEPARATION ) / 2;
+my $SEQUENCES_H_OFFSET = $FIG_L_MARGIN;
+my $CHART1_H_OFFSET    = $FIG_L_MARGIN;
+my $CHART2_H_OFFSET = $CHART1_H_OFFSET + $CHART_WIDTH + $CHART_CHART_SEPARATION;
+my $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
+my $MAX_CLUSTER_WIDTH =
+  ( $EFFECTIVE_CHART_WIDTH -
+      $INTER_CLUSTER_SEPARATION * ( $SEQUENCE_COUNT - 1 ) ) / $SEQUENCE_COUNT;
+my $BAR_WIDTH = min( $MAX_BAR_WIDTH,
+    ( $MAX_CLUSTER_WIDTH - $INTER_BAR_SEPARATION * ( $CLUSTER_COUNT - 1 ) ) /
+      $CLUSTER_COUNT );
+my $CLUSTER_WIDTH =
+  $CLUSTER_COUNT * ( $BAR_WIDTH + $INTER_BAR_SEPARATION ) -
+  $INTER_BAR_SEPARATION;
 
-my $EFFECTIVE_HEIGHT =
-  $SEQUENCE_COUNT * $UNIT_CANVAS_HEIGHT + $CHART_SEQ_SEPARATION;
-my $EFFECTIVE_WIDTH =
-  $HORIZONTAL_OFFSET +
-  $PERCENT_CORRECT_WIDTH +
-  $NUM_CORRECT_WIDTH +
-  $CODELET_COUNT_WIDTH +
-  2 * $HORIZONTAL_SEPARATION;
-my $WIDTH  = $EFFECTIVE_WIDTH + 2 * $MARGIN;
-my $HEIGHT = $EFFECTIVE_HEIGHT + 2 * $MARGIN;
+my $HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET =
+  ( $MAX_CLUSTER_WIDTH - $CLUSTER_WIDTH ) / 2;
+
+#=== VERTICAL CALCULATED
+my $SEQUENCES_V_OFFSET = $FIG_T_MARGIN;
+my $SEQUENCES_HEIGHT =
+  ( $SEQUENCE_HEIGHT * $SEQUENCES_TO_DISPLAY_COUNT ) +
+  ( $INTER_SEQUENCE_SEPARATION * ( $SEQUENCES_TO_DISPLAY_COUNT - 1 ) );
+my $SEQUENCES_BOTTOM = $SEQUENCES_HEIGHT + $SEQUENCES_V_OFFSET;
+my $CHART_V_OFFSET   = $SEQUENCES_BOTTOM + $SEQUENCES_CHART_SEPARATION;
+my $CHART_BOTTOM     = $CHART_V_OFFSET + $CHART_HEIGHT;
+my $MAX_BAR_HEIGHT   = $CHART_HEIGHT - $CHART_T_MARGIN - $CHART_B_MARGIN;
+my $BAR_BOTTOM       = $CHART_BOTTOM - $CHART_B_MARGIN;
+my $FIG_HEIGHT       = $CHART_BOTTOM + $FIG_B_MARGIN;
+
+sub HorizontalClusterOffset {
+    my ( $chart_num, $sequence_num ) = @_;
+    my $chart_offset =
+      ( $chart_num == 1 ) ? $CHART1_H_OFFSET : $CHART2_H_OFFSET;
+    return $chart_offset + $CHART_L_MARGIN +
+      $sequence_num * ( $MAX_CLUSTER_WIDTH + $INTER_CLUSTER_SEPARATION );
+}
+
+sub HorizontalClusterCenterOffset {
+    my ( $chart_num, $sequence_num ) = @_;
+    HorizontalClusterOffset( $chart_num, $sequence_num ) +
+      $MAX_CLUSTER_WIDTH / 2;
+}
+
+sub HorizontalBarOffset {
+    my ( $chart_num, $sequence_num, $cluster_num ) = @_;
+    HorizontalClusterOffset( $chart_num, $sequence_num ) +
+      $HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET +
+      $cluster_num * ( $BAR_WIDTH + $INTER_BAR_SEPARATION );
+}
+
+sub BarCoordinateToFigCoordinate {
+
+    # $x $y each in [0,1]. y=0 is bottom.
+    my ( $chart_num, $sequence_num, $cluster_num, $x, $y ) = @_;
+    my $horiz_offset =
+      HorizontalBarOffset( $chart_num, $sequence_num, $cluster_num );
+    my $x_ret = $horiz_offset + $x * $BAR_WIDTH;
+    my $y_ret = $BAR_BOTTOM - $y * $MAX_BAR_HEIGHT;
+    return ( $x_ret, $y_ret );
+}
 
 my $MAX_TERMS                = 35;
 my $MIN_TERMS                = 10;
@@ -131,7 +178,7 @@ my $FADE_AFTER;
 my %ARROW_ANCHORS;
 
 sub WIDTH {
-    return $EFFECTIVE_WIDTH - $HORIZONTAL_OFFSET;
+    return $EFFECTIVE_FIG_WIDTH;
 }
 
 sub HEIGHT {
@@ -153,20 +200,14 @@ use constant {
     FONT => 'Lucida 14',
 };
 
-sub BarCoordToCanvasCoord {
-    my ( $bar_num, $x, $y ) = @_;
-    my $new_y =
-      $bar_num * ( $CHART_BAR_HEIGHT + $CHART_BAR_SEPARATION ) + $MARGIN + $y;
-    return ( $MARGIN + $x, $new_y );
-}
 
 sub SeqCoordToCanvasCoord {
     my ( $seq_num, $x, $y ) = @_;
     my $new_y =
-      $Y_OFFSET_FOR_SEQUENCES +
-      $seq_num * ( $SEQUENCE_HEIGHT + $SEQUENCE_SEPARATION ) +
+      $SEQUENCES_V_OFFSET +
+      $seq_num * ( $SEQUENCE_HEIGHT + $INTER_SEQUENCE_SEPARATION ) +
       $y;
-    return ( $MARGIN + $x, $new_y );
+    return ( $SEQUENCES_H_OFFSET + $x, $new_y );
 }
 
 sub GraphSpecSeqToTestSetSeq {
@@ -187,8 +228,8 @@ sub GraphSpecSeqToTestSetSeq {
 
 my $Canvas = $MW->Canvas(
     -background => '#FFFFFF',
-    -height     => $HEIGHT,
-    -width      => $WIDTH
+    -height     => $FIG_HEIGHT,
+    -width      => $FIG_WIDTH
 )->pack( -side => 'top' );
 
 $MW->bind(
@@ -207,7 +248,7 @@ if ( my $outfile = $options{outfile} ) {
             $Canvas->postscript(
                 -file       => $outfile,
                 -pageheight => '10c',
-                -height     => $HEIGHT,
+                -height     => $FIG_HEIGHT,
             );
             exit;
           }
@@ -223,7 +264,7 @@ sub DrawChart {
     my @ResultSetsIndexedBySeq =
       map { $_->get_results_by_sequence } @ResultSets;
 
-    ### MaxSteps
+    ## MaxSteps
     my $MaxSteps;
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
         my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
@@ -244,60 +285,55 @@ sub DrawChart {
     );
 
     DrawPercentCorrectScale();
-    ### MaxSteps: $MaxSteps
+    ## MaxSteps: $MaxSteps
     DrawCodeletCountScale($MaxSteps);
-    ### Scales Drawn
+    ## Scales Drawn
 
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
         my $eff_seq = GraphSpecSeqToTestSetSeq( $seq, $test_set_sequences_aref )
           or die "$seq not present!";
         my @ResForThisSequence = map { $_->{$eff_seq} } @ResultSetsIndexedBySeq;
 
-        $Canvas->createText(
-            BarCoordToCanvasCoord( $seq_num, 20, $CHART_BAR_HEIGHT / 2 ),
-            -text   => $text_counter,
-            -anchor => 'e'
-        );
+        for my $chart_num ( 1, 2 ) {
+            $Canvas->createText(
+                HorizontalClusterCenterOffset( $chart_num, $seq_num ),
+                $CHART_BOTTOM - 5,
+                -text   => $text_counter,
+                -anchor => 's'
+            );
+        }
 
         my $subcounter = 0;
         for my $stats (@ResForThisSequence) {
-            my $color    = ClusterNumToColor($subcounter);
-            my $y_offset = ClusterNumToYOffset($subcounter);
-            my $y_bottom = $y_offset + $SUB_BAR_HEIGHT;
+            my $color = ClusterNumToColor($subcounter);
 
             # Draw % Correct
-            my $x1 = $HORIZONTAL_OFFSET;
-            my $x2 =
-              $HORIZONTAL_OFFSET +
-              $PERCENT_CORRECT_WIDTH * $stats->get_success_percentage() / 100;
+            my $fraction_correct = $stats->get_success_percentage() / 100;
             $Canvas->createRectangle(
-                BarCoordToCanvasCoord( $seq_num, $x1, $y_offset ),
-                BarCoordToCanvasCoord( $seq_num, $x2, $y_bottom ),
+                BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0, 0 ),
+                BarCoordinateToFigCoordinate(
+                    1, $seq_num, $subcounter, 1, $fraction_correct
+                ),
                 -fill => $color
             );
 
             # Num correct
             $Canvas->createText(
-                BarCoordToCanvasCoord(
-                    $seq_num,
-                    $HORIZONTAL_OFFSET +
-                      $PERCENT_CORRECT_WIDTH +
-                      $HORIZONTAL_SEPARATION,
-                    $y_offset + $SUB_BAR_HEIGHT / 2
+                BarCoordinateToFigCoordinate(
+                    1, $seq_num, $subcounter, 0.5, $fraction_correct
                 ),
                 -text   => $stats->get_successful_count(),
-                -anchor => 'w'
+                -anchor => 's'
             );
 
             # Draw Time Taken
-            $x1 = $EFFECTIVE_WIDTH - $CODELET_COUNT_WIDTH;
-            $x2 =
-              $x1 +
-              $CODELET_COUNT_WIDTH *
-              ( $stats->get_avg_time_to_success() / $MaxSteps );
+            my $fraction_of_max_steps =
+              $stats->get_avg_time_to_success() / $MaxSteps;
             $Canvas->createRectangle(
-                BarCoordToCanvasCoord( $seq_num, $x1, $y_offset ),
-                BarCoordToCanvasCoord( $seq_num, $x2, $y_bottom ),
+                BarCoordinateToFigCoordinate( 2, $seq_num, $subcounter, 0, 0 ),
+                BarCoordinateToFigCoordinate(
+                    2, $seq_num, $subcounter, 1, $fraction_of_max_steps
+                ),
                 -fill => $color
             );
             $subcounter++;
@@ -309,7 +345,7 @@ sub DrawChart {
 }
 
 sub DrawSequences {
-    ### DrawSequences:
+    ## DrawSequences:
     my $text_counter = 'a';
     my $seq_num      = 0;
     for my $seq ( @{ $Config{Sequences}{seq} } ) {
@@ -332,7 +368,7 @@ sub DrawSequences {
                 @distractor = ($distractor);
             }
 
-            if (my $instead = $seq_specific_config->{ShowInstead}) {
+            if ( my $instead = $seq_specific_config->{ShowInstead} ) {
                 $sequence_to_show = $instead;
             }
 
@@ -347,11 +383,6 @@ sub DrawSequences {
         $text_counter++;
         $seq_num++;
     }
-}
-
-sub ClusterNumToYOffset {
-    my ($cnum) = @_;
-    $cnum * $SUB_BAR_UNIT_OFFSET;
 }
 
 sub ClusterNumToColor {
@@ -378,14 +409,14 @@ sub ClusterNumToColor {
         @BarLines = ();
         ReadBarLines( \@tokens, \@BarLines );
 
-        ### GroupA: @GroupA
-        ### GroupB: @GroupB
+        ## GroupA: @GroupA
+        ## GroupB: @GroupB
 
         @GroupA = rikeysort { $_->[1] - $_->[0] } @GroupA;
         @GroupB = rikeysort { $_->[1] - $_->[0] } @GroupB;
 
-        ### GroupA: @GroupA
-        ### GroupB: @GroupB
+        ## GroupA: @GroupA
+        ## GroupB: @GroupB
         return ( \@Elements, \@GroupA, \@GroupB, \@BarLines );
     }
 
@@ -429,11 +460,11 @@ sub ClusterNumToColor {
 
     sub ReadBarLines {
         my ( $tokens_ref, $barlines_ref ) = @_;
-        ### In ReadBarLines:
+        ## In ReadBarLines:
         my $elements_seen = 0;
         for my $token (@$tokens_ref) {
             if ( $token eq '|' ) {
-                ### Token: $token
+                ## Token: $token
                 push @$barlines_ref, $elements_seen;
             }
             elsif ( $token =~ m#^ \-? \d+ #x ) {
@@ -491,7 +522,7 @@ sub DrawElements {
         $Canvas->createText(
             SeqCoordToCanvasCoord(
                 $seq_num,
-                $x_pos + $HORIZONTAL_OFFSET,
+                $x_pos,
                 $SEQUENCE_HEIGHT / 2
             ),
             -text   => $elt,
@@ -555,88 +586,84 @@ sub DrawGroup {
     my @options = @$options_ref;
     push @options, @{ FADED_GROUP_OPTIONS() } if $faded;
     $Canvas->createOval(
-        SeqCoordToCanvasCoord( $seq_num, $x1 + $HORIZONTAL_OFFSET, $y1 ),
-        SeqCoordToCanvasCoord( $seq_num, $x2 + $HORIZONTAL_OFFSET, $y2 ),
+        SeqCoordToCanvasCoord( $seq_num, $x1 , $y1 ),
+        SeqCoordToCanvasCoord( $seq_num, $x2 , $y2 ),
         @options
     );
     my $upto = $end - 1;
-    say "Drew >>$start,$upto<<";
+    # say "Drew >>$start,$upto<<";
     $ARROW_ANCHORS{"$start,$upto"} //= [ ( $x1 + $x2 ) / 2, $y1 ];
 }
 
-sub DrawPercentCorrectScale {
-    my ( $left, $top ) = BarCoordToCanvasCoord( 0, $HORIZONTAL_OFFSET, 0 );
-    my $right = $left + $PERCENT_CORRECT_WIDTH;
+ sub DrawPercentCorrectScale {
+     my ( $left, $bottom ) = BarCoordinateToFigCoordinate(1, 0, 0, -1, 0);
+     my $top = $bottom - $MAX_BAR_HEIGHT;
+     my ($right) = BarCoordinateToFigCoordinate(1, $SEQUENCE_COUNT - 1, $CLUSTER_COUNT, 1.1, 0);
 
-    my $width_per_percent = $PERCENT_CORRECT_WIDTH / 100;
+     my $height_per_percent = $MAX_BAR_HEIGHT / 100;
 
-    my $bottom =
-      ( BarCoordToCanvasCoord( $SEQUENCE_COUNT - 1, 0, $CHART_BAR_HEIGHT ) )[1];
+     for ( 0, 25, 50, 75, 100 ) {
+         DrawScaleLine(
+             {
+                 left    => $left,
+                 right => $right,
+                 label  => $_ . '%',
+                 y   => $bottom - $_ * $height_per_percent
+             }
+         );
+     }
+ }
 
-    for ( 0, 25, 50, 75, 100 ) {
-        DrawScaleLine(
-            {
-                top    => $top,
-                bottom => $bottom,
-                label  => $_ . '%',
-                x      => $left + $_ * $width_per_percent
-            }
-        );
-    }
-}
+ sub DrawCodeletCountScale {
+     my ($MaxSteps) = @_;
+     my $x_tab_step;
+     given ($MaxSteps) {
+         when ( $_ < 100 ) { $x_tab_step = 10 }
+         when ( $_ < 8000 ) {
+             my $approx_steps = $_ / 6;
+             $x_tab_step = 100 * int( $approx_steps / 100 );
+         }
+         when ( $_ < 50000 ) {
+             my $approx_steps = $_ / 6;
+             $x_tab_step = 1000 * int( $approx_steps / 1000 );
+         }
+         $x_tab_step = 10000;
+     }
 
-sub DrawCodeletCountScale {
-    my ($MaxSteps) = @_;
-    my $x_tab_step;
-    given ($MaxSteps) {
-        when ( $_ < 100 ) { $x_tab_step = 10 }
-        when ( $_ < 8000 ) {
-            my $approx_steps = $_ / 8;
-            $x_tab_step = 100 * int( $approx_steps / 100 );
-        }
-        when ( $_ < 50000 ) {
-            my $approx_steps = $_ / 8;
-            $x_tab_step = 1000 * int( $approx_steps / 1000 );
-        }
-        $x_tab_step = 10000;
-    }
+     ### x_tab_step: $x_tab_step
 
-    ### x_tab_step: $x_tab_step
+     my ( $left, $bottom ) = BarCoordinateToFigCoordinate(2, 0, 0, -1, 0);
+     my $top = $bottom - $MAX_BAR_HEIGHT;     
+     my ($right) = BarCoordinateToFigCoordinate(2, $SEQUENCE_COUNT - 1, $CLUSTER_COUNT - 1, 1.1, 0);
 
-    my ( $left, $top ) =
-      BarCoordToCanvasCoord( 0, $EFFECTIVE_WIDTH - $CODELET_COUNT_WIDTH, 0 );
-    my $right = $left + $CODELET_COUNT_WIDTH;
+     my $height_per_codelet = $MAX_BAR_HEIGHT / $MaxSteps;
 
-    my $width_per_codelet = $CODELET_COUNT_WIDTH / $MaxSteps;
+     for ( my $count = 0 ; $count <= $MaxSteps ; $count += $x_tab_step ) {
+         my $label = $count;
+         if ( $count % 1000 == 0 ) {
+             $label = ( $count / 1000 ) . 'k';
+         }
+         DrawScaleLine(
+             {
+                 left => $left,
+                 right => $right,
+                 label  => $label,
+                 y      => $bottom - $count * $height_per_codelet,
+             }
+         );
+     }
+ }
 
-    my $bottom =
-      ( BarCoordToCanvasCoord( $SEQUENCE_COUNT - 1, 0, $CHART_BAR_HEIGHT ) )[1];
-    for ( my $count = 0 ; $count <= $MaxSteps ; $count += $x_tab_step ) {
-        my $label = $count;
-        if ( $count % 1000 == 0 ) {
-            $label = ( $count / 1000 ) . 'k';
-        }
-        DrawScaleLine(
-            {
-                top    => $top,
-                bottom => $bottom,
-                label  => $label,
-                x      => $left + $count * $width_per_codelet,
-            }
-        );
-    }
-}
-
-sub DrawScaleLine {
-    my ($opts_ref) = @_;
-    my %opts_ref = %$opts_ref;
-    my ( $top, $bottom, $label, $x ) = @opts_ref{qw(top bottom label x)};
-    $Canvas->createLine( $x, $top - 3, $x, $bottom, @{ SCALE_LINE_OPTIONS() } );
-    $Canvas->createText(
-        $x, $top - 6,
-        -text   => $label,
-        -anchor => 's',
-        @{ SCALE_TEXT_OPTIONS() }
-    );
-}
+ sub DrawScaleLine {
+     my ($opts_ref) = @_;
+     my %opts_ref = %$opts_ref;
+     my ( $left, $right, $label, $y ) = @opts_ref{qw(left right label y)};
+     $Canvas->createLine( $left, $y, $right, $y, @{ SCALE_LINE_OPTIONS() } );
+     $Canvas->createText(
+         $left - 3, $y,
+         -text   => $label,
+         -anchor => 'e',
+         @{ SCALE_TEXT_OPTIONS() }
+     );
+ }
 
