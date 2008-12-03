@@ -48,22 +48,22 @@ sub _ReadDataFromDirectory {
 sub _GetDataForSequence {
     my ( $self, $opts_ref ) = @_;
     my %opts = %$opts_ref;
-    my ( $type, $sequence, $context, $min_version, $max_version,
+    my ( $source, $sequence, $context, $min_version, $max_version,
         $exact_feature_set )
       = @opts{
-        qw{type sequence context min_version max_version exact_feature_set }};
+        qw{source sequence context min_version max_version exact_feature_set }};
     my $id = ident $self;
 
     my $array_ref;
-    given ($type) {
+    given ($source) {
         when ('Seqsee') { $array_ref = $Seqsee_Data_of{$id} }
         when ('Human')  { $array_ref = $Human_Data_of{$id} }
         when ('LTM')    { $array_ref = $LTM_Data_of{$id} }
-        default { confess "type $type unknown" };
+        default { confess "source $source unknown" };
     }
 
     my @ret;
-    given ($type) {
+    given ($source) {
         when ('LTM') {
             for my $result_set (@$array_ref) {
                 next
@@ -99,5 +99,19 @@ sub _GetDataForSequence {
 
     return @ret;
 }
+
+sub GetDataForSequenceAndCluster {
+    my ($self, $opts_ref) = @_;
+    my $id = ident $self;
+    my $sequence = $opts_ref->{sequence} 
+           // confess "Missing required argument 'sequence'";
+    my $cluster = $opts_ref->{cluster} 
+           // confess "Missing required argument 'cluster'";
+    
+    my $source = $cluster->get_source();
+}
+               
+    
+
 
 1;
