@@ -14,15 +14,16 @@ ACTIONS: {
         my ( $extent_left, $extent_right ) = $core->get_extent;
         my $relntype                = $core->get_type();
         my $relationtype_activation = SLTM::SpikeBy( 5, $relntype );
+        my $are_ends_contiguous = $core->are_ends_contiguous();
 
-        if ( $relntype->IsEffectivelyASamenessRelation() ) {
+        if ( $are_ends_contiguous and $relntype->IsEffectivelyASamenessRelation() ) {
             CODELET 100, AreTheseGroupable,
                 {
                 items => [ $end1, $end2 ],
                 reln  => $core,
                 };
         }
-        elsif ( not SWorkspace::__GetObjectsWithEndsBeyond( $extent_left, $extent_right ) ) {
+        elsif ( $are_ends_contiguous and not SWorkspace::__GetObjectsWithEndsBeyond( $extent_left, $extent_right ) ) {
             CODELET 80, AreTheseGroupable,
                 {
                 items => [ $end1, $end2 ],

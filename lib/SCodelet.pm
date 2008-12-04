@@ -18,7 +18,7 @@ sub as_text {
 sub run {
     my $self = shift;
     if ($Global::debugMAX) {
-        main::message("About to run: " . SUtil::StringifyForCarp($self));
+        main::message([$self->[0], 'green', "About to run: " . SUtil::StringifyForCarp($self)]);
     }
     return unless CheckFreshness( $self->[2], values %{ $self->[3] } );
     $Global::CurrentCodelet       = $self;

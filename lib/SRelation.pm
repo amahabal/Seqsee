@@ -37,6 +37,14 @@ sub get_extent {
     return ( $l, $r );
 }
 
+sub are_ends_contiguous {
+    my ($self) = @_;
+    my ( $f, $s ) = $self->get_ends();
+    my $l = List::Util::max( $f->get_left_edge(),  $s->get_left_edge() );
+    my $r = List::Util::min( $f->get_right_edge(), $s->get_right_edge() );
+    return ($l == $r + 1) ? 1 : 0;
+}
+
 sub insert {
     my ($self) = @_;
 

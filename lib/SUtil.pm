@@ -273,6 +273,8 @@ sub StringifyForCarp {
                 $arg .= "$k => ";
                 if ( UNIVERSAL::can( $v, 'as_text' ) ) {
                     $arg .= '«' . $v->as_text() . '»';
+                } elsif (ref($v) eq 'ARRAY') {
+                    $arg .= '[ ' . join(', ', map { UNIVERSAL::can($_, 'as_text') ? $_->as_text() : $_ } @{$v}) .' ]';
                 }
                 else {
                     $arg .= "$v";

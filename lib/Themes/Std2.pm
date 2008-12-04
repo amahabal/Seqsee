@@ -42,7 +42,7 @@ fill: { HSV( 240, 50, 50 ) }
 STYLE Relation( $strength !, $hilit ! ) is {
 arrow: {'last'}
 width: { $hilit ? 5 : 3 }
-fill: { $hilit ? "#00FF00" : HSV( 60, 40, 80 - 0.5 * $strength ) }
+fill: { $hilit ? "#00FF00" : "#777777" }
 smooth: {1}
 }
 
@@ -86,7 +86,7 @@ STYLE Group2( $meto!, $category_name!, $is_largest!) is {
 STYLE GroupBorder( $hilit ! ) is {
 outline: {
         if ( $hilit == 1 ) {
-            '#00FF00';
+            '#000000';
         }
         elsif ( $hilit == 2 ) {
             '#0000FF';
@@ -94,6 +94,13 @@ outline: {
         else { HSV( 240, 70, 70 ) }
     }
 width: { 2 + 2 * $hilit }
+  dash: {
+        if ($hilit == 1) {
+            '---'
+        } else {
+            undef
+        }
+}
 }
 
 STYLE ElementAttention( $attention ! ) is {
