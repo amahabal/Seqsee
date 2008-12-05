@@ -1,6 +1,24 @@
 package Perf::FeatureSet;
-use ModuleSets::Standard;
-use ModuleSets::Seqsee;
+
+## STANDARD MODULES THAT I INCLUDE EVERYWHERE
+use strict;
+use warnings;
+
+use List::Util qw{min max sum first};
+use Time::HiRes;
+use Getopt::Long;
+use Storable;
+
+use File::Slurp;
+use Smart::Comments;
+use IO::Prompt;
+use Class::Std;
+use Class::Multimethods;
+
+use Carp;
+## END OF STANDARD INCLUDES
+
+
 
 my @Inconsequential_features = qw{debug CodeletTree
   LogActivations debugMAX};

@@ -1,6 +1,24 @@
 package Perf::TestSequence;
-use ModuleSets::Standard;
-use ModuleSets::Seqsee;
+
+## STANDARD MODULES THAT I INCLUDE EVERYWHERE
+use strict;
+use warnings;
+
+use List::Util qw{min max sum first};
+use Time::HiRes;
+use Getopt::Long;
+use Storable;
+
+use File::Slurp;
+use Smart::Comments;
+use IO::Prompt;
+use Class::Std;
+use Class::Multimethods;
+
+use Carp;
+## END OF STANDARD INCLUDES
+
+
 
 my %String_of : ATTR(:name<string>);
 my %Revealed_of : ATTR(:get<revealed>);
@@ -28,7 +46,7 @@ sub _TrimSequence {
     my ($sequence_string) = @_;
     $sequence_string =~ s#^\s*##;
     $sequence_string =~ s#\s*##;
-    return join( ' ', split( /\D+/, $sequence_string ) );
+    return join( ' ', split( /[^\d\-]+/, $sequence_string ) );
 }
 
 sub _NormalizeTestSequence {

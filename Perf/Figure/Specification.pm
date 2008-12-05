@@ -1,6 +1,24 @@
 package Perf::Figure::Specification;
-use ModuleSets::Standard;
-use ModuleSets::Seqsee;
+use 5.10.0;
+
+## STANDARD MODULES THAT I INCLUDE EVERYWHERE
+use strict;
+use warnings;
+
+use List::Util qw{min max sum first};
+use Time::HiRes;
+use Getopt::Long;
+use Storable;
+
+use File::Slurp;
+use Smart::Comments;
+use IO::Prompt;
+use Class::Std;
+use Class::Multimethods;
+use Config::Std;
+
+use Carp;
+## END OF STANDARD INCLUDES
 
 # Enough information to draw the chart fully.
 my %Title_of : ATTR(:name<title>);
@@ -23,7 +41,7 @@ sub new_from_specfile {
 
     read_config $specfile, my %Config;
     my $type = $Config{''}{Type};
-    my $title => $Config{''}{Title};
+    my $title = $Config{''}{Title};
 
     ## Cluster Count
     my $Cluster_Count =
@@ -42,7 +60,7 @@ sub new_from_specfile {
     for my $i ( 1 .. scalar(@sequence_strings) ) {
         my $config_for_sequence = $Config{ 'Sequence_' . $i } || {};
         push @display_sequences,
-          Perf::Figure::SequenceToDraw->new_from_specfile(
+          Perf::Figure::SequenceToDraw->new(
             {
                 string         => $sequence_strings[ $i - 1 ],
                 config         => $config_for_sequence,
@@ -59,10 +77,10 @@ sub new_from_specfile {
             my $config = $Config{ 'Cluster_' . $_ } || {};
             if ( exists $config->{context} ) {
                 push @display_sequences,
-                  Perf::Figure::SequenceToDraw->new_from_specfile(
+                  Perf::Figure::SequenceToDraw->new(
                     {
                         string => $config->{context},
-                        config => $Config->{ 'Cluster_Config_' . $_ } || {},
+                        config => $Config{ 'Cluster_Config_' . $_ } || {},
                         possible_label => 'context',
                     }
                   );
@@ -72,34 +90,32 @@ sub new_from_specfile {
 
     # Sequences to chart;
     my @Sequences_to_Chart;
-    given ($type) {
-        when ('NonLTM') {
-            for my $sequence_string (@sequence_strings) {
-                state $label = 'a';
-                push @Sequences_to_Chart,
-                  Perf::Figure::SequenceToChart->new(
-                    {
-                        string             => $sequence_string,
-                        label              => $label,
-                        clusters           => \@Clusters,
-                        all_read_data      => $all_read_data,
-                        is_ltm_self_config => 0
-                    }
-                  );
-                $label++;
-            }
-        }
-        default {
-            my $label = '';
-            $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
+    if ( $type eq 'NonLTM' ) {
+        for my $sequence_string (@sequence_strings) {
+            state $label = 'a';
+            push @Sequences_to_Chart,
+              Perf::Figure::SequenceToChart->new(
                 {
+                    string             => $sequence_string,
                     label              => $label,
-                    is_ltm_self_config => 1,
-                    string             => $sequence_strings[0],
+                    clusters           => \@Clusters,
                     all_read_data      => $all_read_data,
+                    is_ltm_self_config => 0
                 }
-            );
+              );
+            $label++;
         }
+    }
+    else {
+        my $label = '';
+        $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
+            {
+                label              => $label,
+                is_ltm_self_config => 1,
+                string             => $sequence_strings[0],
+                all_read_data      => $all_read_data,
+            }
+        );
     }
 
     return $package->new(
