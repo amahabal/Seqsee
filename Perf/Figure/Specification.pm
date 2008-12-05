@@ -54,20 +54,25 @@ sub new_from_specfile {
 
     $display_sequences[0]->set_label('Sequence') if $type eq 'LTM_SELF_CONTEXT';
 
+    if ( $type eq 'LTM_WITH_CONTEXT' ) {
+        for ( 1 .. $Cluster_Count ) {
+            my $config = $Config{ 'Cluster_' . $_ } || {};
+            if ( exists $config->{context} ) {
+                push @display_sequences,
+                  Perf::Figure::SequenceToDraw->new_from_specfile(
+                    {
+                        string => $config->{context},
+                        config => $Config->{ 'Cluster_Config_' . $_ } || {},
+                        possible_label => 'context',
+                    }
+                  );
+            }
+        }
+    }
+
     # Sequences to chart;
     my @Sequences_to_Chart;
     given ($type) {
-        when ('LTM_SELF_CONTEXT') {
-            my $label = '';
-            $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
-                {
-                    label              => $label,
-                    is_ltm_self_config => 1,
-                    string             => $sequence_strings[0],
-                    all_read_data      => $all_read_data,
-                }
-            );
-        }
         when ('NonLTM') {
             for my $sequence_string (@sequence_strings) {
                 state $label = 'a';
@@ -83,6 +88,17 @@ sub new_from_specfile {
                   );
                 $label++;
             }
+        }
+        default {
+            my $label = '';
+            $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
+                {
+                    label              => $label,
+                    is_ltm_self_config => 1,
+                    string             => $sequence_strings[0],
+                    all_read_data      => $all_read_data,
+                }
+            );
         }
     }
 
@@ -105,15 +121,4 @@ sub _ForceToBeARef {
     return ( ref($arg) eq 'ARRAY' ) ? $arg : [$arg];
 }
 
-### CUT STUFF
-# Read the context.
-my $context_config = $Config{Context} // confess;
-my $sequence_string = delete $context_config->{seq};
-push @display_sequences,
-  Perf::Figure::SequenceToDraw->new_from_specfile(
-    {
-        string         => $sequence_string,
-        config         => $context_config,
-        possible_label => 'Context',
-    }
-  );
+1;

@@ -1,5 +1,4 @@
 package ModuleSets::Standard;
-use 5.10.0;
 use Filter::Macro;
 
 use strict;
@@ -16,3 +15,6 @@ use IO::Prompt;
 use Class::Std;
 use Class::Multimethods;
 
+use Carp;
+
+1;
