@@ -78,6 +78,9 @@ sub _think_the_current_thought {
     my $thought = $self->{CurrentThought};
     return unless $thought;
 
+    $Global::CurrentCodelet = $thought;
+    $Global::CurrentCodeletFamily = ref($thought);
+
     my $fringe = $thought->get_fringe();
     ## $fringe
     $thought->set_stored_fringe($fringe);

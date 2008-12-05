@@ -54,6 +54,8 @@ sub conditionally_run {
     no strict;
     my $family = $family_of{$id};
     $SCoderack::HistoryOfRunnable{"SCF::$family"}++;
+    $Global::CurrentCodelet = $self;
+    $Global::CurrentCodeletFamily = 'Action ' . $family;
     my $code   = *{ "SCF::$family" . "::run" }{CODE}
         or SCodelet::fishy_codefamily($family);
     $code->( $self, $args_of_of{$id} );

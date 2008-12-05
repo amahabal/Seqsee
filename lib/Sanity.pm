@@ -6,6 +6,7 @@ multimethod SanityFail => ('$') => sub {
     my ($m) = @_;
     my $msg
         = "Entered inconsistent state after a $Global::CurrentRunnableString.($Global::Steps_Finished)\n$m";
+    $msg .= "The codelet was: " . $Global::CurrentCodelet->as_text;
     main::message($msg);
     confess "Sanity failed... exiting!";
 };
@@ -89,6 +90,9 @@ multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
 multimethod SanityCheck => qw(SRelation) => sub {
     my ($rel)  = @_;
     my (@ends) = $rel->get_ends();
+    if ($ends[0]->get_left_edge() > $ends[1]->get_left_edge()) {
+        SanityFail("Leftward relation " .  $rel->as_text .'!');
+    }
     for (@ends) {
         SanityFail("End of a relation is a metonymed object") if $_->IsThisAMetonymedObject();
     }

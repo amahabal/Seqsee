@@ -281,29 +281,32 @@ CodeletFamily FindIfRelated(   $a!, $b!) does {
 
 CodeletFamily AttemptExtensionOfRelation( $core !, $direction ! ) does {
 NAME: { Attempt Extension of Analogy }
-INITIAL: { multimethod '__PlonkIntoPlace'; }
+INITIAL: { multimethod '__PlonkIntoPlace'; multimethod 'SanityCheck'; }
 RUN: { 
+        ## Codelet started:
         my $transform = $core->get_type();
         my ($end1, $end2) = $core->get_ends();
-
+        ## ends: $end1->as_text, $end2->as_text
         my ($effective_transform, $object_at_end);
-        given ($direction) {
-            when ($DIR::RIGHT) {
-                ($effective_transform, $object_at_end) = ($transform, $end2);
-            }
-            when ($DIR::LEFT) {
-                $effective_transform = $transform->FlippedVersion() or return;
-                $object_at_end = $end1;
-            }
+        if ($direction eq $DIR::RIGHT) {
+            ($effective_transform, $object_at_end) = ($transform, $end2);
+            ## Thought it was right:
+        } else {
+            $effective_transform = $transform->FlippedVersion() or return;
+            $object_at_end = $end1;        
         }
 
         my $distance = SWorkspace::__FindDistance( $end1, $end2 );
+        ## oae_l: $object_at_end->get_left_edge(), $distance, $direction
         my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
             {   from_object => $object_at_end,
                 direction   => $direction,
                 distance    => $distance,
             }
         );
+        ## next_pos: $next_pos
+        return unless defined($next_pos);
+        ## distance, next_pos: $distance, $next_pos
         return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
 
         my $what_next = ApplyTransform( $effective_transform,
@@ -333,6 +336,7 @@ RUN: {
             }
       };
 
+        ## is_this_what_is_present:
         if ($is_this_what_is_present) {
             SLTM::SpikeBy(10, $transform);
             
@@ -345,21 +349,22 @@ RUN: {
             $wso->describe_as($cat) or return;
 
             my $reln_to_add;
-            given ($direction) {
-                when ($DIR::RIGHT) { 
+            if ($direction eq $DIR::RIGHT) {
                     $reln_to_add = SRelation->new({first => $end2,
                                                    second => $wso,
                                                    type => $transform,
                                                });
-                }
-                when ($DIR::LEFT) {
+                } else {
                     $reln_to_add = SRelation->new({first => $wso,
                                                    second => $end1,
                                                    type => $transform,
                                                });
+               
                 }
-            }
             $reln_to_add->insert() if $reln_to_add;
+            ## HERE1:
+            # SanityCheck($reln_to_add);
+            ## Here2:
         }
     }
   FINAL: {
