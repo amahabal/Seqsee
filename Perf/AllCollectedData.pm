@@ -1,4 +1,5 @@
 package Perf::AllCollectedData;
+use 5.10.0;
 
 ## STANDARD MODULES THAT I INCLUDE EVERYWHERE
 use strict;
@@ -36,7 +37,9 @@ sub _ReadDataFromDirectory {
     my ($directory) = @_;
     my @ret;
 
+    $| = 1;
     for my $filename (<$directory/*>) {
+        print '.';
         my $text       = read_file($filename);
         my $result_set = Storable::thaw($text);
 
@@ -110,6 +113,8 @@ sub _GetDataForSequence {
     elsif ( $source eq 'Human' )  { $array_ref = $Human_Data_of{$id} }
     elsif ( $source eq 'LTM' )    { $array_ref = $LTM_Data_of{$id} }
     else                          { confess "source $source unknown" }
+
+    say "Getting data for: " , $sequence->_DUMP();
 
     my @ret;
     if ( $source eq 'LTM' ) {

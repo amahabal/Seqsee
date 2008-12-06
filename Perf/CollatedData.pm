@@ -37,16 +37,17 @@ sub BUILD {
     my @results = @{ $Data_for{$id} };
 
     unless (@results) {
-        $successful_count_of{$id}    = 0;
-        $avg_time_to_success_of{$id} = 0;
-        $sdv_time_to_success_of{$id} = 0;
-        $min_time_to_success_of{$id} = 0;
-        $max_time_to_success_of{$id} = 0;
-        $success_percentage_of{$id}  = 0;
+        $successful_count_of{$id}     = 0;
+        $avg_time_to_success_of{$id}  = 0;
+        $sdv_time_to_success_of{$id}  = 0;
+        $min_time_to_success_of{$id}  = 0;
+        $max_time_to_success_of{$id}  = 0;
+        $success_percentage_of{$id}   = 0;
         $vector_of_successful_of{$id} = vector();
         return;
     }
 
+    @results = map { Storable::thaw($_) } @results;
     my @successful =
       grep { $_->get_status()->IsSuccess() } @results;
     my @successful_times = map { $_->get_steps() } @successful;

@@ -44,6 +44,7 @@ sub IsCompatibleWith {
 
 sub _TrimSequence {
     my ($sequence_string) = @_;
+    $sequence_string =~ s#[^\d\-]# #g;
     $sequence_string =~ s#^\s*##;
     $sequence_string =~ s#\s*##;
     return join( ' ', split( /[^\d\-]+/, $sequence_string ) );

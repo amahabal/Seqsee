@@ -40,7 +40,7 @@ sub new_from_specfile {
       // confess "Missing required argument 'specfile'";
 
     read_config $specfile, my %Config;
-    my $type = $Config{''}{Type};
+    my $type  = $Config{''}{Type};
     my $title = $Config{''}{Title};
 
     ## Cluster Count
@@ -90,7 +90,30 @@ sub new_from_specfile {
 
     # Sequences to chart;
     my @Sequences_to_Chart;
-    if ( $type eq 'NonLTM' ) {
+    if ( $type eq 'LTM_SELF_CONTEXT' ) {
+        my $label = '';
+        $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
+            {
+                label              => $label,
+                is_ltm_self_config => 1,
+                clusters           => [ $Clusters[0] ],
+                string             => $sequence_strings[0],
+                all_read_data      => $all_read_data,
+            }
+        );
+    }
+    elsif ( $type eq 'LTM_WITH_CONTEXT' ) {
+        $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
+            {
+                string             => $sequence_strings[0],
+                label              => '',
+                clusters           => \@Clusters,
+                all_read_data      => $all_read_data,
+                is_ltm_self_config => 0
+            }
+        );
+    }
+    else {
         for my $sequence_string (@sequence_strings) {
             state $label = 'a';
             push @Sequences_to_Chart,
@@ -105,17 +128,6 @@ sub new_from_specfile {
               );
             $label++;
         }
-    }
-    else {
-        my $label = '';
-        $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
-            {
-                label              => $label,
-                is_ltm_self_config => 1,
-                string             => $sequence_strings[0],
-                all_read_data      => $all_read_data,
-            }
-        );
     }
 
     return $package->new(

@@ -36,16 +36,14 @@ sub BUILD {
     my $clusters = $opts_ref->{clusters}
       // confess "Missing required argument 'clusters'";
 
-    my $sequence = Perf::TestSequence->new(
-        {
-            string => $string
-        }
-    );
+    my $sequence = Perf::TestSequence->new( { string => $string } );
     $Label_of{$id} = $label;
     if ($is_ltm_self_config) {
         my @data_sets = $all_read_data->GetDataForSequenceAndCluster(
-            sequence => $sequence,
-            cluster  => $clusters->[0]
+            {
+                sequence => $sequence,
+                cluster  => $clusters->[0]
+            }
         );
         my @collated_data_bins;
         for ( 0 .. 9 ) {

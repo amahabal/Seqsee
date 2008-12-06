@@ -256,7 +256,7 @@ sub DrawChart {
           : @{ $spec_object->get_clusters() };
         my @cluster_names =
             ( $spec_object->get_figure_type() eq 'LTM_SELF_CONTEXT' )
-          ? ( map { 'cluster_' . $_ } ( 1 .. 10 ) )
+          ? ( map { 'cluster_' . $_} ( 0 .. 9 ) )
           : @cluster_specs;
 
         my $subcounter = 0;
@@ -319,7 +319,7 @@ sub DrawSequences {
         );
 
         my $sequence_to_show = $seq->get_sequence_with_markup;
-        my @distractor;
+        my @distractor = @{$seq->get_distractors};
 
         Show( $seq_num, $sequence_to_show, 0 );
         for my $dist (@distractor) {
