@@ -32,6 +32,8 @@ my %Clusters_of : ATTR(:name<clusters>);
 my %Sequences_to_Draw_of : ATTR(:name<sequences_to_draw>);
 my %Sequences_to_Chart_of : ATTR(:name<sequences_to_chart>);
 
+my %Draw_Chart_of : ATTR(:name<draw_chart>);
+
 sub new_from_specfile {
     my ( $package, $opts_ref ) = @_;
     my $all_read_data = $opts_ref->{all_read_data}
@@ -42,6 +44,8 @@ sub new_from_specfile {
     read_config $specfile, my %Config;
     my $type  = $Config{''}{Type};
     my $title = $Config{''}{Title};
+
+    my $draw_charts = $Config{''}{NoChart} ? 0 : 1;
 
     ## Cluster Count
     my $Cluster_Count =
@@ -109,7 +113,7 @@ sub new_from_specfile {
                 label              => '',
                 clusters           => \@Clusters,
                 all_read_data      => $all_read_data,
-                is_ltm_self_config => 0
+                is_ltm_self_config => 0,
             }
         );
     }
@@ -124,7 +128,7 @@ sub new_from_specfile {
                     label              => $label,
                     clusters           => \@Clusters,
                     all_read_data      => $all_read_data,
-                    is_ltm_self_config => 0
+                    is_ltm_self_config => 0,
                 }
               );
             $counter++;
@@ -141,6 +145,8 @@ sub new_from_specfile {
             clusters                 => \@Clusters,
             sequences_to_draw        => \@display_sequences,
             sequences_to_chart       => \@Sequences_to_Chart,
+            draw_chart              => $draw_charts
+
         }
     );
 }
