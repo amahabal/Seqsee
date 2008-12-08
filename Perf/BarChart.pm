@@ -39,9 +39,9 @@ my $FIG_B_MARGIN               = 20;
 my $INTER_SEQUENCE_SEPARATION  = 15;
 my $SEQUENCE_HEIGHT            = 20;
 my $SEQUENCES_CHART_SEPARATION = 20;
-my $CHART_T_MARGIN             = 20;
+my $CHART_T_MARGIN             = 30;
 my $CHART_B_MARGIN             = 20;
-my $CHART_HEIGHT               = 100;
+my $CHART_HEIGHT               = 120;
 
 #=== HORIZONTAL CALCULATED
 my $EFFECTIVE_FIG_WIDTH = $FIG_WIDTH - $FIG_L_MARGIN - $FIG_R_MARGIN;
@@ -165,6 +165,9 @@ use constant {
 
     SCALE_LINE_OPTIONS => [ -fill => '#EEEEEE' ],
     SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#CCCCCC' ],
+
+    CHART_RECTANGLE_OPTIONS => [ -fill => '#F8F8F8', -outline => '#EEEEEE' ],
+    BAR_HEIGHT_TEXT_OPTIONS => [ -font => 'Lucida 8' ],
     FONT => 'Lucida 14',
 };
 
@@ -233,6 +236,7 @@ sub DrawChart {
         ( map { $_ * 5000 } ( 3 .. 100 ) )
     );
 
+    DrawChartTitles();
     DrawPercentCorrectScale();
     ## MaxSteps: $MaxSteps
     DrawCodeletCountScale($MaxSteps);
@@ -256,7 +260,7 @@ sub DrawChart {
           : @{ $spec_object->get_clusters() };
         my @cluster_names =
             ( $spec_object->get_figure_type() eq 'LTM_SELF_CONTEXT' )
-          ? ( map { 'cluster_' . $_} ( 0 .. 9 ) )
+          ? ( map { 'cluster_' . $_ } ( 0 .. 9 ) )
           : @cluster_specs;
 
         my $subcounter = 0;
@@ -272,6 +276,14 @@ sub DrawChart {
 
             ## cluster_name, data_by_cluster, data_for_this_bar: $cluster_name, $data_by_cluster, $data_for_this_bar, @cluster_names
 
+            $Canvas->createRectangle(
+                BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0, 0 ),
+                BarCoordinateToFigCoordinate(
+                    1, $seq_num, $subcounter, 1, 1
+                ),
+                -fill    => '#eeeeee',
+                -outline => '#eeeeee',
+            );
             my $fraction_correct = $stats->get_success_percentage() / 100;
             $Canvas->createRectangle(
                 BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0, 0 ),
@@ -284,10 +296,20 @@ sub DrawChart {
             # Num correct
             $Canvas->createText(
                 BarCoordinateToFigCoordinate(
+                    1, $seq_num, $subcounter, 0.5, $fraction_correct + 0.1
+                ),
+                -text   => $stats->get_successful_count() . '/',
+                -anchor => 's',
+                @{BAR_HEIGHT_TEXT_OPTIONS()}
+            );
+
+            $Canvas->createText(
+                BarCoordinateToFigCoordinate(
                     1, $seq_num, $subcounter, 0.5, $fraction_correct
                 ),
-                -text   => $stats->get_successful_count(),
-                -anchor => 's'
+                -text   => $stats->get_total_count(),
+                -anchor => 's',
+                @{BAR_HEIGHT_TEXT_OPTIONS()}
             );
 
             # Draw Time Taken
@@ -310,21 +332,21 @@ sub DrawChart {
 
 sub DrawSequences {
     my ($graph_spec) = @_;
-    my $seq_num      = 0;
+    my $seq_num = 0;
     for my $seq ( @{ $graph_spec->get_sequences_to_draw } ) {
         $Canvas->createText(
-            SeqCoordToCanvasCoord( $seq_num, 20, $SEQUENCE_HEIGHT / 2 ),
+            SeqCoordToCanvasCoord( $seq_num, 0, $SEQUENCE_HEIGHT / 2 ),
             -text   => $seq->get_label(),
             -anchor => 'e'
         );
 
         my $sequence_to_show = $seq->get_sequence_with_markup;
-        my @distractor = @{$seq->get_distractors};
+        my @distractor       = @{ $seq->get_distractors };
 
         Show( $seq_num, $sequence_to_show, 0 );
         for my $dist (@distractor) {
             my ( $start, $end ) = split( ' ', $dist );
-            DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS );
+            DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS, 1 );
         }
 
         $seq_num++;
@@ -362,13 +384,16 @@ sub DrawSequences {
 
     sub Tokenize {
         my ($string) = @_;
+
         # print $string, "\n";
         $string =~ s#,# #g;
+
         # print $string, "\n";
         $string =~ s#([\(\)\[\]\<\>\{\}\|])# $1 #g;
         $string =~ s#\.\.\.# ... #g;
         $string =~ s#^\s*##;
         $string =~ s#\s*$##;
+
         # print $string, "\n";
         return split( /\s+/, $string );
     }
@@ -503,7 +528,8 @@ sub DrawArrows {
 }
 
 sub DrawGroup {
-    my ( $seq_num, $start, $end, $extra_width, $options_ref ) = @_;
+    my ( $seq_num, $start, $end, $extra_width, $options_ref, $is_distractor ) =
+      @_;
     my $faded = 1 if $end > $FADE_AFTER;
     my $span = $end - $start;
     my ( $x1, $x2 ) = (
@@ -521,7 +547,8 @@ sub DrawGroup {
     my ( $y1, $y2 ) = ( Y_CENTER() - $y_delta, Y_CENTER() + $y_delta );
 
     my @options = @$options_ref;
-    push @options, @{ FADED_GROUP_OPTIONS() } if $faded;
+    push @options, @{ FADED_GROUP_OPTIONS() }
+      if ( $faded and not $is_distractor );
     $Canvas->createOval( SeqCoordToCanvasCoord( $seq_num, $x1, $y1 ),
         SeqCoordToCanvasCoord( $seq_num, $x2, $y2 ), @options );
     my $upto = $end - 1;
@@ -605,6 +632,33 @@ sub DrawScaleLine {
         -text   => $label,
         -anchor => 'e',
         @{ SCALE_TEXT_OPTIONS() }
+    );
+}
+
+sub DrawChartTitles {
+    $Canvas->createRectangle(
+        $CHART1_H_OFFSET, $CHART_V_OFFSET,
+        $CHART1_H_OFFSET + $CHART_WIDTH,
+        $CHART_BOTTOM,
+        @{CHART_RECTANGLE_OPTIONS()},
+    );
+    $Canvas->createRectangle(
+        $CHART2_H_OFFSET, $CHART_V_OFFSET,
+        $CHART2_H_OFFSET + $CHART_WIDTH,
+        $CHART_BOTTOM,
+        @{CHART_RECTANGLE_OPTIONS()},
+    );
+    my $center1 = $CHART1_H_OFFSET + $CHART_WIDTH / 2;
+    my $center2 = $CHART2_H_OFFSET + $CHART_WIDTH / 2;
+    $Canvas->createText(
+        $center1, $CHART_V_OFFSET,
+        -text   => 'Percent Correct',
+        -anchor => 'n'
+    );
+    $Canvas->createText(
+        $center2, $CHART_V_OFFSET,
+        -text   => 'Time Taken When Correct',
+        -anchor => 'n'
     );
 }
 

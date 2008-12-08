@@ -23,6 +23,8 @@ use Statistics::Basic qw{:all};
 # Array-ref, each a ResultOfTestRun
 my %Data_for : ATTR(:name<data>);
 
+my %total_count_of :ATTR(:name<total_count>);     
+
 my %successful_count_of : ATTR(:name<successful_count>);
 my %vector_of_successful_of : ATTR(:name<vector_of_successful>);
 my %avg_time_to_success_of : ATTR(:name<avg_time_to_success>);
@@ -37,6 +39,7 @@ sub BUILD {
     my @results = @{ $Data_for{$id} };
 
     unless (@results) {
+        $total_count_of{$id} = 0;
         $successful_count_of{$id}     = 0;
         $avg_time_to_success_of{$id}  = 0;
         $sdv_time_to_success_of{$id}  = 0;
@@ -48,6 +51,7 @@ sub BUILD {
     }
 
     @results = map { Storable::thaw($_) } @results;
+    $total_count_of{$id} = scalar(@results);
     my @successful =
       grep { $_->get_status()->IsSuccess() } @results;
     my @successful_times = map { $_->get_steps() } @successful;
