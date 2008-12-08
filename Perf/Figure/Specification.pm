@@ -115,7 +115,8 @@ sub new_from_specfile {
     }
     else {
         for my $sequence_string (@sequence_strings) {
-            state $label = 'a';
+            state $counter = 0;
+            my $label = $display_sequences[$counter]->get_label();
             push @Sequences_to_Chart,
               Perf::Figure::SequenceToChart->new(
                 {
@@ -126,7 +127,7 @@ sub new_from_specfile {
                     is_ltm_self_config => 0
                 }
               );
-            $label++;
+            $counter++;
         }
     }
 

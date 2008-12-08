@@ -56,8 +56,8 @@ sub BUILD {
       grep { $_->get_status()->IsSuccess() } @results;
     my @successful_times = map { $_->get_steps() } @successful;
 
-    $min_time_to_success_of{$id} = min(@successful_times);
-    $max_time_to_success_of{$id} = max(@successful_times);
+    $min_time_to_success_of{$id} = min(@successful_times) || 0;
+    $max_time_to_success_of{$id} = max(@successful_times) || 0;
 
     my $vector = $vector_of_successful_of{$id} = vector( \@successful_times );
 

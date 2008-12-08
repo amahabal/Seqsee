@@ -27,7 +27,7 @@ my $FIG_WIDTH                = 600;
 my $FIG_L_MARGIN             = 20;
 my $FIG_R_MARGIN             = 20;
 my $CHART_CHART_SEPARATION   = 20;
-my $CHART_L_MARGIN           = 15;
+my $CHART_L_MARGIN           = 20;
 my $CHART_R_MARGIN           = 10;
 my $INTER_CLUSTER_SEPARATION = 10;
 my $INTER_BAR_SEPARATION     = 5;
@@ -36,7 +36,7 @@ my $MAX_BAR_WIDTH            = 10;
 #=== VERTICAL
 my $FIG_T_MARGIN               = 20;
 my $FIG_B_MARGIN               = 20;
-my $INTER_SEQUENCE_SEPARATION  = 15;
+my $INTER_SEQUENCE_SEPARATION  = 30;
 my $SEQUENCE_HEIGHT            = 20;
 my $SEQUENCES_CHART_SEPARATION = 20;
 my $CHART_T_MARGIN             = 30;
@@ -160,7 +160,7 @@ sub Y_CENTER {
 use constant {
     GROUP_A_OPTIONS     => [ -fill    => '#DDDDDD' ],
     GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
-    FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -width => 0 ],
+    FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -dash => '._.' ],
     DISTRACTOR_OPTIONS  => [ -outline => '#0000FF', -width => 4 ],
 
     SCALE_LINE_OPTIONS => [ -fill => '#EEEEEE' ],
@@ -169,6 +169,8 @@ use constant {
     CHART_RECTANGLE_OPTIONS => [ -fill => '#F8F8F8', -outline => '#EEEEEE' ],
     BAR_HEIGHT_TEXT_OPTIONS => [ -font => 'Lucida 8' ],
     FONT => 'Lucida 14',
+        SEQUENCE_LABEL_TEXT_OPTIONS => [ -font => 'Lucida 12', -fill => '#0000FF'],
+            CHART_TITLE_OPTIONS => [-font => 'Lucida 16', -fill => '#FF0000'],
 };
 
 sub SeqCoordToCanvasCoord {
@@ -249,7 +251,8 @@ sub DrawChart {
                 HorizontalClusterCenterOffset( $chart_num, $seq_num ),
                 $CHART_BOTTOM - 5,
                 -text   => $seq->get_label(),
-                -anchor => 's'
+                -anchor => 's',
+                @{SEQUENCE_LABEL_TEXT_OPTIONS()},
             );
         }
 
@@ -271,6 +274,7 @@ sub DrawChart {
               : $cluster_specs[$subcounter];
 
             my $color             = $cluster_spec->get_color;
+            my $is_human = $cluster_spec->is_human();
             my $data_for_this_bar = $data_by_cluster->{$cluster_name};
             my $stats             = $data_for_this_bar;
 
@@ -300,7 +304,7 @@ sub DrawChart {
                 ),
                 -text   => $stats->get_successful_count() . '/',
                 -anchor => 's',
-                @{BAR_HEIGHT_TEXT_OPTIONS()}
+                @{ BAR_HEIGHT_TEXT_OPTIONS() }
             );
 
             $Canvas->createText(
@@ -309,12 +313,13 @@ sub DrawChart {
                 ),
                 -text   => $stats->get_total_count(),
                 -anchor => 's',
-                @{BAR_HEIGHT_TEXT_OPTIONS()}
+                @{ BAR_HEIGHT_TEXT_OPTIONS() }
             );
 
             # Draw Time Taken
             my $fraction_of_max_steps =
               $stats->get_avg_time_to_success() / $MaxSteps;
+            $fraction_of_max_steps *= $Perf::AllCollectedData::CODELETS_PER_SECOND if $is_human;
             $Canvas->createRectangle(
                 BarCoordinateToFigCoordinate( 2, $seq_num, $subcounter, 0, 0 ),
                 BarCoordinateToFigCoordinate(
@@ -335,9 +340,9 @@ sub DrawSequences {
     my $seq_num = 0;
     for my $seq ( @{ $graph_spec->get_sequences_to_draw } ) {
         $Canvas->createText(
-            SeqCoordToCanvasCoord( $seq_num, 0, $SEQUENCE_HEIGHT / 2 ),
+            SeqCoordToCanvasCoord( $seq_num, -10, -5 ),
             -text   => $seq->get_label(),
-            -anchor => 'e'
+            -anchor => 'sw', @{SEQUENCE_LABEL_TEXT_OPTIONS()}
         );
 
         my $sequence_to_show = $seq->get_sequence_with_markup;
@@ -364,10 +369,10 @@ sub DrawSequences {
         @GroupA = @GroupB = ();
         my @tokens = Tokenize($string);
         my @Elements = grep { m#\d|\.# } @tokens;
-        ReadGroups( \@tokens, '{', '}', \@GroupA );
-        ReadGroups( \@tokens, '[', ']', \@GroupA );
-        ReadGroups( \@tokens, '(', ')', \@GroupB );
-        ReadGroups( \@tokens, '<', '>', \@GroupB );
+        ReadGroups( \@tokens, '{', '}', \@GroupB );
+        ReadGroups( \@tokens, '[', ']', \@GroupB );
+        ReadGroups( \@tokens, '(', ')', \@GroupA );
+        ReadGroups( \@tokens, '<', '>', \@GroupA );
         @BarLines = ();
         ReadBarLines( \@tokens, \@BarLines );
 
@@ -608,7 +613,7 @@ sub DrawCodeletCountScale {
 
     for ( my $count = 0 ; $count <= $MaxSteps ; $count += $x_tab_step ) {
         my $label = $count;
-        if ( $count % 1000 == 0 ) {
+        if ( $x_tab_step % 1000 == 0 ) {
             $label = ( $count / 1000 ) . 'k';
         }
         DrawScaleLine(
@@ -620,45 +625,82 @@ sub DrawCodeletCountScale {
             }
         );
     }
+
+    # Draw Seconds axis.
+    my $max_seconds      = int( $MaxSteps / $Perf::AllCollectedData::CODELETS_PER_SECOND );
+    my $new_left         = $right + 10;
+    my $new_right        = $new_left + 20;
+    my $seconds_tab_step = int($max_seconds / 6) || 1;
+    for ( my $seconds = 0 ; $seconds <= $max_seconds ; $seconds += $seconds_tab_step ) {
+        my $label = $seconds . 's';
+        DrawScaleLine(
+            {
+                left  => $new_left,
+                right => $new_right,
+                label => $label,
+                y     => $bottom -
+                  $seconds * $Perf::AllCollectedData::CODELETS_PER_SECOND * $height_per_codelet,
+                label_to_right => 1,
+            }
+        );
+    }
+
 }
 
 sub DrawScaleLine {
     my ($opts_ref) = @_;
     my %opts_ref = %$opts_ref;
-    my ( $left, $right, $label, $y ) = @opts_ref{qw(left right label y)};
+    my $left = $opts_ref->{left} // confess "Missing required argument 'left'";
+    my $right = $opts_ref->{right}
+      // confess "Missing required argument 'right'";
+    my $label = $opts_ref->{label}
+      // confess "Missing required argument 'label'";
+    my $y = $opts_ref->{y} // confess "Missing required argument 'y'";
+    my $label_to_right = $opts_ref->{label_to_right} // 0;
+
     $Canvas->createLine( $left, $y, $right, $y, @{ SCALE_LINE_OPTIONS() } );
-    $Canvas->createText(
-        $left - 3, $y,
-        -text   => $label,
-        -anchor => 'e',
-        @{ SCALE_TEXT_OPTIONS() }
-    );
+    if ($label_to_right) {
+        $Canvas->createText(
+            $right + 3, $y,
+            -text   => $label,
+            -anchor => 'w',
+            @{ SCALE_TEXT_OPTIONS() }
+        );
+    }
+    else {
+        $Canvas->createText(
+            $left - 3, $y,
+            -text   => $label,
+            -anchor => 'e',
+            @{ SCALE_TEXT_OPTIONS() }
+        );
+    }
 }
 
 sub DrawChartTitles {
     $Canvas->createRectangle(
-        $CHART1_H_OFFSET, $CHART_V_OFFSET,
-        $CHART1_H_OFFSET + $CHART_WIDTH,
-        $CHART_BOTTOM,
-        @{CHART_RECTANGLE_OPTIONS()},
+        $CHART1_H_OFFSET,                $CHART_V_OFFSET,
+        $CHART1_H_OFFSET + $CHART_WIDTH, $CHART_BOTTOM,
+        @{ CHART_RECTANGLE_OPTIONS() },
     );
     $Canvas->createRectangle(
-        $CHART2_H_OFFSET, $CHART_V_OFFSET,
-        $CHART2_H_OFFSET + $CHART_WIDTH,
-        $CHART_BOTTOM,
-        @{CHART_RECTANGLE_OPTIONS()},
+        $CHART2_H_OFFSET,                $CHART_V_OFFSET,
+        $CHART2_H_OFFSET + $CHART_WIDTH, $CHART_BOTTOM,
+        @{ CHART_RECTANGLE_OPTIONS() },
     );
     my $center1 = $CHART1_H_OFFSET + $CHART_WIDTH / 2;
     my $center2 = $CHART2_H_OFFSET + $CHART_WIDTH / 2;
     $Canvas->createText(
         $center1, $CHART_V_OFFSET,
         -text   => 'Percent Correct',
-        -anchor => 'n'
+        -anchor => 'n',
+        @{CHART_TITLE_OPTIONS()}
     );
     $Canvas->createText(
         $center2, $CHART_V_OFFSET,
         -text   => 'Time Taken When Correct',
-        -anchor => 'n'
+        -anchor => 'n',
+        @{CHART_TITLE_OPTIONS()}
     );
 }
 

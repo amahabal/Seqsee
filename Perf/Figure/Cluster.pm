@@ -56,6 +56,13 @@ sub get_constraints {
     return %{$Constraints_Ref_of{$id}};
 }
                
+sub is_human {
+    my ($self) = @_;
+    my $id = ident $self;
+    return ($Source_of{$id} eq 'Human') ? 1 : 0;
+}
+               
+    
     
 
 

@@ -19,7 +19,7 @@ use Class::Multimethods;
 use Carp;
 ## END OF STANDARD INCLUDES
 
-
+our $CODELETS_PER_SECOND = 300;
 
 # Each value if an ArrayRef, consisting of ResultOfTestRuns objects.
 my %Seqsee_Data_of : ATTR(:name<seqsee_data>);
