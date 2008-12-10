@@ -47,7 +47,9 @@ sub DrawOneItem {
         my @fringe_parts = rnkeysort { $_->[1] } @$fringe;
         for (@fringe_parts) {
             my ($component, $activation) = @$_;
-            $fringe_string .= "[$activation] $component; ";
+            my $ref = ref($component);
+            my $text = UNIVERSAL::can($component, 'as_text') ? $component->as_text() : $component;
+            $fringe_string .= "[$activation] $text; ";
         }
     }
 

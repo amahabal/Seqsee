@@ -33,7 +33,7 @@ our %Structure_of : ATTR(:name<structure>);
 
 sub as_text {
     my ($self) = @_;
-    return $StructureString_of{ ident $self};
+    return 'plat' . $StructureString_of{ ident $self};
 }
 
 sub get_memory_dependencies {
