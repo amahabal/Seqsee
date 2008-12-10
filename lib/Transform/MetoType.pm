@@ -37,10 +37,10 @@ multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
         my $rel = FindTransform( $v, $v2 ) or return;
         $change_ref->{$k} = $rel;
     }
-    return SReln::MetoType->create(
+    return Transform::MetoType->create(
         {   category => $cat1,
             name     => $name1,
-            change   => $change_ref,
+            change_ref   => $change_ref,
         }
     );
 

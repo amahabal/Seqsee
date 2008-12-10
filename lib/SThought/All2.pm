@@ -33,7 +33,9 @@ RUN: {
         # Check if these are already grouped...
         # to do that, we need to find the left and right edges
         my ( @left_edges, @right_edges );
+        
         for (@$items) {
+            SWorkspace::__CheckLiveness($_) or return;
             push @left_edges,  $_->get_left_edge;
             push @right_edges, $_->get_right_edge;
         }
