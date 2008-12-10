@@ -30,12 +30,12 @@ sub DrawOneItem {
     my $intensity
         = $is_current_thought ? '-' : $Global::MainStream->{thought_hit_intensity}{$thought};
     my $name = $thought->as_text();
-    $Canvas->createText($left + $self->{intensity_x},
+    push @item_ids, $Canvas->createText($left + $self->{intensity_x},
                         $top + 5,
                         -text => $intensity,
                         -anchor => 'nw',
                             );
-    $Canvas->createText($left + $self->{name_x},
+    push @item_ids, $Canvas->createText($left + $self->{name_x},
                         $top + 5,
                         -text => $name,
                         -anchor => 'nw',
@@ -53,11 +53,13 @@ sub DrawOneItem {
         }
     }
 
-    $Canvas->createText($left + $self->{fringe_x},
+    push @item_ids, $Canvas->createText($left + $self->{fringe_x},
                         $top + $self->{fringe_y},
                         -text => $fringe_string,
                         -anchor => 'nw',
                             );
+
+    return @item_ids;
 }
 
 1;

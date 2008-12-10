@@ -5,7 +5,7 @@ INITIAL: {
         multimethod 'createRule';
     }
 FRINGE: {
-        FRINGE 100, $core->as_text();
+        FRINGE 100, $core->get_type();
         FRINGE 50,  $core->get_first();
         FRINGE 50,  $core->get_second();
     }

@@ -240,7 +240,8 @@ sub _is_there_a_hit {
 
 {
     my %Mapping = (
-
+        'SElement:SAnchored' => 0.9,
+        'SAnchored:SElement' => 0.9,
     );
 
     sub thoughtTypeMatch {
@@ -253,7 +254,7 @@ sub _is_there_a_hit {
         return $Mapping{$str} if exists $Mapping{$str};
 
         #main::message("$str barely match!");
-        return 0.01;
+        return 0;
     }
 }
 
