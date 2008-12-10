@@ -636,7 +636,18 @@ sub IsThisAMetonymedObject {
     return 1;
 }
 
-
+sub ContainsAMetonym {
+    my ( $self ) = @_;
+    my $id = ident $self;
+    return 1 if $self->IsThisAMetonymedObject;
+    for (@$self) {
+        return 1 if $_->ContainsAMetonym;
+    }
+    return 0;
+}
+sub SElement::ContainsAMetonym {
+    return 0;
+}
 # #################################
 # RELATION MANAGEMENT
 # Relevant variables:
