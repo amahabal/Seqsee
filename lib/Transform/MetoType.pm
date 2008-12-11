@@ -17,6 +17,23 @@ sub create {
     return $MEMO{$string} ||= $package->new($opts_ref);
 }
 
+
+sub FlippedVersion {
+    my ($self) = @_;
+    my $id = ident $self;
+    my $change_ref = $change_of_of{$id};
+    my %new_change;
+    while (my ($k, $v) = each %$change_ref) {
+        $new_change{$k} = $v->FlippedVersion;
+    }
+    my $name = $name_of{$id};
+    my $new_name = ($name =~ m#^flipped_#) ? substr($name, 8) : "flipped_$name";
+    return Transform::MetoType->create({category=>$category_of{$id},
+                                        name => $new_name,
+                                        change_ref=>\%new_change
+})
+}
+
 multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
     my ( $m1, $m2 ) = @_;
     my $cat1 = $m1->get_category;
@@ -46,7 +63,7 @@ multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
 
 };
 
-multimethod ApplyTransform => qw(SReln::MetoType SMetonymType) => sub {
+multimethod ApplyTransform => qw(Transform::MetoType SMetonymType) => sub {
     my ( $rel, $meto ) = @_;
     my $meto_info_loss = $meto->get_info_loss;
 
