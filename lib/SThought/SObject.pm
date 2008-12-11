@@ -129,10 +129,11 @@ ACTIONS: {
         }
 
         if ( scalar(@$core) > 1 and SUtil::toss(0.8) ) {
+            my $urgency = $Global::Feature{AllowSquinting} ? 200 : 50;
             if ( SUtil::toss(0.5) ) {
 
                 #main::message("Will launch ConvulseEnd");
-                CODELET 50, ConvulseEnd,
+                CODELET $urgency, ConvulseEnd,
                     {
                     object    => $core,
                     direction => $DIR::RIGHT,
@@ -141,7 +142,7 @@ ACTIONS: {
             else {
 
                 #main::message("Will launch ConvulseEnd");
-                CODELET 50, ConvulseEnd,
+                CODELET $urgency, ConvulseEnd,
                     {
                     object    => $core,
                     direction => $DIR::LEFT,

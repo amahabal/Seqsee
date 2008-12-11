@@ -12,7 +12,7 @@ my %change_of_of : ATTR( :name<change_ref>);    # How the info lost is changing:
 
 sub create {
     my ( $package, $opts_ref ) = @_;
-    my $string = join(';', $opts_ref->{category}, $opts_ref->{name}, %{ $opts_ref->{change} } );
+    my $string = join(';', $opts_ref->{category}, $opts_ref->{name}, %{ $opts_ref->{change_ref} } );
     state %MEMO;
     return $MEMO{$string} ||= $package->new($opts_ref);
 }

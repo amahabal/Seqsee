@@ -705,7 +705,7 @@ sub recalculate_relations {
     my %hash = %{$reln_other_of{ ident $self}};
     while ( my ( $k, $v ) = each %hash ) {
         my $type = $v->get_type();
-        my $new_type = $type->get_category()->FindTransformForCat( $v->get_ends ) or return;
+        my $new_type = $type->get_category()->FindTransformForCat( $v->get_ends );
 
         if ($new_type) {
             my ($f, $s) = $v->get_ends;

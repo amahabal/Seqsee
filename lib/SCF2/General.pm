@@ -89,7 +89,10 @@ RUN: {
         $effective_transform or return;
         $effective_transform->CheckSanity() or confess "Transform insane!";
 
-        my $expected_next_object = ApplyTransform( $effective_transform, $group ) or return;
+        my $expected_next_object;
+
+        # BandAid: The following occasionally crashes.
+        eval {$expected_next_object  = ApplyTransform( $effective_transform, $group )} or return;
         @$expected_next_object or return;
 
         my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(

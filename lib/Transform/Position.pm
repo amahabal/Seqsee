@@ -78,10 +78,21 @@ sub get_pure {
     return $_[0];
 }
 
+
+
 sub IsEffectivelyASamenessRelation {
     my ( $self ) = @_;
     return $self eq $SamePos ? 1 : 0;
 }
+
+
+sub FlippedVersion {
+    my ($self) = @_;
+    my $id = ident $self;
+    state $FlipName = {qw{same same pred succ succ pred }};
+    return Transform::Position->create( $FlipName->{ $text_of{$id} });
+}
+
 1;
 
 

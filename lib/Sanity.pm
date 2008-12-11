@@ -8,7 +8,7 @@ multimethod SanityFail => ('$') => sub {
         = "Entered inconsistent state after a $Global::CurrentRunnableString.($Global::Steps_Finished)\n$m";
     $msg .= "The codelet was: " . $Global::CurrentCodelet->as_text;
     main::message($msg);
-    confess "Sanity failed... exiting!";
+    confess "Sanity failed... exiting! $msg";
 };
 
 multimethod SanityCheck => () => sub {
@@ -49,7 +49,15 @@ multimethod SanityCheck => qw(SAnchored) => sub {
         $part->get_is_a_metonym() and SanityFail("Group has metonym as part");
     }
 
-    my @cat = @{$gp->get_categories()} or SanityFail("Group without any category:" . $gp->as_text);
+    my @cat = @{$gp->get_categories()};
+    unless (@cat) {
+        my $hist = join("\n", @{$gp->get_history});
+        for my $subgp (@$gp) {
+            $hist .= "\n-------- " . $subgp->as_text . "\n";
+            $hist .= join("\n", @{$subgp->get_history});
+        }
+        SanityFail("Group without any category:" . $gp->as_text."\nhist:\n$hist");
+    }
     for my $cat (@cat) {
         my $bindings = $gp->GetBindingForCategory($cat) or SanityFail("No bindings?");
         while (my ($k, $v) = each %{$bindings->get_bindings_ref()}) {
