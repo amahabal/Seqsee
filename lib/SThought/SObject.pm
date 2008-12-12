@@ -21,6 +21,7 @@ INITIAL: {
                 my $bindings  = $core->GetBindingForCategory($category);
                 my $meto_mode = $bindings->get_metonymy_mode();
                 if ( $meto_mode ne $METO_MODE::NONE ) {
+                    FRINGE 100, $bindings->get_position();
                     FRINGE 100, $meto_mode;
                     FRINGE 100, $bindings->get_metonymy_type();
                 }

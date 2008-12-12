@@ -55,6 +55,15 @@ sub GetAge{
     return $Global::Steps_Finished - $dob_of{ident $self};
 }
 
+sub history_as_text {
+    my ($self) = @_;
+    my $id = ident $self;
+    return join("\n", "History:", @{$messages_of{$id}});
+}
+               
+    
+
+
 
 1;
 

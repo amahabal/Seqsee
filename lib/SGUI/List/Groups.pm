@@ -33,6 +33,12 @@ sub new {
             my @followers = $weighted_set->get_elements();
             main::message("Followers of " . $group->as_text() . ':' . join(' and ', map { $_->as_text } @followers), 1);
         },
+        History => sub {
+                       my ($group) = @_;
+                       main::message($group->history_as_text());
+                   },
+                       
+                   
             };
     return $self;
 }

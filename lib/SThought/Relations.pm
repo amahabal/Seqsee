@@ -51,7 +51,7 @@ ACTIONS: {
         if ($distance_magnitude) {
             my $possible_ad_hoc_cat = SCat::OfObj::Interlaced->Create($distance_magnitude + 1);
             my $ad_hoc_activation = SLTM::SpikeBy( 20 / $distance_magnitude, $possible_ad_hoc_cat );
-            if ( SUtil::significant($ad_hoc_activation) and SUtil::toss($ad_hoc_activation) ) {
+            if ( SUtil::significant($ad_hoc_activation) and SUtil::toss($ad_hoc_activation) and !$Global::Feature{NoInterlaced} ) {
                 my @new_object_parts =
                     SUtil::toss(0.5)
                     ? ( $ends[0], @intervening_objects )
