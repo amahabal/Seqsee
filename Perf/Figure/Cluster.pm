@@ -30,7 +30,8 @@ sub BUILD {
     my $figure_type = $opts_ref->{figure_type}
       // confess "Missing required argument 'figure_type'";
 
-    my $source = $Source_of{$id} = $config->{source} // 'Seqsee';
+    my $source = $figure_type eq 'LTM_SELF_CONTEXT' ? 'LTM' : $config->{source} // 'Source';
+    $Source_of{$id} = $source;
     my %Data_Constraints;
     my %config           = %{$config};
     my @constraint_types = qw{min_version max_version exact_feature_set};

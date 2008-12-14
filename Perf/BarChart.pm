@@ -234,7 +234,8 @@ sub Plot {
     DrawChart($spec_object) if $DRAW_CHARTS;
     DrawSequences($spec_object);
     if ($outfile) {
-        $MW->Button(
+        my $button;
+        $button = $MW->Button(
             -text    => 'Save',
             -command => sub {
                 $Canvas->postscript(
@@ -242,7 +243,7 @@ sub Plot {
                     -pageheight => '10c',
                     -height     => $FIG_HEIGHT,
                 );
-                exit;
+                $button->configure(-text => 'Saved', -state => 'disabled');
               }
 
         )->pack( -side => 'top' );
