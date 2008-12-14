@@ -182,14 +182,18 @@ sub deserialize {
 
 sub CheckForAlternation {
     my ( $package, $first, $second, $third ) = @_;
-    main::message("CheckForAlternation: " . join('; ', $first, $second, $third, ref($first), ref($second), ref($third)), 1);
+    main::message("CheckForAlternation: " . join('; ', $first->as_text, $second->as_text, $third->as_text), 1);
     if ($first->get_pure() eq $third->get_pure()) {
         my $alternating_category = $package->Create($first->get_pure(),
                                                     $second->get_pure(),
                                                         );
         for ($first, $second, $third) {
             if ($_->isa('SInt')) {
-                $_->add_category($alternating_category, SBindings->create({}, {}, $_));
+                my $val = ($_ eq $second) ? 1 : 0;
+                $_->add_category($alternating_category,
+                                 SBindings->create({}, 
+                                                   {which => SInt->new($val)},
+                                                   $_));
             } else {
                 $_->describe_as($alternating_category);
             }
