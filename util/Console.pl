@@ -65,7 +65,7 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
             my $__this_var = $default;
             $Inputs{$name} = \$__this_var;
             print "SET \$Inputs{$name}\n";
-            my $subframe = $frame->Frame()->pack( -side => 'top' );
+            my $subframe = $frame->Frame()->pack( -side => 'left' );
             $subframe->Label( -text => $name )->pack( -side => 'left' );
             $subframe->Entry( -textvariable => \$__this_var )->pack( -side => 'left' );
         }
@@ -94,7 +94,7 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
                 my $cmd = $cmd_constructor->(@args);
                 $cmd->();
             }
-        )->pack( -side => 'top' );
+        )->pack( -side => 'left' );
     }
 }
 
