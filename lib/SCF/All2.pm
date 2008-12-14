@@ -50,7 +50,9 @@ RUN: {
         if ( SUtil::toss( $object->get_strength() / 100 ) ) {
             CODELET ««Urgencies, AttemptExtensionOfGroup::AreWeDone »», AreWeDone, { group => $object };
         }
-
+        if ($underlying_reln and not $object->get_underlying_reln) {
+            confess "underlying_reln lost!";
+        }
         #main::message("Extended!");
 
     }

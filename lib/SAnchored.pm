@@ -124,7 +124,8 @@ sub as_text {
     my ($self)           = @_;
     my $bounds_string    = $self->get_bounds_string();
     my $structure_string = $self->GetAnnotatedStructureString();
-    return "SAnchored $bounds_string $structure_string";
+    my $ruleapp = $self->get_underlying_reln ? 'u':'';
+    return "SAnchored $ruleapp$bounds_string $structure_string";
 }
 
 sub get_next_pos_in_dir {
@@ -228,6 +229,7 @@ sub Update {
             SWorkspace->remove_gp($self);
             return;
         }
+        confess "underlying_reln lost here" unless $self->get_underlying_reln;
     }
 
     # SWorkspace::UpdateGroupsContaining($self);

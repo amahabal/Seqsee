@@ -57,7 +57,7 @@ sub CheckApplicability {
 
     my $transform = $Transform_of{$id};
     while (@objects_to_account_for) {
-        my $last_accounted_for_object = $accounted_for[-1];
+        my $last_accounted_for_object = $accounted_for[-1]->GetEffectiveObject;
         my $expected_next = ApplyTransform($transform, $last_accounted_for_object) or return;
         my $actual_next = shift(@objects_to_account_for);
         return unless $expected_next->get_structure_string() eq $actual_next->GetEffectiveObject()->get_structure_string();
