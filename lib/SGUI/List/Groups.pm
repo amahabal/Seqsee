@@ -1,5 +1,7 @@
 package SGUI::List::Groups;
 use strict;
+use Class::Multimethods;
+multimethod 'get_fringe_for';
 our @ISA = qw{SGUI::List};
 
 sub new {
@@ -37,9 +39,26 @@ sub new {
                        my ($group) = @_;
                        main::message($group->history_as_text());
                    },
-                       
-                   
-            };
+        Fringe => sub {
+                      my ($group) = @_;
+                      my @fringe_parts = @{get_fringe_for($group)};
+                      my $fringe_string;
+                      for (@fringe_parts) {
+                          my ($component, $activation) = @$_;
+                          my $ref = ref($component);
+                          my $text = UNIVERSAL::can($component, 'as_text') 
+                              ? $component->as_text() : $component;
+                          $fringe_string .= "[$activation] $text; ";
+                      }
+                      main::message($fringe_string);
+                  },
+        ActionFringe => sub {
+                      my ($group) = @_;
+                      my @actions = SThought->create($group)->get_actions();
+                      my $msg = join("\n", map{$_->as_text}@actions);
+                      main::message($msg);
+                  },
+             };
     return $self;
 }
 
