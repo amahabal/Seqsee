@@ -113,8 +113,8 @@ ACTIONS: {
         #    next unless SUtil::toss(0.15);
         #}
 
-        if ($flush_left or SUtil::toss(0.3)) {
-            CODELET 50, AttemptExtensionOfGroup,
+        if ($flush_left or SUtil::toss(0.8)) {
+            CODELET 80, AttemptExtensionOfGroup,
                 {
                     object    => $core,
                     direction => DIR::RIGHT(),
@@ -122,7 +122,7 @@ ACTIONS: {
         }
 
         if ( !$flush_left ) {
-            CODELET 100, AttemptExtensionOfGroup,
+            CODELET 150, AttemptExtensionOfGroup,
                 {
                 object    => $core,
                 direction => DIR::LEFT(),
@@ -130,9 +130,9 @@ ACTIONS: {
         }
 
         if ( scalar(@$core) > 1 and SUtil::toss(0.8) ) {
-            my $urgency = $Global::Feature{AllowSquinting} ? 200 : 50;
+           
             if ( SUtil::toss(0.5) ) {
-
+                my $urgency = ($Global::Feature{AllowSquinting} and not $core->[-1]->get_metonym_activeness)? 200 : 10;
                 #main::message("Will launch ConvulseEnd");
                 CODELET $urgency, ConvulseEnd,
                     {
@@ -141,7 +141,7 @@ ACTIONS: {
                     };
             }
             else {
-
+                my $urgency = ($Global::Feature{AllowSquinting} and not $core->[0]->get_metonym_activeness) ? 200 : 10;
                 #main::message("Will launch ConvulseEnd");
                 CODELET $urgency, ConvulseEnd,
                     {
