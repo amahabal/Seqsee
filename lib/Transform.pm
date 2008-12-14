@@ -16,6 +16,9 @@ multimethod FindTransform => ( '*', '*', '*' ) => sub {
         *__ANON__ = "((__ANON__ FindTransform SInt/SElement SInt/SElement))";
         my ( $a, $b ) = @_;
         my @common_categories = $a->get_common_categories($b) or confess;
+        if (grep {not defined $_} @common_categories) {
+            confess "undef in common_categories FindTransform SInt/SElement SInt/SElement:".join(', ', @common_categories);
+        }
         my $cat = SLTM::SpikeAndChoose( 0, @common_categories ) // $S::NUMBER;
         if ( $cat->IsNumeric() ) {
             $cat->FindTransformForCat( $a->get_mag(), $b->get_mag() );

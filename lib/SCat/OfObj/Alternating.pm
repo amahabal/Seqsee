@@ -189,7 +189,7 @@ sub CheckForAlternation {
                                                         );
         for ($first, $second, $third) {
             if ($_->isa('SInt')) {
-                $_->add_category($alternating_category);
+                $_->add_category($alternating_category, SBindings->create({}, {}, $_));
             } else {
                 $_->describe_as($alternating_category);
             }

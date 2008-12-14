@@ -150,7 +150,7 @@ sub get_common_categories {
     }
 
     my @common_strings = grep { $key_count{$_} == $count } keys %key_count;
-    return map { $S::Str2Cat{$_} } @common_strings;
+    return map { $S::Str2Cat{$_} or confess "not a cat: $_\ncats known:\n" . join(', ', %S::Str2Cat) } @common_strings;
 }
 
 #

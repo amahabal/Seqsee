@@ -98,7 +98,7 @@ sub BUILD {
     $squinting_raw_of{$id} = $opts_ref->{raw_slippages} || confess "Need slippages";
     my $object = $opts_ref->{object}
         || confess "Need object (in order to weave a story)";
-    $self->_weave_story($object);
+    $self->_weave_story($object) unless $object->isa('SInt');
 }
 
 #

@@ -393,6 +393,10 @@ sub WeakenBy {
 sub SpikeAndChoose {
     my ( $amount, @concepts ) = @_;
 
+    return unless @concepts;
+    if (grep {not defined $_} @concepts) {
+        confess "undef was one argument to SpikeAndChoose";
+    }
     #main::message("SpikeAndChoose: $amount, @concepts");
     my @indices = map { GetMemoryIndex($_) } (@concepts);
 
