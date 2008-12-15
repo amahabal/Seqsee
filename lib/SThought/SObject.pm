@@ -43,18 +43,17 @@ INITIAL: {
             my ( $core ) = @_;
             my @actions_ret;
             my $flush_right        = $core->IsFlushRight();
-            if ($flush_right and $SWorkspace::ElementCount <= 3) {
-                my $weighted_set = SLTM::FindActiveFollowers( $core );
-                return unless $weighted_set->is_not_empty();
-                
-                my $chosen_follower = $weighted_set->choose();
+            my $flush_left        = $core->IsFlushLeft();
+            
+            my $weighted_set = SLTM::FindActiveFollowers( $core );
+            return unless $weighted_set->is_not_empty();
+            my $chosen_follower = $weighted_set->choose();
+
+            if ($flush_right and ($flush_left or $SWorkspace::ElementCount <= 3)) {
                 my $exception = SErr::ElementsBeyondKnownSought->new(next_elements => $chosen_follower->get_flattened());
                 $exception->Ask();
+                return;
             } elsif ($Global::Feature{LTM_expt}) {
-                my $weighted_set = SLTM::FindActiveFollowers( $core );
-                return unless $weighted_set->is_not_empty();
-                
-                my $chosen_follower = $weighted_set->choose();
                 my $next = SWorkspace->GetSomethingLike({object => $chosen_follower,
                                                          start => $core->get_right_edge() + 1,
                                                          direction => $DIR::RIGHT,

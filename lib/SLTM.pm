@@ -10,6 +10,7 @@ use English qw(-no_match_vars);
 use Set::Weighted;
 use SLTM::Platonic;
 
+multimethod 'ApplyTransform';
 use constant {
     LTM_FOLLOWS        => 1,    # Link of type A often follows B in sequences
     LTM_IS             => 2,    # A is an instance of B
@@ -496,9 +497,11 @@ sub FindActiveFollowers {
     for my $cat (@categories) {
         my $node_id = GetMemoryIndex($cat);
         my $follows_links_ref = ( $OUT_LINKS[$node_id][LTM_FOLLOWS] ||= {} );
+
         while (my($relation_type_index, $link) = each %{$follows_links_ref}) {
             my $relation_type = $MEMORY[$relation_type_index];
-            my $possible_next_object = eval { $relation_type->apply_reln($concept) } or next;
+
+            my $possible_next_object = eval { ApplyTransform($relation_type, $concept) } or next;
             $ret->insert([$possible_next_object, 1]); #XXX a dummy value currently.
         }
     }
