@@ -89,4 +89,4 @@ sub GetLatestStoredDiff {
 }
 
 system
-"perl performance/LTM_PerformanceHarness.pl --outputdir=performance/ltm_data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_ltm $feature_set_string &";
+"perl performance/LTM_PerformanceHarness.pl --outputdir=Perf/data/LTM --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_ltm $feature_set_string &";
