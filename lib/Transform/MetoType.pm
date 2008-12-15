@@ -103,7 +103,7 @@ sub serialize{
 sub deserialize{
     my ( $package, $str ) = @_;
     my %opts;
-    @opts{qw(category name change)} = SLTM::decode($str);
+    @opts{qw(category name change_ref)} = SLTM::decode($str);
     return $package->create(\%opts);
 }
 

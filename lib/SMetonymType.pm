@@ -33,7 +33,7 @@ sub BUILD {
     sub create {
         my ( $package, $opts_ref ) = @_;
         my %opts = %$opts_ref;
-        my $key = join( ';', @opts{qw(category name)}, %{ $opts{info_loss} } );
+        my $key = join( ';', map { ref($_) eq 'SInt' ? $_->[0] : $_ } (@opts{qw(category name)}, %{ $opts{info_loss} } ));
         return $METO{$key} ||= $package->new($opts_ref);
     }
 }
@@ -71,7 +71,7 @@ sub GetCatAndName {
 sub get_memory_dependencies {
     my ( $self ) = @_;
     my $id = ident $self;
-    return map { $_->get_pure() }grep { ref($_) } ($category_of{$id}, values %{$info_loss_of{$id}});
+    return map { $_->get_pure() }grep { ref($_) and ref($_) ne 'SInt' } ($category_of{$id}, values %{$info_loss_of{$id}});
 }
 
 sub serialize {

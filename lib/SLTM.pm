@@ -285,7 +285,7 @@ sub Load {
         $nodes_added++;
         # say "\t$nodes_added, $NodeCount";
         unless ($nodes_added == $NodeCount) {
-            SErr::LTM_LoadFailure->throw(what => "Should have only added $nodes_added nodes by now, but looks like $NodeCount");
+            SErr::LTM_LoadFailure->throw(what => "Should have only added $nodes_added nodes by now, but looks like $NodeCount. Was trying to add '$pure'. Its index is now $index.");
         }
         SetDepthReciprocalForIndex( $index, $depth_reciprocal );
     }
@@ -309,9 +309,10 @@ sub Load {
 }
 
 {
-    my ( $sep1, $sep2, $char1, $char2 ) = map { chr($_) } ( 129 .. 132 );
+    my ( $sep1, $sep2, $char1, $char2, $char3 ) = map { chr($_) } ( 129 .. 133 );
     my $rx1 = qr{^$char1(.*)};
     my $rx2 = qr{^$char2(.*)};
+    my $rx3 = qr{^$char3(.*)};
 
     sub encode {
         return join(
@@ -319,6 +320,7 @@ sub Load {
             map {
                 my $class = ref($_);
                 $class eq 'HASH' ? encode_hash($_)
+                    : $class eq 'SInt' ? $char3 . $_->[0] 
                     : $class ? $char1 . $MEMORY{$_}
                     : $_
                 } @_
@@ -331,8 +333,9 @@ sub Load {
             $sep2,
             map {
                 my $class = ref($_);
-                $class eq 'HASH' ? confess('')
-                    : $class ? $char1 . $MEMORY{$_}
+                $class eq 'HASH' ? confess('Recursive hash cannot be encoded')
+                    : $class eq 'SInt' ? $char3 . $_->[0] 
+                    : $class ? $char1 . ($MEMORY{$_} || confess "unrecognized reference to '$_'")
                     : $_
                 } %$hash_ref
         );
@@ -340,7 +343,10 @@ sub Load {
 
     sub decode {
         my ($str) = @_;
-        return map { $_ =~ $rx1 ? $MEMORY[$1] : $_ =~ $rx2 ? { decode_hash($1) } : $_ }
+        return map { $_ =~ $rx1 ? $MEMORY[$1] 
+                         : $_ =~ $rx2 ? { decode_hash($1) } 
+                             : $_ =~ $rx3 ? SInt->new($1)
+                                 : $_ }
             split( $sep1, $str );
     }
 
