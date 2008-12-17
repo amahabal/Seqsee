@@ -4,9 +4,28 @@ use Carp;
 use Smart::Comments;
 use Scalar::Util qw(blessed reftype);
 
+############# Class ######################
+#  Uses Class::Std       : No
+#  Non-std constructor   : CreateNew
+#  Constructor Memoized? : Yes
+#  Storable in LTM       : No
+
 my %MEMO;
 
-# Each stream object shall be a blessed hashref (no Class::Std).
+############# Method ######################
+#  Name             : CreateNew
+#  Returns          : a Stream object
+#  Parameters       : (Str $name, { $DiscountFactor, $MaxOlderThoughts })
+#  Params via href  : second
+#  Purpose          : Creates a new instance and initializes it.
+###
+#  Multi?           : No
+#  Usage            : SStream2->CreateNew(...)               
+#  Memoized         : Yes, but only using the name.
+#  Throws           : no exceptions
+#  Comments         :
+#  See Also         : n/a
+
 sub CreateNew {
     my ( $package, $name, $opts_ref ) = @_;
     confess "Missing name!" unless $name;
@@ -42,6 +61,28 @@ sub clear {
     $self->{vivify}                = {};
 }
 
+############# Method ######################
+#  Name             : add_thought
+#  Returns          : -
+#  Parameters       : the new thought
+#  Params via href  : No
+#  Purpose          : add a new thought
+###
+#  Multi?           : No
+#  Usage            : $obj->add_thought(...)               
+#  Memoized         : No
+#  Throws           : no exceptions
+#  Comments         :
+#  See Also         : n/a
+
+#  If this is the current thought, nothing happens.
+#  If, instead, this is a recent thought, it is made the current thought and
+#  removed from the list of older thoughts. Otherwise, it is simply made the
+#  current thought.
+
+#  The method C<_think_the_current_thought> is then called, and it does all
+#  the hard work.
+
 sub add_thought {
     @_ == 2 or confess "new thought takes two arguments";
     my ( $self, $thought ) = @_;
@@ -73,6 +114,23 @@ sub add_thought {
 
 }
 
+############# Method ######################
+#  Name             : _think_the_current_thought
+#  Returns          : -
+#  Parameters       : -
+#  Params via href  : No
+#  Purpose          : Takes some action based on similarity to recent thoughts
+#                     and other actions suggested by the thought.
+###
+#  Multi?           : No
+#  Usage            : $obj->_think_the_current_thought(...)
+#  Memoized         : No
+#  Throws           : no exceptions
+#  Comments         :
+#  See Also         : n/a
+
+#  The method C<_is_there_a_hit> is used to determine similarity to earlier
+#  thoughts.
 sub _think_the_current_thought {
     my ($self) = @_;
     my $thought = $self->{CurrentThought};
@@ -185,12 +243,6 @@ sub antiquate_current_thought {
 
 # method: _is_there_a_hit
 # Is there another thought with a common fringe?
-#
-# Given the fringe and the extended fringe (each being an array ref, each of
-# whose elements are 2 element array refs, the first being a component and the
-# second the strength, it checks if there is a hit; If there is, the thought
-# with which the hit occured is returned. Perhaps only thoughts of the same
-# core type as the current are returned.
 sub _is_there_a_hit {
     my ( $self, $fringe_ref ) = @_;
     ## $fringe_ref
@@ -308,6 +360,15 @@ None reported.
 
 =head1 BUGS AND LIMITATIONS
 
+This module will probably undergo the greatest amounts of change when I start working on the next version of Seqsee. Here are some of the changes to be expected:
+
+=over
+
+=item _is_there_a_hit currently returns a single matching thought. If there is any match whatsoever, something is returned. With this return value, the codelet AreRelated is always launched. _is_there_a_hit should instead return a smart value which will be sensitive to the type of the match and the level of the match. Currently, the type of the match is very crudely approximated by the method thoughtTypeMatch.
+
+=back
+
+ 
 =head1 AUTHOR
 
 Abhijit Mahabal  C<< amahabal@gmail.com >>
