@@ -39,8 +39,11 @@ sub BUILD {
     $Data_Constraints{max_version} = Perf::Version->new({string => $config{max_version}}) if defined $config{max_version};
     $Data_Constraints{exact_feature_set} = Perf::FeatureSet->new({string => $config{exact_feature_set}}) if defined $config{exact_feature_set};
 
-    if ($figure_type eq 'LTM_WITH_CONTEXT' and $source eq 'LTM') {
-        $Data_Constraints{context} = $config{context} // confess "context needed for every cluster that has LTM as its source";
+    if ($figure_type eq 'LTM_WITH_CONTEXT' and
+            ($source eq 'LTM' or defined $config{context})) {
+        my $context = $config{context} // confess "context needed for every cluster that has LTM as its source";
+        $Data_Constraints{context} = Perf::TestSequence->new({string => $context});
+        $Source_of{$id} = 'LTM';
     }
     $Constraints_Ref_of{$id} = \%Data_Constraints;
     $Color_of{$id} = _GetColor($source);

@@ -25,7 +25,7 @@ my %options = (
         $Global::Feature{$feature_name} = 1;
     }
 );
-GetOptions( \%options, "times=i", "steps=i", "f=s", "ltm_tests!" );
+GetOptions( \%options, "times=i", "steps=i", "f=s", "ltm_tests!", "filename=s" );
 
 if ($options{ltm_tests}) {
     $Global::Feature{LTM} = 1;
@@ -102,10 +102,11 @@ if ( $options{ltm_tests} ) {
     }
 }
 else {
-    for my $filename (<performance/TestSets/*>) {
+    my @files = exists $options{filename} ? ($options{filename}) :  (<performance/TestSets/*>);
+    for my $filename (@files) {
         $counter++;
         system
-"perl performance/PerformanceHarness.pl --times=$times --outputdir=performance/data --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$counter $feature_set_string &";
+"perl performance/PerformanceHarness.pl --times=$times --outputdir=Perf/data/Seqsee --code_version=$version --filename=$filename --steps=$steps --tempfilename=performance/temp_$counter $feature_set_string &";
         sleep(600);
     }
 }
