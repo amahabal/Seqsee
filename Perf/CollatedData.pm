@@ -51,10 +51,16 @@ sub BUILD {
     }
 
     @results = map { Storable::thaw($_) } @results;
+    for (@results) {
+        ### Attempt Result: $_->_DUMP()
+    }
+
     $total_count_of{$id} = scalar(@results);
     my @successful =
       grep { $_->get_status()->IsSuccess() } @results;
     my @successful_times = map { $_->get_steps() } @successful;
+
+    ## Seccess Rate: scalar(@successful), scalar(@results)
 
     $min_time_to_success_of{$id} = min(@successful_times) || 0;
     $max_time_to_success_of{$id} = max(@successful_times) || 0;

@@ -34,8 +34,10 @@ sub BUILD {
     $Source_of{$id} = $source;
     my %Data_Constraints;
     my %config           = %{$config};
-    my @constraint_types = qw{min_version max_version exact_feature_set};
-    @Data_Constraints{@constraint_types} = @config{@constraint_types};
+
+    $Data_Constraints{min_version} = Perf::Version->new({string => $config{min_version}}) if defined $config{min_version};
+    $Data_Constraints{max_version} = Perf::Version->new({string => $config{max_version}}) if defined $config{max_version};
+    $Data_Constraints{exact_feature_set} = Perf::FeatureSet->new({string => $config{exact_feature_set}}) if defined $config{exact_feature_set};
 
     if ($figure_type eq 'LTM_WITH_CONTEXT' and $source eq 'LTM') {
         $Data_Constraints{context} = $config{context} // confess "context needed for every cluster that has LTM as its source";

@@ -125,6 +125,7 @@ sub _GetDataForSequence {
                 next
                   unless $context->IsCompatibleWith( $result_set->get_context );
             }
+            ## ResultSet: $result_set->_DUMP()
             push @ret, $result_set;
         }
     }
