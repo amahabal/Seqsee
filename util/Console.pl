@@ -345,7 +345,8 @@ MULTIPLE_RUN: {
                 my @feature_related_arguments = map  {"-f=$_"} @features_turned_on;
                 my @cmds                      = (
                     'util/RunMultipleTimes.pl', qq{--seq=$Sequence},
-                    qq{--times=$TimesToRun},    @feature_related_arguments
+                    qq{--times=$TimesToRun},    qq{--steps=25000},
+                    @feature_related_arguments
                 );
                 my $subprocess_cmd = CreateRunPerlScriptCommand(@cmds);
                 $subprocess_cmd->();

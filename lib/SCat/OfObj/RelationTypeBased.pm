@@ -36,17 +36,32 @@ sub Instancer {
 
     return if $parts_count == 0;
 
+    my $failure = 0;
     for my $idx ( 0 .. $parts_count - 2 ) {
-        my $predicted_next = ApplyTransform($relation_type, $parts[$idx]) or return;
-        return  unless $parts[ $idx + 1 ]->CanBeSeenAs($predicted_next->get_structure);
-    }
+        my $predicted_next = ApplyTransform($relation_type, $parts[$idx]);
+        unless ($predicted_next and  $parts[ $idx + 1 ]->CanBeSeenAs($predicted_next->get_structure) ) {
+            $failure = 1;
+            last;
+        }
+     }
 
     return SBindings->new(
         {   raw_slippages => $object->GetEffectiveSlippages(),
             bindings      => { first => $parts[0], last => $parts[-1], length => SInt->new($parts_count) },
             object        => $object,
         }
-    );
+    ) if !$failure;
+
+    # maybe this is a length 1 instance!
+    my $cat = $relation_type->get_category;
+    if ($cat->is_instance($object)) {
+         return SBindings->new(
+        {   raw_slippages => $object->GetEffectiveSlippages(),
+            bindings      => { first => $object, last => $object, length => SInt->new(1) },
+            object        => $object,
+        }
+            );
+    }
 }
 
 # Create an instance of the category stored in $self.
