@@ -22,6 +22,7 @@ use Carp;
 my %Source_of : ATTR(:name<source>);
 my %Constraints_Ref_of : ATTR(:name<constraints_ref>);
 my %Color_of : ATTR(:name<color>);
+my %Label_of :ATTR(:get<label> :set<label>);
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -30,10 +31,12 @@ sub BUILD {
     my $figure_type = $opts_ref->{figure_type}
       // confess "Missing required argument 'figure_type'";
 
-    my $source = $figure_type eq 'LTM_SELF_CONTEXT' ? 'LTM' : $config->{source} // 'Source';
+    my $source = $figure_type eq 'LTM_SELF_CONTEXT' ? 'LTM' : $config->{source} // 'Seqsee';
     $Source_of{$id} = $source;
     my %Data_Constraints;
     my %config           = %{$config};
+
+    $Label_of{$id} = $config{label} || _CalculateLabel($config, $source);
 
     $Data_Constraints{min_version} = Perf::Version->new({string => $config{min_version}}) if defined $config{min_version};
     $Data_Constraints{max_version} = Perf::Version->new({string => $config{max_version}}) if defined $config{max_version};
@@ -55,6 +58,14 @@ sub _GetColor {
     return '#00FF00' if $source eq 'LTM';
     return '#0000FF';
 }
+
+sub _CalculateLabel {
+    my ($config, $source) = @_;
+    return 'Human' if $source eq 'Human';
+    return 'Seqsee' if $source eq 'Seqsee';
+    return '???';
+}
+
 
 sub get_constraints {
     my ($self) = @_;

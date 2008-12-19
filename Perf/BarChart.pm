@@ -22,6 +22,24 @@ use Carp;
 use Sort::Key qw(rikeysort);
 use Exception::Class ( 'Y_TOO_BIG' => {} );
 
+
+use constant {
+    GROUP_A_OPTIONS     => [ -fill    => '#DDDDDD' ],
+    GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
+    FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -dash => '._.' ],
+    DISTRACTOR_OPTIONS  => [ -outline => '#0000FF', -width => 4 ],
+
+    SCALE_LINE_OPTIONS => [ -fill => '#EEEEEE' ],
+    SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#999999' ],
+
+    CHART_RECTANGLE_OPTIONS => [ -fill => '#F8F8F8', -outline => '#EEEEEE' ],
+    BAR_HEIGHT_TEXT_OPTIONS => [ -font => 'Lucida 8' ],
+    FONT                        => 'Lucida 14',
+    SEQUENCE_LABEL_TEXT_OPTIONS => [ -font => 'Lucida 12', -fill => '#0000FF' ],
+    CHART_TITLE_OPTIONS         => [ -font => 'Lucida 16', -fill => '#FF0000' ],
+        FIGURE_TITLE_OPTIONS         => [ -font => 'Lucida 16', -fill => '#FF0000' ],
+};
+
 my (
     $FIG_WIDTH,                $FIG_L_MARGIN,
     $FIG_R_MARGIN,             $CHART_CHART_SEPARATION,
@@ -50,6 +68,7 @@ my (
 
 my ( $SEQUENCES_V_OFFSET, $MAX_BAR_HEIGHT );
 
+my ( $LEGEND_HEIGHT, $LEGEND_V_OFFSET, $LEGEND_CHART_SEPARATION);
 my ( $CLUSTER_COUNT, $SEQUENCES_TO_PLOT_COUNT, $SEQUENCES_TO_DISPLAY_COUNT );
 my ($Canvas);
 
@@ -89,11 +108,12 @@ sub Setup {
     $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
 
     #=== VERTICAL
-    $FIG_T_MARGIN               = 20;
+    $FIG_T_MARGIN               = 40;
     $FIG_B_MARGIN               = 20;
     $INTER_SEQUENCE_SEPARATION  = 30;
     $SEQUENCE_HEIGHT            = 20;
     $SEQUENCES_CHART_SEPARATION = $DRAW_CHARTS ? 20 : 0;
+    $LEGEND_CHART_SEPARATION = 20;
     $CHART_T_MARGIN             = 30;
     $CHART_B_MARGIN             = 20;
     $CHART_HEIGHT               = $DRAW_CHARTS ? 120 : 0;
@@ -101,6 +121,7 @@ sub Setup {
     #=== VERTICAL CALCULATED
     $SEQUENCES_V_OFFSET = $FIG_T_MARGIN;
     $MAX_BAR_HEIGHT     = $CHART_HEIGHT - $CHART_T_MARGIN - $CHART_B_MARGIN;
+    $LEGEND_HEIGHT = $DRAW_CHARTS ? (20 * int(($CLUSTER_COUNT + 2) / 3)) : 0;
 
     $MAX_CLUSTER_WIDTH =
       ( $EFFECTIVE_CHART_WIDTH -
@@ -120,7 +141,8 @@ sub Setup {
       ( $SEQUENCE_HEIGHT * $SEQUENCES_TO_DISPLAY_COUNT ) +
       ( $INTER_SEQUENCE_SEPARATION * ( $SEQUENCES_TO_DISPLAY_COUNT - 1 ) );
     $SEQUENCES_BOTTOM = $SEQUENCES_HEIGHT + $SEQUENCES_V_OFFSET;
-    $CHART_V_OFFSET   = $SEQUENCES_BOTTOM + $SEQUENCES_CHART_SEPARATION;
+    $LEGEND_V_OFFSET =  $SEQUENCES_BOTTOM + $SEQUENCES_CHART_SEPARATION;
+    $CHART_V_OFFSET   = $LEGEND_V_OFFSET + $LEGEND_HEIGHT + $LEGEND_CHART_SEPARATION;
     $CHART_BOTTOM     = $CHART_V_OFFSET + $CHART_HEIGHT;
 
     $BAR_BOTTOM = $CHART_BOTTOM - $CHART_B_MARGIN;
@@ -181,21 +203,6 @@ sub Y_CENTER {
     $SEQUENCE_HEIGHT / 2;
 }
 
-use constant {
-    GROUP_A_OPTIONS     => [ -fill    => '#DDDDDD' ],
-    GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
-    FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -dash => '._.' ],
-    DISTRACTOR_OPTIONS  => [ -outline => '#0000FF', -width => 4 ],
-
-    SCALE_LINE_OPTIONS => [ -fill => '#EEEEEE' ],
-    SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#CCCCCC' ],
-
-    CHART_RECTANGLE_OPTIONS => [ -fill => '#F8F8F8', -outline => '#EEEEEE' ],
-    BAR_HEIGHT_TEXT_OPTIONS => [ -font => 'Lucida 8' ],
-    FONT                        => 'Lucida 14',
-    SEQUENCE_LABEL_TEXT_OPTIONS => [ -font => 'Lucida 12', -fill => '#0000FF' ],
-    CHART_TITLE_OPTIONS         => [ -font => 'Lucida 16', -fill => '#FF0000' ],
-};
 
 sub SeqCoordToCanvasCoord {
     my ( $seq_num, $x, $y ) = @_;
@@ -205,6 +212,23 @@ sub SeqCoordToCanvasCoord {
       $y;
     return ( $SEQUENCES_H_OFFSET + $x, $new_y );
 }
+
+sub _LegendOffset {
+    my ($number) = @_;
+    my $x = $FIG_L_MARGIN + ($number % 3) * $EFFECTIVE_FIG_WIDTH / 3;
+    my $y = $LEGEND_V_OFFSET + 20 * int($number / 3);
+    return ($x, $y);
+}
+
+sub _DrawLegend {
+    my ($canvas, $number, $color, $label) = @_;
+    my ($x, $y) = _LegendOffset($number);
+    $canvas->createRectangle($x, $y, $x + 5, $y + 5, -fill => $color,
+                                 -outline => $color);
+    $canvas->createText($x + 15, $y, -text => $label, -anchor => 'nw');
+}
+
+
 
 sub Plot {
     my ( $self, $opts_ref ) = @_;
@@ -231,6 +255,11 @@ sub Plot {
     );
     $MW->focusmodel('active');
 
+    $Canvas->createText($FIG_WIDTH / 2, 5,
+                        -text => $spec_object->get_title(),
+                        -anchor => 'n',
+                        @{FIGURE_TITLE_OPTIONS()},
+                            );
     DrawChart($spec_object) if $DRAW_CHARTS;
     DrawSequences($spec_object);
     if ($outfile) {
@@ -266,7 +295,7 @@ sub DrawChart {
     DrawChartTitles();
     DrawPercentCorrectScale();
     ## MaxSteps: $MaxSteps
-    DrawCodeletCountScale($MaxSteps);
+    DrawCodeletCountScale($MaxSteps, $spec_object->get_has_human_data());
     ## Scales Drawn
 
     my $seq_num = 0;
@@ -354,7 +383,7 @@ sub DrawChart {
                 ),
                 -fill => $color
             );
-
+            _DrawLegend( $Canvas, $subcounter, $color, $cluster_spec->get_label() ) if $seq_num == 0;
             $subcounter++;
         }
 
@@ -611,7 +640,8 @@ sub DrawPercentCorrectScale {
 }
 
 sub DrawCodeletCountScale {
-    my ($MaxSteps) = @_;
+    my ($MaxSteps, $DrawHumanScale) = @_;
+    ## h: $DrawHumanScale
     my $x_tab_step;
     given ($MaxSteps) {
         when ( $_ < 100 ) { $x_tab_step = 10 }
@@ -626,7 +656,7 @@ sub DrawCodeletCountScale {
         $x_tab_step = 10000;
     }
 
-    ### x_tab_step: $x_tab_step
+    ## x_tab_step: $x_tab_step
     $x_tab_step = $MaxSteps unless $x_tab_step;
     my ( $left, $bottom ) = BarCoordinateToFigCoordinate( 2, 0, 0, -1, 0 );
     my $top = $bottom - $MAX_BAR_HEIGHT;
@@ -654,6 +684,7 @@ sub DrawCodeletCountScale {
         );
     }
 
+    return unless $DrawHumanScale;
     # Draw Seconds axis.
     my $max_seconds =
       int( $MaxSteps / $Perf::AllCollectedData::CODELETS_PER_SECOND );

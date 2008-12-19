@@ -52,7 +52,7 @@ sub BUILD {
 
     @results = map { Storable::thaw($_) } @results;
     for (@results) {
-        ### Attempt Result: $_->_DUMP()
+        ## Attempt Result: $_->_DUMP()
     }
 
     $total_count_of{$id} = scalar(@results);

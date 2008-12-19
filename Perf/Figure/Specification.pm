@@ -33,6 +33,8 @@ my %Sequences_to_Draw_of : ATTR(:name<sequences_to_draw>);
 my %Sequences_to_Chart_of : ATTR(:name<sequences_to_chart>);
 
 my %Draw_Chart_of : ATTR(:name<draw_chart>);
+my %Has_Human_Data_of :ATTR(:name<has_human_data>);
+
 
 sub new_from_specfile {
     my ( $package, $opts_ref ) = @_;
@@ -42,18 +44,25 @@ sub new_from_specfile {
       // confess "Missing required argument 'specfile'";
 
     read_config $specfile, my %Config;
-    my $type  = $Config{''}{Type};
-    my $title = $Config{''}{Title};
+    my $type  = $Config{''}{Type} or confess "Missing type";
+    my $title = $Config{''}{Title} //= "Title";
 
     my $draw_charts = $Config{''}{NoChart} ? 0 : 1;
+
+    my $has_human_data = 0;
 
     ## Cluster Count
     my $Cluster_Count =
       ( $type eq 'LTM_SELF_CONTEXT' ) ? 10 : $Config{''}{Cluster_Count};
+    $Cluster_Count // confess "Need Cluster_Count";
+
     my @Clusters = map {
         my $config = $Config{ 'Cluster_' . $_ } || {};
-        Perf::Figure::Cluster->new(
-            { config => $config, figure_type => $type } )
+        my $cluster = Perf::Figure::Cluster->new(
+            { config => $config, figure_type => $type } );
+        $has_human_data = 1 if $cluster->is_human();
+        ## human: $has_human_data
+        $cluster
     } ( 1 .. $Cluster_Count );
 
     ## 'Sequences' are always display sequences.
@@ -148,8 +157,8 @@ sub new_from_specfile {
             clusters                 => \@Clusters,
             sequences_to_draw        => \@display_sequences,
             sequences_to_chart       => \@Sequences_to_Chart,
-            draw_chart              => $draw_charts
-
+            draw_chart              => $draw_charts,
+                has_human_data => $has_human_data,
         }
     );
 }

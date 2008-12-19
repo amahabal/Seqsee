@@ -114,7 +114,7 @@ sub _GetDataForSequence {
     elsif ( $source eq 'LTM' )    { $array_ref = $LTM_Data_of{$id} }
     else                          { confess "source $source unknown" }
 
-    say "Getting data for: " , $sequence->_DUMP();
+    # say "Getting data for: " , $sequence->_DUMP();
 
     my @ret;
     if ( $source eq 'LTM' ) {
