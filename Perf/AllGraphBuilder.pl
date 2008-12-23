@@ -94,10 +94,6 @@ sub CreateFigures {
             say "Read Spec for $filename";
 
             # say $Spec->_DUMP();
-            Perf::BarChart->Plot(
-                { spec_object => $Spec, outfile => $outfile } );
-            say "Finished plot for $filename";
-
             my $outfile2 = $corresponding_filename . '_no_ovals.eps';
             Perf::BarChart->Plot(
                 {
@@ -106,6 +102,11 @@ sub CreateFigures {
                     no_ovals    => 1
                 }
             );
+            say "Finished plot for $filename";
+
+            Perf::BarChart->Plot(
+                { spec_object => $Spec, outfile => $outfile } );
+
             say "Finished second plot, wrote to $outfile2";
 
         }

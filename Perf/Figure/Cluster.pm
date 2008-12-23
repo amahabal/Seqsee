@@ -49,7 +49,7 @@ sub BUILD {
         $Source_of{$id} = 'LTM';
     }
     $Constraints_Ref_of{$id} = \%Data_Constraints;
-    $Color_of{$id} = _GetColor($source);
+    $Color_of{$id} = $config{color} || _GetColor($source);
 }
 
 sub _GetColor {

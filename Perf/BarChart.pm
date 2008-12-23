@@ -86,6 +86,7 @@ sub Setup {
     $SEQUENCES_TO_DISPLAY_COUNT = $graph_spec->get_sequences_to_draw_count;
 
     $DRAW_CHARTS = $graph_spec->get_draw_chart;
+    $DRAW_CHARTS = 0 if $no_ovals;
 
     #==== HORIZONTAL
     $FIG_WIDTH                = 600;
@@ -531,6 +532,9 @@ sub Show {
         return;
     }
     my $string = $SequenceString;
+    if ($no_ovals) {
+        $string =~ s{ \| .* }{ \| }x;
+    }
 
     # print "Will Parse: >$SequenceString<\n";
     my ( $Elements_ref, $GroupA_ref, $GroupB_ref, $BarLines_ref ) =
