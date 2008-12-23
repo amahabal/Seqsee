@@ -83,7 +83,6 @@ sub new_from_specfile {
         $tentative_label++;
     }
 
-    say "Spec reading 1";
     $display_sequences[0]->set_label('Sequence') if $type eq 'LTM_SELF_CONTEXT';
 
     if ( $type eq 'LTM_WITH_CONTEXT' ) {
@@ -102,7 +101,6 @@ sub new_from_specfile {
         }
     }
 
-    say "Spec reading 2"; 
     # Sequences to chart;
     my @Sequences_to_Chart;
     if ( $type eq 'LTM_SELF_CONTEXT' ) {
@@ -146,7 +144,6 @@ sub new_from_specfile {
         }
     }
 
-    say "Spec almost read";
     return $package->new(
         {
             title                    => $title,

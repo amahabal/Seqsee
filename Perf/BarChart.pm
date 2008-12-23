@@ -22,7 +22,6 @@ use Carp;
 use Sort::Key qw(rikeysort);
 use Exception::Class ( 'Y_TOO_BIG' => {} );
 
-
 use constant {
     GROUP_A_OPTIONS     => [ -fill    => '#DDDDDD' ],
     GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
@@ -37,7 +36,7 @@ use constant {
     FONT                        => 'Lucida 14',
     SEQUENCE_LABEL_TEXT_OPTIONS => [ -font => 'Lucida 12', -fill => '#0000FF' ],
     CHART_TITLE_OPTIONS         => [ -font => 'Lucida 16', -fill => '#FF0000' ],
-        FIGURE_TITLE_OPTIONS         => [ -font => 'Lucida 16', -fill => '#FF0000' ],
+    FIGURE_TITLE_OPTIONS        => [ -font => 'Lucida 16', -fill => '#FF0000' ],
 };
 
 my (
@@ -68,13 +67,14 @@ my (
 
 my ( $SEQUENCES_V_OFFSET, $MAX_BAR_HEIGHT );
 
-my ( $LEGEND_HEIGHT, $LEGEND_V_OFFSET, $LEGEND_CHART_SEPARATION);
+my ( $LEGEND_HEIGHT, $LEGEND_V_OFFSET,         $LEGEND_CHART_SEPARATION );
 my ( $CLUSTER_COUNT, $SEQUENCES_TO_PLOT_COUNT, $SEQUENCES_TO_DISPLAY_COUNT );
 my ($Canvas);
 
 my ($DRAW_CHARTS);
+
 sub Setup {
-    my ($graph_spec) = @_;
+    my ($graph_spec, $no_ovals) = @_;
     $graph_spec->isa("Perf::Figure::Specification")
       or confess
       "Expected \$graph_spec to be of type Perf::Figure::Specification."
@@ -108,12 +108,12 @@ sub Setup {
     $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
 
     #=== VERTICAL
-    $FIG_T_MARGIN               = 40;
+    $FIG_T_MARGIN               = $no_ovals ? 20 : 40;
     $FIG_B_MARGIN               = 20;
     $INTER_SEQUENCE_SEPARATION  = 30;
     $SEQUENCE_HEIGHT            = 20;
     $SEQUENCES_CHART_SEPARATION = $DRAW_CHARTS ? 20 : 0;
-    $LEGEND_CHART_SEPARATION = 20;
+    $LEGEND_CHART_SEPARATION    = 20;
     $CHART_T_MARGIN             = 30;
     $CHART_B_MARGIN             = 20;
     $CHART_HEIGHT               = $DRAW_CHARTS ? 120 : 0;
@@ -121,7 +121,8 @@ sub Setup {
     #=== VERTICAL CALCULATED
     $SEQUENCES_V_OFFSET = $FIG_T_MARGIN;
     $MAX_BAR_HEIGHT     = $CHART_HEIGHT - $CHART_T_MARGIN - $CHART_B_MARGIN;
-    $LEGEND_HEIGHT = $DRAW_CHARTS ? (20 * int(($CLUSTER_COUNT + 2) / 3)) : 0;
+    $LEGEND_HEIGHT =
+      $DRAW_CHARTS ? ( 20 * int( ( $CLUSTER_COUNT + 2 ) / 3 ) ) : 0;
 
     $MAX_CLUSTER_WIDTH =
       ( $EFFECTIVE_CHART_WIDTH -
@@ -141,9 +142,10 @@ sub Setup {
       ( $SEQUENCE_HEIGHT * $SEQUENCES_TO_DISPLAY_COUNT ) +
       ( $INTER_SEQUENCE_SEPARATION * ( $SEQUENCES_TO_DISPLAY_COUNT - 1 ) );
     $SEQUENCES_BOTTOM = $SEQUENCES_HEIGHT + $SEQUENCES_V_OFFSET;
-    $LEGEND_V_OFFSET =  $SEQUENCES_BOTTOM + $SEQUENCES_CHART_SEPARATION;
-    $CHART_V_OFFSET   = $LEGEND_V_OFFSET + $LEGEND_HEIGHT + $LEGEND_CHART_SEPARATION;
-    $CHART_BOTTOM     = $CHART_V_OFFSET + $CHART_HEIGHT;
+    $LEGEND_V_OFFSET  = $SEQUENCES_BOTTOM + $SEQUENCES_CHART_SEPARATION;
+    $CHART_V_OFFSET =
+      $LEGEND_V_OFFSET + $LEGEND_HEIGHT + $LEGEND_CHART_SEPARATION;
+    $CHART_BOTTOM = $CHART_V_OFFSET + $CHART_HEIGHT;
 
     $BAR_BOTTOM = $CHART_BOTTOM - $CHART_B_MARGIN;
     $FIG_HEIGHT = $CHART_BOTTOM + $FIG_B_MARGIN;
@@ -203,7 +205,6 @@ sub Y_CENTER {
     $SEQUENCE_HEIGHT / 2;
 }
 
-
 sub SeqCoordToCanvasCoord {
     my ( $seq_num, $x, $y ) = @_;
     my $new_y =
@@ -215,28 +216,44 @@ sub SeqCoordToCanvasCoord {
 
 sub _LegendOffset {
     my ($number) = @_;
-    my $x = $FIG_L_MARGIN + ($number % 3) * $EFFECTIVE_FIG_WIDTH / 3;
-    my $y = $LEGEND_V_OFFSET + 20 * int($number / 3);
-    return ($x, $y);
+    my $x = $FIG_L_MARGIN + ( $number % 3 ) * $EFFECTIVE_FIG_WIDTH / 3;
+    my $y = $LEGEND_V_OFFSET + 20 * int( $number / 3 );
+    return ( $x, $y );
 }
 
 sub _DrawLegend {
-    my ($canvas, $number, $color, $label) = @_;
-    my ($x, $y) = _LegendOffset($number);
-    $canvas->createRectangle($x, $y, $x + 5, $y + 5, -fill => $color,
-                                 -outline => $color);
-    $canvas->createText($x + 15, $y, -text => $label, -anchor => 'nw');
+    my ( $canvas, $number, $color, $label ) = @_;
+    my ( $x, $y ) = _LegendOffset($number);
+    $canvas->createRectangle(
+        $x, $y, $x + 5, $y + 5,
+        -fill    => $color,
+        -outline => $color
+    );
+    $canvas->createText( $x + 15, $y, -text => $label, -anchor => 'nw' );
 }
 
-
-
+############# Method ######################
+#  Name             : Plot
+#  Returns          : -
+#  Params via href  : Yes
+#  Parameters       : spec_object, outfile?, no_ovals?
+#  Purpose          : Creates a Tk::Canvas with the figure, with a button to
+#                   : save as eps.
+###
+#  Multi?           : No
+#  Usage            : $obj->Plot(...)
+#  Memoized         : No
+#  Throws           : no exceptions
+#  Comments         :
+#  See Also         : n/a
 sub Plot {
     my ( $self, $opts_ref ) = @_;
     my $id = ident $self;
 
     my $spec_object = $opts_ref->{spec_object}
       // confess "Missing required argument 'spec_object'";
-    my $outfile = $opts_ref->{outfile} // undef;
+    my $outfile  = $opts_ref->{outfile}  // undef;
+    my $no_ovals = $opts_ref->{no_ovals} // 0;
 
     Setup($spec_object);
 
@@ -255,13 +272,14 @@ sub Plot {
     );
     $MW->focusmodel('active');
 
-    $Canvas->createText($FIG_WIDTH / 2, 5,
-                        -text => $spec_object->get_title(),
-                        -anchor => 'n',
-                        @{FIGURE_TITLE_OPTIONS()},
-                            );
+    $Canvas->createText(
+        $FIG_WIDTH / 2, 5,
+        -text   => $spec_object->get_title(),
+        -anchor => 'n',
+        @{ FIGURE_TITLE_OPTIONS() },
+    ) unless $no_ovals;
     DrawChart($spec_object) if $DRAW_CHARTS;
-    DrawSequences($spec_object);
+    DrawSequences( $spec_object, $no_ovals );
     if ($outfile) {
         my $button;
         $button = $MW->Button(
@@ -272,7 +290,7 @@ sub Plot {
                     -pageheight => '10c',
                     -height     => $FIG_HEIGHT,
                 );
-                $button->configure(-text => 'Saved', -state => 'disabled');
+                $button->configure( -text => 'Saved', -state => 'disabled' );
               }
 
         )->pack( -side => 'top' );
@@ -295,7 +313,7 @@ sub DrawChart {
     DrawChartTitles();
     DrawPercentCorrectScale();
     ## MaxSteps: $MaxSteps
-    DrawCodeletCountScale($MaxSteps, $spec_object->get_has_human_data());
+    DrawCodeletCountScale( $MaxSteps, $spec_object->get_has_human_data() );
     ## Scales Drawn
 
     my $seq_num = 0;
@@ -383,7 +401,9 @@ sub DrawChart {
                 ),
                 -fill => $color
             );
-            _DrawLegend( $Canvas, $subcounter, $color, $cluster_spec->get_label() ) if $seq_num == 0;
+            _DrawLegend( $Canvas, $subcounter, $color,
+                $cluster_spec->get_label() )
+              if $seq_num == 0;
             $subcounter++;
         }
 
@@ -392,7 +412,7 @@ sub DrawChart {
 }
 
 sub DrawSequences {
-    my ($graph_spec) = @_;
+    my ( $graph_spec, $no_ovals ) = @_;
     my $seq_num = 0;
     for my $seq ( @{ $graph_spec->get_sequences_to_draw } ) {
         $Canvas->createText(
@@ -405,10 +425,12 @@ sub DrawSequences {
         my $sequence_to_show = $seq->get_sequence_with_markup;
         my @distractor       = @{ $seq->get_distractors };
 
-        Show( $seq_num, $sequence_to_show, 0 );
-        for my $dist (@distractor) {
-            my ( $start, $end ) = split( ' ', $dist );
-            DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS, 1 );
+        Show( $seq_num, $sequence_to_show, 0, $no_ovals );
+        if ( not $no_ovals ) {
+            for my $dist (@distractor) {
+                my ( $start, $end ) = split( ' ', $dist );
+                DrawGroup( $seq_num, $start, $end, 3, DISTRACTOR_OPTIONS, 1 );
+            }
         }
 
         $seq_num++;
@@ -502,7 +524,7 @@ sub DrawSequences {
 }
 
 sub Show {
-    my ( $seq_num, $SequenceString, $IS_MOUNTAIN ) = @_;
+    my ( $seq_num, $SequenceString, $IS_MOUNTAIN, $no_ovals ) = @_;
     %ARROW_ANCHORS = ();
     if ($IS_MOUNTAIN) {
         ShowMountain();
@@ -525,18 +547,17 @@ sub Show {
       ( HEIGHT() * $OVAL_MINOR_AXIS_FRACTION * 0.1 ) /
       ( 2 * $PretendWeHaveElements );
 
-    for (@$GroupA_ref) {
-        DrawGroup( $seq_num, @$_, 3, GROUP_A_OPTIONS );
-    }
-    for (@$GroupB_ref) {
-        DrawGroup( $seq_num, @$_, 0, GROUP_B_OPTIONS );
+    unless ($no_ovals) {
+        for (@$GroupA_ref) {
+            DrawGroup( $seq_num, @$_, 3, GROUP_A_OPTIONS );
+        }
+        for (@$GroupB_ref) {
+            DrawGroup( $seq_num, @$_, 0, GROUP_B_OPTIONS );
+        }
     }
     DrawElements( $seq_num, $Elements_ref );
     DrawArrows($seq_num);
 
-#my $distance_from_edge = 2;
-#$Canvas->createLine(0, $distance_from_edge, WIDTH(), $distance_from_edge);
-#$Canvas->createLine(0, HEIGHT - $distance_from_edge, WIDTH(), HEIGHT - $distance_from_edge);
 }
 
 sub DrawElements {
@@ -561,6 +582,7 @@ sub DrawElements {
 }
 
 sub DrawArrows {
+    return;
     my $Arrows;
     $Arrows =~ s#\s##g;
     return unless $Arrows;
@@ -640,7 +662,7 @@ sub DrawPercentCorrectScale {
 }
 
 sub DrawCodeletCountScale {
-    my ($MaxSteps, $DrawHumanScale) = @_;
+    my ( $MaxSteps, $DrawHumanScale ) = @_;
     ## h: $DrawHumanScale
     my $x_tab_step;
     given ($MaxSteps) {
@@ -685,6 +707,7 @@ sub DrawCodeletCountScale {
     }
 
     return unless $DrawHumanScale;
+
     # Draw Seconds axis.
     my $max_seconds =
       int( $MaxSteps / $Perf::AllCollectedData::CODELETS_PER_SECOND );
