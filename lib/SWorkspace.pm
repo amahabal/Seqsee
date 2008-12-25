@@ -17,7 +17,7 @@ use List::Util;
 use SUtil;
 use base qw{};
 
-use Smart::Comments;
+use Smart::Comments '###';
 use English qw(-no_match_vars);
 
 use Sort::Key qw{rikeysort ikeysort};

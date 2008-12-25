@@ -1,7 +1,7 @@
 package SStream2;
 use strict;
 use Carp;
-use Smart::Comments;
+use Smart::Comments '###';
 use Scalar::Util qw(blessed reftype);
 
 ############# Class ######################
@@ -18,7 +18,7 @@ my %MEMO;
 #  Parameters       : (Str $name, { $DiscountFactor, $MaxOlderThoughts })
 #  Params via href  : second
 #  Purpose          : Creates a new instance and initializes it.
-###
+##
 #  Multi?           : No
 #  Usage            : SStream2->CreateNew(...)               
 #  Memoized         : Yes, but only using the name.
@@ -67,7 +67,7 @@ sub clear {
 #  Parameters       : the new thought
 #  Params via href  : No
 #  Purpose          : add a new thought
-###
+##
 #  Multi?           : No
 #  Usage            : $obj->add_thought(...)               
 #  Memoized         : No
@@ -121,7 +121,7 @@ sub add_thought {
 #  Params via href  : No
 #  Purpose          : Takes some action based on similarity to recent thoughts
 #                     and other actions suggested by the thought.
-###
+##
 #  Multi?           : No
 #  Usage            : $obj->_think_the_current_thought(...)
 #  Memoized         : No
