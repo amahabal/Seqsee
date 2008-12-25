@@ -233,14 +233,14 @@ sub _DrawLegend {
     $canvas->createText( $x + 15, $y, -text => $label, -anchor => 'nw' );
 }
 
-############# Method ######################
+## Method ######################
 #  Name             : Plot
 #  Returns          : -
 #  Params via href  : Yes
 #  Parameters       : spec_object, outfile?, no_ovals?
 #  Purpose          : Creates a Tk::Canvas with the figure, with a button to
 #                   : save as eps.
-###
+##
 #  Multi?           : No
 #  Usage            : $obj->Plot(...)
 #  Memoized         : No

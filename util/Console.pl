@@ -35,6 +35,65 @@ my $SB        = $MW->StatusBar();
 my $StatusMsg = "";
 $SB->addLabel( -textvariable => \$StatusMsg );
 
+
+INSERT_BUTTONS: {
+    my $button_frame = $MW->Frame()->pack( -side => 'top' );
+    my $buttons_per_row = 3;
+
+    my @button_config = (
+        [ Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl') ],
+        [   DeleteGenlib => sub {
+                unlink(<genlib/*.pm>);
+                unlink(<genlib/*/*.pm>);
+                unlink(<genlib/*/*.pm>);
+                }
+        ],
+        [ CPAN     => CreateRunPerlScriptCommand(qw{-MCPAN -e shell}) ],
+        [ SVNDiff  => CreateRunPerlScriptCommand('util\ShowDiff.pl') ],
+        [ RunTests => CreateRunPerlScriptCommand( 'c:\Perl\bin\prove.bat', 't\*' ) ],
+        [   ClearMemory => sub {
+                open my $MEMORY_HANDLE, '>', 'memory_dump.dat';
+                print {$MEMORY_HANDLE} ' ';
+                close $MEMORY_HANDLE;
+                }
+        ],
+        [   CodeletLevelView =>
+                CreateRunPerlScriptCommand( 'util\CodeletCallGraph.pl', '--CodeletView' )
+        ],
+        [   TimestampedCodeletLevelView => CreateRunPerlScriptCommand(
+                'util\CodeletCallGraph.pl', '--CodeletView', '--Timestamps'
+            )
+        ],
+        [   TreeLevelView => CreateRunPerlScriptCommand( 'util\CodeletCallGraph.pl', '--JustTrees' )
+        ],
+        [   LabeledCodeletLevelView => CreateRunPerlScriptCommand(
+                'util\CodeletCallGraph.pl', '--CodeletView', '--TreeNums'
+            )
+        ],
+        [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
+        [ PressureView       => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
+        [ ActivationViewer   => CreateRunPerlScriptCommand('util\ActivationsViewer.pl') ],
+        [ ViewLTM   => CreateRunPerlScriptCommand('util\ShowLTM.pl') ],
+    );
+
+    my $button_count = 0;
+    my $button_subframe;
+    for my $button_info (@button_config) {
+        my ( $text, $command ) = @{$button_info};
+        ## t, c: $text, $command
+        if ( $button_count % $buttons_per_row == 0 ) {
+            $button_subframe = $button_frame->Frame()->pack( -side => 'top' );
+        }
+        $button_count++;
+        $button_subframe->Button(
+            -text    => $text,
+            -command => $command,
+            -width   => 30,
+        )->pack( -side => 'left' );
+    }
+}
+
+
 CreateFrameForLaunchingSeqsee();
 
 INSERT_INPUT_REQUIRING_COMMANDS: {
@@ -98,62 +157,6 @@ INSERT_INPUT_REQUIRING_COMMANDS: {
     }
 }
 
-INSERT_BUTTONS: {
-    my $button_frame = $MW->Frame()->pack( -side => 'bottom' );
-    my $buttons_per_row = 3;
-
-    my @button_config = (
-        [ Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl') ],
-        [   DeleteGenlib => sub {
-                unlink(<genlib/*.pm>);
-                unlink(<genlib/*/*.pm>);
-                unlink(<genlib/*/*.pm>);
-                }
-        ],
-        [ CPAN     => CreateRunPerlScriptCommand(qw{-MCPAN -e shell}) ],
-        [ SVNDiff  => CreateRunPerlScriptCommand('util\ShowDiff.pl') ],
-        [ RunTests => CreateRunPerlScriptCommand( 'c:\Perl\bin\prove.bat', 't\*' ) ],
-        [   ClearMemory => sub {
-                open my $MEMORY_HANDLE, '>', 'memory_dump.dat';
-                print {$MEMORY_HANDLE} ' ';
-                close $MEMORY_HANDLE;
-                }
-        ],
-        [   CodeletLevelView =>
-                CreateRunPerlScriptCommand( 'util\CodeletCallGraph.pl', '--CodeletView' )
-        ],
-        [   TimestampedCodeletLevelView => CreateRunPerlScriptCommand(
-                'util\CodeletCallGraph.pl', '--CodeletView', '--Timestamps'
-            )
-        ],
-        [   TreeLevelView => CreateRunPerlScriptCommand( 'util\CodeletCallGraph.pl', '--JustTrees' )
-        ],
-        [   LabeledCodeletLevelView => CreateRunPerlScriptCommand(
-                'util\CodeletCallGraph.pl', '--CodeletView', '--TreeNums'
-            )
-        ],
-        [ TreeLevelDebugView => CreateRunPerlScriptCommand('util\CodeletCallGraph.pl') ],
-        [ PressureView       => CreateRunPerlScriptCommand('util\PressureViewer.pl') ],
-        [ ActivationViewer   => CreateRunPerlScriptCommand('util\ActivationsViewer.pl') ],
-        [ ViewLTM   => CreateRunPerlScriptCommand('util\ShowLTM.pl') ],
-    );
-
-    my $button_count = 0;
-    my $button_subframe;
-    for my $button_info (@button_config) {
-        my ( $text, $command ) = @{$button_info};
-        ## t, c: $text, $command
-        if ( $button_count % $buttons_per_row == 0 ) {
-            $button_subframe = $button_frame->Frame()->pack( -side => 'top' );
-        }
-        $button_count++;
-        $button_subframe->Button(
-            -text    => $text,
-            -command => $command,
-            -width   => 30,
-        )->pack( -side => 'left' );
-    }
-}
 
 MainLoop();
 
