@@ -82,9 +82,6 @@ sub CreateFigures {
             );
         }
         else {
-            my $outfile = $corresponding_filename . '.eps';
-            say "Will convert '$filename' to '$outfile'";
-
             my $Spec = Perf::Figure::Specification->new_from_specfile(
                 {
                     all_read_data => $AllData,
@@ -93,7 +90,6 @@ sub CreateFigures {
             ) or confess $!;
             say "Read Spec for $filename";
 
-            # say $Spec->_DUMP();
             my $outfile2 = $corresponding_filename . '_no_ovals.eps';
             Perf::BarChart->Plot(
                 {
@@ -104,10 +100,30 @@ sub CreateFigures {
             );
             say "Finished plot for $filename";
 
-            Perf::BarChart->Plot(
-                { spec_object => $Spec, outfile => $outfile } );
+            if ( $Spec->get_split_chart() ) {
+                my $outfile_seq = $corresponding_filename . '_seq.eps';
+                my $outfile_bar = $corresponding_filename . '_bar.eps';
+                Perf::BarChart->Plot(
+                    { spec_object => $Spec, outfile => $outfile_seq,
+                      no_chart => 1
+                  } );
+               Perf::BarChart->Plot(
+                    { spec_object => $Spec, outfile => $outfile_bar,
+                      no_seq => 1
+                  } );
 
-            say "Finished second plot, wrote to $outfile2";
+
+            }
+            else {
+                my $outfile = $corresponding_filename . '.eps';
+                Perf::BarChart->Plot(
+                    { spec_object => $Spec, outfile => $outfile } );
+
+                say "Finished second plot, wrote to $outfile2";
+
+            }
+
+            # say $Spec->_DUMP();
 
         }
     }

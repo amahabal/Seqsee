@@ -71,10 +71,10 @@ my ( $LEGEND_HEIGHT, $LEGEND_V_OFFSET,         $LEGEND_CHART_SEPARATION );
 my ( $CLUSTER_COUNT, $SEQUENCES_TO_PLOT_COUNT, $SEQUENCES_TO_DISPLAY_COUNT );
 my ($Canvas);
 
-my ($DRAW_CHARTS);
+my ( $DRAW_CHARTS, $DRAW_SEQUENCES );
 
 sub Setup {
-    my ($graph_spec, $no_ovals) = @_;
+    my ( $graph_spec, $no_ovals, $no_chart, $no_seq ) = @_;
     $graph_spec->isa("Perf::Figure::Specification")
       or confess
       "Expected \$graph_spec to be of type Perf::Figure::Specification."
@@ -85,8 +85,10 @@ sub Setup {
     $SEQUENCES_TO_PLOT_COUNT    = $graph_spec->get_sequences_to_chart_count;
     $SEQUENCES_TO_DISPLAY_COUNT = $graph_spec->get_sequences_to_draw_count;
 
-    $DRAW_CHARTS = $graph_spec->get_draw_chart;
-    $DRAW_CHARTS = 0 if $no_ovals;
+    $DRAW_CHARTS    = $graph_spec->get_draw_chart;
+    $DRAW_CHARTS    = 0 if $no_ovals;
+    $DRAW_CHARTS    = 0 if $no_chart;
+    $DRAW_SEQUENCES = $no_seq ? 0 : 1;
 
     #==== HORIZONTAL
     $FIG_WIDTH                = 600;
@@ -109,12 +111,13 @@ sub Setup {
     $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
 
     #=== VERTICAL
-    $FIG_T_MARGIN               = $no_ovals ? 20 : 40;
-    $FIG_B_MARGIN               = 20;
-    $INTER_SEQUENCE_SEPARATION  = 30;
-    $SEQUENCE_HEIGHT            = 20;
-    $SEQUENCES_CHART_SEPARATION = $DRAW_CHARTS ? 20 : 0;
-    $LEGEND_CHART_SEPARATION    = 20;
+    $FIG_T_MARGIN              = $no_ovals ? 20 : 40;
+    $FIG_B_MARGIN              = 20;
+    $INTER_SEQUENCE_SEPARATION = $DRAW_SEQUENCES ? 30 : 0;
+    $SEQUENCE_HEIGHT           = $DRAW_SEQUENCES ? 20 : 0
+;
+    $SEQUENCES_CHART_SEPARATION = ($DRAW_CHARTS and $DRAW_SEQUENCES) ? 20 : 0;
+    $LEGEND_CHART_SEPARATION    = $DRAW_CHARTS ? 20:0;
     $CHART_T_MARGIN             = 30;
     $CHART_B_MARGIN             = 20;
     $CHART_HEIGHT               = $DRAW_CHARTS ? 120 : 0;
@@ -255,8 +258,11 @@ sub Plot {
       // confess "Missing required argument 'spec_object'";
     my $outfile  = $opts_ref->{outfile}  // undef;
     my $no_ovals = $opts_ref->{no_ovals} // 0;
+    my $no_chart = $opts_ref->{no_chart} // 0;
+    my $no_seq = $opts_ref->{no_seq} // 0;
 
-    Setup($spec_object);
+
+    Setup($spec_object, $no_ovals, $no_chart, $no_seq);
 
     use Tk;
     our $MW = new MainWindow();
@@ -280,7 +286,7 @@ sub Plot {
         @{ FIGURE_TITLE_OPTIONS() },
     ) unless $no_ovals;
     DrawChart($spec_object) if $DRAW_CHARTS;
-    DrawSequences( $spec_object, $no_ovals );
+    DrawSequences( $spec_object, $no_ovals ) if $DRAW_SEQUENCES;
     if ($outfile) {
         my $button;
         $button = $MW->Button(

@@ -33,8 +33,8 @@ my %Sequences_to_Draw_of : ATTR(:name<sequences_to_draw>);
 my %Sequences_to_Chart_of : ATTR(:name<sequences_to_chart>);
 
 my %Draw_Chart_of : ATTR(:name<draw_chart>);
-my %Has_Human_Data_of :ATTR(:name<has_human_data>);
-
+my %Has_Human_Data_of : ATTR(:name<has_human_data>);
+my %Split_Chart_of : ATTR(:name<split_chart>);
 
 sub new_from_specfile {
     my ( $package, $opts_ref ) = @_;
@@ -44,10 +44,11 @@ sub new_from_specfile {
       // confess "Missing required argument 'specfile'";
 
     read_config $specfile, my %Config;
-    my $type  = $Config{''}{Type} or confess "Missing type";
+    my $type = $Config{''}{Type} or confess "Missing type";
     my $title = $Config{''}{Title} //= "Title";
 
-    my $draw_charts = $Config{''}{NoChart} ? 0 : 1;
+    my $draw_charts = $Config{''}{NoChart}    ? 0 : 1;
+    my $split_chart = $Config{''}{SplitChart} ? 1 : 0;
 
     my $has_human_data = 0;
 
@@ -154,8 +155,9 @@ sub new_from_specfile {
             clusters                 => \@Clusters,
             sequences_to_draw        => \@display_sequences,
             sequences_to_chart       => \@Sequences_to_Chart,
-            draw_chart              => $draw_charts,
-                has_human_data => $has_human_data,
+            draw_chart               => $draw_charts,
+            has_human_data           => $has_human_data,
+            split_chart              => $split_chart,
         }
     );
 }
