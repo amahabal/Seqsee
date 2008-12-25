@@ -2,15 +2,17 @@
 Type = NonLTM
 
 # Title for the figure.
-Title = Distractors
+Title = Human 1
 
 # Should the chart be drawn? If not, only sequences will be shown.
-# NoChart = 1
+# The other option is to Split the chart into two (sequences and bars).
+#NoChart = 0
+# SplitChart = 1
 
 # Show data from how many sources? Will typically be 2 (Seqsee/Human).
 # Can be lower or higher depending on what needs to be plotted.
 # Makes no sense if chart is not being drawn, but due to a bug, don't make it 0.
-Cluster_Count = 1
+Cluster_Count = 2
 
 # Sequences for which data is being shown.
 # Add 'seq=...' lines, where the ... should be a sequence specification.
@@ -18,21 +20,8 @@ Cluster_Count = 1
 # Groupings can be indicated with (), <>, {} or [].
 # The first two ('()' and '<>') are for outer ovals, the other two for inner.
 [Sequences]
-seq=(2 1 2)(2 2 2)(2 3 2)(2 4 2) (2 5 2)|(2 6 2)
-seq=(1 2 2)(2 2 2)(3 2 2)(4 2 2) (5 2 2)|(6 2 2)
+seq=(1 4)(1 5)(1 6)|(1 7)(1 8)(1 9)
 seq=(1 1)(1 2)(1 3)|(1 4)(1 5)(1 6)
-seq=({1 1})({1 1}{2 2})({1 1}{2 2}{3 3})|({1 1}{2 2}{3 3}{4 4})
-
-[Sequence_1]
-# label = 
-
-# Add any number of distractors.
-# Each looks thus: distractor= x y
-# This will draw a oval [x y). The first element has index 0.
-distractor=2 7
-distractor=8 10
-distractor=11 13
-distractor=14 16
 
 [Sequence_2]
 # label = 
@@ -40,20 +29,10 @@ distractor=14 16
 # Add any number of distractors.
 # Each looks thus: distractor= x y
 # This will draw a oval [x y). The first element has index 0.
-distractor=1 6
-
-[Sequence_3]
-# label = 
-
-# Add any number of distractors.
-# Each looks thus: distractor= x y
-# This will draw a oval [x y). The first element has index 0.
 distractor=0 3
 
-[Sequence_4]
-# label = 
+[Cluster_2]
+source = Human
 
-# Add any number of distractors.
-# Each looks thus: distractor= x y
-# This will draw a oval [x y). The first element has index 0.
-distractor=0 4
+# Color
+# color = #

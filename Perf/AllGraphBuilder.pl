@@ -36,10 +36,17 @@ use Perf::Figure::Cluster;
 use Perf::BarChart;
 use Perf::CollatedData;
 
-my $AllData = Perf::AllCollectedData->new();
+use Getopt::Long;
+%ARGV = ();
+GetOptions( \%ARGV, 'indir=s', 'outdir=s' );
 
-my $InputDirectory  = 'Perf/Chapter3Config';
-my $OutputDirectory = 'Perf/Chapter3Figures';
+confess "Need both --indir and --outdir"
+  if ( ( $ARGV{indir} and not $ARGV{outdir} )
+    or ( $ARGV{outdir} and not $ARGV{indir} ) );
+
+my $AllData         = Perf::AllCollectedData->new();
+my $InputDirectory  = $ARGV{indir} // 'Perf/Chapter3Config';
+my $OutputDirectory = $ARGV{outdir} // 'Perf/Chapter3Figures';
 
 CreateFigures(
     {
@@ -104,14 +111,19 @@ sub CreateFigures {
                 my $outfile_seq = $corresponding_filename . '_seq.eps';
                 my $outfile_bar = $corresponding_filename . '_bar.eps';
                 Perf::BarChart->Plot(
-                    { spec_object => $Spec, outfile => $outfile_seq,
-                      no_chart => 1
-                  } );
-               Perf::BarChart->Plot(
-                    { spec_object => $Spec, outfile => $outfile_bar,
-                      no_seq => 1
-                  } );
-
+                    {
+                        spec_object => $Spec,
+                        outfile     => $outfile_seq,
+                        no_chart    => 1
+                    }
+                );
+                Perf::BarChart->Plot(
+                    {
+                        spec_object => $Spec,
+                        outfile     => $outfile_bar,
+                        no_seq      => 1
+                    }
+                );
 
             }
             else {
