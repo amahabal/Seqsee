@@ -40,13 +40,18 @@ sub Gather {
     my @arg_sets_for_harness;
 
     if ( $type eq 'NonLTM' ) {
-        @arg_sets_for_harness =
-          Get_Arg_Set_for_NonLTM( $spec, $min_result_set );
+        Run_Seqsee_NonLTM( $spec, $min_result_set );
+    }
+    elsif ( $type eq 'LTM_SELF_CONTEXT' ) {
+        Run_Seqsee_SelfContext( $spec, $min_result_set );
+    }
+    elsif ( $type eq 'LTM_WITH_CONTEXT' ) {
+        Run_Seqsee_WithContext( $spec, $min_result_set );
     }
 
 }
 
-sub Get_Arg_Set_for_NonLTM {
+sub Run_Seqsee_NonLTM {
     my ( $spec, $min_result_set ) = @_;
     my @sequences_to_chart = @{ $spec->get_sequences_to_chart };
     my @clusters           = @{ $spec->get_clusters };
@@ -92,8 +97,70 @@ sub Get_Arg_Set_for_NonLTM {
 
 }
 
+sub ClearMemory {
+    open my $MEMORY_HANDLE, '>', 'memory_dump.dat';
+    print {$MEMORY_HANDLE} ' ';
+    close $MEMORY_HANDLE;
+}
+
+{
+    my $save_location = '/tmp/memory_dump.dat.save';
+
+    sub SaveMemory {
+        system "mv memory_dump.dat $save_location";
+    }
+
+    sub RestoreMemory {
+        system "mv $save_location memory_dump.dat";
+    }
+}
+
+sub Run_Seqsee_SelfContext {
+    my ( $spec, $min_result_set ) = @_;
+    my $sequence_to_chart = $spec->get_sequences_to_chart()->[0];
+    my $cluster           = $spec->get_clusters()->[0];
+    ## cluster: $cluster->_DUMP()
+    ## seq: $sequence_to_chart->_DUMP
+    my $data = $sequence_to_chart->get_data_indexed_by_cluster()->{'cluster_0'};
+    my $data_count = $data->get_total_count;
+
+    my $sequence        = $sequence_to_chart->get_sequence();
+    my $sequence_string = $sequence->ArgumentForSeqsee();
+
+    if ( $data_count >= $min_result_set ) {
+        say "I have enough data for $cluster for $sequence";
+    }
+    else {
+        say "I need more data for $sequence_string";
+        ### cons: $cluster->get_constraints_ref()->{exact_feature_set}
+        my $feature_set = $cluster->get_constraints_ref()->{exact_feature_set};
+        my $feature_string =
+          ( defined $feature_set )
+          ? $feature_set->as_str
+          : '-f=LTM;-f=LTM_expt';
+        say "feature_string: $feature_string";
+        for ( 1 .. $min_result_set - $data_count ) {
+            ClearMemory();
+            RunSeqseeOn(
+                {
+                    times_to_run  => 10,
+                    sequence      => $sequence->get_revealed(),
+                    continuation  => $sequence->get_all_unrevealed(),
+                    max_steps     => 25000,
+                    min_extension => 3,
+                    max_false     => 3,
+                    tempfilename  => 'temp',
+                    feature_set   => $feature_string,
+                    code_version  => Perf::Version->GetVersionOfCode,
+                    outputdir     => 'Perf/data/LTM',
+                }
+            );
+        }
+    }
+}
+
 sub RunSeqseeOn {
-    my ( $opts_ref ) = @_;
+    my ($opts_ref) = @_;
     my $times_to_run = $opts_ref->{times_to_run}
       // confess "Missing required argument 'times_to_run'";
     my $sequence = $opts_ref->{sequence}
@@ -134,6 +201,7 @@ sub RunSeqseeOn {
 
     my ( @EFFECTIVE_CODELET_RATE, @RESULTS, @WALLCLOCK_TIME );
     for ( 1 .. $times_to_run ) {
+        say "++++++ $_/$times_to_run for '$sequence'";
         unlink $tempfilename;
         my $time_before = time();
         system @cmd;

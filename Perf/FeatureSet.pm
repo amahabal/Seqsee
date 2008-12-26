@@ -18,8 +18,6 @@ use Class::Multimethods;
 use Carp;
 ## END OF STANDARD INCLUDES
 
-
-
 my @Inconsequential_features = qw{debug CodeletTree
   LogActivations debugMAX};
 my %Inconsequential_features =
@@ -37,6 +35,7 @@ sub _NormalizeFeatures {
     return '' unless $features_string;
 
     my @parts =
+      sort
       grep { !$Inconsequential_features{$_} }
       split( ';', $features_string );
     return '' unless @parts;
