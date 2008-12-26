@@ -1,4 +1,5 @@
 package S;
+use 5.10.0;
 use strict;
 use warnings;
 
@@ -142,7 +143,6 @@ sub deserialize {
 }
 
 package METO_MODE;
-use 5.10.0;
 use strict;
 use Carp;
 use warnings;

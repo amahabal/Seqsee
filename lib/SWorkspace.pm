@@ -7,6 +7,7 @@
 #####################################################
 
 package SWorkspace;
+use 5.10.0;
 use strict;
 use warnings;
 use Carp;
@@ -1062,7 +1063,6 @@ sub __GetRelationChoiceProbabilityDistribution {
 
 sub __GetPositionStructure {
     my ( $group ) = @_;
-    use 5.10.0;
     given (ref($group)) {
         when ('SElement') {
             return $LeftEdge_of{$group};
@@ -1573,7 +1573,6 @@ sub __DeleteNonSubgroupsOfFrom {
 }
 
 sub LookForSomethingLike {
-    use 5.10.0;
     my ( $package, $opts_ref ) = @_;
     my $object = $opts_ref->{object} or confess "need object";
     my $start_position = $opts_ref->{start_position} or confess "need start_position";

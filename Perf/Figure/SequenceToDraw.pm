@@ -31,6 +31,7 @@ sub BUILD {
       // confess "Missing required argument 'config'";
     my $possible_label = $opts_ref->{possible_label} // "label";
 
+    $string =~ s# ^ ([^\|]*) \| ([^\|]*) .*#$1\|$2#x;
     $Sequence_With_Markup_of{$id} = $string;
     $Label_of{$id} = $config->{label} || $possible_label;
     

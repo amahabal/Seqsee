@@ -22,6 +22,7 @@ my %Label_of : ATTR(:name<label>);
 my %Data_Indexed_By_Cluster_for : ATTR(:name<data_indexed_by_cluster>);
 my %Max_Avg_Steps_of : ATTR(:name<max_avg_steps>);
 my %Max_Max_Steps_of : ATTR(:name<max_max_steps>);
+my %Sequence_of : ATTR(:name<sequence>);
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -36,7 +37,8 @@ sub BUILD {
     my $clusters = $opts_ref->{clusters}
       // confess "Missing required argument 'clusters'";
 
-    my $sequence = Perf::TestSequence->new( { string => $string } );
+    my $sequence = $Sequence_of{$id} =
+      Perf::TestSequence->new( { string => $string } );
     $Label_of{$id} = $label;
     if ($is_ltm_self_config) {
         my @data_sets = $all_read_data->GetDataForSequenceAndCluster(
@@ -87,11 +89,13 @@ sub BUILD {
             my $data = $data_indexed_by_cluster{$cluster} =
               Perf::CollatedData->new( { data => \@collated_data } );
             my $avg_steps = $data->get_avg_time_to_success();
-            $avg_steps *= $Perf::AllCollectedData::CODELETS_PER_SECOND if $is_human;
+            $avg_steps *= $Perf::AllCollectedData::CODELETS_PER_SECOND
+              if $is_human;
             $max_avg_steps = $avg_steps if $avg_steps > $max_avg_steps;
 
             my $max_steps = $data->get_max_time_to_success();
-            $max_steps *= $Perf::AllCollectedData::CODELETS_PER_SECOND if $is_human;
+            $max_steps *= $Perf::AllCollectedData::CODELETS_PER_SECOND
+              if $is_human;
             $max_max_steps = $max_steps if $max_steps > $max_max_steps;
         }
         $Data_Indexed_By_Cluster_for{$id} = \%data_indexed_by_cluster;
