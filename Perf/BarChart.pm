@@ -28,14 +28,14 @@ use constant {
     FADED_GROUP_OPTIONS => [ -stipple => 'gray25', -dash => '._.' ],
     DISTRACTOR_OPTIONS  => [ -outline => '#0000FF', -width => 4 ],
 
-    SCALE_LINE_OPTIONS => [ -fill => '#EEEEEE' ],
-    SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#999999' ],
+    SCALE_LINE_OPTIONS => [ -fill => '#DDDDDD' ],
+    SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#666666' ],
 
     CHART_RECTANGLE_OPTIONS => [ -fill => '#F8F8F8', -outline => '#EEEEEE' ],
     BAR_HEIGHT_TEXT_OPTIONS => [ -font => 'Lucida 8' ],
     FONT                        => 'Lucida 14',
     SEQUENCE_LABEL_TEXT_OPTIONS => [ -font => 'Lucida 12', -fill => '#0000FF' ],
-    CHART_TITLE_OPTIONS         => [ -font => 'Lucida 16', -fill => '#FF0000' ],
+    CHART_TITLE_OPTIONS         => [ -font => 'Lucida 12', -fill => '#FF0000' ],
     FIGURE_TITLE_OPTIONS        => [ -font => 'Lucida 16', -fill => '#FF0000' ],
 };
 
@@ -111,16 +111,16 @@ sub Setup {
     $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
 
     #=== VERTICAL
-    $FIG_T_MARGIN              = $no_ovals ? 20 : 40;
-    $FIG_B_MARGIN              = 20;
+    $FIG_T_MARGIN              = $no_ovals ? 15 : 20;
+    $FIG_B_MARGIN              = 14;
     $INTER_SEQUENCE_SEPARATION = $DRAW_SEQUENCES ? 30 : 0;
     $SEQUENCE_HEIGHT           = $DRAW_SEQUENCES ? 20 : 0
 ;
     $SEQUENCES_CHART_SEPARATION = ($DRAW_CHARTS and $DRAW_SEQUENCES) ? 20 : 0;
     $LEGEND_CHART_SEPARATION    = $DRAW_CHARTS ? 20:0;
-    $CHART_T_MARGIN             = 30;
-    $CHART_B_MARGIN             = 20;
-    $CHART_HEIGHT               = $DRAW_CHARTS ? 120 : 0;
+    $CHART_T_MARGIN             = 20;
+    $CHART_B_MARGIN             = 30;
+    $CHART_HEIGHT               = $DRAW_CHARTS ? 140 : 0;
 
     #=== VERTICAL CALCULATED
     $SEQUENCES_V_OFFSET = $FIG_T_MARGIN;
@@ -279,12 +279,6 @@ sub Plot {
     );
     $MW->focusmodel('active');
 
-    $Canvas->createText(
-        $FIG_WIDTH / 2, 5,
-        -text   => $spec_object->get_title(),
-        -anchor => 'n',
-        @{ FIGURE_TITLE_OPTIONS() },
-    ) unless $no_ovals;
     DrawChart($spec_object) if $DRAW_CHARTS;
     DrawSequences( $spec_object, $no_ovals ) if $DRAW_SEQUENCES;
     if ($outfile) {
@@ -328,9 +322,9 @@ sub DrawChart {
         for my $chart_num ( 1, 2 ) {
             $Canvas->createText(
                 HorizontalClusterCenterOffset( $chart_num, $seq_num ),
-                $CHART_BOTTOM - 5,
+                $CHART_BOTTOM - $CHART_B_MARGIN + 5,
                 -text   => $seq->get_label(),
-                -anchor => 's',
+                -anchor => 'n',
                 @{ SEQUENCE_LABEL_TEXT_OPTIONS() },
             );
         }
@@ -678,11 +672,11 @@ sub DrawCodeletCountScale {
     given ($MaxSteps) {
         when ( $_ < 100 ) { $x_tab_step = 10 }
         when ( $_ < 8000 ) {
-            my $approx_steps = $_ / 6;
+            my $approx_steps = $_ / 4;
             $x_tab_step = 100 * int( $approx_steps / 100 );
         }
         when ( $_ < 50000 ) {
-            my $approx_steps = $_ / 6;
+            my $approx_steps = $_ / 4;
             $x_tab_step = 1000 * int( $approx_steps / 1000 );
         }
         $x_tab_step = 10000;
@@ -791,15 +785,15 @@ sub DrawChartTitles {
     my $center1 = $CHART1_H_OFFSET + $CHART_WIDTH / 2;
     my $center2 = $CHART2_H_OFFSET + $CHART_WIDTH / 2;
     $Canvas->createText(
-        $center1, $CHART_V_OFFSET,
+        $center1, $CHART_BOTTOM,
         -text   => 'Percent Correct',
-        -anchor => 'n',
+        -anchor => 's',
         @{ CHART_TITLE_OPTIONS() }
     );
     $Canvas->createText(
-        $center2, $CHART_V_OFFSET,
+        $center2, $CHART_BOTTOM,
         -text   => 'Time Taken When Correct',
-        -anchor => 'n',
+        -anchor => 's',
         @{ CHART_TITLE_OPTIONS() }
     );
 }

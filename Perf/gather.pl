@@ -36,14 +36,21 @@ use Perf::BarChart;
 use Perf::CollatedData;
 use Perf::GatherDataFor;
 
+use Getopt::Long;
+%ARGV = ();
+GetOptions( \%ARGV, "filename=s", "times=i" );
+confess "Need both filename and times"
+  unless ( $ARGV{filename} and $ARGV{times} );
+
+confess "$ARGV{filename} does not exist!" unless -e $ARGV{filename};
 
 my $AllData = Perf::AllCollectedData->new();
-my $filename = 'Perf/Chapter3Config/Distractors/all';
 my $Spec    = Perf::Figure::Specification->new_from_specfile(
     {
         all_read_data => $AllData,
-        specfile      => $filename,
+        specfile      => $ARGV{filename},
     }
 ) or confess $!;
 
-Perf::GatherDataFor->Gather({spec => $Spec, min_result_set => 20});
+Perf::GatherDataFor->Gather(
+    { spec => $Spec, min_result_set => $ARGV{times} } );
