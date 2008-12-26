@@ -319,6 +319,7 @@ sub DrawChart {
 
     my $seq_num = 0;
     for my $seq (@sequences_to_chart) {
+        ### seq: $seq->_DUMP
         for my $chart_num ( 1, 2 ) {
             $Canvas->createText(
                 HorizontalClusterCenterOffset( $chart_num, $seq_num ),

@@ -26,11 +26,11 @@ my %All_Unrevealed_of : ATTR(:get<all_unrevealed>);
 
 sub START {
     my ( $self, $id, $opts_ref ) = @_;
-    my $string = $opts_ref->{string} 
-        // confess "Missing required argument 'string'";
+    my $string = $opts_ref->{string}
+      // confess "Missing required argument 'string'";
 
     ( $Revealed_of{$id}, $Unrevealed_of{$id}, $Even_More_Terms_of{$id} ) =
-      _NormalizeTestSequence( $string );
+      _NormalizeTestSequence($string);
     $All_Unrevealed_of{$id} =
       $Unrevealed_of{$id} . ' ' . $Even_More_Terms_of{$id};
 
@@ -41,6 +41,10 @@ sub START {
 sub IsCompatibleWith {
     my ( $self, $other ) = @_;
     my $id = ident $self;
+    UNIVERSAL::isa($other, "Perf::TestSequence")
+      or confess "Expected \$other ($other) to be of type Perf::TestSequence."
+      . "Instead, it is of type '"
+      . ref($other) . "'";
     return unless $self->get_revealed() eq $other->get_revealed();
 
     my ( $unrevealed_1, $unrevealed_2 ) =

@@ -99,6 +99,10 @@ sub new_from_specfile {
                     }
                   );
             }
+            elsif ( $config->{source} eq 'LTM' ) {
+                confess
+                  "source=LTM but no context not sensible for the chart type";
+            }
         }
     }
 

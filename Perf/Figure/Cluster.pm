@@ -18,11 +18,10 @@ use Class::Multimethods;
 use Carp;
 ## END OF STANDARD INCLUDES
 
-
 my %Source_of : ATTR(:name<source>);
 my %Constraints_Ref_of : ATTR(:name<constraints_ref>);
 my %Color_of : ATTR(:name<color>);
-my %Label_of :ATTR(:get<label> :set<label>);
+my %Label_of : ATTR(:get<label> :set<label>);
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
@@ -31,25 +30,49 @@ sub BUILD {
     my $figure_type = $opts_ref->{figure_type}
       // confess "Missing required argument 'figure_type'";
 
-    my $source = $figure_type eq 'LTM_SELF_CONTEXT' ? 'LTM' : $config->{source} // 'Seqsee';
+    my $source = $figure_type eq 'LTM_SELF_CONTEXT' ? 'LTM' : $config->{source}
+      // 'Seqsee';
     $Source_of{$id} = $source;
     my %Data_Constraints;
-    my %config           = %{$config};
+    my %config = %{$config};
 
-    $Label_of{$id} = $config{label} || _CalculateLabel($config, $source);
+    $Label_of{$id} = $config{label} || _CalculateLabel( $config, $source );
 
-    $Data_Constraints{min_version} = Perf::Version->new({string => $config{min_version}}) if defined $config{min_version};
-    $Data_Constraints{max_version} = Perf::Version->new({string => $config{max_version}}) if defined $config{max_version};
-    $Data_Constraints{exact_feature_set} = Perf::FeatureSet->new({string => $config{exact_feature_set}}) if defined $config{exact_feature_set};
+    $Data_Constraints{min_version} =
+      Perf::Version->new( { string => $config{min_version} } )
+      if defined $config{min_version};
+    $Data_Constraints{max_version} =
+      Perf::Version->new( { string => $config{max_version} } )
+      if defined $config{max_version};
 
-    ## exact_feature_set: $Data_Constraints{exact_feature_set}->_DUMP
-
-    if ($figure_type eq 'LTM_WITH_CONTEXT' and
-            ($source eq 'LTM' or defined $config{context})) {
-        my $context = $config{context} // confess "context needed for every cluster that has LTM as its source";
-        $Data_Constraints{context} = Perf::TestSequence->new({string => $context});
-        $Source_of{$id} = 'LTM';
+    if ( defined $config{exact_feature_set} ) {
+        $Data_Constraints{exact_feature_set} =
+          Perf::FeatureSet->new( { string => $config{exact_feature_set} } );
     }
+    else {
+        $Data_Constraints{exact_feature_set} =
+          Perf::FeatureSet->new( { string => '' } );
+    }
+
+
+
+    if ( $figure_type eq 'LTM_WITH_CONTEXT'
+        and ( $source eq 'LTM' or defined $config{context} ) )
+    {
+        my $context = $config{context} // confess
+          "context needed for every cluster that has LTM as its source";
+        $Data_Constraints{context} =
+          Perf::TestSequence->new( { string => $context } );
+        $Source_of{$id} = 'LTM';
+        $Data_Constraints{exact_feature_set}->TurnFeatureOn('LTM');
+        $Data_Constraints{exact_feature_set}->TurnFeatureOn('LTM_expt');
+    }
+
+    if ($figure_type eq 'LTM_SELF_CONTEXT') {
+        $Data_Constraints{exact_feature_set}->TurnFeatureOn('LTM');
+        $Data_Constraints{exact_feature_set}->TurnFeatureOn('LTM_expt');
+    }
+
     $Constraints_Ref_of{$id} = \%Data_Constraints;
     $Color_of{$id} = $config{color} || _GetColor($source);
 }
@@ -62,28 +85,23 @@ sub _GetColor {
 }
 
 sub _CalculateLabel {
-    my ($config, $source) = @_;
-    return 'Human' if $source eq 'Human';
+    my ( $config, $source ) = @_;
+    return 'Human'  if $source eq 'Human';
     return 'Seqsee' if $source eq 'Seqsee';
     return '???';
 }
 
-
 sub get_constraints {
     my ($self) = @_;
     my $id = ident $self;
-    return %{$Constraints_Ref_of{$id}};
+    return %{ $Constraints_Ref_of{$id} };
 }
-               
+
 sub is_human {
     my ($self) = @_;
     my $id = ident $self;
-    return ($Source_of{$id} eq 'Human') ? 1 : 0;
+    return ( $Source_of{$id} eq 'Human' ) ? 1 : 0;
 }
-               
-    
-    
-
 
 1;
 

@@ -1,0 +1,22 @@
+Type = LTM_WITH_CONTEXT
+Cluster_Count = 3
+
+[Sequences]
+seq = ({1 1 1} 2 3) (1 {2 2 2} 3 4) (1 2 {3 3 3} 4 5) | (1 2 3 {4 4 4} 5 6)
+
+[Cluster_1]
+source = Seqsee
+exact_feature_set = -f=AllowSquinting
+label = BlankSlate
+
+[Cluster_2]
+context = ({1 1} 2 3) (1 {2 2} 3 4) (1 2 {3 3} 4 5) | (1 2 3 {4 4} 5 6)
+exact_feature_set = -f=AllowSquinting
+label = Context(a)
+color = #FF0000
+
+[Cluster_3]
+context = ({1 1} 2 3) ({1 1} 2 3 4) ({1 1} 2 3 4 5) | ({1 1} 2 3 4 5 6) | 1 1 2 3 4 5 6 7 
+exact_feature_set = -f=AllowSquinting
+label = Context(b)
+color = #00FF00

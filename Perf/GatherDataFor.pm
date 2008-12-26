@@ -111,7 +111,7 @@ sub ClearMemory {
     }
 
     sub RestoreMemory {
-        system "mv $save_location memory_dump.dat";
+        system "cp $save_location memory_dump.dat";
     }
 }
 
@@ -153,9 +153,110 @@ sub Run_Seqsee_SelfContext {
                     feature_set   => $feature_string,
                     code_version  => Perf::Version->GetVersionOfCode,
                     outputdir     => 'Perf/data/LTM',
+                    is_ltm_result => 1,
                 }
             );
         }
+    }
+}
+
+sub Run_Seqsee_WithContext {
+    my ( $spec, $min_result_set ) = @_;
+    my $sequence_to_chart = $spec->get_sequences_to_chart()->[0];
+    my @clusters          = @{ $spec->get_clusters };
+
+    my $sequence        = $sequence_to_chart->get_sequence();
+    my $data_by_cluster = $sequence_to_chart->get_data_indexed_by_cluster;
+
+    for my $cluster (@clusters) {
+        next if $cluster->get_source() eq 'Human';
+
+        my $data       = $data_by_cluster->{$cluster};
+        my $data_count = $data->get_total_count;
+
+        if ( $data_count >= $min_result_set ) {
+            say "I have enough data for $cluster for $sequence";
+        }
+        else {
+            say "I need more data for ",
+              $cluster->_DUMP(), " for ", $sequence->_DUMP();
+            if ( $cluster->get_source() eq 'Seqsee' ) {
+
+                # easy case: Just run seqsee the requisite number of times.
+                RunSeqseeOn(
+                    {
+                        times_to_run  => $min_result_set - $data_count,
+                        sequence      => $sequence->get_revealed(),
+                        continuation  => $sequence->get_all_unrevealed(),
+                        max_steps     => 25000,
+                        min_extension => 3,
+                        max_false     => 3,
+                        tempfilename  => 'temp',
+                        feature_set =>
+                          $cluster->get_constraints_ref->{exact_feature_set}
+                          ->as_str,
+                        code_version => Perf::Version->GetVersionOfCode,
+                        outputdir    => 'Perf/data/Seqsee',
+                    }
+                );
+            }
+            else {
+                my $context = $cluster->get_constraints_ref->{context};
+                $context->isa("Perf::TestSequence")
+                  or confess
+                  "Expected \$context to be of type Perf::TestSequence."
+                  . "Instead, it is of type "
+                  . ref($context);
+
+                my $feature_set =
+                  $cluster->get_constraints_ref->{exact_feature_set}->Clone();
+                $feature_set->TurnFeatureOn('LTM');
+                $feature_set->TurnFeatureOn('LTM_expt');
+
+                ClearMemory();
+
+                # Run 10 times on context, thereby forming memories.
+                RunSeqseeOn(
+                    {
+                        times_to_run  => 10,
+                        sequence      => $context->get_revealed(),
+                        continuation  => $context->get_all_unrevealed(),
+                        max_steps     => 25000,
+                        min_extension => 3,
+                        max_false     => 3,
+                        tempfilename  => 'temp',
+                        feature_set   => $feature_set->as_str,
+                        code_version  => Perf::Version->GetVersionOfCode,
+                        outputdir     => '',
+                        IGNORE_RESULT => 1,
+                    }
+                );
+                SaveMemory();
+
+                for ( 1 .. $min_result_set - $data_count ) {
+                    RestoreMemory();
+                    RunSeqseeOn(
+                        {
+                            times_to_run  => 1,
+                            sequence      => $sequence->get_revealed(),
+                            continuation  => $sequence->get_all_unrevealed(),
+                            max_steps     => 25000,
+                            min_extension => 3,
+                            max_false     => 3,
+                            tempfilename  => 'temp',
+                            feature_set   => $feature_set->as_str,
+                            code_version  => Perf::Version->GetVersionOfCode,
+                            outputdir     => 'Perf/data/LTM',
+                            is_ltm_result => 1,
+                            context => $context->ArgumentForSeqsee()
+                        }
+                    );
+
+                }
+
+            }
+        }
+
     }
 }
 
@@ -181,6 +282,11 @@ sub RunSeqseeOn {
       // confess "Missing required argument 'code_version'";
     my $outputdir = $opts_ref->{outputdir}
       // confess "Missing required argument 'outputdir'";
+    my $is_ltm_result = $opts_ref->{is_ltm_result} // 0;
+    my $context       = $opts_ref->{context}       // '';
+
+    my $IGNORE_RESULT = $opts_ref->{IGNORE_RESULT} // 0;
+
     my @selected_feature_set = split( ';', $feature_set );
 
     my @cmd;
@@ -217,14 +323,18 @@ sub RunSeqseeOn {
           Storable::thaw($result_str)->get_steps() / $time_taken;
         push @EFFECTIVE_CODELET_RATE, $effective_codelet_rate;
     }
+
+    return if $IGNORE_RESULT;
     my $Results_of_test_runs = ResultsOfTestRuns->new(
         {
-            times    => \@WALLCLOCK_TIME,
-            results  => \@RESULTS,
-            rate     => \@EFFECTIVE_CODELET_RATE,
-            terms    => "$sequence|$continuation",
-            features => $feature_set,
-            version  => $code_version,
+            times         => \@WALLCLOCK_TIME,
+            results       => \@RESULTS,
+            rate          => \@EFFECTIVE_CODELET_RATE,
+            terms         => "$sequence|$continuation",
+            features      => $feature_set,
+            version       => $code_version,
+            is_ltm_result => $is_ltm_result,
+            context       => $context,
         }
     );
 

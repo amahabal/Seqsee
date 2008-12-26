@@ -30,16 +30,33 @@ sub BUILD {
     $String_of{$id} = _NormalizeFeatures( $opts_ref->{string} );
 }
 
+sub Clone {
+    my ($self) = @_;
+    my $id = ident $self;
+    return Perf::FeatureSet->new( { string => $String_of{$id} } );
+}
+
+sub TurnFeatureOn {
+    my ( $self, $feature ) = @_;
+    my $id = ident $self;
+
+    $feature = "-f=$feature" unless $feature =~ m#^ -f= #x;
+    $String_of{$id} = _NormalizeFeatures( $String_of{$id} . ';' . $feature );
+}
+
 sub _NormalizeFeatures {
     my ($features_string) = @_;
     return '' unless $features_string;
 
-    my @parts =
+    my @parts = split( ';', $features_string );
+    my %parts = map { $_ => 1 } @parts;
+
+    my @cleaned_up_parts =
       sort
       grep { !$Inconsequential_features{$_} }
-      split( ';', $features_string );
-    return '' unless @parts;
-    return join( ';', @parts );
+      keys %parts;
+
+    return join( ';', @cleaned_up_parts );
 }
 
 use overload 'eq' => sub {
