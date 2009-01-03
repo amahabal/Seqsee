@@ -99,7 +99,7 @@ sub Setup {
     $CHART_R_MARGIN           = 10;
     $INTER_CLUSTER_SEPARATION = 10;
     $INTER_BAR_SEPARATION     = 5;
-    $MAX_BAR_WIDTH            = 10;
+    $MAX_BAR_WIDTH            = 20;
 
     #=== HORIZONTAL CALCULATED
     $EFFECTIVE_FIG_WIDTH = $FIG_WIDTH - $FIG_L_MARGIN - $FIG_R_MARGIN;
@@ -259,7 +259,8 @@ sub Plot {
     my $no_ovals = $opts_ref->{no_ovals} // 0;
     my $no_chart = $opts_ref->{no_chart} // 0;
     my $no_seq   = $opts_ref->{no_seq}   // 0;
-
+    my $chart_style = $opts_ref->{chart_style}
+      // confess "Missing required argument 'chart_style'";
     Setup( $spec_object, $no_ovals, $no_chart, $no_seq );
 
     use Tk;
@@ -277,7 +278,7 @@ sub Plot {
     );
     $MW->focusmodel('active');
 
-    DrawChart($spec_object) if $DRAW_CHARTS;
+    DrawChart( $spec_object, $chart_style ) if $DRAW_CHARTS;
     DrawSequences( $spec_object, $no_ovals ) if $DRAW_SEQUENCES;
     if ($outfile) {
         my $button;
@@ -299,10 +300,14 @@ sub Plot {
 }
 
 sub DrawChart {
-    my ($spec_object) = @_;
+    my ( $spec_object, $chart_style ) = @_;
     my @sequences_to_chart = @{ $spec_object->get_sequences_to_chart };
 
-    my $MaxSteps = max( map { $_->get_max_max_steps() } @sequences_to_chart );
+    my $MaxSteps =
+      $chart_style eq 'Bar'
+      ? max( map { $_->get_max_avg_steps() } @sequences_to_chart )
+      : max( map { $_->get_max_max_steps() } @sequences_to_chart );
+
     $MaxSteps = first { $_ > $MaxSteps } (
         500,
         ( map { $_ * 1000 } ( 1 .. 10 ) ),
@@ -388,7 +393,13 @@ sub DrawChart {
                 @{ BAR_HEIGHT_TEXT_OPTIONS() }
             );
 
-            Draw_TimeTaken_BoxPlot(
+            my $drawer =
+                $chart_style eq 'Bar'        ? \&Draw_TimeTaken
+              : $chart_style eq 'BoxPlot'    ? \&Draw_TimeTaken_BoxPlot
+              : $chart_style eq 'Percentile' ? \&Draw_TimeTaken_Percentile
+              :   confess "Unknown chart_style $chart_style";
+
+            $drawer->(
                 {
                     seq_num    => $seq_num,
                     subcounter => $subcounter,
@@ -876,6 +887,7 @@ sub Draw_TimeTaken_BoxPlot {
         BarCoordinateToFigCoordinate(
             2, $seq_num, $subcounter, 1, $quartile_fractions[3]
         ),
+
         #-fill => $color
     );
 
@@ -889,4 +901,43 @@ sub Draw_TimeTaken_BoxPlot {
     );
 }
 
-1;
+sub Draw_TimeTaken_Percentile {
+    my ($opts_ref) = @_;
+    my $seq_num = $opts_ref->{seq_num}
+      // confess "Missing required argument 'seq_num'";
+    my $subcounter = $opts_ref->{subcounter}
+      // confess "Missing required argument 'subcounter'";
+    my $MaxSteps = $opts_ref->{MaxSteps}
+      // confess "Missing required argument 'maxsteps'";
+    my $stats = $opts_ref->{stats}
+      // confess "Missing required argument 'stats'";
+    my $is_human = $opts_ref->{is_human}
+      // confess "Missing required argument 'is_human'";
+    my $color = $opts_ref->{color}
+      // confess "Missing required argument 'color'";
+
+    # Draw Time Taken
+    my @deciles =
+      map { $stats->TimeToSuccessAtPercentile( $_ / 10 ) } ( 1 .. 10 );
+
+    my @decile_fractions = map {
+        my $ret = $_ / $MaxSteps;
+        $ret *= $Perf::AllCollectedData::CODELETS_PER_SECOND if $is_human;
+        $ret;
+    } @deciles;
+
+    for ( 1 .. 10 ) {
+        $Canvas->createLine(
+            BarCoordinateToFigCoordinate( 2, $seq_num, $subcounter, $_ / 10, 0,
+            ),
+            BarCoordinateToFigCoordinate(
+                2,           $seq_num,
+                $subcounter, $_ / 10,
+                $decile_fractions[ $_ - 1 ]
+            ),
+            -fill => $color,
+        );
+    }
+}
+
+    1;

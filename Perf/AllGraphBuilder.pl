@@ -43,9 +43,12 @@ Getopt::QuotedAttribute::usage(
   if ( ( $FLAG_indir and not $FLAG_outdir )
     or ( $FLAG_outdir and not $FLAG_indir ) );
 
-$FLAG_indir //= "Perf/Chapter3Config";
+$FLAG_indir  //= "Perf/Chapter3Config";
 $FLAG_outdir //= "Perf/Chapter3Figures";
 
+our $FLAG_Chart_Style :
+  Getopt("chart_style=s" => "(Optional) Chart Style. Can be Bar, Box or Percentile");
+$FLAG_Chart_Style //= "Bar";
 
 my $AllData = Perf::AllCollectedData->new();
 
@@ -103,7 +106,9 @@ sub CreateFigures {
                 {
                     spec_object => $Spec,
                     outfile     => $outfile2,
-                    no_ovals    => 1
+                    no_ovals    => 1,
+                    no_chart    => 1,
+                    chart_style => $FLAG_Chart_Style,
                 }
             );
             say "Finished plot for $filename";
@@ -115,14 +120,16 @@ sub CreateFigures {
                     {
                         spec_object => $Spec,
                         outfile     => $outfile_seq,
-                        no_chart    => 1
+                        no_chart    => 1,
+                        chart_style => $FLAG_Chart_Style,
                     }
                 );
                 Perf::BarChart->Plot(
                     {
                         spec_object => $Spec,
                         outfile     => $outfile_bar,
-                        no_seq      => 1
+                        no_seq      => 1,
+                        chart_style => $FLAG_Chart_Style,
                     }
                 );
 
@@ -130,7 +137,12 @@ sub CreateFigures {
             else {
                 my $outfile = $corresponding_filename . '.eps';
                 Perf::BarChart->Plot(
-                    { spec_object => $Spec, outfile => $outfile } );
+                    {
+                        spec_object => $Spec,
+                        outfile     => $outfile,
+                        chart_style => $FLAG_Chart_Style,
+                    }
+                );
 
                 say "Finished second plot, wrote to $outfile2";
 

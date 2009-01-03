@@ -26,6 +26,7 @@ my %Data_for : ATTR(:name<data>);
 my %total_count_of : ATTR(:name<total_count>);
 
 my %successful_count_of : ATTR(:name<successful_count>);
+my %successful_times_of :ATTR(:name<successful_times>);
 my %vector_of_successful_of : ATTR(:name<vector_of_successful>);
 my %avg_time_to_success_of : ATTR(:name<avg_time_to_success>);
 my %sdv_time_to_success_of : ATTR(:name<sdv_time_to_success>);
@@ -53,6 +54,7 @@ sub BUILD {
         $quartile_1_of{$id}           = 0;
         $median_of{$id}               = 0;
         $vector_of_successful_of{$id} = vector();
+        $successful_times_of{$id} = [];
         return;
     }
 
@@ -83,6 +85,7 @@ sub BUILD {
 
     my $vector = $vector_of_successful_of{$id} = vector( \@successful_times );
 
+    $successful_times_of{$id} = \@successful_times;
     $avg_time_to_success_of{$id} = 0 + mean($vector);
     $sdv_time_to_success_of{$id} = 0 + stddev($vector);
     $success_percentage_of{$id}  = 100 * scalar(@successful) / scalar(@results);
@@ -111,6 +114,21 @@ sub idx_to_value {
     my ($int, $frac) = (int($idx), $idx - int($idx));
     return $aref->[$int] unless $frac;
     return (1 - $frac) * $aref->[$int] + $frac * $aref->[$int + 1];
+}
+
+## Method ######################
+#  Name             : TimeToSuccessAtPercentile
+#  Returns          : value at possibly fractional index
+#  Params via href  : No
+#  Parameters       : fraction
+#  Purpose          : fraction=0.5 returns the median, fraction=0.25 first q, etc
+
+sub TimeToSuccessAtPercentile {
+    my ($self, $fraction) = @_;
+    my $id = ident $self;
+    my $successful_times_ref = $successful_times_of{$id};
+    my $max_index = $successful_count_of{$id} - 1;
+    return idx_to_value($successful_times_ref, $max_index * $fraction);
 }
 
 
