@@ -7,13 +7,11 @@ use warnings;
 
 use List::Util qw{min max sum first};
 use Time::HiRes;
-use Getopt::Long;
 use Storable;
 
 use File::Slurp;
 use Smart::Comments;
 use IO::Prompt;
-use Class::Std;
 use Class::Multimethods;
 
 use Carp;
@@ -37,22 +35,24 @@ use Perf::Figure::Cluster;
 use Perf::BarChart;
 use Perf::CollatedData;
 
-use Getopt::Long;
-%ARGV = ();
-GetOptions( \%ARGV, 'indir=s', 'outdir=s' );
+use Getopt::Attribute;
+our $FLAG_indir : Getopt(indir=s); #)); # The strange comment is for cperl-mode
+                         # It sees s as the substitution operator.
+$FLAG_indir //= "Perf/Chapter3Config";
+our $FLAG_outdir : Getopt(outdir=s); #));
+$FLAG_outdir //= "Perf/Chapter3Figures";
+
 
 confess "Need both --indir and --outdir"
-  if ( ( $ARGV{indir} and not $ARGV{outdir} )
-    or ( $ARGV{outdir} and not $ARGV{indir} ) );
+  if ( ( $FLAG_indir and not $FLAG_outdir )
+    or ( $FLAG_outdir and not $FLAG_indir ) );
 
 my $AllData         = Perf::AllCollectedData->new();
-my $InputDirectory  = $ARGV{indir} // 'Perf/Chapter3Config';
-my $OutputDirectory = $ARGV{outdir} // 'Perf/Chapter3Figures';
 
 CreateFigures(
     {
-        input_directory => $InputDirectory,
-        output_diretory => $OutputDirectory
+        input_directory => $FLAG_indir,
+        output_diretory => $FLAG_outdir
     }
 );
 
