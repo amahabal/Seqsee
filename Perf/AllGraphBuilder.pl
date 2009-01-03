@@ -35,19 +35,19 @@ use Perf::Figure::Cluster;
 use Perf::BarChart;
 use Perf::CollatedData;
 
-use Getopt::Attribute;
-our $FLAG_indir : Getopt(indir=s); #)); # The strange comment is for cperl-mode
-                         # It sees s as the substitution operator.
-$FLAG_indir //= "Perf/Chapter3Config";
-our $FLAG_outdir : Getopt(outdir=s); #));
-$FLAG_outdir //= "Perf/Chapter3Figures";
-
-
-confess "Need both --indir and --outdir"
+use Getopt::QuotedAttribute;
+our $FLAG_indir : Getopt("indir=s" => "(Optional) Input directory");
+our $FLAG_outdir : Getopt("outdir=s" => "(Optional) Output directory");
+Getopt::QuotedAttribute::usage(
+    "Both --indir and --outdir should be present, or both absent.")
   if ( ( $FLAG_indir and not $FLAG_outdir )
     or ( $FLAG_outdir and not $FLAG_indir ) );
 
-my $AllData         = Perf::AllCollectedData->new();
+$FLAG_indir //= "Perf/Chapter3Config";
+$FLAG_outdir //= "Perf/Chapter3Figures";
+
+
+my $AllData = Perf::AllCollectedData->new();
 
 CreateFigures(
     {
