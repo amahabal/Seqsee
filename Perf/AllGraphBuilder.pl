@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl -w
 use 5.10.0;
 
 ## STANDARD MODULES THAT I INCLUDE EVERYWHERE
@@ -55,13 +56,13 @@ CreateFigures(
     }
 );
 
-############# Method ######################
+## Method ######################
 #  Name             : CreateFigures
 #  Returns          : -
 #  Parameters       : input_directory, output_diretory
 #  Params via href  : Yes
 #  Purpose          : Convert figure specification into eps files.
-###
+##
 #  Throws           : no exceptions
 
 sub CreateFigures {
@@ -73,7 +74,7 @@ sub CreateFigures {
 
     for my $filename (<$input_directory/*>) {
         my ( $volume, $dir, $just_filename ) = File::Spec->splitpath($filename);
-        ### vdf:$volume, $dir, $just_filename
+        ## vdf:$volume, $dir, $just_filename
         my $corresponding_filename =
           File::Spec->catfile( $output_diretory, $just_filename );
 

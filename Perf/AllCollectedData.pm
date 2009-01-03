@@ -137,6 +137,11 @@ sub _GetDataForSequence {
         }
     }
 
+    if ( $source eq 'Human' ) {
+        #  Constraints make no sense for human data.
+        return @ret;
+    }
+
     if ( defined $min_version ) {
         @ret = grep { $min_version <= $_->get_version } @ret;
     }

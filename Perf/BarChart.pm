@@ -111,13 +111,12 @@ sub Setup {
     $EFFECTIVE_CHART_WIDTH = $CHART_WIDTH - $CHART_L_MARGIN - $CHART_R_MARGIN;
 
     #=== VERTICAL
-    $FIG_T_MARGIN              = $no_ovals ? 15 : 20;
-    $FIG_B_MARGIN              = 14;
-    $INTER_SEQUENCE_SEPARATION = $DRAW_SEQUENCES ? 30 : 0;
-    $SEQUENCE_HEIGHT           = $DRAW_SEQUENCES ? 20 : 0
-;
-    $SEQUENCES_CHART_SEPARATION = ($DRAW_CHARTS and $DRAW_SEQUENCES) ? 20 : 0;
-    $LEGEND_CHART_SEPARATION    = $DRAW_CHARTS ? 20:0;
+    $FIG_T_MARGIN               = $no_ovals ? 15 : 20;
+    $FIG_B_MARGIN               = 14;
+    $INTER_SEQUENCE_SEPARATION  = $DRAW_SEQUENCES ? 30 : 0;
+    $SEQUENCE_HEIGHT            = $DRAW_SEQUENCES ? 20 : 0;
+    $SEQUENCES_CHART_SEPARATION = ( $DRAW_CHARTS and $DRAW_SEQUENCES ) ? 20 : 0;
+    $LEGEND_CHART_SEPARATION    = $DRAW_CHARTS ? 20 : 0;
     $CHART_T_MARGIN             = 20;
     $CHART_B_MARGIN             = 30;
     $CHART_HEIGHT               = $DRAW_CHARTS ? 140 : 0;
@@ -259,10 +258,9 @@ sub Plot {
     my $outfile  = $opts_ref->{outfile}  // undef;
     my $no_ovals = $opts_ref->{no_ovals} // 0;
     my $no_chart = $opts_ref->{no_chart} // 0;
-    my $no_seq = $opts_ref->{no_seq} // 0;
+    my $no_seq   = $opts_ref->{no_seq}   // 0;
 
-
-    Setup($spec_object, $no_ovals, $no_chart, $no_seq);
+    Setup( $spec_object, $no_ovals, $no_chart, $no_seq );
 
     use Tk;
     our $MW = new MainWindow();
@@ -304,7 +302,7 @@ sub DrawChart {
     my ($spec_object) = @_;
     my @sequences_to_chart = @{ $spec_object->get_sequences_to_chart };
 
-    my $MaxSteps = max( map { $_->get_max_avg_steps() } @sequences_to_chart );
+    my $MaxSteps = max( map { $_->get_max_max_steps() } @sequences_to_chart );
     $MaxSteps = first { $_ > $MaxSteps } (
         500,
         ( map { $_ * 1000 } ( 1 .. 10 ) ),
@@ -390,18 +388,15 @@ sub DrawChart {
                 @{ BAR_HEIGHT_TEXT_OPTIONS() }
             );
 
-            # Draw Time Taken
-            my $fraction_of_max_steps =
-              $stats->get_avg_time_to_success() / $MaxSteps;
-            $fraction_of_max_steps *=
-              $Perf::AllCollectedData::CODELETS_PER_SECOND
-              if $is_human;
-            $Canvas->createRectangle(
-                BarCoordinateToFigCoordinate( 2, $seq_num, $subcounter, 0, 0 ),
-                BarCoordinateToFigCoordinate(
-                    2, $seq_num, $subcounter, 1, $fraction_of_max_steps
-                ),
-                -fill => $color
+            Draw_TimeTaken_BoxPlot(
+                {
+                    seq_num    => $seq_num,
+                    subcounter => $subcounter,
+                    MaxSteps   => $MaxSteps,
+                    stats      => $stats,
+                    is_human   => $is_human,
+                    color      => $color,
+                }
             );
             _DrawLegend( $Canvas, $subcounter, $color,
                 $cluster_spec->get_label() )
@@ -796,6 +791,101 @@ sub DrawChartTitles {
         -text   => 'Time Taken When Correct',
         -anchor => 's',
         @{ CHART_TITLE_OPTIONS() }
+    );
+}
+
+sub Draw_TimeTaken {
+    my ($opts_ref) = @_;
+    my $seq_num = $opts_ref->{seq_num}
+      // confess "Missing required argument 'seq_num'";
+    my $subcounter = $opts_ref->{subcounter}
+      // confess "Missing required argument 'subcounter'";
+    my $MaxSteps = $opts_ref->{MaxSteps}
+      // confess "Missing required argument 'maxsteps'";
+    my $stats = $opts_ref->{stats}
+      // confess "Missing required argument 'stats'";
+    my $is_human = $opts_ref->{is_human}
+      // confess "Missing required argument 'is_human'";
+    my $color = $opts_ref->{color}
+      // confess "Missing required argument 'color'";
+
+    # Draw Time Taken
+    my $fraction_of_max_steps = $stats->get_avg_time_to_success() / $MaxSteps;
+    $fraction_of_max_steps *= $Perf::AllCollectedData::CODELETS_PER_SECOND
+      if $is_human;
+    $Canvas->createRectangle(
+        BarCoordinateToFigCoordinate( 2, $seq_num, $subcounter, 0, 0 ),
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 1, $fraction_of_max_steps
+        ),
+        -fill => $color
+    );
+
+}
+
+sub Draw_TimeTaken_BoxPlot {
+    my ($opts_ref) = @_;
+    my $seq_num = $opts_ref->{seq_num}
+      // confess "Missing required argument 'seq_num'";
+    my $subcounter = $opts_ref->{subcounter}
+      // confess "Missing required argument 'subcounter'";
+    my $MaxSteps = $opts_ref->{MaxSteps}
+      // confess "Missing required argument 'maxsteps'";
+    my $stats = $opts_ref->{stats}
+      // confess "Missing required argument 'stats'";
+    my $is_human = $opts_ref->{is_human}
+      // confess "Missing required argument 'is_human'";
+    my $color = $opts_ref->{color}
+      // confess "Missing required argument 'color'";
+
+    # Draw Time Taken
+    my @quartiles = (
+        $stats->get_min_time_to_success, $stats->get_quartile_1,
+        $stats->get_median,              $stats->get_quartile_3,
+        $stats->get_max_time_to_success
+    );
+
+    my @quartile_fractions = map {
+        my $ret = $_ / $MaxSteps;
+        $ret *= $Perf::AllCollectedData::CODELETS_PER_SECOND if $is_human;
+        $ret;
+    } @quartiles;
+
+    $Canvas->createLine(
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 0, $quartile_fractions[0]
+        ),
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 1, $quartile_fractions[0]
+        ),
+    );
+
+    $Canvas->createLine(
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 0, $quartile_fractions[4]
+        ),
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 1, $quartile_fractions[4]
+        ),
+    );
+
+    $Canvas->createRectangle(
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 0, $quartile_fractions[1]
+        ),
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 1, $quartile_fractions[3]
+        ),
+        #-fill => $color
+    );
+
+    $Canvas->createLine(
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 0, $quartile_fractions[2]
+        ),
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 1, $quartile_fractions[2]
+        ),
     );
 }
 
