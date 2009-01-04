@@ -48,7 +48,7 @@ $FLAG_outdir //= "Perf/Chapter3Figures";
 
 our $FLAG_Chart_Style :
   Getopt("chart_style=s" => "(Optional) Chart Style. Can be Bar, Box or Percentile");
-$FLAG_Chart_Style //= "Bar";
+$FLAG_Chart_Style //= "Percentile";
 
 my $AllData = Perf::AllCollectedData->new();
 

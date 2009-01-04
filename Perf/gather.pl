@@ -36,21 +36,22 @@ use Perf::BarChart;
 use Perf::CollatedData;
 use Perf::GatherDataFor;
 
-use Getopt::Long;
-%ARGV = ();
-GetOptions( \%ARGV, "filename=s", "times=i" );
-confess "Need both filename and times"
-  unless ( $ARGV{filename} and $ARGV{times} );
+use Getopt::QuotedAttribute;
+our $FLAG_filename : Getopt("filename=s" => "(Required) Chart specification file for which to gather data by running Seqsee.");
+$FLAG_filename // Getopt::QuotedAttribute::usage("Missing required argument filename");
 
-confess "$ARGV{filename} does not exist!" unless -e $ARGV{filename};
+our $FLAG_times : Getopt("times=i" => "(Required) Run Seqsee enough times so that for each sequence in file, it has been run at least this many times.");
+$FLAG_times // Getopt::QuotedAttribute::usage("Missing required argument times");
+
+confess "$FLAG_filename does not exist!" unless -e $FLAG_filename;
 
 my $AllData = Perf::AllCollectedData->new();
 my $Spec    = Perf::Figure::Specification->new_from_specfile(
     {
         all_read_data => $AllData,
-        specfile      => $ARGV{filename},
+        specfile      => $FLAG_filename,
     }
 ) or confess $!;
 
 Perf::GatherDataFor->Gather(
-    { spec => $Spec, min_result_set => $ARGV{times} } );
+    { spec => $Spec, min_result_set => $FLAG_times } );

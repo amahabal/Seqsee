@@ -264,7 +264,7 @@ sub Plot {
     Setup( $spec_object, $no_ovals, $no_chart, $no_seq );
 
     use Tk;
-    our $MW = new MainWindow();
+    our $MW = new MainWindow(-title => '> ' . $outfile);
     $Canvas = $MW->Canvas(
         -background => '#FFFFFF',
         -height     => $FIG_HEIGHT,
