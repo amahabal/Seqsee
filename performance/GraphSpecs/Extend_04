@@ -1,9 +1,0 @@
-[General]
-ClusterCount = 2
- TestSet=performance/TestSets/Extend_04
-
-[Sequences]
-seq=1 2 3 1 2 3|1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 
-seq=1 1 2 1 2 3|1 2 3 4 1 2 3 4 5 1 2 3 4 5 6 
-[cluster_2]
-Human = 1
