@@ -22,6 +22,8 @@ use Carp;
 use Sort::Key qw(rikeysort);
 use Exception::Class ( 'Y_TOO_BIG' => {} );
 
+use constant { CHART_BG_COLOR => '#F8F8F8', };
+
 use constant {
     GROUP_A_OPTIONS     => [ -fill    => '#DDDDDD' ],
     GROUP_B_OPTIONS     => [ -fill    => '#BBBBBB' ],
@@ -31,11 +33,12 @@ use constant {
     SCALE_LINE_OPTIONS => [ -fill => '#DDDDDD' ],
     SCALE_TEXT_OPTIONS => [ -font => 'Lucida 10', -fill => '#666666' ],
 
-    CHART_RECTANGLE_OPTIONS => [ -fill => '#F8F8F8', -outline => '#EEEEEE' ],
+    CHART_RECTANGLE_OPTIONS =>
+      [ -fill => CHART_BG_COLOR(), -outline => '#EEEEEE' ],
     BAR_HEIGHT_TEXT_OPTIONS => [ -font => 'Lucida 8' ],
-    FONT                        => 'Lucida 14',
+    FONT                    => 'Lucida 14',
     SEQUENCE_LABEL_TEXT_OPTIONS => [ -font => 'Lucida 12', -fill => '#0000FF' ],
-    CHART_TITLE_OPTIONS         => [ -font => 'Lucida 12', -fill => '#FF0000' ],
+    CHART_TITLE_OPTIONS         => [ -font => 'Lucida 12', -fill => '#000000' ],
     FIGURE_TITLE_OPTIONS        => [ -font => 'Lucida 16', -fill => '#FF0000' ],
 };
 
@@ -56,6 +59,13 @@ my (
     $SEQUENCES_HEIGHT,  $SEQUENCES_BOTTOM,
     $CHART_V_OFFSET,    $CHART_BOTTOM,
     $BAR_BOTTOM,        $FIG_HEIGHT
+);
+
+my (
+    $PERCENT_CORRECT_CLUSTER_WIDTH,
+    $PERCENT_CORRECT_BAR_WIDTH,
+    $MAX_PERCENT_CORRECT_BAR_WIDTH,
+    $PERCENT_CORRECT_HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET
 );
 
 my (
@@ -91,15 +101,16 @@ sub Setup {
     $DRAW_SEQUENCES = $no_seq ? 0 : 1;
 
     #==== HORIZONTAL
-    $FIG_WIDTH                = 600;
-    $FIG_L_MARGIN             = 20;
-    $FIG_R_MARGIN             = 20;
-    $CHART_CHART_SEPARATION   = 20;
-    $CHART_L_MARGIN           = 20;
-    $CHART_R_MARGIN           = 10;
-    $INTER_CLUSTER_SEPARATION = 10;
-    $INTER_BAR_SEPARATION     = 5;
-    $MAX_BAR_WIDTH            = 20;
+    $FIG_WIDTH                     = 600;
+    $FIG_L_MARGIN                  = 20;
+    $FIG_R_MARGIN                  = 20;
+    $CHART_CHART_SEPARATION        = 20;
+    $CHART_L_MARGIN                = 20;
+    $CHART_R_MARGIN                = 10;
+    $INTER_CLUSTER_SEPARATION      = 10;
+    $INTER_BAR_SEPARATION          = 10;
+    $MAX_PERCENT_CORRECT_BAR_WIDTH = 12;
+    $MAX_BAR_WIDTH                 = 20;
 
     #=== HORIZONTAL CALCULATED
     $EFFECTIVE_FIG_WIDTH = $FIG_WIDTH - $FIG_L_MARGIN - $FIG_R_MARGIN;
@@ -116,7 +127,7 @@ sub Setup {
     $INTER_SEQUENCE_SEPARATION  = $DRAW_SEQUENCES ? 30 : 0;
     $SEQUENCE_HEIGHT            = $DRAW_SEQUENCES ? 20 : 0;
     $SEQUENCES_CHART_SEPARATION = ( $DRAW_CHARTS and $DRAW_SEQUENCES ) ? 20 : 0;
-    $LEGEND_CHART_SEPARATION    = $DRAW_CHARTS ? 20 : 0;
+    $LEGEND_CHART_SEPARATION    = $DRAW_CHARTS ? 5 : 0;
     $CHART_T_MARGIN             = 20;
     $CHART_B_MARGIN             = 30;
     $CHART_HEIGHT               = $DRAW_CHARTS ? 140 : 0;
@@ -124,8 +135,7 @@ sub Setup {
     #=== VERTICAL CALCULATED
     $SEQUENCES_V_OFFSET = $FIG_T_MARGIN;
     $MAX_BAR_HEIGHT     = $CHART_HEIGHT - $CHART_T_MARGIN - $CHART_B_MARGIN;
-    $LEGEND_HEIGHT =
-      $DRAW_CHARTS ? ( 20 * int( ( $CLUSTER_COUNT + 2 ) / 3 ) ) : 0;
+    $LEGEND_HEIGHT      = $DRAW_CHARTS ? 10 * $CLUSTER_COUNT : 0;
 
     $MAX_CLUSTER_WIDTH =
       ( $EFFECTIVE_CHART_WIDTH -
@@ -134,12 +144,22 @@ sub Setup {
     $BAR_WIDTH = min( $MAX_BAR_WIDTH,
         ( $MAX_CLUSTER_WIDTH - $INTER_BAR_SEPARATION * ( $CLUSTER_COUNT - 1 ) )
           / $CLUSTER_COUNT );
+    $PERCENT_CORRECT_BAR_WIDTH = min( $MAX_PERCENT_CORRECT_BAR_WIDTH,
+        ( $MAX_CLUSTER_WIDTH - $INTER_BAR_SEPARATION * ( $CLUSTER_COUNT - 1 ) )
+          / $CLUSTER_COUNT );
     $CLUSTER_WIDTH =
       $CLUSTER_COUNT * ( $BAR_WIDTH + $INTER_BAR_SEPARATION ) -
       $INTER_BAR_SEPARATION;
 
+    $PERCENT_CORRECT_CLUSTER_WIDTH =
+      $CLUSTER_COUNT * ( $PERCENT_CORRECT_BAR_WIDTH + $INTER_BAR_SEPARATION ) -
+      $INTER_BAR_SEPARATION;
+
     $HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET =
       ( $MAX_CLUSTER_WIDTH - $CLUSTER_WIDTH ) / 2;
+
+    $PERCENT_CORRECT_HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET =
+      ( $MAX_CLUSTER_WIDTH - $PERCENT_CORRECT_CLUSTER_WIDTH ) / 2;
 
     $SEQUENCES_HEIGHT =
       ( $SEQUENCE_HEIGHT * $SEQUENCES_TO_DISPLAY_COUNT ) +
@@ -171,9 +191,14 @@ sub HorizontalClusterCenterOffset {
 
 sub HorizontalBarOffset {
     my ( $chart_num, $sequence_num, $cluster_num ) = @_;
-    HorizontalClusterOffset( $chart_num, $sequence_num ) +
-      $HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET +
-      $cluster_num * ( $BAR_WIDTH + $INTER_BAR_SEPARATION );
+    my $first_bar_offset =
+      ( $chart_num == 1 )
+      ? $PERCENT_CORRECT_HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET
+      : $HORIZONTAL_FIRST_BAR_IN_CLUSTER_OFFSET;
+    my $bar_width =
+      ( $chart_num == 1 ) ? $PERCENT_CORRECT_BAR_WIDTH : $BAR_WIDTH;
+    HorizontalClusterOffset( $chart_num, $sequence_num ) + $first_bar_offset +
+      $cluster_num * ( $bar_width + $INTER_BAR_SEPARATION );
 }
 
 sub BarCoordinateToFigCoordinate {
@@ -182,7 +207,9 @@ sub BarCoordinateToFigCoordinate {
     my ( $chart_num, $sequence_num, $cluster_num, $x, $y ) = @_;
     my $horiz_offset =
       HorizontalBarOffset( $chart_num, $sequence_num, $cluster_num );
-    my $x_ret = $horiz_offset + $x * $BAR_WIDTH;
+    my $bar_width =
+      ( $chart_num == 1 ) ? $PERCENT_CORRECT_BAR_WIDTH : $BAR_WIDTH;
+    my $x_ret = $horiz_offset + $x * $bar_width;
     my $y_ret = $BAR_BOTTOM - $y * $MAX_BAR_HEIGHT;
     return ( $x_ret, $y_ret );
 }
@@ -219,8 +246,8 @@ sub SeqCoordToCanvasCoord {
 
 sub _LegendOffset {
     my ($number) = @_;
-    my $x = $FIG_L_MARGIN + ( $number % 3 ) * $EFFECTIVE_FIG_WIDTH / 3;
-    my $y = $LEGEND_V_OFFSET + 20 * int( $number / 3 );
+    my $x        = $FIG_WIDTH - $FIG_L_MARGIN - 5;
+    my $y        = $LEGEND_V_OFFSET + 12 * $number;
     return ( $x, $y );
 }
 
@@ -228,11 +255,16 @@ sub _DrawLegend {
     my ( $canvas, $number, $color, $label ) = @_;
     my ( $x, $y ) = _LegendOffset($number);
     $canvas->createRectangle(
-        $x, $y, $x + 5, $y + 5,
+        $x - 4, $y - 4, $x + 4, $y + 4,
         -fill    => $color,
         -outline => $color
     );
-    $canvas->createText( $x + 15, $y, -text => $label, -anchor => 'nw' );
+    $canvas->createText(
+        $x - 10, $y,
+        -text   => $label,
+        -fill   => $color,
+        -anchor => 'e'
+    );
 }
 
 ## Method ######################
@@ -264,7 +296,7 @@ sub Plot {
     Setup( $spec_object, $no_ovals, $no_chart, $no_seq );
 
     use Tk;
-    our $MW = new MainWindow(-title => '> ' . $outfile);
+    our $MW = new MainWindow( -title => '> ' . $outfile );
     $Canvas = $MW->Canvas(
         -background => '#FFFFFF',
         -height     => $FIG_HEIGHT,
@@ -357,21 +389,14 @@ sub DrawChart {
 
             ## cluster_name, data_by_cluster, data_for_this_bar: $cluster_name, $data_by_cluster, $data_for_this_bar, @cluster_names
 
-            $Canvas->createRectangle(
-                BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0, 0 ),
-                BarCoordinateToFigCoordinate(
-                    1, $seq_num, $subcounter, 1, 1
-                ),
-                -fill    => '#eeeeee',
-                -outline => '#eeeeee',
-            );
             my $fraction_correct = $stats->get_success_percentage() / 100;
             $Canvas->createRectangle(
-                BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0, 0 ),
+                BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0.2, 0 ),
                 BarCoordinateToFigCoordinate(
-                    1, $seq_num, $subcounter, 1, $fraction_correct
+                    1, $seq_num, $subcounter, 0.8, $fraction_correct
                 ),
-                -fill => $color
+                -fill => $color,
+                -outline => $color,
             );
 
             # Num correct
@@ -938,6 +963,20 @@ sub Draw_TimeTaken_Percentile {
             -fill => $color,
         );
     }
+
+    # Draw a horizontal "average" line.
+    my $mean_fraction = $stats->get_avg_time_to_success() / $MaxSteps;
+    $mean_fraction *= $Perf::AllCollectedData::CODELETS_PER_SECOND if $is_human;
+    $Canvas->createLine(
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 0, $mean_fraction,
+        ),
+        BarCoordinateToFigCoordinate(
+            2, $seq_num, $subcounter, 1.2, $mean_fraction
+        ),
+        -fill => CHART_BG_COLOR(),
+    );
+
 }
 
-    1;
+1;
