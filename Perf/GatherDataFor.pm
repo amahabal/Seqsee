@@ -84,7 +84,7 @@ sub Run_Seqsee_NonLTM {
                         min_extension => 3,
                         max_false     => 3,
                         tempfilename  => 'temp',
-                        feature_set   => '',                                #xxx
+                        feature_set   => $cluster->get_constraints_ref->{exact_feature_set}->get_string,
                         code_version  => Perf::Version->GetVersionOfCode,
                         outputdir     => 'Perf/data/Seqsee',
                     }
@@ -262,6 +262,10 @@ sub Run_Seqsee_WithContext {
 
 sub RunSeqseeOn {
     my ($opts_ref) = @_;
+    if ($::FLAG_dry_run) {
+        ### RunSeqseeOn: $opts_ref
+        return;
+    }
     my $times_to_run = $opts_ref->{times_to_run}
       // confess "Missing required argument 'times_to_run'";
     my $sequence = $opts_ref->{sequence}

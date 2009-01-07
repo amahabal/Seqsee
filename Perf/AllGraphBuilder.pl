@@ -36,9 +36,11 @@ use Perf::BarChart;
 use Perf::CollatedData;
 
 use Getopt::QuotedAttribute;
-our $FLAG_indir : Getopt("indir=s" => "(Optional) Input directory");
-our $FLAG_outdir : Getopt("outdir=s" => "(Optional) Output directory");
-Getopt::QuotedAttribute::usage(
+exit if $Getopt::QuotedAttribute::exit_after_load;
+
+our $FLAG_indir : Getopt("indir=s", doc => "(Optional) Input directory");
+our $FLAG_outdir : Getopt("outdir=s", doc => "(Optional) Output directory");
+Getopt::QuotedAttribute::Error(
     "Both --indir and --outdir should be present, or both absent.")
   if ( ( $FLAG_indir and not $FLAG_outdir )
     or ( $FLAG_outdir and not $FLAG_indir ) );

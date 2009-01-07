@@ -37,13 +37,20 @@ use Perf::CollatedData;
 use Perf::GatherDataFor;
 
 use Getopt::QuotedAttribute;
-our $FLAG_filename : Getopt("filename=s" => "(Required) Chart specification file for which to gather data by running Seqsee.");
-$FLAG_filename // Getopt::QuotedAttribute::usage("Missing required argument filename");
+exit if $Getopt::QuotedAttribute::exit_after_load;
 
-our $FLAG_times : Getopt("times=i" => "(Required) Run Seqsee enough times so that for each sequence in file, it has been run at least this many times.");
-$FLAG_times // Getopt::QuotedAttribute::usage("Missing required argument times");
+our $FLAG_filename : Getopt("filename=s", doc => "(Required) Chart specification file for which to gather data by running Seqsee.");
+$FLAG_filename // Getopt::QuotedAttribute::Usage("Missing required argument filename");
+
+our $FLAG_times : Getopt("times=i", doc => "(Required) Run Seqsee enough times so that for each sequence in file, it has been run at least this many times.");
+$FLAG_times // Getopt::QuotedAttribute::Usage("Missing required argument times");
 
 confess "$FLAG_filename does not exist!" unless -e $FLAG_filename;
+
+our $FLAG_dry_run : Getopt("dry_run|dry!", doc => "(Optional) Don't actually run Seqsee");
+$FLAG_dry_run //= 0;
+
+
 
 my $AllData = Perf::AllCollectedData->new();
 my $Spec    = Perf::Figure::Specification->new_from_specfile(

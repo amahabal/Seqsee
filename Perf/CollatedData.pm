@@ -71,8 +71,8 @@ sub BUILD {
 
     ## Seccess Rate: scalar(@successful), scalar(@results)
 
-    $min_time_to_success_of{$id} = $successful_times[0];
-    $max_time_to_success_of{$id} = $successful_times[-1];
+    $min_time_to_success_of{$id} = $successful_times[0] // 0;
+    $max_time_to_success_of{$id} = $successful_times[-1] // 0;
     my $success_count = $successful_count_of{$id} = scalar(@successful);
 
     my $q1_index     = ( $success_count - 1 ) / 4;

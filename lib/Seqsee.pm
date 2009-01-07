@@ -96,6 +96,7 @@ sub Seqsee_Step {
         if ( $Global::Feature{LogActivations} and not( $Global::Steps_Finished % 10 ) );
     unless ( $Global::Steps_Finished % 100 ) {
         $Global::AcceptableTrustLevel -= 0.002;
+        print '@', $Global::Steps_Finished, "\n" unless $Global::Steps_Finished % 1000;
     }
     sleep( $Global::InterstepSleep / 1000 );
 
