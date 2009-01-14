@@ -289,8 +289,8 @@ sub Plot {
       // confess "Missing required argument 'spec_object'";
     my $outfile  = $opts_ref->{outfile}  // undef;
     my $no_ovals = $opts_ref->{no_ovals} // 0;
-    my $no_chart = $opts_ref->{no_chart} // 0;
-    my $no_seq   = $opts_ref->{no_seq}   // 0;
+    my $no_chart = $opts_ref->{no_chart} // !$spec_object->get_draw_chart();
+    my $no_seq   = $opts_ref->{no_seq} //  !$spec_object->get_draw_seq();
     my $chart_style = $opts_ref->{chart_style}
       // confess "Missing required argument 'chart_style'";
     Setup( $spec_object, $no_ovals, $no_chart, $no_seq );

@@ -33,6 +33,7 @@ my %Sequences_to_Draw_of : ATTR(:name<sequences_to_draw>);
 my %Sequences_to_Chart_of : ATTR(:name<sequences_to_chart>);
 
 my %Draw_Chart_of : ATTR(:name<draw_chart>);
+my %Draw_Sequence_of : ATTR(:name<draw_seq>);
 my %Has_Human_Data_of : ATTR(:name<has_human_data>);
 my %Split_Chart_of : ATTR(:name<split_chart>);
 
@@ -48,6 +49,7 @@ sub new_from_specfile {
     my $title = $Config{''}{Title} //= "Title";
 
     my $draw_charts = $Config{''}{NoChart}    ? 0 : 1;
+    my $draw_seq    = $Config{''}{NoSeq}      ? 0 : 1;
     my $split_chart = $Config{''}{SplitChart} ? 1 : 0;
 
     my $has_human_data = 0;
@@ -124,7 +126,7 @@ sub new_from_specfile {
         $Sequences_to_Chart[0] = Perf::Figure::SequenceToChart->new(
             {
                 string             => $sequence_strings[0],
-                label              => '',
+                label              => 'Target Sequence',
                 clusters           => \@Clusters,
                 all_read_data      => $all_read_data,
                 is_ltm_self_config => 0,
@@ -160,6 +162,7 @@ sub new_from_specfile {
             sequences_to_draw        => \@display_sequences,
             sequences_to_chart       => \@Sequences_to_Chart,
             draw_chart               => $draw_charts,
+            draw_seq                 => $draw_seq,
             has_human_data           => $has_human_data,
             split_chart              => $split_chart,
         }
