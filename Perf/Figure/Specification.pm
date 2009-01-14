@@ -37,6 +37,8 @@ my %Draw_Sequence_of : ATTR(:name<draw_seq>);
 my %Has_Human_Data_of : ATTR(:name<has_human_data>);
 my %Split_Chart_of : ATTR(:name<split_chart>);
 
+my %Custom_Legend_of : ATTR(:name<custom_legend>);
+
 sub new_from_specfile {
     my ( $package, $opts_ref ) = @_;
     my $all_read_data = $opts_ref->{all_read_data}
@@ -51,6 +53,11 @@ sub new_from_specfile {
     my $draw_charts = $Config{''}{NoChart}    ? 0 : 1;
     my $draw_seq    = $Config{''}{NoSeq}      ? 0 : 1;
     my $split_chart = $Config{''}{SplitChart} ? 1 : 0;
+
+    my $custom_legend = $Config{''}{custom_legend} // '';
+    if ( $custom_legend and not( ref $custom_legend ) ) {
+        $custom_legend = [$custom_legend];
+    }
 
     my $has_human_data = 0;
 
@@ -165,6 +172,8 @@ sub new_from_specfile {
             draw_seq                 => $draw_seq,
             has_human_data           => $has_human_data,
             split_chart              => $split_chart,
+            custom_legend            => $custom_legend
+
         }
     );
 }

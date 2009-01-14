@@ -83,6 +83,8 @@ my ($Canvas);
 
 my ( $DRAW_CHARTS, $DRAW_SEQUENCES );
 
+my ($CUSTOM_LEGEND);
+
 sub Setup {
     my ( $graph_spec, $no_ovals, $no_chart, $no_seq ) = @_;
     $graph_spec->isa("Perf::Figure::Specification")
@@ -90,6 +92,8 @@ sub Setup {
       "Expected \$graph_spec to be of type Perf::Figure::Specification."
       . "Instead, it is of type "
       . ref($graph_spec);
+
+    $CUSTOM_LEGEND = $graph_spec->get_custom_legend;
 
     $CLUSTER_COUNT              = $graph_spec->get_cluster_count;
     $SEQUENCES_TO_PLOT_COUNT    = $graph_spec->get_sequences_to_chart_count;
@@ -135,7 +139,10 @@ sub Setup {
     #=== VERTICAL CALCULATED
     $SEQUENCES_V_OFFSET = $FIG_T_MARGIN;
     $MAX_BAR_HEIGHT     = $CHART_HEIGHT - $CHART_T_MARGIN - $CHART_B_MARGIN;
-    $LEGEND_HEIGHT      = $DRAW_CHARTS ? 10 * $CLUSTER_COUNT : 0;
+    $LEGEND_HEIGHT =
+      $DRAW_CHARTS
+      ? 10 * ( $CUSTOM_LEGEND ? scalar(@$CUSTOM_LEGEND) : $CLUSTER_COUNT )
+      : 0;
 
     $MAX_CLUSTER_WIDTH =
       ( $EFFECTIVE_CHART_WIDTH -
@@ -290,7 +297,7 @@ sub Plot {
     my $outfile  = $opts_ref->{outfile}  // undef;
     my $no_ovals = $opts_ref->{no_ovals} // 0;
     my $no_chart = $opts_ref->{no_chart} // !$spec_object->get_draw_chart();
-    my $no_seq   = $opts_ref->{no_seq} //  !$spec_object->get_draw_seq();
+    my $no_seq   = $opts_ref->{no_seq}   // !$spec_object->get_draw_seq();
     my $chart_style = $opts_ref->{chart_style}
       // confess "Missing required argument 'chart_style'";
     Setup( $spec_object, $no_ovals, $no_chart, $no_seq );
@@ -391,11 +398,13 @@ sub DrawChart {
 
             my $fraction_correct = $stats->get_success_percentage() / 100;
             $Canvas->createRectangle(
-                BarCoordinateToFigCoordinate( 1, $seq_num, $subcounter, 0.2, 0 ),
+                BarCoordinateToFigCoordinate(
+                    1, $seq_num, $subcounter, 0.2, 0
+                ),
                 BarCoordinateToFigCoordinate(
                     1, $seq_num, $subcounter, 0.8, $fraction_correct
                 ),
-                -fill => $color,
+                -fill    => $color,
                 -outline => $color,
             );
 
@@ -436,11 +445,18 @@ sub DrawChart {
             );
             _DrawLegend( $Canvas, $subcounter, $color,
                 $cluster_spec->get_label() )
-              if $seq_num == 0;
+              if ( $seq_num == 0 and !$CUSTOM_LEGEND);
             $subcounter++;
         }
 
         $seq_num++;
+    }
+
+    if ($CUSTOM_LEGEND) {
+        for my $i (0..scalar(@$CUSTOM_LEGEND)) {
+            my ($c, $l) = split(';', $CUSTOM_LEGEND->[$i], 2);
+            _DrawLegend($Canvas, $i, $c, $l);
+        }
     }
 }
 
