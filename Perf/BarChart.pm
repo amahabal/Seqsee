@@ -445,17 +445,33 @@ sub DrawChart {
             );
             _DrawLegend( $Canvas, $subcounter, $color,
                 $cluster_spec->get_label() )
-              if ( $seq_num == 0 and !$CUSTOM_LEGEND);
+              if ( $seq_num == 0 and !$CUSTOM_LEGEND );
+            if ( $spec_object->get_figure_type eq 'LTM_SELF_CONTEXT' ) {
+                $Canvas->createText(
+                    BarCoordinateToFigCoordinate(
+                        1, $seq_num, $subcounter, 0.5, -0.04,
+                    ),
+                    -text   => $subcounter,
+                    -anchor => 'n',
+                );
+               $Canvas->createText(
+                    BarCoordinateToFigCoordinate(
+                        2, $seq_num, $subcounter, 0.5, -0.04,
+                    ),
+                    -text   => $subcounter,
+                    -anchor => 'n',
+                );
+   
+            }
             $subcounter++;
         }
-
         $seq_num++;
     }
 
     if ($CUSTOM_LEGEND) {
-        for my $i (0..scalar(@$CUSTOM_LEGEND)) {
-            my ($c, $l) = split(';', $CUSTOM_LEGEND->[$i], 2);
-            _DrawLegend($Canvas, $i, $c, $l);
+        for my $i ( 0 .. scalar(@$CUSTOM_LEGEND) ) {
+            my ( $c, $l ) = split( ';', $CUSTOM_LEGEND->[$i], 2 );
+            _DrawLegend( $Canvas, $i, $c, $l );
         }
     }
 }

@@ -71,6 +71,7 @@ sub new_from_specfile {
         my $cluster = Perf::Figure::Cluster->new(
             { config => $config, figure_type => $type } );
         $has_human_data = 1 if $cluster->is_human();
+        $cluster->set_label($_ - 1) if $type eq 'LTM_SELF_CONTEXT';
         ## human: $has_human_data
         $cluster
     } ( 1 .. $Cluster_Count );
