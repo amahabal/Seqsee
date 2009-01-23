@@ -13,5 +13,7 @@ use SCat::mountain;
 use SCat::sameness;
 use SCat::Number;
 use SCat::Prime;
+use SCat::Odd;
+use SCat::Even;
 
 1;

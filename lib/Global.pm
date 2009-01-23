@@ -44,7 +44,7 @@ our $MainStream = SStream2->CreateNew('MainStream');
 
 %PossibleFeatures = map { $_ => 1 } qw(debug LTM
     CodeletTree NoGpOverlap LogActivations AllowSquinting
-    LTM_expt Primes Alternating
+    LTM_expt Primes Parity Alternating
     debugMAX NoInterlaced
 );
 

@@ -61,6 +61,7 @@ use SRule;
 use SRuleApp;
 
 use PositionStructure;
+
 # use SUtil;
 
 our $ASCENDING  = $SCat::ascending::ascending;
@@ -68,13 +69,16 @@ our $DESCENDING = $SCat::descending::descending;
 our $MOUNTAIN   = $SCat::mountain::mountain;
 
 #our $number     = $SCat::number::number;
-our $SAMENESS   = $SCat::sameness::sameness;
-our $AD_HOC     = $SCat::ad_hoc::AD_HOC;
-our $NUMBER     = $SCat::Number::Number;
-our $PRIME      = $SCat::Prime::Prime;
+our $SAMENESS = $SCat::sameness::sameness;
+our $AD_HOC   = $SCat::ad_hoc::AD_HOC;
+our $NUMBER   = $SCat::Number::Number;
+our $PRIME    = $SCat::Prime::Prime;
+our $ODD      = $SCat::Odd::Odd;
+our $EVEN     = $SCat::Even::Even;
 
 our $DOUBLE = SMetonymType->new(
-    {   category  => $S::SAMENESS,
+    {
+        category  => $S::SAMENESS,
         name      => "each",
         info_loss => { length => 2 },
     }
@@ -90,10 +94,10 @@ our $RIGHT   = bless { text => 'right' },   'DIR';
 our $UNKNOWN = bless { text => 'unknown' }, 'DIR';
 our $NEITHER = bless { text => 'neither' }, 'DIR';
 
-sub LEFT    {$LEFT}
-sub RIGHT   {$RIGHT}
-sub UNKNOWN {$UNKNOWN}
-sub NEITHER {$NEITHER}
+sub LEFT    { $LEFT }
+sub RIGHT   { $RIGHT }
+sub UNKNOWN { $UNKNOWN }
+sub NEITHER { $NEITHER }
 
 sub Flip {
     my ($self) = @_;
@@ -121,8 +125,8 @@ package POS_MODE;
 our $FORWARD  = bless { mode => 'FORWARD' },  'POS_MODE';
 our $BACKWARD = bless { mode => 'BACKWARD' }, 'POS_MODE';
 
-sub FORWARD  {$FORWARD}
-sub BACKWARD {$BACKWARD}
+sub FORWARD  { $FORWARD }
+sub BACKWARD { $BACKWARD }
 
 sub as_text {
     my ($self) = @_;
@@ -152,11 +156,11 @@ our $SINGLE    = bless { mode => 'SINGLE' },    'METO_MODE';
 our $ALLBUTONE = bless { mode => 'ALLBUTONE' }, 'METO_MODE';
 our $ALL       = bless { mode => 'ALL' },       'METO_MODE';
 our $OTHER     = bless { mode => 'OTHER' },     'METO_MODE';
-sub NONE      {$NONE}
-sub SINGLE    {$SINGLE}
-sub ALLBUTONE {$ALLBUTONE}
-sub ALL       {$ALL}
-sub OTHER     {$OTHER}
+sub NONE      { $NONE }
+sub SINGLE    { $SINGLE }
+sub ALLBUTONE { $ALLBUTONE }
+sub ALL       { $ALL }
+sub OTHER     { $OTHER }
 
 sub as_text {
     my ($self) = @_;
@@ -189,19 +193,18 @@ sub deserialize {
     my ( $package, $str ) = @_;
     no strict 'refs';
     given ($str) {
-        when ('NONE') { return $NONE }
-        when ('SINGLE') { return $SINGLE}
-        when ('ALLBUTONE') { return $ALLBUTONE}
-        when ('ALL') { return $ALL}
-        when ('OTHER') { return $OTHER}
+        when ('NONE')      { return $NONE }
+        when ('SINGLE')    { return $SINGLE }
+        when ('ALLBUTONE') { return $ALLBUTONE }
+        when ('ALL')       { return $ALL }
+        when ('OTHER')     { return $OTHER }
         confess "Unknown!";
     }
 }
 
 sub get_pure {
-    return $_[0]
+    return $_[0];
 }
-
 
 package EXTENDIBILE;
 
@@ -212,9 +215,9 @@ use warnings;
 our $NO      = bless { mode => 'NO' },      'EXTENDIBILE';
 our $PERHAPS = bless { mode => 'PERHAPS' }, 'EXTENDIBILE';
 our $UNKNOWN = bless { mode => 'UNKNOWN' }, 'EXTENDIBILE';
-sub NO      {$NO}
-sub PERHAPS {$PERHAPS}
-sub UNKNOWN {$UNKNOWN}
+sub NO      { $NO }
+sub PERHAPS { $PERHAPS }
+sub UNKNOWN { $UNKNOWN }
 
 use overload (
     q{bool} => sub {
@@ -229,8 +232,8 @@ use strict;
 use warnings;
 our $NONE = 0;
 our $CHAIN = bless { type => 'CHAIN' }, 'RELN_SCHEME';
-sub NONE  {$NONE}
-sub CHAIN {$CHAIN}
+sub NONE  { $NONE }
+sub CHAIN { $CHAIN }
 
 package DISTANCE_MODE;
 use strict;
@@ -238,8 +241,8 @@ use warnings;
 our $GROUP   = bless { mode => 'group' },   'DISTANCE_MODE';
 our $ELEMENT = bless { mode => 'element' }, 'DISTANCE_MODE';
 
-sub GROUP   {$GROUP}
-sub ELEMENT {$ELEMENT}
+sub GROUP   { $GROUP }
+sub ELEMENT { $ELEMENT }
 
 # Can/should be influenced by activations.
 sub PickOne {
@@ -277,7 +280,6 @@ sub Zero {
 sub IsNonZero {
     return $_[0]->[0];
 }
-
 
 sub IsUnitGroups {
     my ($self) = @_;

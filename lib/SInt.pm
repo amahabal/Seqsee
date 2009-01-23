@@ -14,6 +14,13 @@ sub new {
     my ( $package, $mag ) = @_;
     my $self = bless [$mag, [$S::NUMBER]], $package;
     $self->add_category($S::PRIME) if ($Global::Feature{Primes} and SCat::Prime::IsPrime($mag));
+    if ($Global::Feature{Parity}) {
+        if ($mag % 2) {
+            $self->add_category($S::ODD);
+        } else {
+            $self->add_category($S::EVEN);
+        }
+    }
     $self;
 }
 
