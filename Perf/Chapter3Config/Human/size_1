@@ -6,8 +6,8 @@ Title = ???
 
 # Should the chart be drawn? If not, only sequences will be shown.
 # The other option is to Split the chart into two (sequences and bars).
-NoChart = 0
-# SplitChart = 1
+#NoChart = 0
+ SplitChart = 1
 
 # Show data from how many sources? Will typically be 2 (Seqsee/Human).
 # Can be lower or higher depending on what needs to be plotted.

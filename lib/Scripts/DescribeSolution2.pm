@@ -213,31 +213,71 @@ CodeletFamily DescribeInterlacedCategory( $cat !, $ruleapp ! ) does scripted {
 
 CodeletFamily Describe2InterlacedCategory( $cat !, $ruleapp ! ) does scripted {
   NAME: { Describe a Two-Interlaced-Sequences Category }
-  STEP: { 
-        my @items = @{$ruleapp->get_items()};
-        my @first_items = map { $_->[0] } @items;
+  STEP: {
+        my @items        = @{ $ruleapp->get_items() };
+        my @first_items  = map { $_->[0] } @items;
         my @second_items = map { $_->[1] } @items;
 
-        @first_items = @first_items[0..2] if @first_items > 3;
-        @second_items = @second_items[0..2] if @second_items > 3;
+        @first_items  = @first_items[ 0 .. 2 ]  if @first_items > 3;
+        @second_items = @second_items[ 0 .. 2 ] if @second_items > 3;
 
-        my $msg = "The sequence consists of two interlaced sequences. The first of these consists of " . join(", ", map { $_->get_structure_string() } @first_items) . " and so forth, whereas the second consists of ". join(", ", map { $_->get_structure_string() } @second_items ). " and so forth.";
-        main::message($msg, 1);
+        my $msg = "The group is thus made up of a size-2 template. ";
+        my @first_categories  = SInstance::get_common_categories(@first_items);
+        my @second_categories = SInstance::get_common_categories(@second_items);
+
+        if (@first_categories) {
+            $msg .= "An instance of the first item in the template is an instance of '"
+              . $first_categories[0]->as_text() . "'. ";
+            if ( @first_categories > 1 ) {
+                $msg .= " and also of the categories ";
+                $msg .= join( q{, },
+                    map { q{'} . $_->as_text . q{'} }
+                      @first_categories[ 2 .. $#first_categories ] );
+                $msg .= q{. };
+            }
+        }
+
+        if (@second_categories) {
+            $msg .= "The second item in the template is an instance of '"
+              . $second_categories[0]->as_text() . "'. ";
+            if ( @second_categories > 1 ) {
+                $msg .= " and also of the categories ";
+                $msg .= join( q{, },
+                    map { q{'} . $_->as_text . q{'} }
+                      @second_categories[ 2 .. $#second_categories ] );
+                $msg .= q{. };
+            }
+        }
+
+        $msg .=
+"The sequence can also be thought as consisting of two interlaced sequences. Seen this way, the first of these interlaced groups consists of "
+          . join( ", ", map { $_->get_structure_string() } @first_items )
+          . " and so forth, whereas the second consists of "
+          . join( ", ", map { $_->get_structure_string() } @second_items )
+          . " and so forth.";
+        main::message( $msg, 1 );
     }
 }
-CodeletFamily DescribeMultipleInterlacedCategory( $cat !, $ruleapp ! ) does scripted {
+
+CodeletFamily DescribeMultipleInterlacedCategory( $cat !, $ruleapp ! ) does
+  scripted {
   NAME: { Describe a Multiple-Interlaced-Sequences Category }
-  STEP: { 
-        my @items = @{$ruleapp->get_items()};
-        my @first_items = map { $_->[0] } @items;
+  STEP: {
+        my @items        = @{ $ruleapp->get_items() };
+        my @first_items  = map { $_->[0] } @items;
         my @second_items = map { $_->[1] } @items;
 
-        @first_items = @first_items[0..2] if @first_items > 3;
-        @second_items = @second_items[0..2] if @second_items > 3;
+        @first_items  = @first_items[ 0 .. 2 ]  if @first_items > 3;
+        @second_items = @second_items[ 0 .. 2 ] if @second_items > 3;
 
         my $count = $cat->get_parts_count();
-        my $msg = "The sequence consists of $count interlaced sequences. The first of these consists of " . join(", ", map { $_->get_structure_string() } @first_items) . " and so forth, and the second of these $count sequences consists of ". join(", ", map { $_->get_structure_string() } @second_items ). " and so forth.";
-        main::message($msg, 1);
+        my $msg =
+"The sequence consists of $count interlaced sequences. The first of these consists of "
+          . join( ", ", map { $_->get_structure_string() } @first_items )
+          . " and so forth, and the second of these $count sequences consists of "
+          . join( ", ", map { $_->get_structure_string() } @second_items )
+          . " and so forth.";
+        main::message( $msg, 1 );
     }
 }
 

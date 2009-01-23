@@ -12,5 +12,4 @@ sub AreAttributesSufficientToBuild {
     return ('mag' ~~ @atts) ? 1 : 0;
 }
 
-
 1;

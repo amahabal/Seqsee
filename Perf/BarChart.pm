@@ -109,8 +109,8 @@ sub Setup {
     $FIG_L_MARGIN                  = 20;
     $FIG_R_MARGIN                  = 20;
     $CHART_CHART_SEPARATION        = 20;
-    $CHART_L_MARGIN                = 20;
-    $CHART_R_MARGIN                = 10;
+    $CHART_L_MARGIN                = 30;
+    $CHART_R_MARGIN                = 20;
     $INTER_CLUSTER_SEPARATION      = 10;
     $INTER_BAR_SEPARATION          = 10;
     $MAX_PERCENT_CORRECT_BAR_WIDTH = 12;
@@ -748,7 +748,7 @@ sub DrawCodeletCountScale {
 
     ## x_tab_step: $x_tab_step
     $x_tab_step = $MaxSteps unless $x_tab_step;
-    my ( $left, $bottom ) = BarCoordinateToFigCoordinate( 2, 0, 0, -1, 0 );
+    my ( $left, $bottom ) = BarCoordinateToFigCoordinate( 2, 0, 0, -0.2, 0 );
     my $top = $bottom - $MAX_BAR_HEIGHT;
     my ($right) = BarCoordinateToFigCoordinate(
         2,
@@ -779,8 +779,8 @@ sub DrawCodeletCountScale {
     # Draw Seconds axis.
     my $max_seconds =
       int( $MaxSteps / $Perf::AllCollectedData::CODELETS_PER_SECOND );
-    my $new_left         = $right + 10;
-    my $new_right        = $new_left + 20;
+    my $new_left         = $right + 3;
+    my $new_right        = $new_left + 10;
     my $seconds_tab_step = int( $max_seconds / 6 ) || 1;
     for (
         my $seconds = 0 ;
