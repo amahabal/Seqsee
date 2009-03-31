@@ -175,8 +175,11 @@ sub DrawArrow {
     my $y1 = index_to_y_coordinate($from_index);
     my $y2 = index_to_y_coordinate($to_index);
     $CANVAS->createLine(
-        ARROW_LEFT() + $Offset, $y1, ARROW_33 + $Offset, $y1, ARROW_66() - $Offset , $y2,
-        ARROW_RIGHT() - $Offset, $y2, -arrow => 'last'
+        ARROW_LEFT() + $Offset,
+        $y1, ARROW_33 + $Offset,
+        $y1, ARROW_66() - $Offset,
+        $y2, ARROW_RIGHT() - $Offset,
+        $y2, -arrow => 'last'
     );
     $CANVAS->createText(
         RIGHT_END_OF_LABEL() - $Offset, $y2 - ARROW_LABEL_Y_OFFSET(),
@@ -272,13 +275,14 @@ sub GenerateFilename {
 }
 
 sub DrawBoxes {
-    $CANVAS->createRectangle( LEFT_END_OF_BOX1 , TOP_OF_BOXES,
-        RIGHT_END_OF_BOX1 + $Offset , BOTTOM_OF_BOXES,
+    $CANVAS->createRectangle( LEFT_END_OF_BOX1, TOP_OF_BOXES,
+        RIGHT_END_OF_BOX1 + $Offset, BOTTOM_OF_BOXES,
         -fill    => '#DDDDDD',
         -outline => '#BBBBBB',
     );
-    $CANVAS->createRectangle( LEFT_END_OF_BOX2 - $Offset, TOP_OF_BOXES,
-        RIGHT_END_OF_BOX2, BOTTOM_OF_BOXES,
+    $CANVAS->createRectangle(
+        LEFT_END_OF_BOX2 - $Offset, TOP_OF_BOXES,
+        RIGHT_END_OF_BOX2,          BOTTOM_OF_BOXES,
         -fill    => '#DDDDDD',
         -outline => '#BBBBBB',
     );
