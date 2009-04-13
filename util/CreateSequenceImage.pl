@@ -68,7 +68,7 @@ use constant {
 #FONT                     => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
     FONT      => 'Lucida 14',
     MAX_TERMS => 25,
-    MIN_TERMS => 10,
+    MIN_TERMS => 3,
 
     LABEL_X_OFFSET => 0,
     LABEL_Y_OFFSET => 12,
@@ -208,6 +208,7 @@ sub Show {
     my ( $Elements_ref, $GroupA_ref, $GroupB_ref ) = Parse($string);
 
     my $ElementsCount = scalar(@$Elements_ref);
+    print "ElementsCount: $ElementsCount\n";
     confess "Too mant elements!" if $ElementsCount > MAX_TERMS;
 
     my $PretendWeHaveElements =
@@ -362,7 +363,9 @@ sub DrawGroup {
         my ($string) = @_;
         @GroupA = @GroupB = ();
         my @tokens = Tokenize($string);
-        my @Elements = grep { m#\d# } @tokens;
+        print "tokens: ", join('---', @tokens), "\n";
+        my @Elements = grep { m#\d|\w# } @tokens;
+       # print "tokens: ", join('---', @tokens), "\n";
         ReadGroups( \@tokens, '{', '}', \@GroupA );
         ReadGroups( \@tokens, '[', ']', \@GroupA );
         ReadGroups( \@tokens, '(', ')', \@GroupB );
@@ -409,7 +412,7 @@ sub DrawGroup {
                 push @$groups_set, [ $group_start, $element_count ];
                 $stack_size--;
             }
-            elsif ( $token =~ m#^ \-? \d+ #x ) {
+            elsif ( $token =~ m#^ \-? \d+ | \w #x ) {
                 $element_count++;
             }
         }
