@@ -54,7 +54,7 @@ sub GenerateFilename_cleaner {
         $seq = "mountain_$seq";
     }
 
-    my $ret = "$dir/$seq.eps";
+    my $ret = "$dir$seq.eps";
     print $ret;
     return $ret;
 }
@@ -281,6 +281,7 @@ sub DrawElements {
     my $x_pos          = 3 + $WIDTH_PER_TERM * 0.5;
     my $count          = 0;
     for my $elt (@$Elements_ref) {
+        $elt =~ s#\.# #g;
         $Canvas->createText(
             $x_pos, Y_CENTER,
             -text   => $elt,
@@ -466,6 +467,5 @@ sub UpdateImage {
         }
     }
     $SaveFilename =
-      GenerateFilename_cleaner( 'D:/DISSERTATION/Chapters/SequenceEPS',
-        $SequenceString );
+      GenerateFilename_cleaner( '',  $SequenceString );
 }
