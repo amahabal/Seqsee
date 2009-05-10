@@ -23,7 +23,26 @@ class AnalogyArrow {
     );
 
 };
+
 class AnalogyImage {
+    has 'is_concrete' => (
+        is       => 'rw',
+        isa      => 'Bool',
+        required => 1,
+    );
+
+    has 'left_values' => (
+        is       => 'rw',
+        isa      => 'HashRef',
+        required => 1,
+    );
+
+    has 'right_values' => (
+        is       => 'rw',
+        isa      => 'HashRef',
+        required => 1,
+    );
+
     has 'attributes' => (
         metaclass => 'Collection::Array',
         is        => 'rw',
@@ -59,7 +78,12 @@ class AnalogyImage {
           $self->left_category( $config{''}{left_category} );
           $self->right_category( $config{''}{right_category} );
 
-          for ( @{ $config{''}{attributes} } ) {
+          $self->is_concrete( exists $config{left_values} );
+          $self->left_values( $config{left_values} )
+          if exists $config{left_values};
+        $self->right_values( $config{right_values} )
+          if exists $config{right_values};
+        for ( @{ $config{''}{attributes} } ) {
             $self->push_attribute($_);
         }
 
@@ -96,23 +120,44 @@ class AnalogyImage {
 
     method draw_labels( $canvas, Num $y_margin, Num $y_per_attribute) {
         my $index = 0;
-          for my $attribute_name ( @{ $self->attributes } ) {
+          my ( $is_concrete, $left_values, $right_values );
+          if ( $self->is_concrete ) {
+            $is_concrete  = 1;
+            $left_values  = $self->left_values;
+            $right_values = $self->right_values;
+        }
+        else {
+            $is_concrete = 0;
+        }
+
+        for my $attribute_name ( @{ $self->attributes } ){
             my $y = $y_margin + ( $index + 0.5 ) * $y_per_attribute;
+
+              my ( $left_text, $right_text );
+              if ($is_concrete) {
+                $left_text =
+                  "$attribute_name = " . $left_values->{$attribute_name};
+                $right_text =
+                  "$attribute_name = " . $right_values->{$attribute_name};
+            }
+            else {
+                $left_text = $right_text = $attribute_name;
+            }
             $canvas->createText(
                 120, $y,
                 -text   => $attribute_name,
                 -anchor => 'e',
-                -font => 'Lucida 10',
+                -font   => 'Lucida 10',
             );
-            $canvas->createText(
+              $canvas->createText(
                 380, $y,
                 -text   => $attribute_name,
                 -anchor => 'w',
-                -font => 'Lucida 10',
-            );
+                -font   => 'Lucida 10',
+              );
 
-            $index++;
-        }
+              $index++;
+          }
       }
 
       method draw_arrows( $canvas, Num $y_margin, Num $y_per_attribute) {
@@ -141,7 +186,7 @@ class AnalogyImage {
                 $label_x, $label_y,
                 -text   => $arrow->label,
                 -anchor => $label_anchor,
-                -font => 'Lucida 8',
+                -font   => 'Lucida 8',
             );
           }
       };
