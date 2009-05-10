@@ -25,22 +25,23 @@ class AnalogyArrow {
 };
 
 class AnalogyImage {
+        use Config::Std;
     has 'is_concrete' => (
         is       => 'rw',
         isa      => 'Bool',
-        required => 1,
+        required => 0,
     );
 
     has 'left_values' => (
         is       => 'rw',
         isa      => 'HashRef',
-        required => 1,
+        required => 0,
     );
 
     has 'right_values' => (
         is       => 'rw',
         isa      => 'HashRef',
-        required => 1,
+        required => 0,
     );
 
     has 'attributes' => (
@@ -72,17 +73,16 @@ class AnalogyImage {
     );
 
     method load_from_file($filename) {
-        use Config::Std;
           read_config $filename => my %config;
-
+          say keys %config;
           $self->left_category( $config{''}{left_category} );
           $self->right_category( $config{''}{right_category} );
 
-          $self->is_concrete( exists $config{left_values} );
-          $self->left_values( $config{left_values} )
-          if exists $config{left_values};
+        $self->is_concrete( $config{''}{is_concrete} // ($config{left_values} ? 1 : 0) );
+        $self->left_values( $config{left_values} )
+            if $config{left_values};
         $self->right_values( $config{right_values} )
-          if exists $config{right_values};
+            if $config{right_values};
         for ( @{ $config{''}{attributes} } ) {
             $self->push_attribute($_);
         }
@@ -112,16 +112,25 @@ class AnalogyImage {
 
     method draw( $canvas, Num $height) {
         my $attribute_count   = scalar( @{ $self->{attributes} } );
-          my $y_margin        = 20;
-          my $y_per_attribute = ( $height - 2 * $y_margin ) / $attribute_count;
-          $self->draw_labels( $canvas, $y_margin, $y_per_attribute );
-          $self->draw_arrows( $canvas, $y_margin, $y_per_attribute );
+        my $y_margin        = 30;
+        my $y_bottom_margin = 15;
+        my $y_per_attribute = ( $height - $y_margin - $y_bottom_margin ) / $attribute_count;
+        $canvas->createRectangle(30, $y_bottom_margin, 125, $height - $y_bottom_margin,
+                                 -fill => '#DDDDDD', -outline => '#BBBBBB');
+        $canvas->createRectangle(375, $y_bottom_margin, 470, $height - $y_bottom_margin,
+                                 -fill => '#DDDDDD', -outline => '#BBBBBB');
+        $canvas->createText(78, $y_margin - 2, -text => $self->left_category,
+                                -anchor => 's', -fill => 'blue', -font => 'Lucida 12');
+        $canvas->createText(422, $y_margin - 2, -text => $self->right_category,
+                                -anchor => 's', -fill => 'blue', -font => 'Lucida 12');
+        $self->draw_labels( $canvas, $y_margin, $y_per_attribute );
+        $self->draw_arrows( $canvas, $y_margin, $y_per_attribute );
     };
 
     method draw_labels( $canvas, Num $y_margin, Num $y_per_attribute) {
         my $index = 0;
           my ( $is_concrete, $left_values, $right_values );
-          if ( $self->is_concrete ) {
+        if ( $self->is_concrete ) {
             $is_concrete  = 1;
             $left_values  = $self->left_values;
             $right_values = $self->right_values;
@@ -144,15 +153,15 @@ class AnalogyImage {
                 $left_text = $right_text = $attribute_name;
             }
             $canvas->createText(
-                120, $y,
-                -text   => $attribute_name,
-                -anchor => 'e',
+                78, $y,
+                -text   => $left_text,
+                -anchor => 'c',
                 -font   => 'Lucida 10',
             );
               $canvas->createText(
-                380, $y,
-                -text   => $attribute_name,
-                -anchor => 'w',
+                  422, $y,
+                -text   => $right_text,
+                -anchor => 'c',
                 -font   => 'Lucida 10',
               );
 
@@ -165,20 +174,20 @@ class AnalogyImage {
             my ( $y1, $y2 ) =
               map { $y_margin + ( $_ + 0.5 ) * $y_per_attribute }
               $self->calculate_arrow_positions($arrow);
-              $canvas->createLine( 160, $y1, 320, $y2, -arrow => 'last' );
+              $canvas->createLine( 140, $y1, 360, $y2, -arrow => 'last' );
               my ( $label_x, $label_y, $label_anchor );
               if ( $y1 == $y2 ) {
-                $label_x      = 240;
+                $label_x      = 250;
                 $label_anchor = 's';
                 $label_y      = $y1 - 2;
             }
             elsif ( $y1 < $y2 ) {    # sloping down
-                $label_x      = 240 + 2;
+                $label_x      = 250 + 2;
                 $label_y      = -2 + ( $y1 + $y2 ) / 2;
                 $label_anchor = 'sw';
             }
             else {
-                $label_x      = 240 - 2;
+                $label_x      = 250 - 2;
                 $label_y      = -2 + ( $y1 + $y2 ) / 2;
                 $label_anchor = 'se';
             }
