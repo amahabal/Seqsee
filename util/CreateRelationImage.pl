@@ -4,16 +4,20 @@ use Smart::Comments;
 
 use constant { WIDTH => 500, HEIGHT => 120, PAGEHEIGHT => '3c' };
 use constant {
-    ARROW_LEFT           => 90,
-    ARROW_33             => 90,
-    ARROW_66             => 400,
-    ARROW_RIGHT          => 410,
+    ARROW_LEFT           => 140,
+    ARROW_33             => 140,
+    ARROW_66             => 350,
+    ARROW_RIGHT          => 360,
     ARROW_LABEL_Y_OFFSET => 3,
     RIGHT_END_OF_FIRST   => 80,
     LEFT_END_OF_SECOND   => 420,
-    RIGHT_END_OF_LABEL   => 380,
+    RIGHT_END_OF_LABEL   => 350,
+
+    SPACE_FOR_CATEGORY => 30,
 
     Y_OFFSET => 15,
+
+    LABEL_COLOR => '#0000FF',
 
 };
 
@@ -24,7 +28,7 @@ use constant {
     RIGHT_END_OF_BOX2 => WIDTH - 20,
     TOP_OF_BOXES      => 10 + Y_OFFSET,
     BOTTOM_OF_BOXES   => HEIGHT - 10,
-    EFFECTIVE_HEIGHT  => HEIGHT - Y_OFFSET
+    EFFECTIVE_HEIGHT  => HEIGHT - Y_OFFSET - SPACE_FOR_CATEGORY,
 };
 my (
     $CATEGORY,                     $DESCRIPTORS_COUNT,
@@ -166,7 +170,20 @@ sub Draw {
         DrawArrow(@$_);
     }
 
+    DrawCategoryName();
     GenerateFilename();
+}
+
+sub DrawCategoryName {
+    my $category_name = $CATEGORY;
+    my $y             = $TOP_OF_BOXES + 10;
+    for my $x ( $LEFT_END_OF_BOX1, $LEFT_END_OF_BOX2 ) {
+        $CANVAS->createText(
+            $x + 10, $y,
+            -text   => $category_name,
+            -anchor => 'nw'
+        );
+    }
 }
 
 sub DrawArrow {
@@ -185,6 +202,7 @@ sub DrawArrow {
         RIGHT_END_OF_LABEL() - $Offset, $y2 - ARROW_LABEL_Y_OFFSET(),
         -text   => $relation,
         -anchor => 'se',
+        -fill   => LABEL_COLOR(),
     );
 }
 
@@ -246,7 +264,8 @@ sub ParseArrows {
 
 sub index_to_y_coordinate {
     my ($index) = @_;
-    return Y_OFFSET + ( $index + 0.5 ) * EFFECTIVE_HEIGHT / $DESCRIPTORS_COUNT;
+    return Y_OFFSET + SPACE_FOR_CATEGORY +
+      ( $index + 0.5 ) * EFFECTIVE_HEIGHT / $DESCRIPTORS_COUNT;
 }
 
 sub Save {
@@ -299,3 +318,4 @@ sub DrawBoxes {
         -text   => 'Second object',
     );
 }
+

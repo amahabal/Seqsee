@@ -1,0 +1,70 @@
+use 5.010;
+use lib 'util';
+use strict;
+use AnalogyImage;
+use Smart::Comments;
+use Tk;
+use Tk::FileSelect;
+
+my $FSref;
+my $ImageSpec;
+use constant { WIDTH => 500, HEIGHT => 120, PAGEHEIGHT => '3c' };
+
+my ( $MW, $BUTTON_FRAME, $FSref, $SAVE_FILENAME, $CANVAS );
+
+sub MAIN {
+    $MW           = new MainWindow;
+    $BUTTON_FRAME = $MW->Frame()->pack( -side => 'top' );
+    $FSref        = $MW->FileSelect( -directory => "/home/amahabal/tmp/" );
+
+    $MW->bind(
+        '<KeyPress-q>' => sub {
+            exit;
+        }
+    );
+    SetupButton( 'Save', \&Save );
+    SetupButton( 'Load', \&LoadFile );
+    SetupEntry('Filename', \$SAVE_FILENAME);
+
+    $CANVAS = $MW->Canvas(
+        -height     => HEIGHT(),
+        -width      => WIDTH(),
+        -background => 'white'
+    )->pack( -side => 'top' );
+
+    MainLoop;
+}
+
+sub SetupButton {
+    my ( $label, $command ) = @_;
+    $BUTTON_FRAME->Button(
+        -text    => $label,
+        -command => $command
+    )->pack( -side => 'left' );
+}
+
+sub SetupEntry {
+    my ( $label, $var ) = @_;
+    my $f = $MW->Frame()->pack( -side => 'top' );
+    $f->Label( -text => $label )->pack( -side => 'left' );
+    $f->Entry( -textvariable => $var, -width => 100 )->pack( -side => 'left' );
+
+}
+
+sub Load {
+    my $filename = $FSref->Show or return;
+    LoadFile($filename);
+}
+
+sub LoadFile {
+    my $filename = shift || '/home/amahabal/tmp/1.anal';
+    my $ImageSpec = AnalogyImage->new;
+    $ImageSpec->load_from_file($filename);
+    ($SAVE_FILENAME = $filename) =~ s#.anal$#.ps#;
+    ### $ImageSpec
+    $ImageSpec->draw($CANVAS, HEIGHT());
+}
+
+
+
+MAIN();
