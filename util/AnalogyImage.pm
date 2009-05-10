@@ -25,7 +25,7 @@ class AnalogyArrow {
 };
 
 class AnalogyImage {
-        use Config::Std;
+    use Config::Std;
     has 'is_concrete' => (
         is       => 'rw',
         isa      => 'Bool',
@@ -43,6 +43,18 @@ class AnalogyImage {
         isa      => 'HashRef',
         required => 0,
     );
+
+    has 'left_object' =>
+      ( is   => 'rw',
+        isa  => 'Any',
+        required => 0,
+        );
+
+    has 'right_object' =>
+      ( is   => 'rw',
+        isa  => 'Any',
+        required => 0,
+        );
 
     has 'attributes' => (
         metaclass => 'Collection::Array',
@@ -77,7 +89,8 @@ class AnalogyImage {
           say keys %config;
           $self->left_category( $config{''}{left_category} );
           $self->right_category( $config{''}{right_category} );
-
+          $self->left_object($config{''}{left_object});
+          $self->right_object($config{''}{right_object});
         $self->is_concrete( $config{''}{is_concrete} // ($config{left_values} ? 1 : 0) );
         $self->left_values( $config{left_values} )
             if $config{left_values};
@@ -125,6 +138,16 @@ class AnalogyImage {
                                 -anchor => 's', -fill => 'blue', -font => 'Lucida 12');
         $self->draw_labels( $canvas, $y_margin, $y_per_attribute );
         $self->draw_arrows( $canvas, $y_margin, $y_per_attribute );
+        
+        if ($self->is_concrete) {
+            $canvas->createText(78, $height - $y_bottom_margin + 4,
+                                    -text => $self->left_object, -fill => 'blue',
+                                    -anchor => 'n', -font => 'Lucida 8');
+            $canvas->createText(422, $height - $y_bottom_margin + 4,
+                                -text => $self->right_object, -fill => 'blue',
+                                -anchor => 'n', -font => 'Lucida 8');
+        }
+
     };
 
     method draw_labels( $canvas, Num $y_margin, Num $y_per_attribute) {

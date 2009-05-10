@@ -23,8 +23,8 @@ sub MAIN {
         }
     );
     SetupButton( 'Save', \&Save );
-    SetupButton( 'Load', \&LoadFile );
-    SetupEntry('Filename', \$SAVE_FILENAME);
+    SetupButton( 'Load', \&Load );
+    SetupEntry( 'Filename', \$SAVE_FILENAME );
 
     $CANVAS = $MW->Canvas(
         -height     => HEIGHT(),
@@ -60,11 +60,17 @@ sub LoadFile {
     my $filename = shift || '/home/amahabal/tmp/1.anal';
     my $ImageSpec = AnalogyImage->new;
     $ImageSpec->load_from_file($filename);
-    ($SAVE_FILENAME = $filename) =~ s#.anal$#.ps#;
+    ( $SAVE_FILENAME = $filename ) =~ s#.anal$#.ps#;
     ### $ImageSpec
-    $ImageSpec->draw($CANVAS, HEIGHT());
+    $ImageSpec->draw( $CANVAS, HEIGHT() );
 }
 
-
+sub Save {
+    $CANVAS->postscript(
+        -file => $SAVE_FILENAME,
+        -height => HEIGHT,
+        -pageheight => '3c',
+    );
+}
 
 MAIN();
