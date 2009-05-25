@@ -445,7 +445,8 @@ sub DrawChart {
             );
             _DrawLegend( $Canvas, $subcounter, $color,
                 $cluster_spec->get_label() )
-              if ( $seq_num == 0 and !$CUSTOM_LEGEND );
+              if ( $seq_num == 0 and !$CUSTOM_LEGEND
+                   and scalar(@cluster_names) > 1);
             if ( $spec_object->get_figure_type eq 'LTM_SELF_CONTEXT' ) {
                 $Canvas->createText(
                     BarCoordinateToFigCoordinate(
@@ -850,13 +851,13 @@ sub DrawChartTitles {
     my $center2 = $CHART2_H_OFFSET + $CHART_WIDTH / 2;
     $Canvas->createText(
         $center1, $CHART_BOTTOM,
-        -text   => 'Percent Correct',
+        -text   => 'Percent correct',
         -anchor => 's',
         @{ CHART_TITLE_OPTIONS() }
     );
     $Canvas->createText(
         $center2, $CHART_BOTTOM,
-        -text   => 'Time Taken When Correct',
+        -text   => 'Time taken when correct',
         -anchor => 's',
         @{ CHART_TITLE_OPTIONS() }
     );

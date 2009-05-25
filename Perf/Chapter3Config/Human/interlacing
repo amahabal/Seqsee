@@ -20,15 +20,15 @@ Cluster_Count = 2
 # Groupings can be indicated with (), <>, {} or [].
 # The first two ('()' and '<>') are for outer ovals, the other two for inner.
 [Sequences]
-seq = 1 7 2 8 3 9|4 10 5 11 6 12 7 13
-seq = 1 7 19 2 8 20 3 9 21|4 10 22 5 11 23 6
-seq = 1 7 1 2 8 1 2 3 9|1 2 3 4 10 1 2 3 4 5 11
+seq = (1 7) (2 8) (3 9)|(4 10) (5 11) (6 12) (7 13)
+seq = (1 7 19) (2 8 20) (3 9 21) | (4 10 22) (5 11 23)
+seq = ({1} 7)  ({1 2} 8) ({1 2 3} 9)|({1 2 3 4} 10) ({1 2 3 4 5} 11)
 
-[Cluster_1]
+[Cluster_2]
 source = Human
 
 
-[Cluster_2]
+[Cluster_1]
 min_version = 1098:0
 
 # Color

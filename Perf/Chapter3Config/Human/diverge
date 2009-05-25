@@ -37,12 +37,12 @@ distractor=5 7
 distractor=8 10
 distractor=11 13
 
-[Cluster_1]
+[Cluster_2]
 source = Human
 
 # Color
 # color = #
 
 
-[Cluster_2]
+[Cluster_1]
 min_version = 1098:0

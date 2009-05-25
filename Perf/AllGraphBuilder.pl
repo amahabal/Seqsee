@@ -74,14 +74,17 @@ sub CreateFigures {
     my ($opts_ref) = @_;
     my $input_directory = $opts_ref->{input_directory}
       // confess "Missing required argument 'input_directory'";
-    my $output_diretory = $opts_ref->{output_diretory}
+    my $output_directory = $opts_ref->{output_diretory}
       // confess "Missing required argument 'output_diretory'";
 
+    unless (-e $output_directory) {
+        mkpath($output_directory);
+    }
     for my $filename (<$input_directory/*>) {
         my ( $volume, $dir, $just_filename ) = File::Spec->splitpath($filename);
         ## vdf:$volume, $dir, $just_filename
         my $corresponding_filename =
-          File::Spec->catfile( $output_diretory, $just_filename );
+          File::Spec->catfile( $output_directory, $just_filename );
 
         if ( -d $filename ) {
             unless ( -e $corresponding_filename ) {
