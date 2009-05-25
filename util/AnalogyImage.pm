@@ -128,10 +128,12 @@ class AnalogyImage {
         my $y_margin        = 30;
         my $y_bottom_margin = 15;
         my $y_per_attribute = ( $height - $y_margin - $y_bottom_margin ) / $attribute_count;
+        my @rectangle_options = $self->is_concrete ?
+            (-fill => '#DDDDDD' ) : (-fill => '#FCFCFC', -width => 2, -dash => '-');
         $canvas->createRectangle(30, $y_bottom_margin, 125, $height - $y_bottom_margin,
-                                 -fill => '#DDDDDD', -outline => '#BBBBBB');
+                                 @rectangle_options, -outline => '#BBBBBB');
         $canvas->createRectangle(375, $y_bottom_margin, 470, $height - $y_bottom_margin,
-                                 -fill => '#DDDDDD', -outline => '#BBBBBB');
+                                 @rectangle_options, -outline => '#BBBBBB');
         $canvas->createText(78, $y_margin - 2, -text => $self->left_category,
                                 -anchor => 's', -fill => 'blue', -font => 'Lucida 12');
         $canvas->createText(422, $y_margin - 2, -text => $self->right_category,

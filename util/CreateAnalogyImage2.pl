@@ -15,7 +15,7 @@ my ( $MW, $BUTTON_FRAME, $FSref, $SAVE_FILENAME, $CANVAS );
 sub MAIN {
     $MW           = new MainWindow;
     $BUTTON_FRAME = $MW->Frame()->pack( -side => 'top' );
-    $FSref        = $MW->FileSelect( -directory => "/home/amahabal/tmp/" );
+    $FSref        = $MW->FileSelect( -directory => "/home/amahabal/seqsee/images/" );
 
     $MW->bind(
         '<KeyPress-q>' => sub {
@@ -60,7 +60,7 @@ sub LoadFile {
     my $filename = shift || '/home/amahabal/tmp/1.anal';
     my $ImageSpec = AnalogyImage->new;
     $ImageSpec->load_from_file($filename);
-    ( $SAVE_FILENAME = $filename ) =~ s#.anal$#.ps#;
+    ( $SAVE_FILENAME = $filename ) =~ s#.anal$#.eps#;
     ### $ImageSpec
     $ImageSpec->draw( $CANVAS, HEIGHT() );
 }
