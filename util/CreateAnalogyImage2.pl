@@ -5,6 +5,8 @@ use AnalogyImage;
 use Smart::Comments;
 use Tk;
 use Tk::FileSelect;
+use Cwd;
+use Devel::CheckOS qw(os_is);
 
 my $FSref;
 my $ImageSpec;
@@ -15,7 +17,10 @@ my ( $MW, $BUTTON_FRAME, $FSref, $SAVE_FILENAME, $CANVAS );
 sub MAIN {
     $MW           = new MainWindow;
     $BUTTON_FRAME = $MW->Frame()->pack( -side => 'top' );
-    $FSref        = $MW->FileSelect( -directory => "/home/amahabal/seqsee/images/" );
+    my $cwd = getcwd();
+    my $newdir = "$cwd/images";
+    $newdir =~ s#\/#\\#g if os_is("MicrosoftWindows");
+    $FSref        = $MW->FileSelect( -directory => $newdir );
 
     $MW->bind(
         '<KeyPress-q>' => sub {
