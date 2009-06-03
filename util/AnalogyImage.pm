@@ -96,6 +96,8 @@ class AnalogyImage {
             if $config{left_values};
         $self->right_values( $config{right_values} )
             if $config{right_values};
+        $config{''}{attributes} = [$config{''}{attributes}]
+            unless ref $config{''}{attributes};
         for ( @{ $config{''}{attributes} } ) {
             $self->push_attribute($_);
         }
@@ -124,6 +126,7 @@ class AnalogyImage {
     };
 
     method draw( $canvas, Num $height) {
+        $canvas->delete('all');
         my $attribute_count   = scalar( @{ $self->{attributes} } );
         my $y_margin        = 30;
         my $y_bottom_margin = 15;
