@@ -156,16 +156,16 @@ sub Interaction_step_n {
     my $opts_ref = shift;
     ## In Interaction_step_n: $opts_ref
 
-    my $n = $opts_ref->{n} or confess "Need n";
-    $n = min( $n, $opts_ref->{max_steps} - $Global::Steps_Finished );
-    return 1 unless $n > 0;    # i.e, okay to stop now!
+    my $steps_left_to_take = $opts_ref->{n} or confess "Need n";
+    $steps_left_to_take = min( $steps_left_to_take, $opts_ref->{max_steps} - $Global::Steps_Finished );
+    return 1 unless $steps_left_to_take > 0;    # i.e, okay to stop now!
 
-    my $update_after = $opts_ref->{update_after} || $n;
+    my $update_after = $opts_ref->{update_after} || $steps_left_to_take;
 
     my $change_after_last_display = 0;    #to prevent repeats at end
     my $program_finished          = 0;
 
-STEP_LOOP: for my $steps_executed ( 1 .. $n ) {
+STEP_LOOP: for my $steps_executed ( 1 .. $steps_left_to_take ) {
         $Global::Break_Loop = 0;
 
         ## Interaction_step_n executing step number: $steps_executed

@@ -27,7 +27,8 @@ sub Populate {
     my $tags_ref = delete $args->{-tags_provided};
     my $font     = delete $args->{-font};
 
-    $Text = $self->Scrolled( 'ROText', -scrollbars => 'se', -font => $font, %$args )
+    $Text = $self->Scrolled( 'ROText', -scrollbars => 'se', -font => $font, %$args,
+                             -wrap => 'word' )
         ->pack( -side => 'left' );
     $Text->bind( '<KeyPress>', sub { Tk->break() } );
     $Text->bind( '<KeyPress-q>',
