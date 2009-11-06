@@ -21,7 +21,7 @@ my $builder = sub {
     my ($start, $end);
     $start = exists($args_ref->{start})?$args_ref->{start}: $args_ref->{end}-$args_ref->{length} + 1;
     $end = exists($args_ref->{end})?$args_ref->{end}: $args_ref->{start}+$args_ref->{length} - 1;
-    $args_ref->{start} ||= $start; 
+    $args_ref->{start} ||= $start;
     $args_ref->{end} ||= $end;
     $args_ref->{length} ||= $end - $start + 1;
     my $start_mag = ref($start) ? $start->get_mag() : $start;

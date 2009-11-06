@@ -67,7 +67,7 @@ use constant {
 
 #FONT                     => '-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso8859-4',
     FONT      => 'Lucida 14',
-    MAX_TERMS => 25,
+    MAX_TERMS => 32,
     MIN_TERMS => 3,
 
     LABEL_X_OFFSET => 0,
