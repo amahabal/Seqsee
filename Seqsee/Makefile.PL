@@ -7,6 +7,8 @@ license  'perl';
 
 build_requires 'Test::More';
 
+install_script 'Seqsee.pl';
+
 # I should clean this up as I remove dependencies.
 requires 'Attribute::Handlers';
 requires 'Carp::Source' => 0.03;

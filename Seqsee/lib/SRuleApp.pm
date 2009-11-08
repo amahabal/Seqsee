@@ -263,17 +263,9 @@ sub get_edges {
     my ($self) = @_;
     my $id     = ident $self;
     my @items  = @{ $Items_of{$id} };
-    given ( $Direction_of{$id} ) {
-        when ($DIR::RIGHT) {
-            return ( $items[0]->get_left_edge(), $items[-1]->get_right_edge() );
-        }
-        when ($DIR::LEFT) {
-            return ( $items[-1]->get_left_edge(), $items[0]->get_right_edge() );
-        }
-        default {
-            confess "Huh?";
-        }
-    }
+    return ( $items[0]->get_left_edge(), $items[-1]->get_right_edge() ) if $Direction_of{$id} eq $DIR::RIGHT;
+    return ( $items[-1]->get_left_edge(), $items[0]->get_right_edge() ) if $Direction_of{$id} eq $DIR::LEFT;
+    confess "Huh?";
 }
 
 1;
