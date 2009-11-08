@@ -18,6 +18,31 @@ no_index:
   directory:
     - inc
     - t
+requires:
+  Attribute::Handlers: 0
+  Carp::Source: 0.03
+  Class::Multimethods: 0
+  Class::Std: 0
+  Class::Std::Storable: 0
+  Config::Std: 0
+  Data::Dumper: 0
+  Exception::Class: 0
+  File::Slurp: 0
+  List::Util: 0
+  PerlIO: 0
+  Scalar::Util: 0
+  Smart::Comments: 0
+  Sort::Key: 1.28
+  Sub::Installer: 0
+  Test::Deep: 0
+  Test::Exception: 0
+  Test::Stochastic: 0
+  Time::HiRes: 0
+  Tk: 0
+  Tk::Carp: 0
+  Tk::ComboEntry: 0
+  Tk::Menustrip: 0
+  Tk::ROText: 0
 resources:
   license: http://dev.perl.org/licenses/
 version: 1.000
