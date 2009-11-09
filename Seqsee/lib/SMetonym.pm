@@ -22,6 +22,7 @@ use base qw{};
 my %type_of : ATTR(:get<type>);                # Points to the SMetonymType
 my %starred_of : ATTR( :get<starred> );        # The unreal, hallucinated object.
 my %unstarred_of : ATTR( :get<unstarred> );    # What is physically present.
+use overload '~~' => sub { $_[0] eq $_[1] }, fallback => 1;
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;

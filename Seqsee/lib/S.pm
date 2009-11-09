@@ -89,6 +89,7 @@ use strict;
 use warnings;
 use Carp;
 
+use overload '~~' => sub {$_[0] eq $_[1]}, fallback => 1;
 our $LEFT    = bless { text => 'left' },    'DIR';
 our $RIGHT   = bless { text => 'right' },   'DIR';
 our $UNKNOWN = bless { text => 'unknown' }, 'DIR';
@@ -122,6 +123,7 @@ sub as_text {
 }
 
 package POS_MODE;
+use overload '~~' => sub {$_[0] eq $_[1]}, fallback => 1;
 our $FORWARD  = bless { mode => 'FORWARD' },  'POS_MODE';
 our $BACKWARD = bless { mode => 'BACKWARD' }, 'POS_MODE';
 
@@ -150,6 +152,7 @@ package METO_MODE;
 use strict;
 use Carp;
 use warnings;
+use overload '~~' => sub {$_[0] eq $_[1]}, fallback => 1;
 
 our $NONE      = bless { mode => 'NONE' },      'METO_MODE';
 our $SINGLE    = bless { mode => 'SINGLE' },    'METO_MODE';
@@ -207,6 +210,7 @@ sub get_pure {
 }
 
 package EXTENDIBILE;
+use overload '~~' => sub {$_[0] eq $_[1]}, fallback => 1;
 
 # XXX(Board-it-up): [2007/04/09] Keeping in case I bring extendibility of relations back.
 
@@ -230,6 +234,7 @@ use overload (
 package RELN_SCHEME;
 use strict;
 use warnings;
+use overload '~~' => sub {$_[0] eq $_[1]}, fallback => 1;
 our $NONE = 0;
 our $CHAIN = bless { type => 'CHAIN' }, 'RELN_SCHEME';
 sub NONE  { $NONE }
@@ -262,6 +267,7 @@ sub IsUnitGroups {
 package DISTANCE;
 use strict;
 use warnings;
+use overload '~~' => sub {$_[0] eq $_[1]}, fallback => 1;
 
 sub InElements {
     my ($distance) = @_;

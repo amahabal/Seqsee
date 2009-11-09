@@ -15,6 +15,7 @@ use Class::Multimethods;
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';
 
+use overload '~~' => sub { $_[0] eq $_[1] }, fallback => 1;
 my %find_transform_of :ATTR(:get<find_transform>);
 my %apply_transform_of :ATTR(:get<apply_transform>);
 

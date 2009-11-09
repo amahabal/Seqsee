@@ -514,7 +514,7 @@ sub run{
             my ( $ul_a, $ul_b ) = ( $a->get_underlying_reln(), $b->get_underlying_reln() );
             return unless ( $ul_a and $ul_b );
             return unless $ul_a->get_rule() eq $ul_b->get_rule();
-            return unless ("$a->[-1]" ~~ @$b); #i.e., actual subgroups overlap.
+            return unless ($a->[-1] ~~ @$b); #i.e., actual subgroups overlap.
             SCodelet->new("MergeGroups", 
                          200,
                          { a => $a, b => $b })->schedule(); 

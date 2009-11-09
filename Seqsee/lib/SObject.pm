@@ -16,7 +16,9 @@ use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SInstance SHistory SFasc};
-use overload (fallback => 1);
+use overload (
+  '~~' => sub { return $_[0] eq $_[1] },
+  fallback => 1);
 
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';

@@ -11,7 +11,7 @@ use strict;
 use Carp;
 use SPos::Forward;
 use SPos::Backward;
-
+use overload '~~' => sub { $_[0] eq $_[1] }, fallback => 1;
 {
     my %MEMO;
 

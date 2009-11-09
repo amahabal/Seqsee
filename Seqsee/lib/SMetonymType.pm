@@ -11,7 +11,7 @@ use strict;
 use Carp;
 use Class::Std;
 use base qw{};
-
+use overload '~~' => sub { $_[0] eq $_[1] }, fallback => 1;
 my %category_of : ATTR( :get<category> );    # Category metonym is based on.
 my %meto_name_of : ATTR( :get<name> );       # Name of metonym type.
 my %info_loss_of : ATTR( :get<info_loss> )
