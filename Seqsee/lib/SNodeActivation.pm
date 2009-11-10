@@ -13,16 +13,17 @@ my @PRECALCULATED = @SLinkActivation::PRECALCULATED;
 confess "Load order issues" unless @PRECALCULATED;
 
 use constant Initial_Raw_Activation   => 2;
-use constant Initial_Depth => 5;
+use constant Initial_Depth            => 5;
 use constant Initial_Depth_Reciprocal => 1 / Initial_Depth;
-my $Initial_Real_Activation = $PRECALCULATED[Initial_Raw_Activation] // confess "Initial_Real_Activation not defined!";
+my $Initial_Real_Activation = $PRECALCULATED[Initial_Raw_Activation]
+// confess "Initial_Real_Activation not defined!";
 
 sub new {
-    my ( $package, $depth_reciprocal ) = @_;
-    bless [
-        Initial_Raw_Activation, $depth_reciprocal || Initial_Depth_Reciprocal,
-        $Initial_Real_Activation
-    ], $package;
+  my ( $package, $depth_reciprocal ) = @_;
+  bless [
+    Initial_Raw_Activation, $depth_reciprocal || Initial_Depth_Reciprocal,
+    $Initial_Real_Activation
+  ], $package;
 }
 
 my $DECAY_CODE = q{

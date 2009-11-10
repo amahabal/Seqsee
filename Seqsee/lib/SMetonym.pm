@@ -19,28 +19,28 @@ use Class::Std;
 use Scalar::Util qw{weaken};
 use base qw{};
 
-my %type_of : ATTR(:get<type>);                # Points to the SMetonymType
-my %starred_of : ATTR( :get<starred> );        # The unreal, hallucinated object.
-my %unstarred_of : ATTR( :get<unstarred> );    # What is physically present.
+my %type_of : ATTR(:get<type>);               # Points to the SMetonymType
+my %starred_of : ATTR( :get<starred> );       # The unreal, hallucinated object.
+my %unstarred_of : ATTR( :get<unstarred> );   # What is physically present.
 use overload '~~' => sub { $_[0] eq $_[1] }, fallback => 1;
 
 sub BUILD {
-    my ( $self, $id, $opts_ref ) = @_;
+  my ( $self, $id, $opts_ref ) = @_;
 
-    $type_of{$id}      = SMetonymType->create($opts_ref);
-    $starred_of{$id}   = $opts_ref->{starred} or confess "Need starred";
-    $unstarred_of{$id} = $opts_ref->{unstarred} or confess "Need unstarred";
-    weaken $unstarred_of{$id};
+  $type_of{$id}      = SMetonymType->create($opts_ref);
+  $starred_of{$id}   = $opts_ref->{starred} or confess "Need starred";
+  $unstarred_of{$id} = $opts_ref->{unstarred} or confess "Need unstarred";
+  weaken $unstarred_of{$id};
 }
 
 sub intersection {
-    my ( $package, @meto ) = @_;
-    @meto or confess "Cannot take intersection of empty set";
-    my $type = shift(@meto)->get_type();
-    for (@meto) {
-        return unless $_->get_type() eq $type;
-    }
-    return $type;
+  my ( $package, @meto ) = @_;
+  @meto or confess "Cannot take intersection of empty set";
+  my $type = shift(@meto)->get_type();
+  for (@meto) {
+    return unless $_->get_type() eq $type;
+  }
+  return $type;
 }
 
 sub get_category  { return $_[0]->get_type()->get_category(); }

@@ -76,15 +76,15 @@ sub get_pure { return $_[0] }
 sub get_memory_dependencies { return; }
 
 sub serialize {
-    my ($self) = @_;
-    return $Recreation_String_of{ ident $self};
+  my ($self) = @_;
+  return $Recreation_String_of{ ident $self};
 }
 
 sub deserialize {
-    my ( $package, $string ) = @_;
+  my ( $package, $string ) = @_;
 
-    # print qq{Will resuscicate '$string'};
-    return eval($string);    # Could be optimized, look out!
+  # print qq{Will resuscicate '$string'};
+  return eval($string);    # Could be optimized, look out!
 }
 
 #
@@ -102,8 +102,8 @@ sub deserialize {
 use Class::Multimethods;
 
 sub Instancer {
-    my ( $self, $object ) = @_;
-    return $instancer_of{ ident $self}->( $self, $object );
+  my ( $self, $object ) = @_;
+  return $instancer_of{ ident $self}->( $self, $object );
 }
 
 # method: build
@@ -111,8 +111,8 @@ sub Instancer {
 #
 #    Takes a single hashref of parameters
 sub build {
-    my ( $self, $opts ) = @_;
-    return $builder_of{ ident $self }->( $self, $opts );
+  my ( $self, $opts ) = @_;
+  return $builder_of{ ident $self }->( $self, $opts );
 }
 
 # method: BUILD
@@ -128,105 +128,105 @@ sub build {
 #    description_finders - a hashref, values being coderefs.
 
 sub BUILD {
-    my ( $self, $id, $opts_ref ) = @_;
+  my ( $self, $id, $opts_ref ) = @_;
 
-    ## Builder called: $opts_ref->{name}, $id
+  ## Builder called: $opts_ref->{name}, $id
 
-    $builder_of{$id} = $opts_ref->{builder} or confess "Need builder!";
-    $name_of{$id} = $opts_ref->{name};
-    confess "Need name" unless defined $name_of{$id};
+  $builder_of{$id} = $opts_ref->{builder} or confess "Need builder!";
+  $name_of{$id} = $opts_ref->{name};
+  confess "Need name" unless defined $name_of{$id};
 
-    $positions_of_of{$id}           = $opts_ref->{positions}           || {};
-    $position_finders_of_of{$id}    = $opts_ref->{position_finders}    || {};
-    $description_finders_of_of{$id} = $opts_ref->{description_finders} || {};
+  $positions_of_of{$id}           = $opts_ref->{positions}           || {};
+  $position_finders_of_of{$id}    = $opts_ref->{position_finders}    || {};
+  $description_finders_of_of{$id} = $opts_ref->{description_finders} || {};
 
-    $atts_to_be_guessed_of{$id} = $opts_ref->{to_guess} || [];
-    $att_type_of_of{$id}        = $opts_ref->{att_type} || {};
+  $atts_to_be_guessed_of{$id} = $opts_ref->{to_guess} || [];
+  $att_type_of_of{$id}        = $opts_ref->{att_type} || {};
 
-    $meto_finder_of_of{$id}   = $opts_ref->{metonymy_finders}   || {};
-    $meto_unfinder_of_of{$id} = $opts_ref->{metonymy_unfinders} || {};
+  $meto_finder_of_of{$id}   = $opts_ref->{metonymy_finders}   || {};
+  $meto_unfinder_of_of{$id} = $opts_ref->{metonymy_unfinders} || {};
 
-    $sufficient_atts_of_of{$id} = $opts_ref->{sufficient_atts} || {};
+  $sufficient_atts_of_of{$id} = $opts_ref->{sufficient_atts} || {};
 
-    my $is_metonyable = ( %{ $meto_finder_of_of{$id} } ) ? 1 : 0;
+  my $is_metonyable = ( %{ $meto_finder_of_of{$id} } ) ? 1 :0;
 
-    my $guesser_ref = $guesser_of_of{$id} = {};
-    my $type_ref = $att_type_of_of{$id};
+  my $guesser_ref = $guesser_of_of{$id} = {};
+  my $type_ref = $att_type_of_of{$id};
 
-    # install positions into guesser.
-    while ( my ( $k, $v ) = each %{ $positions_of_of{$id} } ) {
-        ## Guesser installed for: $k
-        $guesser_ref->{$k} = sub {
-            my $object    = shift;
-            my $subobject = $object->get_at_position($v);
-            $subobject = $subobject->GetEffectiveObject();
-            if ( exists $type_ref->{$k}
-                and $type_ref->{$k} eq 'int' )
-            {
-                if ( ref($subobject) eq "SElement" ) {
-                    return SInt->new( $subobject->get_mag );
-                }
-                else {
-                    return;
-                }
-            }
-            else {
-                return $subobject;
-            }
-        };
-    }
+  # install positions into guesser.
+  while ( my ( $k, $v ) = each %{ $positions_of_of{$id} } ) {
+    ## Guesser installed for: $k
+    $guesser_ref->{$k} = sub {
+      my $object    = shift;
+      my $subobject = $object->get_at_position($v);
+      $subobject = $subobject->GetEffectiveObject();
+      if ( exists $type_ref->{$k}
+        and $type_ref->{$k} eq 'int' )
+      {
+        if ( ref($subobject) eq "SElement" ) {
+          return SInt->new( $subobject->get_mag );
+        }
+        else {
+          return;
+        }
+      }
+      else {
+        return $subobject;
+      }
+    };
+  }
 
-    # install position_finders into guesser
-    while ( my ( $k, $v ) = each %{ $position_finders_of_of{$id} } ) {
-        ## Guesser installed for: $k
-        $guesser_ref->{$k} = sub {
-            my $object = shift;
-            ## $object->get_structure
-            ## $v->($object)
-            my $subobject = $object->get_subobj_given_range( $v->($object) );
-            $subobject = $subobject->GetEffectiveObject();
-            ## $subobject
-            if ( exists $type_ref->{$k}
-                and $type_ref->{$k} eq 'int' )
-            {
-                if ( ref($subobject) eq "SElement" ) {
-                    return SInt->new($subobject->get_mag);
-                }
-                else {
-                    return;
-                }
-            }
-            else {
-                return $subobject;
-            }
-        };
-    }
+  # install position_finders into guesser
+  while ( my ( $k, $v ) = each %{ $position_finders_of_of{$id} } ) {
+    ## Guesser installed for: $k
+    $guesser_ref->{$k} = sub {
+      my $object = shift;
+      ## $object->get_structure
+      ## $v->($object)
+      my $subobject = $object->get_subobj_given_range( $v->($object) );
+      $subobject = $subobject->GetEffectiveObject();
+      ## $subobject
+      if ( exists $type_ref->{$k}
+        and $type_ref->{$k} eq 'int' )
+      {
+        if ( ref($subobject) eq "SElement" ) {
+          return SInt->new( $subobject->get_mag );
+        }
+        else {
+          return;
+        }
+      }
+      else {
+        return $subobject;
+      }
+    };
+  }
 
-    # install description_finders into guesser
-    while ( my ( $k, $v ) = each %{ $description_finders_of_of{$id} } ) {
-        ## Guesser installed for: $k
-        $guesser_ref->{$k} = $v;
-    }
+  # install description_finders into guesser
+  while ( my ( $k, $v ) = each %{ $description_finders_of_of{$id} } ) {
+    ## Guesser installed for: $k
+    $guesser_ref->{$k} = $v;
+  }
 
-    # install instancer unless one provided
-    if ( $opts_ref->{instancer} ) {
-        $instancer_of{$id} = $opts_ref->{instancer};
-    }
-    else {
-        _install_instancer($id);
-    }
+  # install instancer unless one provided
+  if ( $opts_ref->{instancer} ) {
+    $instancer_of{$id} = $opts_ref->{instancer};
+  }
+  else {
+    _install_instancer($id);
+  }
 
-    $S::IsMetonyable{$self} = $is_metonyable;
-    $S::Str2Cat{$self}      = $self;
+  $S::IsMetonyable{$self} = $is_metonyable;
+  $S::Str2Cat{$self}      = $self;
 }
 
 #
 # subsection: Public Interface
 
 sub get_meto_types {
-    my ($self) = @_;
-    my $id = ident $self;
-    return keys %{ $meto_finder_of_of{$id} };
+  my ($self) = @_;
+  my $id = ident $self;
+  return keys %{ $meto_finder_of_of{$id} };
 }
 
 # method: get_meto_finder
@@ -234,10 +234,10 @@ sub get_meto_types {
 #
 
 sub get_meto_finder {
-    my ( $self, $name ) = @_;
-    my $id = ident $self;
+  my ( $self, $name ) = @_;
+  my $id = ident $self;
 
-    return $meto_finder_of_of{$id}{$name};
+  return $meto_finder_of_of{$id}{$name};
 }
 
 # method: get_meto_unfinder
@@ -245,10 +245,10 @@ sub get_meto_finder {
 #
 
 sub get_meto_unfinder {
-    my ( $cat, $name ) = @_;
-    my $id = ident $cat;
+  my ( $cat, $name ) = @_;
+  my $id = ident $cat;
 
-    return $meto_unfinder_of_of{$id}{$name};
+  return $meto_unfinder_of_of{$id}{$name};
 }
 
 #
@@ -263,59 +263,60 @@ sub get_meto_unfinder {
 #
 
 sub _install_instancer {
-    my $id = shift;
-    ## install_instancer called for: $id
+  my $id = shift;
+  ## install_instancer called for: $id
 
-    croak "generate instancer called when instancer already present"
-        if $instancer_of{$id};
+  croak "generate instancer called when instancer already present"
+  if $instancer_of{$id};
 
-    my @to_guess    = @{ $atts_to_be_guessed_of{$id} };
-    my $guesser_ref = $guesser_of_of{$id};
-    ## guesser_ref: $guesser_ref
+  my @to_guess    = @{ $atts_to_be_guessed_of{$id} };
+  my $guesser_ref = $guesser_of_of{$id};
+  ## guesser_ref: $guesser_ref
+  for (@to_guess) {
+    ## Will check guesser for: $_
+    confess "Cannot generate instancer. Do not know how to guess '$_'"
+    unless exists $guesser_ref->{$_};
+  }
+
+  $instancer_of{$id} = sub {
+    my ( $me, $object ) = @_;
+
+    # XXX: Have not taken care of empty objects yet.
+
+    ## Inside Instancer
+
+    my %guess;
     for (@to_guess) {
-        ## Will check guesser for: $_
-        confess "Cannot generate instancer. Do not know how to guess '$_'"
-            unless exists $guesser_ref->{$_};
+      my $guess = eval { $guesser_ref->{$_}->( $object, $_ ) };
+      if ( my $o = $EVAL_ERROR ) {
+        confess $o unless ( UNIVERSAL::isa( $o, 'SErr::Pos::OutOfRange' ) );
+      }
+      return if ( not defined $guess );
+
+      $guess{$_} = $guess;
+      ## Guessed: $_, $guess
     }
 
-    $instancer_of{$id} = sub {
-        my ( $me, $object ) = @_;
+    my $guess_built = $me->build( \%guess );
+    ## Structure of built: $guess_built->get_structure()
+    ## Object structure: $object->get_structure()
+    my $result_of_can_be_seen_as = $object->CanBeSeenAs($guess_built);
+    return unless $result_of_can_be_seen_as;
+    ## $result_of_can_be_seen_as,
+    my $slippages = $result_of_can_be_seen_as->GetPartsBlemished() || {};
+    ## $slippages
 
-        # XXX: Have not taken care of empty objects yet.
+    # Special case: $object is a SElement
+    if ( $object->isa('SElement') ) {
+      if ( my $entire_blemish = $result_of_can_be_seen_as->GetEntireBlemish() )
+      {
+        $slippages = { 0 => $entire_blemish };
+      }
+    }
+    ## $slippages
 
-        ## Inside Instancer
-
-        my %guess;
-        for (@to_guess) {
-            my $guess = eval { $guesser_ref->{$_}->( $object, $_ ) };
-            if ( my $o = $EVAL_ERROR ) {
-                confess $o unless ( UNIVERSAL::isa( $o, 'SErr::Pos::OutOfRange' ) );
-            }
-            return if ( not defined $guess );
-
-            $guess{$_} = $guess;
-            ## Guessed: $_, $guess
-        }
-
-        my $guess_built = $me->build( \%guess );
-        ## Structure of built: $guess_built->get_structure()
-        ## Object structure: $object->get_structure()
-        my $result_of_can_be_seen_as = $object->CanBeSeenAs($guess_built);
-        return unless $result_of_can_be_seen_as;
-        ## $result_of_can_be_seen_as,
-        my $slippages = $result_of_can_be_seen_as->GetPartsBlemished() || {};
-        ## $slippages
-
-        # Special case: $object is a SElement
-        if ( $object->isa('SElement') ) {
-            if ( my $entire_blemish = $result_of_can_be_seen_as->GetEntireBlemish() ) {
-                $slippages = { 0 => $entire_blemish };
-            }
-        }
-        ## $slippages
-
-        return SBindings->create( $slippages, \%guess, $object );
-    };
+    return SBindings->create( $slippages, \%guess, $object );
+  };
 
 }
 
@@ -328,52 +329,54 @@ sub _install_instancer {
 #
 
 sub derive_assuming {
-    my ( $category, $assuming_ref ) = @_;
+  my ( $category, $assuming_ref ) = @_;
 
-    my $builder = sub {
-        my ( $self, $opts_ref ) = @_;
-        my %assuming_hash = %$assuming_ref;
-        while ( my ( $k, $v ) = each %assuming_hash ) {
-            if ( exists $opts_ref->{$k} ) {
-                confess "This category needs $k=>$v, but got $k=> $opts_ref->{$k} instead"
-                    unless $opts_ref->{$k} eq $v;
-            }
-            else {
-                $opts_ref->{$k} = $v;
-            }
-        }
-        my $ret = $category->build($opts_ref);
+  my $builder = sub {
+    my ( $self, $opts_ref ) = @_;
+    my %assuming_hash = %$assuming_ref;
+    while ( my ( $k, $v ) = each %assuming_hash ) {
+      if ( exists $opts_ref->{$k} ) {
+        confess
+        "This category needs $k=>$v, but got $k=> $opts_ref->{$k} instead"
+        unless $opts_ref->{$k} eq $v;
+      }
+      else {
+        $opts_ref->{$k} = $v;
+      }
+    }
+    my $ret = $category->build($opts_ref);
 
-        $ret->add_category( $self, SBindings->create( {}, $opts_ref, $ret ) );
-        return $ret;
+    $ret->add_category( $self, SBindings->create( {}, $opts_ref, $ret ) );
+    return $ret;
 
-    };
+  };
 
-    my $instancer = sub {
-        my ( $me, $object ) = @_;
+  my $instancer = sub {
+    my ( $me, $object ) = @_;
 
-        my $bindings = $category->is_instance($object);
-        return unless $bindings;
+    my $bindings = $category->is_instance($object);
+    return unless $bindings;
 
-        my $bindings_ref = $bindings->get_bindings_ref;
-        ## $bindings_ref
-        my %assuming_hash = %$assuming_ref;
-        while ( my ( $k, $v ) = each %assuming_hash ) {
-            ## Keys: $k, $v
-            return unless ( $bindings_ref->{$k} eq $v );
-        }
-        ## $bindings
-        return $bindings;
-    };
-    my $name = $category->get_name() . " with " . join( ", ", %$assuming_ref );
+    my $bindings_ref = $bindings->get_bindings_ref;
+    ## $bindings_ref
+    my %assuming_hash = %$assuming_ref;
+    while ( my ( $k, $v ) = each %assuming_hash ) {
+      ## Keys: $k, $v
+      return unless ( $bindings_ref->{$k} eq $v );
+    }
+    ## $bindings
+    return $bindings;
+  };
+  my $name = $category->get_name() . " with " . join( ", ", %$assuming_ref );
 
-    return SCat::OfObj::Std->new(
-        {   builder     => $builder,
-            to_recreate => q{Recreation of derived categories not implemented},
-            name        => $name,
-            instancer   => $instancer,
-        }
-    );
+  return SCat::OfObj::Std->new(
+    {
+      builder     => $builder,
+      to_recreate => q{Recreation of derived categories not implemented},
+      name        => $name,
+      instancer   => $instancer,
+    }
+  );
 
 }
 
@@ -381,50 +384,51 @@ sub derive_assuming {
 # returns a short textual description of the category. Name, perhaps?
 #
 sub as_text : STRINGIFY {
-    my ($self) = @_;
-    return $name_of{ ident $self};
+  my ($self) = @_;
+  return $name_of{ ident $self};
 }
 
 sub display_self {
-    my ( $self, $widget ) = @_;
-    $widget->Display( "You clicked:", ['heading'], "\n", $self->as_text );
+  my ( $self, $widget ) = @_;
+  $widget->Display( "You clicked:", ['heading'], "\n", $self->as_text );
 }
 
 sub derive_blemished {
-    my ($category) = @_;
-    if ( exists $IS_BLEMISHED_VERSION_OF{$category} ) {
-        return $category;
-    }
-    my $builder = sub {
-        my ( $self, $opts_ref ) = @_;
-        my $object = $category->build($opts_ref);
+  my ($category) = @_;
+  if ( exists $IS_BLEMISHED_VERSION_OF{$category} ) {
+    return $category;
+  }
+  my $builder = sub {
+    my ( $self, $opts_ref ) = @_;
+    my $object = $category->build($opts_ref);
 
-        # XXX(Board-it-up): [2006/12/31] Needs work...
-        return $object;
-    };
-    my $instancer = sub {
-        my ( $me, $object ) = @_;
-        my $bindings = $category->is_instance($object) or return;
-        return unless $bindings->get_metonymy_mode()->is_metonymy_present();
-        return $bindings;
-    };
-    my $name        = 'blemished ' . $category->get_name();
-    my $derived_cat = SCat::OfObj::Std->new(
-        {   builder     => $builder,
-            name        => $name,
-            instancer   => $instancer,
-            to_recreate => 'Recreation Not yet implemented',
-        }
-    );
-    $IS_BLEMISHED_VERSION_OF{$derived_cat} = $category;
-    return $derived_cat;
+    # XXX(Board-it-up): [2006/12/31] Needs work...
+    return $object;
+  };
+  my $instancer = sub {
+    my ( $me, $object ) = @_;
+    my $bindings = $category->is_instance($object) or return;
+    return unless $bindings->get_metonymy_mode()->is_metonymy_present();
+    return $bindings;
+  };
+  my $name        = 'blemished ' . $category->get_name();
+  my $derived_cat = SCat::OfObj::Std->new(
+    {
+      builder     => $builder,
+      name        => $name,
+      instancer   => $instancer,
+      to_recreate => 'Recreation Not yet implemented',
+    }
+  );
+  $IS_BLEMISHED_VERSION_OF{$derived_cat} = $category;
+  return $derived_cat;
 }
 
 sub AreAttributesSufficientToBuild {
-    my ( $self, @atts ) = @_;
-    my $sufficient_atts_ref = $sufficient_atts_of_of{ ident $self};
-    my $string = join( ':', sort(@atts) );
-    return exists( $sufficient_atts_ref->{$string} ) ? 1 : 0;
+  my ( $self, @atts ) = @_;
+  my $sufficient_atts_ref = $sufficient_atts_of_of{ ident $self};
+  my $string = join( ':', sort(@atts) );
+  return exists( $sufficient_atts_ref->{$string} ) ? 1 :0;
 }
 
 1;
