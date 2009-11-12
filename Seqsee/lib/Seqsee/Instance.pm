@@ -4,7 +4,7 @@ role Seqsee::Instance {
   has cat_bindings => (
     metaclass => 'Collection::Hash',
     is        => 'ro',
-    isa       => 'HashRef[Seqsee::Binding]',
+    isa       => 'HashRef[SBinding]',
     default   => sub { {} },
     provides  => {
       'get'    => 'get_cat_bindings',
@@ -16,13 +16,13 @@ role Seqsee::Instance {
   );
 
   our %StrToCat;
-  method add_category( Seqsee::Category $cat, Seqsee::Binding $binding) {
+  method add_category( $cat, $binding ) {
     $StrToCat{$cat} = $cat;
     $self->set_cat_bindings( $cat, $binding );
     $self->AddHistory( "Added category " . $cat->get_name );
   }
 
-  method remove_category( Seqsee::Category $cat) {
+  method remove_category($cat) {
     if ( $self->has_cat_bindings($cat) )
     {
       $self->AddHistory( "Removed category " . $cat->get_name );
@@ -37,11 +37,11 @@ role Seqsee::Instance {
     $self->category_keys;
   }
 
-  method GetBindingsForCategory( Seqsee::Category $cat) {
+  method GetBindingsForCategory($cat) {
     $self->get_cat_bindings($cat);
   }
 
-  method is_of_category_p( Seqsee::Category $cat) {
+  method is_of_category_p($cat) {
     $self->get_cat_bindings($cat);
   }
 

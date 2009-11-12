@@ -1,25 +1,34 @@
 use MooseX::Declare;
 class Seqsee::Element extends Seqsee::Anchored {
+  use overload(
+    '~~' => sub { $_[0] eq $_[1] },
+    '@{}'    => sub { $_[0]->items },
+    'bool'   => sub { 1 },
+    fallback => 1,
+  );
+
   has magnitude => (
     is       => 'rw',
     isa      => 'Int',
     required => 1,
   );
 
+  method get_mag() { $self->magnitude }
+
   method BUILD($opts_ref) {
+    my $magnitude = $self->magnitude;
     $self->describe_as($S::NUMBER);
     $self->describe_as($S::PRIME)
     if ( $Global::Feature{Primes}
-      and SCat::Prime::IsPrime( $self->magnitude ) );
+      and SCat::Prime::IsPrime($magnitude) );
     if ( $Global::Feature{Parity} ) {
-      if ( $self->magnitude % 2 ) {
+      if ( $magnitude % 2 ) {
         $self->describe_as($S::ODD);
       }
       else {
         $self->describe_as($S::EVEN);
       }
     }
-
   }
 
   # method: create

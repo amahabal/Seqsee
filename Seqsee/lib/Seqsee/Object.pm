@@ -9,7 +9,8 @@ class Seqsee::Object {
     'bool'   => sub { 1 },
     fallback => 1,
   );
-
+  use English qw(-no_match_vars);
+  use Class::Multimethods;
   has items => (
     metaclass => 'Collection::Array',
     is        => 'ro',
@@ -35,7 +36,7 @@ class Seqsee::Object {
     provides  => {
       'get'    => 'get_relation_to',
       'set'    => 'set_relation_to',
-      'has'    => 'has_relation_to',
+      'exists' => 'has_relation_to',
       'delete' => 'remove_relation_to',
       'values' => 'all_relations',
     }
@@ -56,14 +57,18 @@ class Seqsee::Object {
     isa => 'Any',
   );
 
-  has strength => (
-      is         => 'rw',
-      isa        => 'Num',
+  has metonym_activeness => (
+    is  => 'rw',
+    isa => 'Bool',
   );
-  
+
+  has strength => (
+    is  => 'rw',
+    isa => 'Num',
+  );
 
   method get_parts_ref() {
-     $self->items;
+    $self->items;
   }
 
   sub create {
@@ -87,7 +92,7 @@ class Seqsee::Object {
       \@cats;
     } @arguments;
 
-    # Convert Sobjects to array refs...
+    # Convert Seqsee::Objects to array refs...
     @arguments =
     map { UNIVERSAL::isa( $_, "Seqsee::Object" ) ? $_->get_structure() :$_ }
     @arguments;
@@ -138,11 +143,11 @@ class Seqsee::Object {
         return CreateObjectFromStructure( $objects[0] );
       }
       else {
-        return SObject->create(@objects);
+        return Seqsee::Object->create(@objects);
       }
     }
     else {
-      return SElement->create( $object, 0 );
+      return Seqsee::Element->create( $object, 0 );
     }
   }
 
@@ -206,12 +211,12 @@ class Seqsee::Object {
   # Returns subobject at given position
   #
 
-  method get_at_position( SPos position ) {
+  method get_at_position($position) {
     my $range = $position->find_range($self);
     return $self->get_subobj_given_range($range);
   }
 
-  method apply_blemish_at( $meto_type, SPos $position) {
+  method apply_blemish_at( $meto_type, $position ) {
     my $object = $self;
     my (@indices) = @{ $position->find_range($object) };
 
@@ -310,7 +315,7 @@ class Seqsee::Object {
       . ']';
     }
 
-    if ( $metonym_activeness_of{$id} ) {
+    if ( $self->metonym_activeness ) {
       my $meto_structure_string =
       $self->GetEffectiveObject()->get_structure_string();
       $body .= " --*-> $meto_structure_string";
@@ -363,7 +368,7 @@ class Seqsee::Object {
     return $item ~~ $self->items;
   }
 
-  sub SElement::HasAsPartDeep {
+  sub Seqsee::Element::HasAsPartDeep {
     my ( $self, $item ) = @_;
     return $self eq $item;
   }
@@ -379,7 +384,7 @@ class Seqsee::Object {
 
   method SetMetonym($meto) {
     my $starred = $meto->get_starred();
-    SErr->throw("Metonym must be an SObject! Got: $starred")
+    SErr->throw("Metonym must be an Seqsee::Object! Got: $starred")
     unless UNIVERSAL::isa( $starred, "Seqsee::Object" );
     $starred->is_a_metonym_of($self);
     $self->metonym($meto);
@@ -529,7 +534,7 @@ class Seqsee::Object {
 
   method as_text() {
     my $structure_string = $self->get_structure_string();
-    return "SObject $structure_string";
+    return "Seqsee::Object $structure_string";
   }
 
   multimethod CanBeSeenAs => ( '#', '#' ) => sub {
@@ -538,12 +543,12 @@ class Seqsee::Object {
     return ResultOfCanBeSeenAs->NO();
   };
 
-  multimethod CanBeSeenAs => ( 'SObject', 'SObject' ) => sub {
+  multimethod CanBeSeenAs => ( 'Seqsee::Object', 'Seqsee::Object' ) => sub {
     my ( $obj, $structure ) = @_;
     return CanBeSeenAs( $obj, $structure->get_structure() );
   };
 
-  multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
+  multimethod CanBeSeenAs => ( 'Seqsee::Object', '#' ) => sub {
     my ( $object, $int ) = @_;
     my $lit_or_meto = $object->CanBeSeenAs_Literal0rMeto($int);
     ## lit_or_meto(elt): $lit_or_meto
@@ -552,7 +557,7 @@ class Seqsee::Object {
 
   };
 
-  multimethod CanBeSeenAs => ( 'SObject', 'ARRAY' ) => sub {
+  multimethod CanBeSeenAs => ( 'Seqsee::Object', 'ARRAY' ) => sub {
     my ( $object, $structure ) = @_;
     my $meto_activeness = $object->get_metonym_activeness();
     my $metonym         = $object->get_metonym();
@@ -618,7 +623,7 @@ class Seqsee::Object {
   sub CanBeSeenAs_Literal0rMeto {
     my ( $object, $structure ) = @_;
     $structure = $structure->get_structure()
-    if UNIVERSAL::isa( $structure, 'SObject' );
+    if UNIVERSAL::isa( $structure, 'Seqsee::Object' );
 
     my $meto_activeness = $object->get_metonym_activeness();
     my $metonym         = $object->get_metonym();

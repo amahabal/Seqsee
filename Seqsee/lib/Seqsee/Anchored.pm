@@ -2,6 +2,15 @@ use MooseX::Declare;
 use Seqsee::Object;
 
 class Seqsee::Anchored extends Seqsee::Object {
+  use overload(
+    '~~' => sub { $_[0] eq $_[1] },
+    '@{}'    => sub { $_[0]->items },
+    'bool'   => sub { 1 },
+    fallback => 1,
+  );
+  use English qw(-no_match_vars);
+  use Class::Multimethods;
+
   has left_edge => (
     is  => 'rw',
     isa => 'Int',
@@ -93,12 +102,13 @@ class Seqsee::Anchored extends Seqsee::Object {
   method as_text() {
     my $bounds_string    = $self->get_bounds_string();
     my $structure_string = $self->GetAnnotatedStructureString();
-    my $ruleapp = $self->get_underlying_reln ? 'u' :'';
+    my $ruleapp          = $self->get_underlying_reln ? 'u' :'';
     return "Seqsee::Anchored $ruleapp$bounds_string $structure_string";
   }
 
   method get_next_pos_in_dir($direction) {
-    if ( $direction eq DIR::RIGHT() ) {
+    if ( $direction eq DIR::RIGHT() )
+    {
       ## Dir Left
       return $self->right_edge() + 1;
     }
@@ -113,15 +123,15 @@ class Seqsee::Anchored extends Seqsee::Object {
     }
   }
 
-  method spans(Seqsee::Anchored $other) {
-    my ( $sl,   $sr )    = $self->get_edges;
-    my ( $ol,   $or )    = $other->get_edges;
+  method spans( Seqsee::Anchored $other) {
+    my ( $sl, $sr ) = $self->get_edges;
+    my ( $ol, $or ) = $other->get_edges;
     return ( $sl <= $ol and $or <= $sr );
   }
 
-  method overlaps(Seqsee::Anchored $other) {
-    my ( $sl,   $sr )    = $self->get_edges;
-    my ( $ol,   $or )    = $other->get_edges;
+  method overlaps( Seqsee::Anchored $other) {
+    my ( $sl, $sr ) = $self->get_edges;
+    my ( $ol, $or ) = $other->get_edges;
     return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
   }
 
@@ -141,7 +151,7 @@ class Seqsee::Anchored extends Seqsee::Object {
     $self->strength($strength);
   }
 
-  method Extend($to_insert, Bool insert_at_end_p) {
+  method Extend( $to_insert, Bool $insert_at_end_p) {
     my $parts_ref = $self->get_parts_ref();
 
     my @parts_of_new_group;
@@ -199,8 +209,9 @@ class Seqsee::Anchored extends Seqsee::Object {
     SWorkspace::__UpdateGroup($self);
   }
 
-  method FindExtension($direction_to_extend_in, Int $skip) {
-    my $underlying_ruleapp = $self->get_underlying_reln() or return;
+  method FindExtension( $direction_to_extend_in, Int $skip) {
+    my $underlying_ruleapp = $self->get_underlying_reln()
+    or return;
     return $underlying_ruleapp->FindExtension(
       {
         direction_to_extend_in  => $direction_to_extend_in,
@@ -216,8 +227,10 @@ class Seqsee::Anchored extends Seqsee::Object {
     } @{ $self->get_categories() };
   }
 
-  method CheckSquintabilityForCategory($intended_structure_string, $category) {
-    if ( my $squintability_checker = $category->get_squintability_checker() ) {
+  method CheckSquintabilityForCategory( $intended_structure_string, $category )
+  {
+    if ( my $squintability_checker = $category->get_squintability_checker() )
+    {
       return $squintability_checker->( $self, $intended_structure_string );
     }
 
