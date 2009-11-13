@@ -3,12 +3,6 @@ use MooseX::Declare;
 class Seqsee::Object {
   with 'Seqsee::Instance';
   with 'Seqsee::History';
-  use overload(
-    '~~' => sub { $_[0] eq $_[1] },
-    '@{}'    => sub { $_[0]->items },
-    'bool'   => sub { 1 },
-    fallback => 1,
-  );
   use English qw(-no_match_vars);
   use Class::Multimethods;
   has items => (
@@ -705,3 +699,12 @@ class Seqsee::Object {
   }
 
 };
+
+package Seqsee::Object;
+  use overload(
+    '~~' => sub { $_[0] eq $_[1] },
+    '@{}'    => sub {  $_[0]->items },
+    'bool'   => sub { $_[0] },
+    fallback => 1,
+  );
+1;

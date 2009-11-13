@@ -1,11 +1,5 @@
 use MooseX::Declare;
 class Seqsee::Element extends Seqsee::Anchored {
-  use overload(
-    '~~' => sub { $_[0] eq $_[1] },
-    '@{}'    => sub { $_[0]->items },
-    'bool'   => sub { 1 },
-    fallback => 1,
-  );
 
   has magnitude => (
     is       => 'rw',
@@ -81,4 +75,17 @@ class Seqsee::Element extends Seqsee::Anchored {
     return Seqsee::Anchored::CheckSquintability( $self, $intended );
   }
 
-}
+};
+
+package Seqsee::Element;
+use overload (
+  '~~' => sub { $_[0] eq $_[1] },
+  '@{}' => sub {
+    [ $_[0] ]
+  },
+  'bool'   => sub { $_[0] },
+  fallback => 1
+);
+
+1;
+

@@ -1,4 +1,4 @@
-#!perl -T
+#!perl
 
 use Test::More tests => 4;
 
@@ -10,3 +10,8 @@ BEGIN {
 }
 
 diag("Testing Seqsee $Seqsee::VERSION, Perl $], $^X");
+
+#my $e = Seqsee::Element->create(5, 2);
+#my $f = Seqsee::Object::CreateObjectFromStructure([2, 3, [4, 4], 5]);
+#print $f, "\n";
+#print "####################\n", join(';', @$f), "\n";

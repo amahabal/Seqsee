@@ -2,12 +2,6 @@ use MooseX::Declare;
 use Seqsee::Object;
 
 class Seqsee::Anchored extends Seqsee::Object {
-  use overload(
-    '~~' => sub { $_[0] eq $_[1] },
-    '@{}'    => sub { $_[0]->items },
-    'bool'   => sub { 1 },
-    fallback => 1,
-  );
   use English qw(-no_match_vars);
   use Class::Multimethods;
   use List::Util qw(min max sum);
@@ -273,4 +267,11 @@ class Seqsee::Anchored extends Seqsee::Object {
     $self->left_edge == 0;
   }
 
-}
+};
+package Seqsee::Anchored;
+use overload(
+    '~~' => sub { $_[0] eq $_[1] },
+    '@{}'    => sub { $_[0]->items },
+    'bool'   => sub { $_[0] },
+    fallback => 1,
+  );
