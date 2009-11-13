@@ -37,7 +37,7 @@ role Seqsee::Instance {
     $self->category_keys;
   }
 
-  method GetBindingsForCategory($cat) {
+  method GetBindingForCategory($cat) {
     $self->get_cat_bindings($cat);
   }
 
@@ -59,8 +59,19 @@ role Seqsee::Instance {
     return @StrToCat{@common_strings};
   }
 
+  method CopyCategoriesTo($to) {
+    my $any_failure_so_far;
+    for my $category ( @{ $self->get_categories() } ) {
+      my $bindings;
+      unless ( $bindings = $to->describe_as($category) ) {
+        $any_failure_so_far++;
+        next;
+      }
+    }
+    return $any_failure_so_far ? 0 :1;
+  }
+
   # Did not yet copy, may not be needed:
   # get_blemish_cats
   # HasNonAdHocCategory
-  # CopyCategoriesTo
 };

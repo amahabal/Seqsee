@@ -32,8 +32,13 @@ class Seqsee::Anchored extends Seqsee::Object {
     isa => 'Bool',
   );
 
-  use overload fallback => 1;
+  method get_is_locked_against_deletion() {
+    $self->is_locked_against_deletion;
+  }
 
+  method set_is_locked_against_deletion($new_val) {
+    $self->is_locked_against_deletion($new_val);
+  }
   method BUILD($opts_ref) {
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
   }
@@ -204,7 +209,7 @@ class Seqsee::Anchored extends Seqsee::Object {
     $self->recalculate_categories();
     $self->recalculate_relations();
     $self->UpdateStrength();
-    if ( my $underlying_reln = $self->underlying_reln() ) {
+    if ( my $underlying_reln = $self->underlying_relation() ) {
       eval { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) };
       if ($EVAL_ERROR) {
         SWorkspace->remove_gp($self);

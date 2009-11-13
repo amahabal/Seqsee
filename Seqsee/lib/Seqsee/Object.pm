@@ -22,6 +22,10 @@ class Seqsee::Object {
     isa => 'Bool',
   );
 
+  method get_group_p() {
+    $self->group_p;
+  }
+
   has relation_to => (
     metaclass => 'Collection::Hash',
     is        => 'ro',
@@ -45,20 +49,57 @@ class Seqsee::Object {
     $self->underlying_relation
   }
 
+  has relation_scheme => (
+      is         => 'rw',
+      isa        => 'Any',
+  );
+  
+  method get_reln_scheme() {  
+    $self->relation_scheme;
+  }
+
+  method set_reln_scheme($new_scheme) {
+    $self->relation_scheme($new_scheme);
+  }
+
   has metonym => (
     is  => 'rw',
     isa => 'Any',
   );
+
+  method get_metonym() {
+    $self->metonym;
+  }
+
+  method set_metonym($new_val) {
+    $self->metonym($new_val);
+  }
 
   has is_metonym_of => (
     is  => 'rw',
     isa => 'Any',
   );
 
+  method get_is_a_metonym() {
+    $self->is_metonym_of;
+  }
+
+  method set_is_a_metonym($new_val) {
+    $self->is_metonym_of($new_val);
+  }
+
   has metonym_activeness => (
     is  => 'rw',
     isa => 'Bool',
   );
+
+  method get_metonym_activeness() {
+    $self->metonym_activeness;
+  }
+
+  method set_metonym_activeness($new_val) {
+    $self->metonym_activeness($new_val);
+  }
 
   has strength => (
     is  => 'rw',
