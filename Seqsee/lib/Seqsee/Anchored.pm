@@ -23,9 +23,6 @@ class Seqsee::Anchored extends Seqsee::Object {
     $self->right_edge
   }
 
-  method get_direction() {
-    $DIR::RIGHT;
-  }
 
   has is_locked_against_deletion => (
     is  => 'rw',

@@ -5,6 +5,10 @@ class Seqsee::Object {
   with 'Seqsee::History';
   use English qw(-no_match_vars);
   use Class::Multimethods;
+
+  multimethod 'FindTransform';
+  multimethod 'ApplyTransform';
+
   has items => (
     metaclass => 'Collection::Array',
     is        => 'ro',
@@ -24,6 +28,9 @@ class Seqsee::Object {
 
   method get_group_p() {
     $self->group_p;
+  }
+  method set_group_p($new_val) {
+    $self->group_p($new_val);
   }
 
   has relation_to => (
@@ -108,6 +115,16 @@ class Seqsee::Object {
 
   method get_strength() {
     $self->strength;
+  }
+
+  method get_direction() {
+    $DIR::RIGHT;
+  }
+
+  method set_direction($dir) {
+    return if $dir eq $DIR::RIGHT;
+
+    confess "Why am I setting a non-right direction?";
   }
 
   method get_parts_ref() {
