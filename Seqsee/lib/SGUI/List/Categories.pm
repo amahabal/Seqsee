@@ -42,7 +42,7 @@ sub new {
 
 sub MarkDescendentsToKeep {
   my ( $hash_ref, $group ) = @_;
-  return if $group->isa('SElement');
+  return if $group->isa('Seqsee::Element');
   $hash_ref->{$group} = 1;
   MarkDescendentsToKeep( $hash_ref, $_ ) for @$group;
 }

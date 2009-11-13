@@ -16,8 +16,8 @@ role Seqsee::History {
     isa => 'Int',
   );
 
-  method BUILD() {
-    $self->dob($Global::Steps_Finished);
+  method BUILD($opts_ref) {
+    $self->dob($Global::Steps_Finished || 0);
     $self->_insert_messages( _history_string("created") );
   }
 

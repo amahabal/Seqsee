@@ -1,6 +1,6 @@
 package Global;
 
-our $Steps_Finished = 0; # Number od codelets/thoughts run.
+our $Steps_Finished = 0; # Number of codelets/thoughts run.
 our $Break_Loop;         # Boolean: Break out of main loop after this iteration?
 our $CurrentCodelet;     # Current codelet.
 our $CurrentCodeletFamily;     # Family of current codelet.

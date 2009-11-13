@@ -14,7 +14,7 @@
   our $NAME = 'Focusing on a Group';
 
   my %core_of : ATTR(:get<core>);
-  multimethod get_fringe_for => ('SAnchored') => sub {
+  multimethod get_fringe_for => ('Seqsee::Anchored') => sub {
     my ($core) = @_;
     my @ret;
 
@@ -246,8 +246,8 @@
     if $first_reln;
     if ($possible_category_for_ends) {
       for ( @{ $core->get_underlying_reln()->get_items() } ) {
-        unless ( UNIVERSAL::isa( $_, "SAnchored" ) ) {
-          print "An item of an SAnchored object($core) is not anchored!\n";
+        unless ( UNIVERSAL::isa( $_, "Seqsee::Anchored" ) ) {
+          print "An item of an Seqsee::Anchored object($core) is not anchored!\n";
           print "The anchored object is ", $core->get_structure_string(), "\n";
           print "Its items are: ", join( "; ", @$core );
           print "Items of the underlying ruleapp are: ",
@@ -386,7 +386,7 @@
 
   my %core_of : ATTR(:get<core>);
   my %magnitude_of : ATTR(:get<magnitude>);
-  multimethod get_fringe_for => ('SElement') => sub {
+  multimethod get_fringe_for => ('Seqsee::Element') => sub {
     my ($core) = @_;
     my $mag = $core->get_mag();
     my @ret;

@@ -4,7 +4,7 @@ role Seqsee::Instance {
   has cat_bindings => (
     metaclass => 'Collection::Hash',
     is        => 'ro',
-    isa       => 'HashRef[SBinding]',
+    isa       => 'HashRef[SBindings]',
     default   => sub { {} },
     provides  => {
       'get'    => 'get_cat_bindings',

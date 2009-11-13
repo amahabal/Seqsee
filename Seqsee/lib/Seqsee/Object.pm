@@ -47,6 +47,10 @@ class Seqsee::Object {
     isa => 'SRuleApp',
   );
 
+  method get_underlying_reln() {
+    $self->underlying_relation
+  }
+
   has metonym => (
     is  => 'rw',
     isa => 'Any',
@@ -66,6 +70,10 @@ class Seqsee::Object {
     is  => 'rw',
     isa => 'Num',
   );
+
+  method get_strength() {
+    $self->strength;
+  }
 
   method get_parts_ref() {
     $self->items;
@@ -251,7 +259,7 @@ class Seqsee::Object {
       my $metonym = shift(@metonyms);
       $ret->[$index]->describe_as($meto_cat);
       $ret->[$index]->SetMetonym($metonym);
-      $metonym->get_starred()->set_is_a_metonym( $ret->[$index] );
+      $metonym->get_starred()->is_metonym_of( $ret->[$index] );
       $ret->[$index]->SetMetonymActiveness(1);
     }
     return $ret;
@@ -386,7 +394,7 @@ class Seqsee::Object {
     my $starred = $meto->get_starred();
     SErr->throw("Metonym must be an Seqsee::Object! Got: $starred")
     unless UNIVERSAL::isa( $starred, "Seqsee::Object" );
-    $starred->is_a_metonym_of($self);
+    $starred->is_metonym_of($self);
     $self->metonym($meto);
   }
 
@@ -428,7 +436,7 @@ class Seqsee::Object {
   }
 
   method GetUnstarred() {
-    return $self->is_a_metonym_of() // $self;
+    return $self->is_metonym_of() // $self;
   }
 
   method AnnotateWithMetonym( $cat, $name ) {
@@ -454,8 +462,8 @@ class Seqsee::Object {
   }
 
   method IsThisAMetonymedObject() {
-    my $is_a_metonym_of = $self->is_a_metonym_of;
-    return 0 if ( not($is_a_metonym_of) or $is_a_metonym_of eq $self );
+    my $is_metonym_of = $self->is_metonym_of;
+    return 0 if ( not($is_metonym_of) or $is_metonym_of eq $self );
     return 1;
   }
 
@@ -685,7 +693,7 @@ class Seqsee::Object {
     }
 
     $self->AddHistory("Underlying relation set: $ruleapp ");
-    $self->underlying_reln($ruleapp);
+    $self->underlying_relation($ruleapp);
   }
 
   method TellDirectedStory( $cat, $position_mode ) {

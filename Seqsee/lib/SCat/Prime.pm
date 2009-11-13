@@ -40,7 +40,7 @@ sub PreviousPrime {
 my $builder = sub {
   my ( $self, $args_ref ) = @_;
   confess q{need mag} unless exists( $args_ref->{mag} );
-  my $ret = SElement->create( $args_ref->{mag}, -1 );
+  my $ret = Seqsee::Element->create( $args_ref->{mag}, -1 );
   $ret->add_category( $self, SBindings->create( {}, {}, $ret ) );
 
   return $ret;
@@ -49,7 +49,7 @@ my $builder = sub {
 # To check if instance:
 my $instancer = sub {
   my ( $cat, $object ) = @_;
-  return unless $object->isa('SElement');
+  return unless $object->isa('Seqsee::Element');
   my $mag = $object->get_mag();
   return unless IsPrime($mag);
   return SBindings->create( {}, {}, $object );

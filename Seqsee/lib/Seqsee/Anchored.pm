@@ -10,6 +10,7 @@ class Seqsee::Anchored extends Seqsee::Object {
   );
   use English qw(-no_match_vars);
   use Class::Multimethods;
+  use List::Util qw(min max sum);
 
   has left_edge => (
     is  => 'rw',
@@ -19,6 +20,19 @@ class Seqsee::Anchored extends Seqsee::Object {
     is  => 'rw',
     isa => 'Int',
   );
+
+  method get_left_edge() {
+    $self->left_edge
+  }
+
+  method get_right_edge() {
+    $self->right_edge
+  }
+
+  method get_direction() {
+    $DIR::RIGHT;
+  }
+
   has is_locked_against_deletion => (
     is  => 'rw',
     isa => 'Bool',

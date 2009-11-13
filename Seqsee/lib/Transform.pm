@@ -13,12 +13,12 @@ multimethod FindTransform => ( '*', '*', '*' ) => sub {
 
 {
   my $numeric_FindTransorm = sub {
-    *__ANON__ = "((__ANON__ FindTransform SInt/SElement SInt/SElement))";
+    *__ANON__ = "((__ANON__ FindTransform SInt/Seqsee::Element SInt/Seqsee::Element))";
     my ( $a, $b ) = @_;
     my @common_categories = $a->get_common_categories($b) or confess;
     if ( grep { not defined $_ } @common_categories ) {
       confess
-      "undef in common_categories FindTransform SInt/SElement SInt/SElement:"
+      "undef in common_categories FindTransform SInt/Seqsee::Element SInt/Seqsee::Element:"
       . join( ', ', @common_categories );
     }
     my $cat = SLTM::SpikeAndChoose( 0, @common_categories ) // $S::NUMBER;
@@ -30,7 +30,7 @@ multimethod FindTransform => ( '*', '*', '*' ) => sub {
     }
   };
   multimethod FindTransform => qw{SInt SInt}         => $numeric_FindTransorm;
-  multimethod FindTransform => qw{SElement SElement} => $numeric_FindTransorm;
+  multimethod FindTransform => qw{Seqsee::Element Seqsee::Element} => $numeric_FindTransorm;
 }
 
 multimethod FindTransform => qw(# #) => sub {
@@ -39,8 +39,8 @@ multimethod FindTransform => qw(# #) => sub {
   $S::NUMBER->FindTransformForCat( $a, $b );
 };
 
-multimethod FindTransform => qw(SAnchored SAnchored) => sub {
-  *__ANON__ = "((__ANON__ FindTransform SAnchored SAnchored))";
+multimethod FindTransform => qw(Seqsee::Anchored Seqsee::Anchored) => sub {
+  *__ANON__ = "((__ANON__ FindTransform Seqsee::Anchored Seqsee::Anchored))";
   my ( $a, $b ) = @_;
   my @common_categories = $a->get_common_categories($b) or return;
   my $cat = SLTM::SpikeAndChoose( 10, @common_categories ) or return;
@@ -64,16 +64,16 @@ multimethod ApplyTransform => qw(Transform::Numeric SInt) => sub {
   SInt->new($new_mag);
 };
 
-multimethod ApplyTransform => qw(Transform::Numeric SElement) => sub {
-  *__ANON__ = "((__ANON__ ApplyTransform Transform::Numeric SElement))";
+multimethod ApplyTransform => qw(Transform::Numeric Seqsee::Element) => sub {
+  *__ANON__ = "((__ANON__ ApplyTransform Transform::Numeric Seqsee::Element))";
   my ( $transform, $num ) = @_;
   my $new_mag =
   $transform->get_category()
   ->ApplyTransformForCat( $transform, $num->get_mag() ) // return;
-  SElement->create( $new_mag, -1 );
+  Seqsee::Element->create( $new_mag, -1 );
 };
 
-multimethod ApplyTransform => qw(Transform::Structural SObject) => sub {
+multimethod ApplyTransform => qw(Transform::Structural Seqsee::Object) => sub {
   my ( $transform, $object ) = @_;
   $transform->get_category()->ApplyTransformForCat( $transform, $object );
 };
@@ -82,11 +82,11 @@ multimethod ApplyTransform => qw(Transform::Structural SObject) => sub {
   my $Fail = sub {
     return;
   };
-  multimethod FindTransform  => qw{SInt SElement}                => $Fail;
-  multimethod FindTransform  => qw{SElement SInt}                => $Fail;
-  multimethod FindTransform  => qw{SAnchored SInt}               => $Fail;
-  multimethod FindTransform  => qw{SInt SAnchored}               => $Fail;
-  multimethod ApplyTransform => qw{Transform::Numeric SAnchored} => $Fail;
+  multimethod FindTransform  => qw{SInt Seqsee::Element}                => $Fail;
+  multimethod FindTransform  => qw{Seqsee::Element SInt}                => $Fail;
+  multimethod FindTransform  => qw{Seqsee::Anchored SInt}               => $Fail;
+  multimethod FindTransform  => qw{SInt Seqsee::Anchored}               => $Fail;
+  multimethod ApplyTransform => qw{Transform::Numeric Seqsee::Anchored} => $Fail;
 }
 
 sub CheckSanity {

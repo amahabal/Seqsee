@@ -27,7 +27,7 @@ sub BUILD {
 }
 
 use Class::Multimethods;
-multimethod is_instance => qw(SCat::OfObj SObject) => sub {
+multimethod is_instance => qw(SCat::OfObj Seqsee::Object) => sub {
   my ( $cat, $object ) = @_;
   my $bindings = $cat->Instancer($object) or return;
   $object->add_category( $cat, $bindings );
@@ -50,7 +50,7 @@ sub find_metonym {
 
   my $obj = $finder->( $object, $cat, $name, $bindings );
   ## next line kludgy
-  if ( UNIVERSAL::isa( $object, "SAnchored" ) ) {
+  if ( UNIVERSAL::isa( $object, "Seqsee::Anchored" ) ) {
     $obj->get_starred->set_edges( $object->get_edges );
   }
 
@@ -89,9 +89,9 @@ sub Default_FindTransform {
   my $cat      = $self;
   my $opts_ref = {};
 
-  confess "Need SObjects, got >>$o1<< >>$o2<<"
-  unless ( UNIVERSAL::isa( $o1, 'SObject' )
-    and UNIVERSAL::isa( $o2, 'SObject' ) );
+  confess "Need Seqsee::Objects, got >>$o1<< >>$o2<<"
+  unless ( UNIVERSAL::isa( $o1, 'Seqsee::Object' )
+    and UNIVERSAL::isa( $o2, 'Seqsee::Object' ) );
   $opts_ref->{first}  = $o1;
   $opts_ref->{second} = $o2;
 

@@ -28,7 +28,7 @@
     ## $a_core, $b_core
 
     if ( $a_core and $b_core ) {
-      if ( $a_core->isa("SObject") and $b_core->isa("SObject") ) {
+      if ( $a_core->isa("Seqsee::Object") and $b_core->isa("Seqsee::Object") ) {
         SAction->new(
           {
             family  => "FindIfRelated",

@@ -301,8 +301,8 @@ sub _is_there_a_hit {
 
 {
   my %Mapping = (
-    'SElement:SAnchored' => 0.9,
-    'SAnchored:SElement' => 0.9,
+    'Seqsee::Element:Seqsee::Anchored' => 0.9,
+    'Seqsee::Anchored:Seqsee::Element' => 0.9,
   );
 
   sub thoughtTypeMatch {
@@ -311,6 +311,7 @@ sub _is_there_a_hit {
 
     #main::message("$type1 and $type2");
     return 1 if $type1 eq $type2;
+    # The foll. is a bug: should be a ';' above.
     my $str = "$type1;$type2";
     return $Mapping{$str} if exists $Mapping{$str};
 

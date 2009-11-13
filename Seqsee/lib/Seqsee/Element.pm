@@ -45,7 +45,7 @@ class Seqsee::Element extends Seqsee::Anchored {
         strength   => 20,     # default strength for elements
       }
     );
-    $obj->_add_item($obj);
+    $obj->_insert_items($obj);
     return $obj;
   }
 

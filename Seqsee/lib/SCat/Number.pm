@@ -18,7 +18,7 @@ multimethod 'find_relation_string';
 my $builder = sub {
   my ( $self, $args_ref ) = @_;
   confess q{need mag} unless exists( $args_ref->{mag} );
-  my $ret = SElement->create( $args_ref->{mag}, -1 );
+  my $ret = Seqsee::Element->create( $args_ref->{mag}, -1 );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
 
   return $ret;
@@ -26,7 +26,7 @@ my $builder = sub {
 
 my $instancer = sub {
   my ( $cat, $object ) = @_;
-  return unless $object->isa('SElement');
+  return unless $object->isa('Seqsee::Element');
   return SBindings->create( {}, { mag => $object->get_mag() }, $object );
 };
 
@@ -35,7 +35,7 @@ my $meto_finder_square = sub {
   my $mag      = $bindings->GetBindingForAttribute('mag');
   my $mag_sqrt = sqrt($mag);
   return unless int($mag_sqrt) == $mag_sqrt;
-  my $starred = SElement->create( $mag_sqrt, -1 );
+  my $starred = Seqsee::Element->create( $mag_sqrt, -1 );
   return SMetonym->new(
     {
       category  => $cat,

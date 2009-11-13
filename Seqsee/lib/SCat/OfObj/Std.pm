@@ -90,7 +90,7 @@ sub deserialize {
 #
 # subsection: The public interface
 
-# multi: is_instance ( SCat::OfObj::Std, SObject )
+# multi: is_instance ( SCat::OfObj::Std, Seqsee::Object )
 #  for object categories
 #
 #    return value:
@@ -163,7 +163,7 @@ sub BUILD {
       if ( exists $type_ref->{$k}
         and $type_ref->{$k} eq 'int' )
       {
-        if ( ref($subobject) eq "SElement" ) {
+        if ( ref($subobject) eq "Seqsee::Element" ) {
           return SInt->new( $subobject->get_mag );
         }
         else {
@@ -189,7 +189,7 @@ sub BUILD {
       if ( exists $type_ref->{$k}
         and $type_ref->{$k} eq 'int' )
       {
-        if ( ref($subobject) eq "SElement" ) {
+        if ( ref($subobject) eq "Seqsee::Element" ) {
           return SInt->new( $subobject->get_mag );
         }
         else {
@@ -306,8 +306,8 @@ sub _install_instancer {
     my $slippages = $result_of_can_be_seen_as->GetPartsBlemished() || {};
     ## $slippages
 
-    # Special case: $object is a SElement
-    if ( $object->isa('SElement') ) {
+    # Special case: $object is a Seqsee::Element
+    if ( $object->isa('Seqsee::Element') ) {
       if ( my $entire_blemish = $result_of_can_be_seen_as->GetEntireBlemish() )
       {
         $slippages = { 0 => $entire_blemish };

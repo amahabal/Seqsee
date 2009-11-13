@@ -17,8 +17,8 @@ my %stored_fringe_of : ATTR( :get<stored_fringe>, :set<stored_fringe> );
 sub create {
   my ( $package, $core ) = @_;
   state $_Type2Class = {
-    qw(   SElement        SThought::SElement
-    SAnchored       SThought::SAnchored
+    qw(   Seqsee::Element        SThought::SElement
+    Seqsee::Anchored       SThought::SAnchored
     SRelation       SThought::SRelation
     )
   };
