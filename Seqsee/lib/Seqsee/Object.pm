@@ -1,4 +1,5 @@
 use MooseX::Declare;
+use MooseX::AttributeHelpers;
 
 class Seqsee::Object {
   with 'Seqsee::Instance';
@@ -26,10 +27,16 @@ class Seqsee::Object {
     isa => 'Bool',
   );
 
-  method get_group_p() {
+
+  sub get_group_p {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->group_p;
   }
-  method set_group_p($new_val) {
+
+  sub set_group_p {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $new_val) = @_;
     $self->group_p($new_val);
   }
 
@@ -52,7 +59,10 @@ class Seqsee::Object {
     isa => 'SRuleApp',
   );
 
-  method get_underlying_reln() {
+
+  sub get_underlying_reln {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->underlying_relation
   }
 
@@ -61,11 +71,17 @@ class Seqsee::Object {
       isa        => 'Any',
   );
   
-  method get_reln_scheme() {  
+
+  sub get_reln_scheme {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->relation_scheme;
   }
 
-  method set_reln_scheme($new_scheme) {
+
+  sub set_reln_scheme {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $new_scheme) = @_;
     $self->relation_scheme($new_scheme);
   }
 
@@ -74,11 +90,17 @@ class Seqsee::Object {
     isa => 'Any',
   );
 
-  method get_metonym() {
+
+  sub get_metonym {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->metonym;
   }
 
-  method set_metonym($new_val) {
+
+  sub set_metonym {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $new_val) = @_;
     $self->metonym($new_val);
   }
 
@@ -87,11 +109,17 @@ class Seqsee::Object {
     isa => 'Any',
   );
 
-  method get_is_a_metonym() {
+
+  sub get_is_a_metonym {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->is_metonym_of;
   }
 
-  method set_is_a_metonym($new_val) {
+
+  sub set_is_a_metonym {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $new_val) = @_;
     $self->is_metonym_of($new_val);
   }
 
@@ -100,11 +128,17 @@ class Seqsee::Object {
     isa => 'Bool',
   );
 
-  method get_metonym_activeness() {
+
+  sub get_metonym_activeness {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->metonym_activeness;
   }
 
-  method set_metonym_activeness($new_val) {
+
+  sub set_metonym_activeness {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $new_val) = @_;
     $self->metonym_activeness($new_val);
   }
 
@@ -113,21 +147,33 @@ class Seqsee::Object {
     isa => 'Num',
   );
 
-  method get_strength() {
+
+  sub get_strength {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->strength;
   }
 
-  method get_direction() {
+
+  sub get_direction {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $DIR::RIGHT;
   }
 
-  method set_direction($dir) {
+
+  sub set_direction {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $dir) = @_;
     return if $dir eq $DIR::RIGHT;
 
     confess "Why am I setting a non-right direction?";
   }
 
-  method get_parts_ref() {
+
+  sub get_parts_ref {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->items;
   }
 
@@ -211,22 +257,34 @@ class Seqsee::Object {
     }
   }
 
-  method annotate_with_cat($cat) {
+
+  sub annotate_with_cat {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     my $bindings = $self->describe_as($cat);
 
     SErr::NotOfCat->throw() unless $bindings;
     return $bindings;
   }
 
-  method get_structure() {
+
+  sub get_structure {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     [ map { $_->get_structure() } @{ $self->items } ];
   }
 
-  method get_flattened() {
+
+  sub get_flattened {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     [ map { @{ $_->get_flattened() } } @{ $self->items } ];
   }
 
-  method tell_forward_story($cat) {
+
+  sub tell_forward_story {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     my $bindings = $self->GetBindingForCategory($cat);
     confess "Object $self does not belong to category " . $cat->get_name()
     unless $bindings;
@@ -234,7 +292,10 @@ class Seqsee::Object {
     $bindings->tell_forward_story($self);
   }
 
-  method tell_backward_story($cat) {
+
+  sub tell_backward_story {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     my $bindings = $self->GetBindingForCategory($cat);
     confess "Object $self does not belong to category $cat!"
     unless $bindings;
@@ -252,7 +313,10 @@ class Seqsee::Object {
 #  Exceptions:
 #      SErr::Pos::OutOfRange
 
-  method get_subobj_given_range($range) {
+
+  sub get_subobj_given_range {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $range) = @_;
     my @ret;
 
     for (@$range) {
@@ -271,12 +335,18 @@ class Seqsee::Object {
   # Returns subobject at given position
   #
 
-  method get_at_position($position) {
+
+  sub get_at_position {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $position) = @_;
     my $range = $position->find_range($self);
     return $self->get_subobj_given_range($range);
   }
 
-  method apply_blemish_at( $meto_type, $position ) {
+
+  sub apply_blemish_at {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ($self,  $meto_type, $position ) = @_;
     my $object = $self;
     my (@indices) = @{ $position->find_range($object) };
 
@@ -323,7 +393,10 @@ class Seqsee::Object {
   # Try to describe the object sa belonging to that category
   #
 
-  method describe_as($cat) {
+
+  sub describe_as {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     my $is_of_cat = $self->is_of_category_p($cat);
 
     return $is_of_cat if $is_of_cat;
@@ -341,7 +414,10 @@ class Seqsee::Object {
   # Try to describe the object sa belonging to that category
   #
 
-  method redescribe_as($cat) {
+
+  sub redescribe_as {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     my $bindings = $cat->is_instance($self);
     if ($bindings) {
       ## describe_as succeeded!
@@ -359,12 +435,18 @@ class Seqsee::Object {
 
   }
 
-  method get_structure_string() {
+
+  sub get_structure_string {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my $struct = $self->get_structure;
     SUtil::StructureToString($struct);
   }
 
-  method GetAnnotatedStructureString() {
+
+  sub GetAnnotatedStructureString {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my $body;
     if ( $self->isa('Seqsee::Element') ) {
       $body = $self->get_mag;
@@ -385,11 +467,17 @@ class Seqsee::Object {
   }
 
   # XXX(Assumption): [2006/09/16] Parts are non-overlapping.
-  method get_span() {
+
+  sub get_span {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return List::Util::sum( map { $_->get_span } @{ $self->items } );
   }
 
-  method apply_reln_scheme($scheme) {
+
+  sub apply_reln_scheme {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $scheme) = @_;
     return
     unless $scheme;
     if ( $scheme == RELN_SCHEME::CHAIN() ) {
@@ -413,18 +501,27 @@ class Seqsee::Object {
   # XXX(Board-it-up): [2006/09/16] Recalculation ignores categories.
   # XXX(Assumption): [2006/09/16] Unique relation between two objects.
 
-  method recalculate_categories() {
+
+  sub recalculate_categories {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my $cats = $self->get_categories();
     for my $cat (@$cats) {
       $self->redescribe_as($cat);
     }
   }
 
-  method get_pure() {
+
+  sub get_pure {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return SLTM::Platonic->create( $self->get_structure_string() );
   }
 
-  method HasAsItem($item) {
+
+  sub HasAsItem {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $item) = @_;
     return $item ~~ $self->items;
   }
 
@@ -433,7 +530,10 @@ class Seqsee::Object {
     return $self eq $item;
   }
 
-  method HasAsPartDeep($item) {
+
+  sub HasAsPartDeep {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $item) = @_;
     for ( @{ $self->items } )
     {
       return 1 if $_ eq $item;
@@ -442,7 +542,10 @@ class Seqsee::Object {
     return 0;
   }
 
-  method SetMetonym($meto) {
+
+  sub SetMetonym {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $meto) = @_;
     my $starred = $meto->get_starred();
     SErr->throw("Metonym must be an Seqsee::Object! Got: $starred")
     unless UNIVERSAL::isa( $starred, "Seqsee::Object" );
@@ -450,7 +553,10 @@ class Seqsee::Object {
     $self->metonym($meto);
   }
 
-  method SetMetonymActiveness($value) {
+
+  sub SetMetonymActiveness {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $value) = @_;
     if ($value)
     {
       return if $self->metonym_activeness();
@@ -466,13 +572,19 @@ class Seqsee::Object {
     }
   }
 
-  method GetEffectiveObject() {
+
+  sub GetEffectiveObject {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return $self
     unless $self->metonym_activeness;
     return $self->metonym->get_starred();
   }
 
-  method GetEffectiveStructure() {
+
+  sub GetEffectiveStructure {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return [
       map { $_->GetEffectiveObject()->get_structure } @{ $self->items }
     ];
@@ -483,15 +595,24 @@ class Seqsee::Object {
     return $self->get_mag();
   }
 
-  method GetEffectiveStructureString() {
+
+  sub GetEffectiveStructureString {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return SUtil::StructureToString( $self->GetEffectiveStructure() );
   }
 
-  method GetUnstarred() {
+
+  sub GetUnstarred {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return $self->is_metonym_of() // $self;
   }
 
-  method AnnotateWithMetonym( $cat, $name ) {
+
+  sub AnnotateWithMetonym {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ($self,  $cat, $name ) = @_;
     my $is_of_cat = $self->is_of_category_p($cat);
 
     unless ($is_of_cat) {
@@ -505,7 +626,10 @@ class Seqsee::Object {
     $self->SetMetonym($meto);
   }
 
-  method MaybeAnnotateWithMetonym( $cat, $name ) {
+
+  sub MaybeAnnotateWithMetonym {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ($self,  $cat, $name ) = @_;
     eval { $self->AnnotateWithMetonym( $cat, $name ) };
 
     if ( my $o = $EVAL_ERROR ) {
@@ -513,13 +637,19 @@ class Seqsee::Object {
     }
   }
 
-  method IsThisAMetonymedObject() {
+
+  sub IsThisAMetonymedObject {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my $is_metonym_of = $self->is_metonym_of;
     return 0 if ( not($is_metonym_of) or $is_metonym_of eq $self );
     return 1;
   }
 
-  method ContainsAMetonym() {
+
+  sub ContainsAMetonym {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return 1
     if $self->IsThisAMetonymedObject;
     for ( @{ $self->items } ) {
@@ -537,7 +667,10 @@ class Seqsee::Object {
   # Relevant variables:
   # %reln_other_of
 
-  method AddRelation($reln) {
+
+  sub AddRelation {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $reln) = @_;
     my $other = $self->_get_other_end_of_reln($reln);
 
     if ( $self->has_relation_to($other) ) {
@@ -547,31 +680,46 @@ class Seqsee::Object {
     $self->set_relation_to( $other, $reln );
   }
 
-  method RemoveRelation($reln) {
+
+  sub RemoveRelation {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $reln) = @_;
     my $other = $self->_get_other_end_of_reln($reln);
     $self->AddHistory( "removed reln to " . $other->get_bounds_string() );
     $self->remove_relation_to($other);
   }
 
-  method RemoveAllRelations() {
+
+  sub RemoveAllRelations {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     for ( $self->all_relations() )
     {
       $_->uninsert;
     }
   }
 
-  method get_relation($other) {
+
+  sub get_relation {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $other) = @_;
     $self->get_relation_to($other);
   }
 
-  method _get_other_end_of_reln($reln) {
+
+  sub _get_other_end_of_reln {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $reln) = @_;
     my ( $f, $s ) = $reln->get_ends();
     return $s if $f eq $self;
     return $f if $s eq $self;
     SErr->throw("relation error: not an end");
   }
 
-  method recalculate_relations() {
+
+  sub recalculate_relations {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my %hash = %{ $self->relation_to };
     while ( my ( $k, $v ) = each %hash ) {
       my $type     = $v->get_type();
@@ -592,7 +740,10 @@ class Seqsee::Object {
     }
   }
 
-  method as_text() {
+
+  sub as_text {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my $structure_string = $self->get_structure_string();
     return "Seqsee::Object $structure_string";
   }
@@ -710,7 +861,10 @@ class Seqsee::Object {
   }
 
   # Returns active metonyms, for use in, for example, bindings creation.
-  method GetEffectiveSlippages() {
+
+  sub GetEffectiveSlippages {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my @parts       = @{ $self->items };
     my $parts_count = scalar(@parts);
     my $return      = {};
@@ -722,8 +876,11 @@ class Seqsee::Object {
   }
 
   # XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
-  method set_underlying_ruleapp($reln)
-  {    # Was cumulative! Check that that i preserved.
+
+  sub set_underlying_ruleapp {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $reln) = @_;
+    # Was cumulative! Check that that i preserved.
     $reln or confess "Cannot set underlying relation to be an undefined value!";
 
     if ( UNIVERSAL::isa( $reln, "SRelation" )
@@ -748,7 +905,10 @@ class Seqsee::Object {
     $self->underlying_relation($ruleapp);
   }
 
-  method TellDirectedStory( $cat, $position_mode ) {
+
+  sub TellDirectedStory {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ($self,  $cat, $position_mode ) = @_;
     my $bindings     = $self->GetBindingForCategory($cat);
     my $self_as_text = $self->as_text();
     confess "Object $self ($self_as_text) does not belong to category $cat!"

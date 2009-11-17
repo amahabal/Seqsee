@@ -1,5 +1,5 @@
 use MooseX::Declare;
-
+use MooseX::AttributeHelpers;
 role Seqsee::Instance {
   has cat_bindings => (
     metaclass => 'Collection::Hash',
@@ -16,13 +16,19 @@ role Seqsee::Instance {
   );
 
   our %StrToCat;
-  method add_category( $cat, $binding ) {
+
+  sub add_category {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ($self,  $cat, $binding ) = @_;
     $StrToCat{$cat} = $cat;
     $self->set_cat_bindings( $cat, $binding );
     $self->AddHistory( "Added category " . $cat->get_name );
   }
 
-  method remove_category($cat) {
+
+  sub remove_category {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     if ( $self->has_cat_bindings($cat) )
     {
       $self->AddHistory( "Removed category " . $cat->get_name );
@@ -31,17 +37,30 @@ role Seqsee::Instance {
     $StrToCat{$cat} = $cat;
   }
 
-  method get_categories() { [ @StrToCat{ $self->category_keys } ] }
 
-  method get_categories_as_string() {
+  sub get_categories {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
+    [ @StrToCat{ $self->category_keys } ]
+   }
+
+  sub get_categories_as_string {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->category_keys;
   }
 
-  method GetBindingForCategory($cat) {
+
+  sub GetBindingForCategory {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     $self->get_cat_bindings($cat);
   }
 
-  method is_of_category_p($cat) {
+
+  sub is_of_category_p {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $cat) = @_;
     $self->get_cat_bindings($cat);
   }
 
@@ -59,7 +78,10 @@ role Seqsee::Instance {
     return @StrToCat{@common_strings};
   }
 
-  method CopyCategoriesTo($to) {
+
+  sub CopyCategoriesTo {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $to) = @_;
     my $any_failure_so_far;
     for my $category ( @{ $self->get_categories() } ) {
       my $bindings;

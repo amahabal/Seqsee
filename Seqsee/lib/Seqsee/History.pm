@@ -1,4 +1,5 @@
 use MooseX::Declare;
+use MooseX::AttributeHelpers;
 role Seqsee::History {
   has messages => (
     metaclass => 'Collection::Array',
@@ -16,7 +17,10 @@ role Seqsee::History {
     isa => 'Int',
   );
 
-  method BUILD($opts_ref) {
+
+  sub BUILD {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $opts_ref) = @_;
     $self->dob($Global::Steps_Finished || 0);
     $self->_insert_messages( _history_string("created") );
   }
@@ -27,26 +31,41 @@ role Seqsee::History {
     return "[$steps]$Global::CurrentRunnableString\t$msg";
   }
 
-  method AddHistory($msg) {
+
+  sub AddHistory {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $msg) = @_;
     $self->_insert_messages(_history_string($msg));
   }
 
-  method search_history($re) {
+
+  sub search_history {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $re) = @_;
     return
     map { m/^ \[ (\d+) \]/ox; $1 } ( grep $re, @{ $self->messages } );
   }
 
-  method UnchangedSince(Int $since) {
+
+  sub UnchangedSince {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $since) = @_;
     my $last_msg_str = $self->message(-1);
     $last_msg_str =~ /^ \[ (\d+) \]/ox or confess "Huh '$last_msg_str'";
     return $1 > $since ? 0 :1;
   }
 
-  method GetAge() {
+
+  sub GetAge {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return $Global::Steps_Finished - $self->dob;
   }
 
-  method history_as_text() {
+
+  sub history_as_text {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return join( "\n", "History:", @{ $self->messages } );
   }
 

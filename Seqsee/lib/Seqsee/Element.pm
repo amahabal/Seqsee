@@ -1,4 +1,5 @@
 use MooseX::Declare;
+use MooseX::AttributeHelpers;
 class Seqsee::Element extends Seqsee::Anchored {
 
   has magnitude => (
@@ -7,9 +8,16 @@ class Seqsee::Element extends Seqsee::Anchored {
     required => 1,
   );
 
-  method get_mag() { $self->magnitude }
 
-  method BUILD($opts_ref) {
+  sub get_mag {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
+    $self->magnitude;
+  }
+
+  sub BUILD {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $opts_ref) = @_;
     my $magnitude = $self->magnitude;
     $self->describe_as($S::NUMBER);
     $self->describe_as($S::PRIME)
@@ -43,11 +51,17 @@ class Seqsee::Element extends Seqsee::Anchored {
     return $obj;
   }
 
-  method get_structure() {
+
+  sub get_structure {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->magnitude;
   }
 
-  method as_text() {
+
+  sub as_text {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my ( $l, $r ) = $self->get_edges;
     my $mag = $self->magnitude;
     return join( "", ( ref $self ), ":[$l,$r] $mag" );
@@ -56,21 +70,33 @@ class Seqsee::Element extends Seqsee::Anchored {
   our $POS_FIRST = SPos->new(1);
   our $POS_LAST  = SPos->new(-1);
 
-  method get_at_position($position) {
+
+  sub get_at_position {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $position) = @_;
     return $self
     if ( $position eq $POS_FIRST or $position eq $POS_LAST );
     SErr::Pos::OutOfRange->throw("out of range for SElement");
   }
 
-  method get_flattened() {
+
+  sub get_flattened {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     [ $self->magnitude ];
   }
 
-  method UpdateStrength() {
+
+  sub UpdateStrength {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
 
   }
 
-  method CheckSquintability($intended) {
+
+  sub CheckSquintability {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ($self, $intended) = @_;
     $self->describe_as($S::NUMBER);
     return Seqsee::Anchored::CheckSquintability( $self, $intended );
   }

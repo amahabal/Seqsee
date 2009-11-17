@@ -1,5 +1,6 @@
 use MooseX::Declare;
 use Seqsee::Object;
+use MooseX::AttributeHelpers;
 
 class Seqsee::Anchored extends Seqsee::Object {
   use English qw(-no_match_vars);
@@ -15,32 +16,41 @@ class Seqsee::Anchored extends Seqsee::Object {
     isa => 'Int',
   );
 
-  method get_left_edge() {
-    $self->left_edge
+  sub get_left_edge {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
+    $self->left_edge;
   }
 
-  method get_right_edge() {
-    $self->right_edge
+  sub get_right_edge {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
+    $self->right_edge;
   }
-
-
   has is_locked_against_deletion => (
     is  => 'rw',
     isa => 'Bool',
   );
 
-  method get_is_locked_against_deletion() {
+  sub get_is_locked_against_deletion {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->is_locked_against_deletion;
   }
 
-  method set_is_locked_against_deletion($new_val) {
+  sub set_is_locked_against_deletion {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ( $self, $new_val ) = @_;
     $self->is_locked_against_deletion($new_val);
   }
+
   method BUILD($opts_ref) {
     $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
   }
 
-  method recalculate_edges() {
+  sub recalculate_edges {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my %slots_taken;
     for my $item ( @{ $self->get_parts_ref } ) {
       confess "Seqsee::Anchored->create called with a non anchored object"
@@ -58,13 +68,17 @@ class Seqsee::Anchored extends Seqsee::Object {
     $self->right_edge($right);
   }
 
-  method set_edges( Int $left, Int $right) {
+  sub set_edges {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ( $self, $left, $right ) = @_;
     $self->left_edge($left);
     $self->right_edge($right);
     return $self;
   }
 
-  method get_edges() {
+  sub get_edges {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return ( $self->left_edge, $self->right_edge );
   }
 
@@ -101,24 +115,32 @@ class Seqsee::Anchored extends Seqsee::Object {
   # method: get_bounds_string
   # returns a string containing the left and right boundaries
   #
-  method get_bounds_string() {
+
+  sub get_bounds_string {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return q{ <} . $self->left_edge() . q{, } . $self->right_edge . q{> };
   }
 
-  method get_span() {
+  sub get_span {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     return $self->right_edge() - $self->left_edge() + 1;
   }
 
-  method as_text() {
+  sub as_text {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self)           = @_;
     my $bounds_string    = $self->get_bounds_string();
     my $structure_string = $self->GetAnnotatedStructureString();
-    my $ruleapp          = $self->get_underlying_reln ? 'u' :'';
+    my $ruleapp = $self->get_underlying_reln ? 'u' :'';
     return "Seqsee::Anchored $ruleapp$bounds_string $structure_string";
   }
 
-  method get_next_pos_in_dir($direction) {
-    if ( $direction eq DIR::RIGHT() )
-    {
+  sub get_next_pos_in_dir {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ( $self, $direction ) = @_;
+    if ( $direction eq DIR::RIGHT() ) {
       ## Dir Left
       return $self->right_edge() + 1;
     }
@@ -133,19 +155,25 @@ class Seqsee::Anchored extends Seqsee::Object {
     }
   }
 
-  method spans( Seqsee::Anchored $other) {
-    my ( $sl, $sr ) = $self->get_edges;
-    my ( $ol, $or ) = $other->get_edges;
+  sub spans {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ( $self, $other ) = @_;
+    my ( $sl,   $sr )    = $self->get_edges;
+    my ( $ol,   $or )    = $other->get_edges;
     return ( $sl <= $ol and $or <= $sr );
   }
 
-  method overlaps( Seqsee::Anchored $other) {
-    my ( $sl, $sr ) = $self->get_edges;
-    my ( $ol, $or ) = $other->get_edges;
+  sub overlaps {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ( $self, $other ) = @_;
+    my ( $sl,   $sr )    = $self->get_edges;
+    my ( $ol,   $or )    = $other->get_edges;
     return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
   }
 
-  method UpdateStrength() {
+  sub UpdateStrength {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     my $strength_from_parts = 20 + 0.2 *
     ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
     my $strength_from_categories = 30 * (
@@ -161,7 +189,9 @@ class Seqsee::Anchored extends Seqsee::Object {
     $self->strength($strength);
   }
 
-  method Extend( $to_insert, Bool $insert_at_end_p) {
+  sub Extend {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ( $self, $to_insert, $insert_at_end_p ) = @_;
     my $parts_ref = $self->get_parts_ref();
 
     my @parts_of_new_group;
@@ -201,7 +231,9 @@ class Seqsee::Anchored extends Seqsee::Object {
     return 1;
   }
 
-  method Update() {
+  sub Update {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->recalculate_edges();
     $self->recalculate_categories();
     $self->recalculate_relations();
@@ -219,7 +251,9 @@ class Seqsee::Anchored extends Seqsee::Object {
     SWorkspace::__UpdateGroup($self);
   }
 
-  method FindExtension( $direction_to_extend_in, Int $skip) {
+  sub FindExtension {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ( $self, $direction_to_extend_in, $skip ) = @_;
     my $underlying_ruleapp = $self->get_underlying_reln()
     or return;
     return $underlying_ruleapp->FindExtension(
@@ -230,17 +264,20 @@ class Seqsee::Anchored extends Seqsee::Object {
     );
   }
 
-  method CheckSquintability($intended) {
+  sub CheckSquintability {
+    scalar(@_) == 2 or die "Expected 2 arguments.";
+    my ( $self, $intended ) = @_;
     my $intended_structure_string = $intended->get_structure_string();
     return map {
       $self->CheckSquintabilityForCategory( $intended_structure_string, $_ )
     } @{ $self->get_categories() };
   }
 
-  method CheckSquintabilityForCategory( $intended_structure_string, $category )
-  {
-    if ( my $squintability_checker = $category->get_squintability_checker() )
-    {
+  sub CheckSquintabilityForCategory {
+    scalar(@_) == 3 or die "Expected 3 arguments.";
+    my ( $self, $intended_structure_string, $category ) = @_;
+
+    if ( my $squintability_checker = $category->get_squintability_checker() ) {
       return $squintability_checker->( $self, $intended_structure_string );
     }
 
@@ -252,7 +289,8 @@ class Seqsee::Anchored extends Seqsee::Object {
     my @return;
     for my $name (@meto_types) {
       my $finder = $category->get_meto_finder($name);
-      my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
+      my $squinted = $finder->( $self, $category, $name, $bindings )
+      or next;
       next
       unless $squinted->get_starred()->get_structure_string() eq
         $intended_structure_string;
@@ -261,19 +299,24 @@ class Seqsee::Anchored extends Seqsee::Object {
     return @return;
   }
 
-  method IsFlushRight() {
+  sub IsFlushRight {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->right_edge == $SWorkspace::ElementCount - 1;
   }
 
-  method IsFlushLeft() {
+  sub IsFlushLeft {
+    scalar(@_) == 1 or die "Expected 1 argument.";
+    my ($self) = @_;
     $self->left_edge == 0;
   }
 
-};
+}
+
 package Seqsee::Anchored;
 use overload(
-    '~~' => sub { $_[0] eq $_[1] },
-    '@{}'    => sub { $_[0]->items },
-    'bool'   => sub { $_[0] },
-    fallback => 1,
-  );
+  '~~' => sub { $_[0] eq $_[1] },
+  '@{}'    => sub { $_[0]->items },
+  'bool'   => sub { $_[0] },
+  fallback => 1,
+);
