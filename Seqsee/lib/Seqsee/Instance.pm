@@ -93,7 +93,22 @@ role Seqsee::Instance {
     return $any_failure_so_far ? 0 :1;
   }
 
-  # Did not yet copy, may not be needed:
-  # get_blemish_cats
-  # HasNonAdHocCategory
+  sub get_blemish_cats {
+    my $self = shift;
+    my %ret;
+    while ( my ( $k, $binding ) = each %{ $self->cat_bindings } ) {
+      if ( $S::Str2Cat{$k}->is_blemished_cat ) {
+        $ret{$k} = $binding->{what};
+      }
+    }
+    return \%ret;
+  }
+
+  sub HasNonAdHocCategory {
+    my ($self) = @_;
+    for ( $self->category_keys ) {
+      return 1 unless $_ =~ m#Interlaced#;
+    }
+    return 0;
+  }
 };
