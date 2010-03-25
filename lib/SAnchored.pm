@@ -48,8 +48,8 @@ sub recalculate_edges {
     my ( $left, $right )
         = List::MoreUtils::minmax( $keys[0], @keys )
         ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
-    $left_edge_of{$id}  = $left;
-    $right_edge_of{$id} = $right;
+    $self->set_left_edge( $left);
+    $self->set_right_edge( $right);
     ### insist: scalar(@keys) == $right - $left + 1
 }
 
@@ -62,8 +62,8 @@ sub set_edges {
     unless ( defined $left and defined $right ) {
         confess "SAnchored must have edges defined";
     }
-    $left_edge_of{$id}  = $left;
-    $right_edge_of{$id} = $right;
+    $self->set_left_edge( $left);
+    $self->set_right_edge( $right);
     return $self;
 }
 
@@ -74,7 +74,7 @@ sub get_edges {
     my ($self) = @_;
     my $id = ident $self;
 
-    return ( $left_edge_of{$id}, $right_edge_of{$id} );
+    return ( $self->get_left_edge(), $self->get_right_edge() );
 }
 
 sub create {
@@ -117,7 +117,7 @@ sub get_bounds_string {
 sub get_span {
     my ($self) = @_;
     my $id = ident $self;
-    return $right_edge_of{$id} - $left_edge_of{$id} + 1;
+    return $self->get_right_edge() - $self->get_left_edge() + 1;
 }
 
 sub as_text {
@@ -134,11 +134,11 @@ sub get_next_pos_in_dir {
 
     if ( $direction eq DIR::RIGHT() ) {
         ## Dir Left
-        return $right_edge_of{$id} + 1;
+        return $self->get_right_edge() + 1;
     }
     elsif ( $direction eq DIR::LEFT() ) {
         ## Dir Left
-        my $le = $left_edge_of{$id};
+        my $le = $self->get_left_edge();
         return unless $le > 0;
         return $le - 1;
     }
@@ -276,12 +276,13 @@ sub CheckSquintabilityForCategory {
 
 sub IsFlushRight {
     my ($self) = @_;
-    $right_edge_of{ ident $self} == $SWorkspace::ElementCount - 1 ? 1 : 0;
+    $self->get_right_edge() == $SWorkspace::ElementCount - 1 ? 1 : 0;
 }
 
 sub IsFlushLeft {
     my ($self) = @_;
-    $left_edge_of{ ident $self} == 0 ? 1 : 0;
+    $self->get_left_edge() == 0 ? 1 : 0;
 }
 
+1;
 1;
