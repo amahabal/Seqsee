@@ -462,11 +462,11 @@ sub GetAnnotatedStructureString {
     if ($self->isa('SElement')) {
         $body = $self->get_mag;
     } else {
-        my @items = @{$items_of{$id}};
+        my @items = @{$self->get_items()};
         $body = '[' . join(', ', map { $_->GetAnnotatedStructureString } @items) .']';
     }
 
-    if ($metonym_activeness_of{$id}) {
+    if ($self->get_metonym_activeness()) {
         my $meto_structure_string = $self->GetEffectiveObject()->get_structure_string();
         $body .= " --*-> $meto_structure_string";
     }
