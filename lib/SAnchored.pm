@@ -19,151 +19,154 @@ use List::Util qw(min max sum);
 use Class::Multimethods;
 multimethod 'ApplyTransform';
 
-my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>);       # Left edge. 0 is leftmost.
+my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>)
+;    # Left edge. 0 is leftmost.
 my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
 my %is_locked_against_deletion_of :
-    ATTR(:get<is_locked_against_deletion> :set<is_locked_against_deletion>);
+ATTR(:get<is_locked_against_deletion> :set<is_locked_against_deletion>);
 
 use overload fallback => 1;
 
 sub BUILD {
-    my ( $self, $id, $opts_ref ) = @_;
-    $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
+  my ( $self, $id, $opts_ref ) = @_;
+  $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
 }
 
 sub recalculate_edges {
-    my ($self) = @_;
-    my $id = ident $self;
+  my ($self) = @_;
+  my $id = ident $self;
 
-    my %slots_taken;
-    for my $item ( @{ $self->get_parts_ref } ) {
-        confess "SAnchored->create called with a non anchored object"
-            unless UNIVERSAL::isa( $item, "SAnchored" );
-        my ( $left, $right ) = $item->get_edges();
-        @slots_taken{ $left .. $right } = ( $left .. $right );
-    }
+  my %slots_taken;
+  for my $item ( @{ $self->get_parts_ref } ) {
+    confess "SAnchored->create called with a non anchored object"
+    unless UNIVERSAL::isa( $item, "SAnchored" );
+    my ( $left, $right ) = $item->get_edges();
+    @slots_taken{ $left .. $right } = ( $left .. $right );
+  }
 
-    my @keys = values %slots_taken;
-    ## @keys
-    my ( $left, $right )
-        = List::MoreUtils::minmax( $keys[0], @keys )
-        ;    #Funny syntax because minmax is buggy, doesn't work for list with 1 element
-    $self->set_left_edge( $left);
-    $self->set_right_edge( $right);
-    ### insist: scalar(@keys) == $right - $left + 1
+  my @keys = values %slots_taken;
+  ## @keys
+  my ( $left, $right ) =
+  List::MoreUtils::minmax( $keys[0], @keys )
+  ;  #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+  $self->set_left_edge($left);
+  $self->set_right_edge($right);
+  ### insist: scalar(@keys) == $right - $left + 1
 }
 
 # method: set_edges
 # Sets both edges at once
 #
 sub set_edges {
-    my ( $self, $left, $right ) = @_;
-    my $id = ident $self;
-    unless ( defined $left and defined $right ) {
-        confess "SAnchored must have edges defined";
-    }
-    $self->set_left_edge( $left);
-    $self->set_right_edge( $right);
-    return $self;
+  my ( $self, $left, $right ) = @_;
+  my $id = ident $self;
+  unless ( defined $left and defined $right ) {
+    confess "SAnchored must have edges defined";
+  }
+  $self->set_left_edge($left);
+  $self->set_right_edge($right);
+  return $self;
 }
 
 # method: get_edges
 #
 #
 sub get_edges {
-    my ($self) = @_;
-    my $id = ident $self;
+  my ($self) = @_;
+  my $id = ident $self;
 
-    return ( $self->get_left_edge(), $self->get_right_edge() );
+  return ( $self->get_left_edge(), $self->get_right_edge() );
 }
 
 sub create {
-    my ( $package, @items ) = @_;
-    SErr::EmptyCreate->throw() unless @items;
-    if ( @items == 1 ) {
-        return $items[0] if UNIVERSAL::isa( $items[0], 'SAnchored' );
-        confess "Unanchored object!";
+  my ( $package, @items ) = @_;
+  SErr::EmptyCreate->throw() unless @items;
+  if ( @items == 1 ) {
+    return $items[0] if UNIVERSAL::isa( $items[0], 'SAnchored' );
+    confess "Unanchored object!";
+  }
+
+  SErr::HolesHere->throw('Holes here')
+  if SWorkspace->are_there_holes_here(@items);
+
+  # I assume @items are live.
+  my $direction = SWorkspace::__FindObjectSetDirection(@items);
+  return unless $direction->IsLeftOrRight();
+
+  my $object = $package->new(
+    {
+      items      => [@items],
+      group_p    => 1,
+      left_edge  => -1,           # Will shortly be reset
+      right_edge => -1,           # Will shortly be reset
+      direction  => $direction,
     }
+  );
 
-    SErr::HolesHere->throw('Holes here') if SWorkspace->are_there_holes_here(@items);
-
-    # I assume @items are live.
-    my $direction = SWorkspace::__FindObjectSetDirection(@items);
-    return unless $direction->IsLeftOrRight();
-
-    my $object = $package->new(
-        {   items      => [@items],
-            group_p    => 1,
-            left_edge  => -1,           # Will shortly be reset
-            right_edge => -1,           # Will shortly be reset
-            direction  => $direction,
-        }
-    );
-
-    $object->recalculate_edges();
-    $object->UpdateStrength();
-    return $object;
+  $object->recalculate_edges();
+  $object->UpdateStrength();
+  return $object;
 }
 
 # method: get_bounds_string
 # returns a string containing the left and right boundaries
 #
 sub get_bounds_string {
-    my ($self) = @_;
-    my $id = ident $self;
-    return " <$left_edge_of{$id}, $right_edge_of{$id}> ";
+  my ($self) = @_;
+  my $id = ident $self;
+  return " <$left_edge_of{$id}, $right_edge_of{$id}> ";
 }
 
 sub get_span {
-    my ($self) = @_;
-    my $id = ident $self;
-    return $self->get_right_edge() - $self->get_left_edge() + 1;
+  my ($self) = @_;
+  my $id = ident $self;
+  return $self->get_right_edge() - $self->get_left_edge() + 1;
 }
 
 sub as_text {
-    my ($self)           = @_;
-    my $bounds_string    = $self->get_bounds_string();
-    my $structure_string = $self->GetAnnotatedStructureString();
-    my $ruleapp = $self->get_underlying_reln ? 'u':'';
-    return "SAnchored $ruleapp$bounds_string $structure_string";
+  my ($self)           = @_;
+  my $bounds_string    = $self->get_bounds_string();
+  my $structure_string = $self->GetAnnotatedStructureString();
+  my $ruleapp = $self->get_underlying_reln ? 'u' :'';
+  return "SAnchored $ruleapp$bounds_string $structure_string";
 }
 
 sub get_next_pos_in_dir {
-    my ( $self, $direction ) = @_;
-    my $id = ident $self;
+  my ( $self, $direction ) = @_;
+  my $id = ident $self;
 
-    if ( $direction eq DIR::RIGHT() ) {
-        ## Dir Left
-        return $self->get_right_edge() + 1;
-    }
-    elsif ( $direction eq DIR::LEFT() ) {
-        ## Dir Left
-        my $le = $self->get_left_edge();
-        return unless $le > 0;
-        return $le - 1;
-    }
-    else {
-        confess "funny direction to extnd in!!";
-    }
+  if ( $direction eq DIR::RIGHT() ) {
+    ## Dir Left
+    return $self->get_right_edge() + 1;
+  }
+  elsif ( $direction eq DIR::LEFT() ) {
+    ## Dir Left
+    my $le = $self->get_left_edge();
+    return unless $le > 0;
+    return $le - 1;
+  }
+  else {
+    confess "funny direction to extnd in!!";
+  }
 
 }
 
 sub spans {
-    my ( $self, $other ) = @_;
-    my ( $sl,   $sr )    = $self->get_edges;
-    my ( $ol,   $or )    = $other->get_edges;
-    return ( $sl <= $ol and $or <= $sr );
+  my ( $self, $other ) = @_;
+  my ( $sl,   $sr )    = $self->get_edges;
+  my ( $ol,   $or )    = $other->get_edges;
+  return ( $sl <= $ol and $or <= $sr );
 }
 
 sub overlaps {
-    my ( $self, $other ) = @_;
-    my ( $sl,   $sr )    = $self->get_edges;
-    my ( $ol,   $or )    = $other->get_edges;
-    return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
+  my ( $self, $other ) = @_;
+  my ( $sl,   $sr )    = $self->get_edges;
+  my ( $ol,   $or )    = $other->get_edges;
+  return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
 }
 
 sub UpdateStrength {
-    my ($self) = @_;
+  my ($self) = @_;
     my $strength_from_parts = ««Strength::SAnchored::FromParts: group=>$self»»;
     my $strength_from_categories = «« Strength::SAnchored::FromCategories: group=>$self »»;
     my $strength = $strength_from_parts + $strength_from_categories;
