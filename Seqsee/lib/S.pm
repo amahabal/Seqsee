@@ -62,6 +62,13 @@ use SRuleApp;
 
 use PositionStructure;
 
+use Seqsee::Mapping;
+use Seqsee::Mapping::Numeric;
+use Seqsee::Mapping::Structural;
+use Seqsee::Mapping::Position;
+use Seqsee::Mapping::MetoType;
+use Seqsee::Mapping::Dir;
+
 # use SUtil;
 
 our $ASCENDING  = $SCat::ascending::ascending;
