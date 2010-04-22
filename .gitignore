@@ -1,0 +1,10 @@
+Seqsee/nytprof
+Seqsee/blib
+Seqsee/inc
+blib
+genlib
+*.ERR
+*.old
+Makefile
+nytprof.out
+pm_to_blib
