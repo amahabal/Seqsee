@@ -89,6 +89,12 @@ use strict;
 use warnings;
 use Carp;
 
+use overload '~~' => 'literal_comparison_hack_for_smart_match',
+  fallback => 1;
+sub literal_comparison_hack_for_smart_match {
+  return $_[0] eq $_[1];
+}
+
 our $LEFT    = bless { text => 'left' },    'DIR';
 our $RIGHT   = bless { text => 'right' },   'DIR';
 our $UNKNOWN = bless { text => 'unknown' }, 'DIR';
@@ -150,6 +156,13 @@ package METO_MODE;
 use strict;
 use Carp;
 use warnings;
+
+use overload '~~' => 'literal_comparison_hack_for_smart_match',
+  fallback => 1;
+sub literal_comparison_hack_for_smart_match {
+  return $_[0] eq $_[1];
+}
+
 
 our $NONE      = bless { mode => 'NONE' },      'METO_MODE';
 our $SINGLE    = bless { mode => 'SINGLE' },    'METO_MODE';

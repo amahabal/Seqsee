@@ -12,11 +12,19 @@ use SUtil;
 use List::Util qw(sum shuffle);
 
 use Class::Multimethods;
+
+use overload '~~' => 'literal_comparison_hack_for_smart_match',
+  fallback => 1;
+
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';
 
 my %find_transform_of :ATTR(:get<find_transform>);
 my %apply_transform_of :ATTR(:get<apply_transform>);
+
+sub literal_comparison_hack_for_smart_match {
+  return $_[0] eq $_[1];
+}
 
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;

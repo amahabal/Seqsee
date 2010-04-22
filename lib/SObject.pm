@@ -16,7 +16,11 @@ use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
 use base qw{SInstance SHistory SFasc};
-use overload (fallback => 1);
+use overload ('~~' => 'literal_comparison_hack_for_smart_match', fallback => 1);
+
+sub literal_comparison_hack_for_smart_match {
+  return $_[0] eq $_[1];
+}
 
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';

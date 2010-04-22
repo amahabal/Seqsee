@@ -261,7 +261,10 @@ sub trim {
 
 sub StringifyForCarp {
     my $arg = shift;
-    $arg = '«' . $arg->as_text() . '»' if UNIVERSAL::can( $arg, 'as_text' );
+
+    # temporarily replaced line by next...
+    # $arg = '«' . $arg->as_text() . '»' if UNIVERSAL::can( $arg, 'as_text' );
+    $arg = '«' . $arg . '»' if UNIVERSAL::can( $arg, 'as_text' );
 
     my $reftype = ref($arg);
     if ($reftype) {

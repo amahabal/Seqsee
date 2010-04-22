@@ -86,7 +86,7 @@ sub get_complexity {
     my $name = $name_of{$id};
 
     given ($category) {
-        when ($S::NUMBER) {
+        when ($category eq $S::NUMBER) {
             given ($name) {
                 when ('same') { return 0; }
                 default { return 0.1; }
