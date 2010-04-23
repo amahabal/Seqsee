@@ -43,6 +43,11 @@ my %reln_other_of : ATTR();
 #    is the group based on some relation? undef if not, the relation otherwise
 my %underlying_reln_of : ATTR( :get<underlying_reln>);
 
+sub get_items {
+  my $self = shift;
+  return $items_of{ident $self};
+}
+
 sub BUILD {
     my ( $self, $id, $opts_ref ) = @_;
     die "Need group_p" unless exists $opts_ref->{group_p};
