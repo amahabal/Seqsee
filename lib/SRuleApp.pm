@@ -164,7 +164,8 @@ sub _ExtendSeveralSteps {
     for ( 1 .. $steps ) {
         my $current_end = $items[$index_of_end];
         my $success;
-        TRY {
+        
+       eval { 
             $success = _ExtendOneStep(
                 {   items_ref              => \@items,
                     direction_to_extend_in => $direction_to_extend_in,
@@ -173,9 +174,9 @@ sub _ExtendSeveralSteps {
                     extend_at_start_or_end => $extend_at_start_or_end,
                 }
             );
-        }
-        CATCH {
-        ElementsBeyondKnownSought: {
+         };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ElementsBeyondKnownSought')) { 
                 my $trust_level
                     = 0.5 
                     * List::Util::sum( map { $_->get_span() } @items )
@@ -191,8 +192,9 @@ sub _ExtendSeveralSteps {
                     )
                 );
                 return;
-            }
-        }
+            ; last CATCH_BLOCK; }die $err }
+       }
+    
 
         return unless $success;
     }

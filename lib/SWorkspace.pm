@@ -1440,12 +1440,13 @@ sub GetSomethingLike {
 
     my $is_object_literally_present;
 
-    TRY {
+    
+       eval { 
         $is_object_literally_present = SWorkspace->check_at_location(
             { direction => $direction, start => $start_pos, what => $object } );
-    }
-    CATCH {
-    ElementsBeyondKnownSought: {
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ElementsBeyondKnownSought')) { 
             $trust_level *= 0.02;    # had multiplied by 50 for toss...
             if ( SUtil::toss($trust_level) ) {    # Kludge.
                 Global::Hilit( 1, @$hilit_set );
@@ -1454,8 +1455,9 @@ sub GetSomethingLike {
                 eval { $is_object_literally_present = SWorkspace->check_at_location(
                     { direction => $direction, start => $start_pos, what => $object } )};
             }
-        }
-    }
+        ; last CATCH_BLOCK; }die $err }
+       }
+    
 
     if ($is_object_literally_present) {
         my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object ) or return;
@@ -1602,17 +1604,20 @@ sub LookForSomethingLike {
 
     my $is_object_literally_present;
     my $to_ask;
-    TRY {
+    
+       eval { 
         $is_object_literally_present = SWorkspace->check_at_location(
             { direction => $direction, start => $start_position, what => $object } );
-    }    CATCH {
-      ElementsBeyondKnownSought: {
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ElementsBeyondKnownSought')) { 
             $to_ask = { expected_object => $object,
                         exception => $err,
                         start_position => $start_position,
                     };
-        }
-    };
+        ; last CATCH_BLOCK; }die $err }
+       }
+    ;
 
     $is_object_literally_present = [$start_position, $direction, $object]
             if $is_object_literally_present;
