@@ -167,128 +167,136 @@ sub overlaps {
 
 sub UpdateStrength {
   my ($self) = @_;
-    my $strength_from_parts = 
-    20 + 0.2 * ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
-;
-    my $strength_from_categories = 
-    30 * ( sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } ) || 0 );
-;
-    my $strength = $strength_from_parts + $strength_from_categories;
-    $strength += $Global::GroupStrengthByConsistency{$self};
-    $strength = 100 if $strength > 100;
-    ### p, c, t: $strength_from_parts, $strength_from_categories, $strength
-    $self->set_strength($strength);
+  my $strength_from_parts =
+  20 +
+  0.2 * ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
+  my $strength_from_categories =
+  30 *
+  ( sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } )
+    || 0 );
+  my $strength = $strength_from_parts + $strength_from_categories;
+  $strength += $Global::GroupStrengthByConsistency{$self};
+  $strength = 100 if $strength > 100;
+  ### p, c, t: $strength_from_parts, $strength_from_categories, $strength
+  $self->set_strength($strength);
 }
 
 sub Extend {
-    scalar(@_) == 3 or confess "Need 3 arguments";
-    my ( $self, $to_insert, $insert_at_end_p ) = @_;
+  scalar(@_) == 3 or confess "Need 3 arguments";
+  my ( $self, $to_insert, $insert_at_end_p ) = @_;
 
-    # $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
+# $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
 
-    my $id        = ident $self;
-    my $parts_ref = $self->get_parts_ref();    # It's in SObject...
+  my $id        = ident $self;
+  my $parts_ref = $self->get_parts_ref();    # It's in SObject...
 
-    my @parts_of_new_group;
-    if ($insert_at_end_p) {
-        @parts_of_new_group = ( @$parts_ref, $to_insert );
+  my @parts_of_new_group;
+  if ($insert_at_end_p) {
+    @parts_of_new_group = ( @$parts_ref, $to_insert );
+  }
+  else {
+    @parts_of_new_group = ( $to_insert, @$parts_ref );
+  }
+
+  my $potential_new_group = SAnchored->create(@parts_of_new_group)
+  or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")
+  ->throw();
+  my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);
+  if ($conflicts) {
+    $conflicts->Resolve( { IgnoreConflictWith => $self } ) or return;
+  }
+
+  # If there are supergroups, they must die. Kludge, for now:
+  if ( my @supergps = SWorkspace->GetSuperGroups($self) ) {
+    if ( SUtil::toss(0.5) ) {
+      for (@supergps) {
+        SWorkspace::__DeleteGroup($_);
+      }
     }
     else {
-        @parts_of_new_group = ( $to_insert, @$parts_ref );
+      return;
     }
+  }
 
-    my $potential_new_group = SAnchored->create(@parts_of_new_group)
-        or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")->throw();
-    my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);
-    if ($conflicts) {
-        $conflicts->Resolve( { IgnoreConflictWith => $self } ) or return;
-    }
+  # If we get here, all conflicting incumbents are dead.
+  @$parts_ref = @parts_of_new_group;
 
-    # If there are supergroups, they must die. Kludge, for now:
-    if ( my @supergps = SWorkspace->GetSuperGroups($self) ) {
-        if ( SUtil::toss(0.5) ) {
-            for (@supergps) {
-                SWorkspace::__DeleteGroup($_);
-            }
-        }
-        else {
-            return;
-        }
-    }
-
-    # If we get here, all conflicting incumbents are dead.
-    @$parts_ref = @parts_of_new_group;
-
-    $self->Update();
-    $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
-    return 1;
+  $self->Update();
+  $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
+  return 1;
 }
 
 sub Update {
-    my ($self) = @_;
-    $self->recalculate_edges();
-    $self->recalculate_categories();
-    $self->recalculate_relations();
-    $self->UpdateStrength();
-    if ( my $underlying_reln = $self->get_underlying_reln() ) {
-        eval { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) };
-        if ($EVAL_ERROR) {
-            SWorkspace->remove_gp($self);
-            return;
-        }
-        confess "underlying_reln lost here" unless $self->get_underlying_reln;
+  my ($self) = @_;
+  $self->recalculate_edges();
+  $self->recalculate_categories();
+  $self->recalculate_relations();
+  $self->UpdateStrength();
+  if ( my $underlying_reln = $self->get_underlying_reln() ) {
+    eval { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) };
+    if ($EVAL_ERROR) {
+      SWorkspace->remove_gp($self);
+      return;
     }
+    confess "underlying_reln lost here" unless $self->get_underlying_reln;
+  }
 
-    # SWorkspace::UpdateGroupsContaining($self);
-    SWorkspace::__UpdateGroup($self);
+  # SWorkspace::UpdateGroupsContaining($self);
+  SWorkspace::__UpdateGroup($self);
 }
 
 sub FindExtension {
-    @_ == 3 or confess "FindExtension for an object requires 3 args";
-    my ( $self, $direction_to_extend_in, $skip ) = @_;
+  @_ == 3 or confess "FindExtension for an object requires 3 args";
+  my ( $self, $direction_to_extend_in, $skip ) = @_;
 
-    my $underlying_ruleapp = $self->get_underlying_reln() or return;
-    return $underlying_ruleapp->FindExtension( {direction_to_extend_in => $direction_to_extend_in,
-                                                skip_this_many_elements => $skip } );
+  my $underlying_ruleapp = $self->get_underlying_reln() or return;
+  return $underlying_ruleapp->FindExtension(
+    {
+      direction_to_extend_in  => $direction_to_extend_in,
+      skip_this_many_elements => $skip
+    }
+  );
 }
 
 sub CheckSquintability {
-    my ( $self, $intended ) = @_;
-    my $intended_structure_string = $intended->get_structure_string();
-    return
-        map { $self->CheckSquintabilityForCategory( $intended_structure_string, $_ ) }
-        @{ $self->get_categories() };
+  my ( $self, $intended ) = @_;
+  my $intended_structure_string = $intended->get_structure_string();
+  return
+  map { $self->CheckSquintabilityForCategory( $intended_structure_string, $_ ) }
+  @{ $self->get_categories() };
 }
 
 sub CheckSquintabilityForCategory {
-    my ( $self, $intended_structure_string, $category ) = @_;
-    if ( my $squintability_checker = $category->get_squintability_checker() ) {
-        return $squintability_checker->( $self, $intended_structure_string );
-    }
+  my ( $self, $intended_structure_string, $category ) = @_;
+  if ( my $squintability_checker = $category->get_squintability_checker() ) {
+    return $squintability_checker->( $self, $intended_structure_string );
+  }
 
-    my $bindings = $self->GetBindingForCategory($category)
-        or confess "CheckSquintabilityForCategory called on object not an instance of the category";
+  my $bindings = $self->GetBindingForCategory($category)
+  or confess
+  "CheckSquintabilityForCategory called on object not an instance of the category";
 
-    my @meto_types = $category->get_meto_types();
-    my @return;
-    for my $name (@meto_types) {
-        my $finder = $category->get_meto_finder($name);
-        my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
-        next
-            unless $squinted->get_starred()->get_structure_string() eq $intended_structure_string;
-        push @return, $squinted->get_type();
-    }
-    return @return;
+  my @meto_types = $category->get_meto_types();
+  my @return;
+  for my $name (@meto_types) {
+    my $finder = $category->get_meto_finder($name);
+    my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
+    next
+    unless $squinted->get_starred()->get_structure_string() eq
+      $intended_structure_string;
+    push @return, $squinted->get_type();
+  }
+  return @return;
 }
 
 sub IsFlushRight {
-    my ($self) = @_;
-    $self->get_right_edge() == $SWorkspace::ElementCount - 1 ? 1 : 0;
+  my ($self) = @_;
+  $self->get_right_edge() == $SWorkspace::ElementCount - 1 ? 1 :0;
 }
 
 sub IsFlushLeft {
-    my ($self) = @_;
-    $self->get_left_edge() == 0 ? 1 : 0;
+  my ($self) = @_;
+  $self->get_left_edge() == 0 ? 1 :0;
 }
 
 1;

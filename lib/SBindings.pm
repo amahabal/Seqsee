@@ -75,16 +75,17 @@ my %metonymy_type_of : ATTR(:get<metonymy_type>);
 #    object - needed to weave a story
 
 sub create {
-    my ( $package, $slippage_ref, $bindings_ref, $object ) = @_;
-    ## SBindings constructor: $slippage_ref, $bindings_ref, $object
-    ( defined($slippage_ref) and defined($bindings_ref) and defined($object) )
-        or confess "Need three args!";
-    return $package->new(
-        {   raw_slippages => $slippage_ref,
-            bindings      => $bindings_ref,
-            object        => $object,
-        }
-    );
+  my ( $package, $slippage_ref, $bindings_ref, $object ) = @_;
+  ## SBindings constructor: $slippage_ref, $bindings_ref, $object
+  ( defined($slippage_ref) and defined($bindings_ref) and defined($object) )
+  or confess "Need three args!";
+  return $package->new(
+    {
+      raw_slippages => $slippage_ref,
+      bindings      => $bindings_ref,
+      object        => $object,
+    }
+  );
 }
 
 # method: BUILD
@@ -93,12 +94,13 @@ sub create {
 #    Sets bindings, squinting_raw. Then calls weave story that can set the other parameters.
 
 sub BUILD {
-    my ( $self, $id, $opts_ref ) = @_;
-    $bindings_of_of{$id}   = $opts_ref->{bindings}      || confess "Need bindings";
-    $squinting_raw_of{$id} = $opts_ref->{raw_slippages} || confess "Need slippages";
-    my $object = $opts_ref->{object}
-        || confess "Need object (in order to weave a story)";
-    $self->_weave_story($object) unless $object->isa('SInt');
+  my ( $self, $id, $opts_ref ) = @_;
+  $bindings_of_of{$id} = $opts_ref->{bindings} || confess "Need bindings";
+  $squinting_raw_of{$id} = $opts_ref->{raw_slippages}
+  || confess "Need slippages";
+  my $object = $opts_ref->{object}
+  || confess "Need object (in order to weave a story)";
+  $self->_weave_story($object) unless $object->isa('SInt');
 }
 
 #
@@ -111,10 +113,10 @@ sub BUILD {
 #    $bdg->GetBindingForAttribute("start")
 
 sub GetBindingForAttribute {
-    my ( $self, $what ) = @_;
-    my $id = ident $self;
+  my ( $self, $what ) = @_;
+  my $id = ident $self;
 
-    return $bindings_of_of{$id}{$what};
+  return $bindings_of_of{$id}{$what};
 }
 
 # method: get_metonymy_cat
@@ -122,10 +124,10 @@ sub GetBindingForAttribute {
 #
 
 sub get_metonymy_cat {
-    my ($self) = @_;
-    my $id = ident $self;
+  my ($self) = @_;
+  my $id = ident $self;
 
-    return $metonymy_type_of{$id}->get_category();
+  return $metonymy_type_of{$id}->get_category();
 }
 
 # method: get_metonymy_name
@@ -133,24 +135,24 @@ sub get_metonymy_cat {
 #
 
 sub get_metonymy_name {
-    my ($self) = @_;
-    my $id = ident $self;
+  my ($self) = @_;
+  my $id = ident $self;
 
-    return $metonymy_type_of{$id}->get_name();
+  return $metonymy_type_of{$id}->get_name();
 }
 
 sub TellDirectedStory {
-    my ( $self, $object, $position_mode ) = @_;
-    my $id = ident $self;
+  my ( $self, $object, $position_mode ) = @_;
+  my $id = ident $self;
 
-    my $metonymy_mode = $self->get_metonymy_mode;
-    return unless $metonymy_mode->is_position_relevant();
+  my $metonymy_mode = $self->get_metonymy_mode;
+  return unless $metonymy_mode->is_position_relevant();
 
-    if ( $metonymy_mode eq METO_MODE::ALLBUTONE() ) {
-        confess "story retelling not implemented for this metonymy_mode";
-    }
-    my ($index) = keys %{ $squinting_raw_of{$id} };
-    $self->_describe_position( $object, $index, $position_mode );
+  if ( $metonymy_mode eq METO_MODE::ALLBUTONE() ) {
+    confess "story retelling not implemented for this metonymy_mode";
+  }
+  my ($index) = keys %{ $squinting_raw_of{$id} };
+  $self->_describe_position( $object, $index, $position_mode );
 }
 
 # method: tell_forward_story
@@ -159,8 +161,8 @@ sub TellDirectedStory {
 # Assumption is that a story has already been woven once
 
 sub tell_forward_story {
-    my ( $self, $object ) = @_;
-    $self->TellDirectedStory( $object, $POS_MODE::FORWARD );
+  my ( $self, $object ) = @_;
+  $self->TellDirectedStory( $object, $POS_MODE::FORWARD );
 }
 
 # method: tell_backward_story
@@ -169,8 +171,8 @@ sub tell_forward_story {
 # Assumption is that a story has already been woven once
 
 sub tell_backward_story {
-    my ( $self, $object ) = @_;
-    $self->TellDirectedStory( $object, $POS_MODE::BACKWARD );
+  my ( $self, $object ) = @_;
+  $self->TellDirectedStory( $object, $POS_MODE::BACKWARD );
 }
 
 #
@@ -182,42 +184,42 @@ sub tell_backward_story {
 #    I should detail this function a lot more.
 
 sub _weave_story {
-    my ( $self, $object ) = @_;
-    my $id = ident $self;
+  my ( $self, $object ) = @_;
+  my $id = ident $self;
 
-    my $slippages       = $squinting_raw_of{$id};
-    my $object_size     = $object->get_parts_count();
-    my $slippages_count = scalar( keys %$slippages );
+  my $slippages       = $squinting_raw_of{$id};
+  my $object_size     = $object->get_parts_count();
+  my $slippages_count = scalar( keys %$slippages );
 
-    my ( $metonymy_mode, $position_mode, $position );
-    my ( $metonymy_cat, $metonymy_name );
-    my ($metonymy_type);
+  my ( $metonymy_mode, $position_mode, $position );
+  my ( $metonymy_cat, $metonymy_name );
+  my ($metonymy_type);
 
-    # Metonymy_Mode
-    if ( $slippages_count == 0 ) {
-        $metonymy_mode = METO_MODE::NONE();
+  # Metonymy_Mode
+  if ( $slippages_count == 0 ) {
+    $metonymy_mode = METO_MODE::NONE();
+  }
+  else {
+
+    # So: slippages are involved!
+    $metonymy_type = SMetonym->intersection( values %$slippages );
+
+    if ( $slippages_count == $object_size ) {
+
+      # XXX:If both are 1, I should have the choice of putting mode = 1!
+      $metonymy_mode = METO_MODE::ALL();
     }
-    else {
-
-        # So: slippages are involved!
-        $metonymy_type = SMetonym->intersection( values %$slippages );
-
-        if ( $slippages_count == $object_size ) {
-
-            # XXX:If both are 1, I should have the choice of putting mode = 1!
-            $metonymy_mode = METO_MODE::ALL();
-        }
-        elsif ( $slippages_count == 1 ) {
-            $metonymy_mode = METO_MODE::SINGLE();
-            $self->_describe_position( $object, keys %$slippages );
-        }
+    elsif ( $slippages_count == 1 ) {
+      $metonymy_mode = METO_MODE::SINGLE();
+      $self->_describe_position( $object, keys %$slippages );
     }
+  }
 
-    $metonymy_mode_of{$id} = $metonymy_mode;
+  $metonymy_mode_of{$id} = $metonymy_mode;
 
-    #$position_mode_of{$id} = $position_mode;
-    #$position_of{$id}      = $position;
-    $metonymy_type_of{$id} = $metonymy_type;
+  #$position_mode_of{$id} = $position_mode;
+  #$position_of{$id}      = $position;
+  $metonymy_type_of{$id} = $metonymy_type;
 }
 
 # method: _describe_position
@@ -225,12 +227,13 @@ sub _weave_story {
 #
 
 sub _describe_position {
-    my ( $self, $object, $index, $position_mode ) = @_;
-    my $id = ident $self;
+  my ( $self, $object, $index, $position_mode ) = @_;
+  my $id = ident $self;
 
-    $position_mode = POS_MODE::FORWARD(); # The only allowed now.
-    $position_mode_of{$id} = $position_mode;
-    return $position_of{$id} = SPos->new( $index + 1 ); # It is 1-based, input is 0-based
+  $position_mode = POS_MODE::FORWARD();      # The only allowed now.
+  $position_mode_of{$id} = $position_mode;
+  return $position_of{$id} =
+  SPos->new( $index + 1 );                   # It is 1-based, input is 0-based
 }
 
 1;

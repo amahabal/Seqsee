@@ -1,4 +1,5 @@
 use SCat::OfObj;
+
 #use SCat::OfCat;
 use SCat::OfObj::Std;
 use SCat::OfObj::Numeric;

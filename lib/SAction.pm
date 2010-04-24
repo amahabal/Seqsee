@@ -29,36 +29,36 @@ my %urgency_of : ATTR( :get<urgency> );    # Probability of running: 0 to 100.
 my %args_of_of : ATTR;                     # Options.
 
 sub BUILD {
-    my ( $self, $id, $opts_ref ) = @_;
-    $family_of{$id}  = $opts_ref->{family}  or confess "Need family";
-    $urgency_of{$id} = $opts_ref->{urgency} or confess "Need urgency";
-    $args_of_of{$id} = $opts_ref->{args}    or confess "Need args";
+  my ( $self, $id, $opts_ref ) = @_;
+  $family_of{$id}  = $opts_ref->{family}  or confess "Need family";
+  $urgency_of{$id} = $opts_ref->{urgency} or confess "Need urgency";
+  $args_of_of{$id} = $opts_ref->{args}    or confess "Need args";
 }
 
 # method: conditionally_run
 # run with probability equal to urgency.
 sub conditionally_run {
-    my ($self) = @_;
-    my $id = ident $self;
+  my ($self) = @_;
+  my $id = ident $self;
 
-    if ($Global::debugMAX) {
-        main::message("About to take action $family_of{$id}: " .
-                          SUtil::StringifyForCarp($args_of_of{$id}));
-    }
+  if ($Global::debugMAX) {
+    main::message( "About to take action $family_of{$id}: "
+      . SUtil::StringifyForCarp( $args_of_of{$id} ) );
+  }
 
-    return unless ( SUtil::toss( $urgency_of{$id} / 100 ) );
-    if ($Global::Feature{CodeletTree}) {
-        print {$Global::CodeletTreeLogHandle} "\t$self\t$family_of{$id}\t100\n";
-        print {$Global::CodeletTreeLogHandle} "acted $self\n";
-    }
-    no strict;
-    my $family = $family_of{$id};
-    $SCoderack::HistoryOfRunnable{"SCF::$family"}++;
-    $Global::CurrentCodelet = $self;
-    $Global::CurrentCodeletFamily = 'Action ' . $family;
-    my $code   = *{ "SCF::$family" . "::run" }{CODE}
-        or SCodelet::fishy_codefamily($family);
-    $code->( $self, $args_of_of{$id} );
+  return unless ( SUtil::toss( $urgency_of{$id} / 100 ) );
+  if ( $Global::Feature{CodeletTree} ) {
+    print {$Global::CodeletTreeLogHandle} "\t$self\t$family_of{$id}\t100\n";
+    print {$Global::CodeletTreeLogHandle} "acted $self\n";
+  }
+  no strict;
+  my $family = $family_of{$id};
+  $SCoderack::HistoryOfRunnable{"SCF::$family"}++;
+  $Global::CurrentCodelet       = $self;
+  $Global::CurrentCodeletFamily = 'Action ' . $family;
+  my $code = *{ "SCF::$family" . "::run" }{CODE}
+  or SCodelet::fishy_codefamily($family);
+  $code->( $self, $args_of_of{$id} );
 }
 
 1;
