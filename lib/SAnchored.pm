@@ -167,8 +167,12 @@ sub overlaps {
 
 sub UpdateStrength {
   my ($self) = @_;
-    my $strength_from_parts = ««Strength::SAnchored::FromParts: group=>$self»»;
-    my $strength_from_categories = «« Strength::SAnchored::FromCategories: group=>$self »»;
+    my $strength_from_parts = 
+    20 + 0.2 * ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
+;
+    my $strength_from_categories = 
+    30 * ( sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } ) || 0 );
+;
     my $strength = $strength_from_parts + $strength_from_categories;
     $strength += $Global::GroupStrengthByConsistency{$self};
     $strength = 100 if $strength > 100;
