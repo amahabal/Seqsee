@@ -16,28 +16,31 @@ my $STABILITY_RECIPROCAL = STABILITY_RECIPROCAL();
 my $REAL_ACTIVATION      = REAL_ACTIVATION();
 my $MODIFIER_NODE_INDEX  = MODIFIER_NODE_INDEX();
 
-
 sub GetRawActivation       { return $_[0]->[RAW_ACTIVATION]; }
 sub GetRawSignificance     { return $_[0]->[RAW_SIGNIFICANCE]; }
 sub GetStabilityReciprocal { return $_[0]->[STABILITY_RECIPROCAL]; }
 
 our @PRECALCULATED;
 for ( 0 .. 200 ) {
-    $PRECALCULATED[$_] = 0.4815 + 0.342 * atan2( 12 * ( $_ / 100 - 0.5 ), 1 );    # change!
+  $PRECALCULATED[$_] =
+  0.4815 + 0.342 * atan2( 12 * ( $_ / 100 - 0.5 ), 1 );    # change!
 }
 
 our $Initial_Raw_Activation       = 5;
 our $Initial_Raw_Significance     = 1;
-our $Initial_Stability  = 50;
+our $Initial_Stability            = 50;
 our $Initial_Stability_Reciprocal = 1 / $Initial_Stability;
-my $Initial_Real_Activation = $PRECALCULATED[ $Initial_Raw_Activation + $Initial_Raw_Significance ] // confess "Initial_Real_Activation not defined!";
+my $Initial_Real_Activation =
+$PRECALCULATED[ $Initial_Raw_Activation + $Initial_Raw_Significance ]
+// confess "Initial_Real_Activation not defined!";
 
 sub new {
-    my ( $package, $modifier_index ) = @_;
-    bless [
-        $Initial_Raw_Activation,  $Initial_Raw_Significance, $Initial_Stability_Reciprocal,
-        $Initial_Real_Activation, $modifier_index,
-    ], $package;
+  my ( $package, $modifier_index ) = @_;
+  bless [
+    $Initial_Raw_Activation,       $Initial_Raw_Significance,
+    $Initial_Stability_Reciprocal, $Initial_Real_Activation,
+    $modifier_index,
+  ], $package;
 }
 
 our $DECAY_CODE = q{
@@ -64,7 +67,6 @@ our $SPIKE_CODE = q{
     $_->[3] = $PRECALCULATED[$_->[0] + $_->[1]];
 };
 
-
 *Decay = eval qq{sub {\$_ = \$_[0]; $DECAY_CODE }};
 
 *DecayMany = eval qq{
@@ -88,18 +90,20 @@ sub {
 };
 
 sub AmountToSpread {
-    my ( $self, $original_amount ) = @_;
-    my $amt1 =  $original_amount * $self->[RAW_SIGNIFICANCE] / $self->[STABILITY_RECIPROCAL];
-    my $modifier = $self->[MODIFIER_NODE_INDEX];
-    if ($modifier) {
-        my $modifier_activation = $SLTM::ACTIVATIONS[$modifier][2]; # SNodeActivation::REAL_ACTIVATION()
-        $modifier_activation // 
-            confess "AmountToSpread: <$self>, <$modifier> <$SLTM::ACTIVATIONS[$modifier]> <$modifier_activation>";
-        $amt1 *= ($modifier_activation * 3);
-    }
-    $amt1 /= 100;
-    $amt1 += 1;
-    return $amt1;
+  my ( $self, $original_amount ) = @_;
+  my $amt1 =
+  $original_amount * $self->[RAW_SIGNIFICANCE] / $self->[STABILITY_RECIPROCAL];
+  my $modifier = $self->[MODIFIER_NODE_INDEX];
+  if ($modifier) {
+    my $modifier_activation =
+    $SLTM::ACTIVATIONS[$modifier][2];    # SNodeActivation::REAL_ACTIVATION()
+    $modifier_activation // confess
+    "AmountToSpread: <$self>, <$modifier> <$SLTM::ACTIVATIONS[$modifier]> <$modifier_activation>";
+    $amt1 *= ( $modifier_activation * 3 );
+  }
+  $amt1 /= 100;
+  $amt1 += 1;
+  return $amt1;
 }
 
 1;
