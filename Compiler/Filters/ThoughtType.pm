@@ -21,7 +21,7 @@ my %AllowedBlocks = map { $_ => 1 } qw(INITIAL FINAL FRINGE ACTIONS BUILD AS_TEX
 
 sub GenerateThoughtCode {
     my ( $package_name, $arguments, $blocks ) = @_;
-    print "GENERATE THOUGHT CODE CALLED ON $package_name; blocks=$blocks\n";
+    # print "GENERATE THOUGHT CODE CALLED ON $package_name; blocks=$blocks\n";
 
     while ( my ( $k, $v ) = each %$blocks ) {
         confess "UNKNOWN BLOCK $k!" unless $AllowedBlocks{$k};

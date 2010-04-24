@@ -59,7 +59,7 @@ sub GenerateScriptCode {
     my @STEPS;
     for my $block (@$blocks_list) {
         my ($name, $content) = @$block;
-        print "SAW $name!\n";
+        # print "SAW $name!\n";
         push @STEPS, $content if $name eq 'STEP';
     }
 
@@ -107,7 +107,7 @@ my %AllowedBlocks = map {$_ => 1 } qw(INITIAL NAME RUN FINAL);
 sub GenerateFamilyCode {
     my ( $package_name, $arguments, $blocks ) = @_;
     $package_name = "SCF::$package_name";
-    print "GENERATE FAMILY CODE CALLED ON $package_name; blocks=$blocks\n";
+    # print "GENERATE FAMILY CODE CALLED ON $package_name; blocks=$blocks\n";
 
     while (my($k, $v) = each %$blocks) {
         confess "UNKNOWN BLOCK >>$k<<!" unless $AllowedBlocks{$k};
