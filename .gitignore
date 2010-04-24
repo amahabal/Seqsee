@@ -5,6 +5,7 @@ blib
 genlib
 *.ERR
 *.old
+*.bak
 Makefile
 nytprof.out
 pm_to_blib
