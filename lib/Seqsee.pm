@@ -109,7 +109,8 @@ sub Seqsee_Step {
     my $runnable = SCoderack->get_next_runnable();
     return unless $runnable;    # prog not yet finished!
 
-    TRY {
+    
+       eval { 
         if ( $runnable->isa("SCodelet") ) {
             if ( $Global::Feature{CodeletTree} ) {
                 print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
@@ -123,14 +124,14 @@ sub Seqsee_Step {
         if ($Global::Sanity) {
             SanityCheck();
         }
-    }
-    CATCH {
-    ProgOver: {
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ProgOver')) { 
             return 1;
 
-        }
-    DEFAULT: { main::default_error_handler($err); }
-    }
+        ; last CATCH_BLOCK; }  main::default_error_handler($err); ; last CATCH_BLOCK; die $err }
+       }
+    
 
     return;
 }

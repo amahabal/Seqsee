@@ -53,13 +53,15 @@ sub insert {
     $reln->uninsert() if $reln;
 
     my $add_success;
-    TRY { $add_success = SWorkspace->AddRelation($self) }
-    CATCH {
-    DEFAULT: {
+    
+       eval {  $add_success = SWorkspace->AddRelation($self)  };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: {  
             print $err, "\n";
             confess "Relation insertion error";
-        }
-    }
+        ; last CATCH_BLOCK; die $err }
+       }
+    
 
     if ($add_success) {
         for ( $f, $s ) {
