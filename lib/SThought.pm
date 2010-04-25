@@ -2,14 +2,18 @@ package SThought;
 use 5.10.0;
 use strict;
 
-use Class::Std;
+use Moose;
 use Carp;
 use Memoize;
 memoize('create');
 
-# variable: %fringe_of
-#    Keeps the fringe of the the thought
-my %stored_fringe_of : ATTR( :get<stored_fringe>, :set<stored_fringe> );
+has stored_fringe => ( is => 'rw', );
+
+has core => (
+  is       => 'rw',
+  required => 1,
+  weak_ref => 1,
+);
 
 # method: create
 # creates a though given the core

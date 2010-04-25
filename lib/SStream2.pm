@@ -144,7 +144,7 @@ sub _think_the_current_thought {
 
   my $fringe = $thought->get_fringe();
   ## $fringe
-  $thought->set_stored_fringe($fringe);
+  $thought->stored_fringe($fringe);
 
   my $hit_with = $self->_is_there_a_hit($fringe);
   ## $hit_with
@@ -221,7 +221,7 @@ sub _recalculate_Compstrength {
   %{$ComponentOwnership_of} = ();
   %{$vivify}                = ();
   for my $t ( @{ $self->{OlderThoughts} } ) {
-    my $fringe = $t->get_stored_fringe();
+    my $fringe = $t->stored_fringe();
     for my $comp_act (@$fringe) {
       my ( $comp, $act ) = @$comp_act;
       $vivify->{$comp} = $comp;
