@@ -43,7 +43,7 @@ sub DrawOneItem {
 
     my $fringe_string;
     {
-        my $fringe = $thought->get_stored_fringe() or return;
+        my $fringe = $thought->stored_fringe() or return;
         my @fringe_parts = rnkeysort { $_->[1] } @$fringe;
         for (@fringe_parts) {
             my ($component, $activation) = @$_;

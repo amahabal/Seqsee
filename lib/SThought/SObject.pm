@@ -22,7 +22,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
   }
 
   for my $category ( @{ $core->get_categories() } ) {
-    next if $category eq $S::RELN_BASED;
+    # next if $category eq $S::RELN_BASED;
     push @ret, [ $category, 100 ];
     SLTM::SpikeBy( 5, $category );
 
@@ -411,7 +411,7 @@ multimethod get_fringe_for => ('SElement') => sub {
 
 sub get_fringe {
   my ($self) = @_;
-  return [ get_fringe_for( $self->core ) ];
+  return  get_fringe_for( $self->core ) ;
 }
 
 sub get_actions {
