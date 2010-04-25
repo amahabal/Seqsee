@@ -1,21 +1,3 @@
-CodeletFamily FocusOn( $what = {0} ) does {
-NAME: { Read from Workspace }
-RUN: {
-        if ($what) {
-            ContinueWith( SThought->create($what) );
-        }
-
-        # Equivalent to Reader
-        if ( SUtil::toss(««Codelet, FocusOn::HuntsSameness»») ) {
-            SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
-            return;
-        }
-        my $object = SWorkspace::__ReadObjectOrRelation() // return;
-        main::message("Focusing on: ".$object->as_text()) if $Global::debugMAX;
-        ContinueWith( SThought->create($object) );
-    }
-};
-
 CodeletFamily LookForSimilarGroups( $group ! ) does {
 NAME: { Look for Similar Groups }
 RUN: {

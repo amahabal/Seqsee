@@ -50,6 +50,7 @@ use SWorkspace;
 
 use SCF::Load;
 use SCF2::Load;
+use SCF_MX::Load;
 use SThought::Load;
 use Scripts::Load;
 
