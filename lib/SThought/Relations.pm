@@ -1,75 +1,140 @@
-ThoughtType SRelation( $core ! ) does {
-  NAME: {Focusing on an Analogy}
-AS_TEXT: { return $self->get_core()->as_text }
-INITIAL: {
-        multimethod 'createRule';
-    }
-FRINGE: {
-        FRINGE 100, $core->get_type();
-        FRINGE 50,  $core->get_first();
-        FRINGE 50,  $core->get_second();
-    }
-ACTIONS: {
+
+    {
+
+      package SThought::SRelation;
+      use strict;
+      use Carp;
+      use Smart::Comments;
+      use English qw(-no_match_vars);
+      use Class::Multimethods;
+      use base qw{SThought};
+      use List::Util qw{min max};
+      use Class::Std;
+
+      our @actions_ret;
+      our $NAME = 'Focusing on an Analogy';
+
+      my %core_of : ATTR(:get<core>);
+
+      multimethod 'createRule';
+
+      sub BUILD {
+        my ( $self, $id, $opts_ref ) = @_;
+        my $core = $core_of{$id} = $opts_ref->{core}
+        or confess "Missing required argument core";
+      }
+
+      sub get_fringe {
+        my ($self) = @_;
+        my $id     = ident $self;
+        my $core   = $core_of{$id};
+        my @ret;
+        push @ret, [ $core->get_type(),   100 ];
+        push @ret, [ $core->get_first(),  50 ];
+        push @ret, [ $core->get_second(), 50 ];
+        return \@ret;
+      }
+
+      sub get_actions {
+        my ($self) = @_;
+        my $id     = ident $self;
+        my $core   = $core_of{$id};
+        our @actions_ret = ();
         my ( $end1,        $end2 )         = $core->get_ends;
         my ( $extent_left, $extent_right ) = $core->get_extent;
         my $relntype                = $core->get_type();
         my $relationtype_activation = SLTM::SpikeBy( 5, $relntype );
-        my $are_ends_contiguous = $core->are_ends_contiguous();
+        my $are_ends_contiguous     = $core->are_ends_contiguous();
 
-        if ( $are_ends_contiguous and $relntype->IsEffectivelyASamenessRelation() ) {
-            CODELET 100, AreTheseGroupable,
-                {
-                items => [ $end1, $end2 ],
-                reln  => $core,
-                };
-        }
-        elsif ( $are_ends_contiguous and not SWorkspace::__GetObjectsWithEndsBeyond( $extent_left, $extent_right ) ) {
-            CODELET 80, AreTheseGroupable,
-                {
-                items => [ $end1, $end2 ],
-                reln  => $core,
-                };
-        }
-
-        CODELET 100, AttemptExtensionOfRelation,
+        if (  $are_ends_contiguous
+          and $relntype->IsEffectivelyASamenessRelation() )
+        {
+          push @actions_ret,
+          SCodelet->new(
+            "AreTheseGroupable",
+            100,
             {
+              items => [ $end1, $end2 ],
+              reln  => $core,
+            }
+          );
+        }
+        elsif ( $are_ends_contiguous
+          and not SWorkspace::__GetObjectsWithEndsBeyond( $extent_left,
+            $extent_right ) )
+        {
+          push @actions_ret,
+          SCodelet->new(
+            "AreTheseGroupable",
+            80,
+            {
+              items => [ $end1, $end2 ],
+              reln  => $core,
+            }
+          );
+        }
+
+        push @actions_ret,
+        SCodelet->new(
+          "AttemptExtensionOfRelation",
+          100,
+          {
             core      => $core,
             direction => DIR::RIGHT()
-            };
-        CODELET 100, AttemptExtensionOfRelation,
-            {
+          }
+        );
+        push @actions_ret,
+        SCodelet->new(
+          "AttemptExtensionOfRelation",
+          100,
+          {
             core      => $core,
             direction => DIR::LEFT()
-            };
-        # SLTM::InsertFollowsLink( $core->get_ends(), $core )->Spike(5) if $Global::Feature{LTM};
+          }
+        );
+
+# SLTM::InsertFollowsLink( $core->get_ends(), $core )->Spike(5) if $Global::Feature{LTM};
 
         my @ends = SWorkspace::__SortLtoRByLeftEdge( $end1, $end2 );
-        my @intervening_objects
-            = SWorkspace->get_intervening_objects( $ends[0]->get_right_edge + 1,
-                                                   $ends[1]->get_left_edge - 1 );
+        my @intervening_objects =
+        SWorkspace->get_intervening_objects( $ends[0]->get_right_edge + 1,
+          $ends[1]->get_left_edge - 1 );
         my $distance_magnitude = scalar(@intervening_objects);
         if ($distance_magnitude) {
-            my $possible_ad_hoc_cat = SCat::OfObj::Interlaced->Create($distance_magnitude + 1);
-            my $ad_hoc_activation = SLTM::SpikeBy( 20 / $distance_magnitude, $possible_ad_hoc_cat );
-            if ( SUtil::significant($ad_hoc_activation) and SUtil::toss($ad_hoc_activation) and !$Global::Feature{NoInterlaced} ) {
-                my @new_object_parts =
-                    SUtil::toss(0.5)
-                    ? ( $ends[0], @intervening_objects )
-                    : ( @intervening_objects, $ends[1] );
-                if (not SWorkspace::__GetObjectsWithEndsExactly(
-                        $new_object_parts[0]->get_left_edge(),
-                        $new_object_parts[-1]->get_right_edge()
-                    )
-                    )
-                {
-                    my $new_obj = SAnchored->create(@new_object_parts);
-                    SWorkspace->add_group($new_obj);
-                    $new_obj->describe_as($possible_ad_hoc_cat);
-                }
+          my $possible_ad_hoc_cat =
+          SCat::OfObj::Interlaced->Create( $distance_magnitude + 1 );
+          my $ad_hoc_activation =
+          SLTM::SpikeBy( 20 / $distance_magnitude, $possible_ad_hoc_cat );
+          if (  SUtil::significant($ad_hoc_activation)
+            and SUtil::toss($ad_hoc_activation)
+            and!$Global::Feature{NoInterlaced} )
+          {
+            my @new_object_parts =
+            SUtil::toss(0.5)
+            ? ( $ends[0], @intervening_objects )
+            :( @intervening_objects, $ends[1] );
+            if (
+              not SWorkspace::__GetObjectsWithEndsExactly(
+                $new_object_parts[0]->get_left_edge(),
+                $new_object_parts[-1]->get_right_edge()
+              )
+            )
+            {
+              my $new_obj = SAnchored->create(@new_object_parts);
+              SWorkspace->add_group($new_obj);
+              $new_obj->describe_as($possible_ad_hoc_cat);
             }
+          }
         }
 
-    }
-}
+        return @actions_ret;
+      }
 
-1;
+      sub as_text {
+        my $self = shift;
+        return $self->get_core()->as_text;
+      }
+
+    }
+
+    1;
