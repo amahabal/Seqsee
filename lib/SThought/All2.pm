@@ -1,8 +1,8 @@
 CodeletFamily AreRelated( $a !, $b ! ) does {
 NAME: {Are These Two Objects Related?}
 RUN: {
-        my $a_core = $a->can('get_core') ? $a->get_core() : undef;
-        my $b_core = $b->can('get_core') ? $b->get_core() : undef;
+        my $a_core = $a->can('core') ? $a->core() : undef;
+        my $b_core = $b->can('core') ? $b->core() : undef;
 
         ## $a_core, $b_core
 
