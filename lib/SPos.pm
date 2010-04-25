@@ -1,32 +1,33 @@
-#####################################################
-#
-#    Package: SPos
-#
-#####################################################
-#   Manages positions
-#####################################################
-
 package SPos;
-use strict;
 use Carp;
-use SPos::Forward;
-use SPos::Backward;
+use Moose;
+use overload ('eq' => '__equality__',
+              '~~' => '__equality__',
+              fallback => 1);
 
-{
-  my %MEMO;
+has position => (
+    is         => 'rw',
+    isa        => 'Int',
+    required   => 1,
+);
 
-  sub new {
-    my ( $package, $what, $type ) = @_;
-    confess unless $what =~ m/^ -? \d+ $/ox;
-    unless ($type) {
-      $type =
-       ( $what > 0 ) ? "Forward"
-      :( $what < 0 ) ? "Backward"
-      :                confess "SPos->new(0) illegal";
-    }
-    my $key = "$what;$type";
-    return $MEMO{$key} ||= "SPos::$type"->new( { index => $what } );
+sub BUILD {
+  my $self = shift;
+  if ($self->position <= 0) {
+    confess "Attempt to set position to " . $self->position;
   }
+}
+
+sub BUILDARGS {
+  my $class = shift;
+  if (@_ == 1 and not(ref($_[0]))) {
+    return { position => $_[0] }
+  }
+  return {@_};
+}
+
+sub __equality__ {
+  $_[0]->position() == $_[1]->position();
 }
 
 1;
