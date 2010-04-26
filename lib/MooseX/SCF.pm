@@ -16,7 +16,7 @@ Moose::Exporter->setup_import_methods(
 );
 
 sub Codelet_Family {
-  my ( $caller, $name, %options ) = @_;
+  my ( $caller, %options ) = @_;
   my $meta = Class::MOP::Class->initialize($caller);
 
   Carp::confess 'Require attributes' unless $options{attributes};

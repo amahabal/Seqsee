@@ -1,7 +1,7 @@
 package SCF::CheckIfInstance;
 use 5.010;
 use MooseX::SCF;
-Codelet_Family CheckIfInstance => (
+Codelet_Family(
   attributes => [ obj => {}, cat => {} ],
   body       => sub {
     my ( $obj, $cat ) = @_;
@@ -15,22 +15,22 @@ Codelet_Family CheckIfInstance => (
 package SCF::FocusOn;
 use MooseX::SCF;
 use SCF;
-Codelet_Family FocusOn => (
+Codelet_Family(
   attributes => [ what => { optional => 1 } ],
-  body => sub {
-   my ($what) = @_;
-   if ($what) {
-       ContinueWith( SThought->create($what) );
-   }
+  body       => sub {
+    my ($what) = @_;
+    if ($what) {
+      ContinueWith( SThought->create($what) );
+    }
 
-   # Equivalent to Reader
-   if ( SUtil::toss(0.1) ) {
-       SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
-       return;
-   }
-   my $object = SWorkspace::__ReadObjectOrRelation() // return;
-   main::message("Focusing on: ".$object->as_text()) if $Global::debugMAX;
-   ContinueWith( SThought->create($object) );
-  }                           
+    # Equivalent to Reader
+    if ( SUtil::toss(0.1) ) {
+      SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
+      return;
+    }
+    my $object = SWorkspace::__ReadObjectOrRelation() // return;
+    main::message( "Focusing on: " . $object->as_text() ) if $Global::debugMAX;
+    ContinueWith( SThought->create($object) );
+  }
 );
 1;
