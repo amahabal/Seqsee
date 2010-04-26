@@ -12,6 +12,7 @@ use MooseX::Params::Validate;
 
 Moose::Exporter->setup_import_methods(
   with_caller => ['Codelet_Family'],
+  as_is       => ['ACTION'],
   also        => 'Moose',
 );
 
@@ -24,12 +25,22 @@ sub Codelet_Family {
 
   my $run_subroutine = sub {
     my $action_object = shift;
-    my @arguments = validated_list( [%{$_[0]}], @{ $options{attributes} } );
+    my @arguments = validated_list( [ %{ $_[0] } ], @{ $options{attributes} } );
     $options{body}->(@arguments);
   };
   $meta->add_method( 'run' => $run_subroutine );
   return;
 }
 
+sub ACTION {
+  my ( $urgency, $family, $options ) = @_;
+  SAction->new(
+    {
+      family  => $family,
+      urgency => $urgency,
+      args    => $options,
+    }
+  )->conditionally_run();
+}
 1;
 
