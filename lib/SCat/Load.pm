@@ -8,7 +8,8 @@ use SCat::OfObj::Interlaced;
 use SCat::OfObj::Assuming;
 use SCat::OfObj::Alternating;
 
-use SCat::ascending;
+# use SCat::ascending;
+use SCategory::Ascending;
 use SCat::descending;
 use SCat::mountain;
 use SCat::sameness;

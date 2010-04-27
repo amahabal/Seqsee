@@ -102,7 +102,7 @@ sub GetMemoryIndex {
 
 sub InsertNode {
   ### ensure: $_[0] ne "SLTM"
-  ### ensure: $_[0] and $_PURE_CLASSES_{ref($_[0])}
+  ### ensure: $_[0] and ($_PURE_CLASSES_{ref($_[0])} or $_[0]->is_pure())
   my ($pure) = @_;
 
   ## Currently installing: %CurrentlyInstalling, $pure

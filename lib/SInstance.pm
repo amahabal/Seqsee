@@ -42,7 +42,7 @@ sub add_category {
   my $id = ident $self;
 
   $bindings->isa("SBindings") or die "Need SBinding";
-  $cat->isa("SCat::OfObj")    or die "Need SCat";
+  $cat->isa("SCat::OfObj") or $cat->does('SCategory')    or die "Need SCat";
 
   my $cat_ref = $cats_of_of{$id};
 
@@ -58,7 +58,7 @@ sub remove_category {
   my ( $self, $cat ) = @_;
 
   my $id = ident $self;
-  $cat->isa("SCat::OfObj") or die "Need SCat";
+  $cat->isa("SCat::OfObj") or $cat->does('SCategory') or die "Need SCat";
 
   my $cat_ref = $cats_of_of{$id};
 

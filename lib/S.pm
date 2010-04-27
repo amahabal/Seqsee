@@ -65,7 +65,8 @@ use PositionStructure;
 
 # use SUtil;
 
-our $ASCENDING  = $SCat::ascending::ascending;
+# our $ASCENDING  = $SCat::ascending::ascending;
+our $ASCENDING  = SCategory::Ascending->new;
 our $DESCENDING = $SCat::descending::descending;
 our $MOUNTAIN   = $SCat::mountain::mountain;
 
