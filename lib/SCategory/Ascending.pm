@@ -1,6 +1,14 @@
 package SCategory::Ascending;
 use Moose;
 
+use overload
+'~~'     => 'literal_comparison_hack_for_smart_match',
+fallback => 1;
+
+sub literal_comparison_hack_for_smart_match {
+  return $_[0] eq $_[1];
+}
+
 with 'LTMStorable::Independent';
 with 'SCategory';
 
