@@ -67,7 +67,7 @@ use PositionStructure;
 
 # our $ASCENDING  = $SCat::ascending::ascending;
 our $ASCENDING  = SCategory::Ascending->new;
-our $DESCENDING = $SCat::descending::descending;
+our $DESCENDING = SCategory::Descending->new;
 our $MOUNTAIN   = $SCat::mountain::mountain;
 
 #our $number     = $SCat::number::number;

@@ -1,4 +1,4 @@
-package SCategory::Ascending;
+package SCategory::Descending;
 use Moose;
 
 use overload
@@ -13,15 +13,15 @@ with 'LTMStorable::Independent';
 with 'SCategory';
 
 sub string_to_recreate {
-  q{SCategory::Ascending->new()};
+  q{SCategory::Descending->new()};
 }
 
 sub get_name {
-  return "ascending";
+  return "descending";
 }
 
 sub as_text {
-  return "ascending";
+  return "descending";
 }
 
 sub _guesser {
@@ -63,20 +63,20 @@ sub build {
   $start =
   exists( $args_ref->{start} )
   ? $args_ref->{start}
-  :$args_ref->{end} - $args_ref->{length} + 1;
+  :$args_ref->{end} + $args_ref->{length} - 1;
 
   $end =
   exists( $args_ref->{end} )
   ? $args_ref->{end}
-  :$args_ref->{start} + $args_ref->{length} - 1;
+  :$args_ref->{start} - $args_ref->{length} + 1;
 
   $args_ref->{start}  ||= $start;
   $args_ref->{end}    ||= $end;
-  $args_ref->{length} ||= $end - $start + 1;
+  $args_ref->{length} ||= $start - $end + 1;
 
   my $start_mag = ref($start) ? $start->get_mag() :$start;
   my $end_mag   = ref($end)   ? $end->get_mag()   :$end;
-  my $ret = SObject->create( $start_mag .. $end_mag );
+  my $ret = SObject->create( reverse($end_mag .. $start_mag) );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
   $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
   return $ret;

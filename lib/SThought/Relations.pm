@@ -14,7 +14,7 @@ multimethod 'createRule';
 
 sub get_fringe {
   my ($self) = @_;
-  my $core = $self->core();
+  my $core = $self->core() or confess "Core is empty!";
   my @ret;
   push @ret, [ $core->get_type(),   100 ];
   push @ret, [ $core->get_first(),  50 ];

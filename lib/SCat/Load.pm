@@ -10,7 +10,7 @@ use SCat::OfObj::Alternating;
 
 # use SCat::ascending;
 use SCategory::Ascending;
-use SCat::descending;
+use SCategory::Descending;
 use SCat::mountain;
 use SCat::sameness;
 use SCat::Number;
