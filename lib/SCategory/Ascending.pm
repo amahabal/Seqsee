@@ -10,6 +10,7 @@ sub literal_comparison_hack_for_smart_match {
 }
 
 with 'LTMStorable::Independent';
+with 'SCategory::MetonymySpec::NotMetonyable';
 with 'SCategory';
 
 sub string_to_recreate {

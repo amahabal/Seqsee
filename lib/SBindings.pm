@@ -48,10 +48,10 @@ has position => (
     reader => 'get_position',
 );
 
-has metonym_type => (
+has metonymy_type => (
     is         => 'rw',
     isa        => 'Any',
-    reader => 'get_metonym_type',
+    reader => 'get_metonymy_type',
     handles => { get_metonymy_cat => 'get_category',
           get_metonymy_name => 'get_name' },
 );
@@ -61,7 +61,7 @@ sub BUILD {
   if ($self->slippages_count == 0) {
     $self->metonymy_mode(METO_MODE::NONE());
   } else {
-    $self->metonym_type(SMetonym->intersection($self->all_slippages));
+    $self->metonymy_type(SMetonym->intersection($self->all_slippages));
     if ($self->slippages_count == 1) {
       $self->metonymy_mode(METO_MODE::SINGLE());
       $self->position_mode(POS_MODE::FORWARD());

@@ -1,6 +1,7 @@
 package SCategory;
 use Moose::Role;
 with 'LTMStorable';
+with 'SCategory::MetonymySpec';
 
 requires 'Instancer';
 requires 'build';

@@ -267,9 +267,6 @@ sub CheckSquintability {
 
 sub CheckSquintabilityForCategory {
   my ( $self, $intended_structure_string, $category ) = @_;
-  if ( my $squintability_checker = $category->get_squintability_checker() ) {
-    return $squintability_checker->( $self, $intended_structure_string );
-  }
 
   my $bindings = $self->GetBindingForCategory($category)
   or confess

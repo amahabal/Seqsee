@@ -65,13 +65,6 @@ sub find_metonym {
   return $obj;
 }
 
-sub get_squintability_checker {
-  my ($self) = @_;
-
-# XXX(Board-it-up): [2006/12/29] Currently just returns No. Should be different for some categories.
-  return;
-}
-
 sub get_meto_types {
   my ($self) = @_;
   return;
