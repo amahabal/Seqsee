@@ -7,6 +7,7 @@ use English qw{-no-match-vars};
 use base qw{};
 use Smart::Comments;
 use Class::Multimethods;
+use Try::Tiny;
 
 multimethod 'ApplyTransform';
 multimethod 'FindTransform';
@@ -177,7 +178,7 @@ sub _ExtendSeveralSteps {
     my $current_end = $items[$index_of_end];
     my $success;
 
-    eval {
+    try {
       $success = _ExtendOneStep(
         {
           items_ref              => \@items,
@@ -187,31 +188,30 @@ sub _ExtendSeveralSteps {
           extend_at_start_or_end => $extend_at_start_or_end,
         }
       );
-    };
-    if ( my $err = $EVAL_ERROR ) {
-      CATCH_BLOCK: {
-        if ( UNIVERSAL::isa( $err, 'SErr::ElementsBeyondKnownSought' ) ) {
-          my $trust_level =
-          0.5 *
-          List::Util::sum( map { $_->get_span() } @items ) /
-          $SWorkspace::ElementCount;
-          return unless SUtil::toss($trust_level);
-          SCoderack->add_codelet(
-            SCodelet->new(
-              'MaybeAskTheseTerms',
-              10000,
-              {
-                core      => $self,
-                exception => $err,
-              }
-            )
-          );
-          return;
-          last CATCH_BLOCK;
-        }
-        die $err;
-      }
     }
+    catch {
+      main::message("In catch block");
+      if ( UNIVERSAL::isa( $_, 'SErr::ElementsBeyondKnownSought' ) ) {
+        my $trust_level =
+        0.5 *
+        List::Util::sum( map { $_->get_span() } @items ) /
+        $SWorkspace::ElementCount;
+        return unless SUtil::toss($trust_level);
+        SCoderack->add_codelet(
+          SCodelet->new(
+            'MaybeAskTheseTerms',
+            10000,
+            {
+              core      => $self,
+              exception => $_,
+            }
+          )
+        );
+        return;
+      } else {
+        die $_;
+      }
+    };
 
     return unless $success;
   }

@@ -83,11 +83,11 @@ sub __Clear {
 }
 
 sub __CheckLiveness {
-  return List::MoreUtils::all { exists $Objects{$_} } @_;
+  return SUtil::all { exists $Objects{$_} } @_;
 }
 
 sub __CheckLivenessAtSomePoint {
-  return List::MoreUtils::all { exists $LiveAtSomePoint{$_} } @_;
+  return SUtil::all { exists $LiveAtSomePoint{$_} } @_;
 }
 
 sub __CheckLivenessAndDiagnose {
@@ -1412,8 +1412,7 @@ sub are_there_holes_here {
   my @keys = values %slots_taken;
   ## @keys
   my ( $left, $right ) =
-  List::MoreUtils::minmax( $keys[0], @keys )
-  ;  #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+  SUtil::minmax( @keys );
   ## $left, $right
   my $span = $right - $left + 1;
 

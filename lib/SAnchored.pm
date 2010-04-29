@@ -47,8 +47,7 @@ sub recalculate_edges {
   my @keys = values %slots_taken;
   ## @keys
   my ( $left, $right ) =
-  List::MoreUtils::minmax( $keys[0], @keys )
-  ;  #Funny syntax because minmax is buggy, doesn't work for list with 1 element
+  SUtil::minmax( @keys );
   $self->set_left_edge($left);
   $self->set_right_edge($right);
   ### insist: scalar(@keys) == $right - $left + 1

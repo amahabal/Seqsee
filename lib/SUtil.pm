@@ -213,7 +213,7 @@ sub clear_all_but_workspace {
   SCoderack->clear;
 }
 
-sub List::MoreUtils::minmax {
+sub minmax {
   die "undefined!" unless @_;
   return ( $_[0], $_[0] ) if @_ == 1;
   my $min = shift;
@@ -227,7 +227,7 @@ sub List::MoreUtils::minmax {
 
 }
 
-sub List::MoreUtils::all (&@) {
+sub all (&@) {
   my ( $code, @rest ) = @_;
   for (@rest) {
     return unless $code->($_);

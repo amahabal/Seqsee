@@ -11,7 +11,7 @@ sub ActualQuestion {
     ### require: @items
 
     if ( scalar(@items) == 1 ) {
-        return "Is the next term $items[0]?";
+        return "Is the next term $items[0]??";
     }
     else {
         my $count  = scalar(@items);
