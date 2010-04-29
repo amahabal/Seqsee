@@ -11,7 +11,7 @@ use SCat::OfObj::Alternating;
 # use SCat::ascending;
 use SCategory::Ascending;
 use SCategory::Descending;
-use SCat::mountain;
+use SCategory::Mountain;
 use SCat::sameness;
 use SCat::Number;
 use SCat::Prime;

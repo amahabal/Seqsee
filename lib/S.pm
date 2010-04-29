@@ -68,7 +68,7 @@ use PositionStructure;
 # our $ASCENDING  = $SCat::ascending::ascending;
 our $ASCENDING  = SCategory::Ascending->new;
 our $DESCENDING = SCategory::Descending->new;
-our $MOUNTAIN   = $SCat::mountain::mountain;
+our $MOUNTAIN   = SCategory::Mountain->new;
 
 #our $number     = $SCat::number::number;
 our $SAMENESS = $SCat::sameness::sameness;
