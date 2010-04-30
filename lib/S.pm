@@ -71,7 +71,7 @@ our $DESCENDING = SCategory::Descending->new;
 our $MOUNTAIN   = SCategory::Mountain->new;
 
 #our $number     = $SCat::number::number;
-our $SAMENESS = $SCat::sameness::sameness;
+our $SAMENESS = SCategory::Sameness->new;
 our $AD_HOC   = $SCat::ad_hoc::AD_HOC;
 our $NUMBER   = $SCat::Number::Number;
 our $PRIME    = $SCat::Prime::Prime;
