@@ -267,4 +267,8 @@ sub CalculateBindingsChange_with_slips {
   return 1;
 }
 
+sub IsNumeric {
+  my $self = shift;
+  return $self->does("SCategory::Numeric");
+}
 1;

@@ -75,8 +75,8 @@ our $SAMENESS = SCategory::Sameness->new;
 our $AD_HOC   = $SCat::ad_hoc::AD_HOC;
 our $NUMBER   = $SCat::Number::Number;
 our $PRIME    = $SCat::Prime::Prime;
-our $ODD      = $SCat::Odd::Odd;
-our $EVEN     = $SCat::Even::Even;
+our $ODD      = SCategory::Odd->new;
+our $EVEN     = SCategory::Even->new;
 
 our $DOUBLE = SMetonymType->new(
   {
