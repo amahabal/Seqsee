@@ -357,9 +357,9 @@ MULTIPLE_RUN: {
         )->pack( -side => 'top' );
     }
 ALL_MULTIPLE_TIMES: {
-        my $TimesToRun    = 10;
+        my $TimesToRun    = 3;
         my $StepsToRunFor = 10000;
-        my $FILENAME = 'config/sequence_list_for_multiple';
+        my $FILENAME = 'config/sequence_list_for_testing';
     TIMES: {
             my $subframe = $all_frame->Frame()->pack( -side => 'top' );
             $subframe->Label( -text => "Number of Times to Run " )->pack( -side => 'left' );
