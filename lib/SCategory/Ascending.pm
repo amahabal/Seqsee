@@ -26,7 +26,7 @@ sub as_text {
 }
 
 sub _guesser {
-  my $subobject        = shift;
+  my $subobject        = shift // return;
   my $effective_object = $subobject->GetEffectiveObject();
   return unless ( ref($effective_object) eq 'SElement' );
   return SInt->new( $effective_object->get_mag );
