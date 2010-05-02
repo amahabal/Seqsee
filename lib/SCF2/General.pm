@@ -103,7 +103,7 @@ RUN: {
         if ($is_this_what_is_present) {
             my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $expected_next_object );
             return unless $plonk_result->PlonkWasSuccessful();
-            my $wso = $plonk_result->get_resultant_object() or return;
+            my $wso = $plonk_result->resultant_object() or return;
 
             $wso->describe_as($effective_transform->get_category());
             my @ends = ($direction eq $DIR::RIGHT) ? ($group, $wso) : ($wso, $group);
@@ -327,7 +327,7 @@ RUN: {
             
             my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
             return unless $plonk_result->PlonkWasSuccessful();
-            my $wso = $plonk_result->get_resultant_object();
+            my $wso = $plonk_result->resultant_object();
 
             my $cat = $transform->get_category();
             SLTM::SpikeBy(10, $cat);
@@ -416,7 +416,7 @@ CodeletFamily AttemptExtensionOfGroup_proposed(   $object!, $direction!) does {
         } else {
             my $literally_present = $result_of_something_like->get_literally_present() or return;
             my $plonk_result = __PlonkIntoPlace(@$literally_present);
-            my $new_object = $plonk_result->get_resultant_object() or return;
+            my $new_object = $plonk_result->resultant_object() or return;
 
             given ($direction) {
                 when ($DIR::RIGHT) {

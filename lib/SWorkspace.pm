@@ -541,10 +541,10 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
     my $plonk_result =
     __PlonkIntoPlace( $plonk_cursor, $DIR::RIGHT, $subobject );
     if ( $plonk_result->PlonkWasSuccessful() ) {
-      push @new_parts, $plonk_result->get_resultant_object();
+      push @new_parts, $plonk_result->resultant_object();
       $plonk_cursor += $subobjectspan;
       $attribute_copy_status_so_far->UpdateWith(
-        $plonk_result->get_attribute_copy_result );
+        $plonk_result->attribute_copy_result );
     }
     else {
       return ResultOfPlonk->Failed($object);
@@ -1514,7 +1514,7 @@ sub GetSomethingLike {
   if ($is_object_literally_present) {
     my $plonk_result = __PlonkIntoPlace( $start_pos, $direction, $object )
     or return;
-    my $present_object = $plonk_result->get_resultant_object();
+    my $present_object = $plonk_result->resultant_object();
     if ( SUtil::toss(0.5) ) {
       return $present_object;
     }

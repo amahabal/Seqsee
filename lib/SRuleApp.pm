@@ -135,7 +135,7 @@ sub _ExtendOneStep {
   __PlonkIntoPlace( $next_pos, $direction_to_extend_in, $next_object );
   confess "__PlonkIntoPlace failed. Shouldn't have, I think"
   unless $plonk_result->PlonkWasSuccessful();
-  my $wso = $plonk_result->get_resultant_object();
+  my $wso = $plonk_result->resultant_object();
   my $reln;
   given ($extend_at_start_or_end) {
     when ('end') {
