@@ -6,4 +6,8 @@ genlib
 *.ERR
 nytprof
 nytprof.out
+*.old
+*.bak
+foo
+results.dat
 

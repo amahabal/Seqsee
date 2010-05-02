@@ -1,6 +1,7 @@
 CodeletFamily MaybeAskTheseTerms( $core !, $exception ! ) does {
 INITIAL: { use Class::Multimethods qw{createRule}; }
 RUN: {
+  main::message("MaybeAskTheseTerms called");
         my ( $type_of_core, $rule ) = get_core_type_and_rule($core);
 
         my $time_since_successful_extension
@@ -68,6 +69,8 @@ FINAL: {
 CodeletFamily DoTheAsking( $core !, $exception !, $msg_prefix = {""} ) does {
 INITIAL: { use Class::Multimethods qw{createRule}; }
 RUN: {
+  main::message("DoTheAsking called");
+
         my ( $type_of_core, $rule ) = SCF::MaybeAskTheseTerms::get_core_type_and_rule($core);
         my $success;
         if ( $type_of_core eq 'relation' ) {

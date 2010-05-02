@@ -25,7 +25,7 @@ CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $group={0}, $exceptio
             # We can establish the new relation!
             my $transform = $relation->get_type();
             my $new_relation = SRelation->new({first => $relation->get_second(),
-                                               second => $plonk_result->get_resultant_object(),
+                                               second => $plonk_result->resultant_object(),
                                                type => $transform,
                                            });
             $new_relation->insert();
@@ -33,7 +33,7 @@ CodeletFamily AskIfThisIsTheContinuation(   $relation={0}, $group={0}, $exceptio
             # We can extend the group!
             my $ruleapp = $group->get_underlying_reln() or return;
             my $transform = $ruleapp->get_rule()->get_transform();
-            my $new_object = $plonk_result->get_resultant_object();
+            my $new_object = $plonk_result->resultant_object();
             my $new_relation = SRelation->new({first => $group->[-1],
                                                second => $new_object, 
                                                type => $transform,

@@ -1,16 +1,3 @@
-CodeletFamily CheckIfInstance( $obj !, $cat ! ) does {
-  NAME: {Check Whether Object is an Instance of this Category}
-RUN: {
-        if ( $obj->describe_as($cat) ) {
-            if ( $Global::Feature{LTM} ) {
-                SLTM::SpikeBy( ««SpikeAmount, CheckIfInstance::Category»», $cat );
-                SLTM::InsertISALink( $obj, $cat )->Spike(««SpikeAmount,
-                                                           CheckIfInstance::Link »»);
-            }
-        }
-    }
-}
-
 CodeletFamily AttemptExtensionOfGroup( $object !, $direction ! ) does {
   NAME: {Attempt Extension of Group}
 INITIAL: {

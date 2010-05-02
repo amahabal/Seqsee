@@ -44,7 +44,7 @@ ExtraStuff: {
                 -text   => $tht->as_text(),
                 Style::ThoughtHead(),
             );
-            my $fringe = $tht->get_stored_fringe() or return;
+            my $fringe = $tht->stored_fringe() or return;
             my $count  = 0;
             for ((@$fringe)[0..2]) {
                 last unless $_;

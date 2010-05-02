@@ -38,9 +38,9 @@ sub Populate {
               exit(0) } );
 
     for (@$tags_ref) {
-        print "Configuring $_->[0]...";
+        #print "Configuring $_->[0]...";
         $Text->tagConfigure(@$_);
-        print " Done.\n";
+        #print " Done.\n";
     }
 
     $ButtonFrame = $self->Frame()->pack( -side => 'right' );

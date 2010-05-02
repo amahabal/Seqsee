@@ -8,10 +8,11 @@ use Test::Seqsee;
 
 my %options = (
     f => sub {
+      print "PROCESSING @_\n";
         my ( $ignored, $feature_name ) = @_;
         print "$feature_name WILL BE TURNED ON IN THIS SINGLE TEST\n";
         unless ( $Global::PossibleFeatures{$feature_name} ) {
-            print "No feature $feature_name. Typo?\n";
+            print "=============\nNo feature $feature_name. Typo?\n===========\n";
             exit;
         }
         $Global::Feature{$feature_name} = 1;

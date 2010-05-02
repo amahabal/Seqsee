@@ -15,68 +15,78 @@ my %Transform_of : ATTR(:name<transform>);
 my %Flipped_Transform_of : ATTR(:name<flipped_transform>);
 
 sub create {
-    my ($package) = shift;
-    createRule(@_);
+  my ($package) = shift;
+  createRule(@_);
 }
 
 multimethod createRule => qw(SRelation) => sub {
-    my ($rel) = @_;
-    return createRule( $rel->get_type() );
+  my ($rel) = @_;
+  return createRule( $rel->get_type() );
 };
 
 multimethod createRule => qw(Transform) => sub {
-    my ($transform) = @_;
-    state %MEMO;
-    my $flipped_transform = $transform->FlippedVersion() or return;
-    confess unless $flipped_transform->CheckSanity();
-    return $MEMO{$transform} ||= SRule->new( { transform => $transform,
-                                               flipped_transform => $flipped_transform,
-                                           } );
+  my ($transform) = @_;
+  state %MEMO;
+  my $flipped_transform = $transform->FlippedVersion() or return;
+  confess unless $flipped_transform->CheckSanity();
+  return $MEMO{$transform} ||= SRule->new(
+    {
+      transform         => $transform,
+      flipped_transform => $flipped_transform,
+    }
+  );
 };
 
 sub CreateApplication {
-    my ( $self, $opts_ref ) = @_;
-    my $id = ident $self;
-    my $start = $opts_ref->{start} or confess "need start";
-    my $direction = $opts_ref->{direction} or confess "need direction";
+  my ( $self, $opts_ref ) = @_;
+  my $id        = ident $self;
+  my $start     = $opts_ref->{start} or confess "need start";
+  my $direction = $opts_ref->{direction} or confess "need direction";
 
-    return SRuleApp->new({
-        rule => $self,
-        items => [$start],
-        direction => $direction,
-            });
+  return SRuleApp->new(
+    {
+      rule      => $self,
+      items     => [$start],
+      direction => $direction,
+    }
+  );
 }
 
 sub CheckApplicability {
-    my ( $self, $opts_ref ) = @_;
-    my $id = ident $self;
-    my $objects_ref = $opts_ref->{objects} or confess "need objects";
+  my ( $self, $opts_ref ) = @_;
+  my $id = ident $self;
+  my $objects_ref = $opts_ref->{objects} or confess "need objects";
 
-    my @objects_to_account_for = @$objects_ref;
-    my @accounted_for = shift(@objects_to_account_for);
+  my @objects_to_account_for = @$objects_ref;
+  my @accounted_for          = shift(@objects_to_account_for);
 
-    my $transform = $Transform_of{$id};
-    while (@objects_to_account_for) {
-        my $last_accounted_for_object = $accounted_for[-1]->GetEffectiveObject;
-        my $expected_next = ApplyTransform($transform, $last_accounted_for_object) or return;
-        my $actual_next = shift(@objects_to_account_for);
-        return unless $expected_next->get_structure_string() eq $actual_next->GetEffectiveObject()->get_structure_string();
-        push @accounted_for, $actual_next;
+  my $transform = $Transform_of{$id};
+  while (@objects_to_account_for) {
+    my $last_accounted_for_object = $accounted_for[-1]->GetEffectiveObject;
+    my $expected_next = ApplyTransform( $transform, $last_accounted_for_object )
+    or return;
+    my $actual_next = shift(@objects_to_account_for);
+    return
+    unless $expected_next->get_structure_string() eq
+      $actual_next->GetEffectiveObject()->get_structure_string();
+    push @accounted_for, $actual_next;
+  }
+
+  my $direction = SWorkspace::__FindObjectSetDirection(@accounted_for);
+  return unless $direction->IsLeftOrRight();
+
+  return SRuleApp->new(
+    {
+      rule      => $self,
+      items     => \@accounted_for,
+      direction => $direction
     }
-
-    my $direction = SWorkspace::__FindObjectSetDirection(@accounted_for);
-    return unless $direction->IsLeftOrRight();
-
-    return SRuleApp->new({
-        rule => $self,
-        items => \@accounted_for,
-        direction => $direction
-            });
+  );
 }
 
 sub as_text {
-    my ( $self ) = @_;
-    my $id = ident $self;
-    return "Rule: " . $Transform_of{$id}->as_text();
+  my ($self) = @_;
+  my $id = ident $self;
+  return "Rule: " . $Transform_of{$id}->as_text();
 }
 1;

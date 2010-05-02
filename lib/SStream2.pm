@@ -20,45 +20,45 @@ my %MEMO;
 #  Purpose          : Creates a new instance and initializes it.
 ##
 #  Multi?           : No
-#  Usage            : SStream2->CreateNew(...)               
+#  Usage            : SStream2->CreateNew(...)
 #  Memoized         : Yes, but only using the name.
 #  Throws           : no exceptions
 #  Comments         :
 #  See Also         : n/a
 
 sub CreateNew {
-    my ( $package, $name, $opts_ref ) = @_;
-    confess "Missing name!" unless $name;
+  my ( $package, $name, $opts_ref ) = @_;
+  confess "Missing name!" unless $name;
 
-    return $MEMO{$name} if $MEMO{$name};
-    my $self = bless {}, $package;
-    $MEMO{$name} = $self;
+  return $MEMO{$name} if $MEMO{$name};
+  my $self = bless {}, $package;
+  $MEMO{$name} = $self;
 
-    $self->{Name}                  = $name;
-    $self->{DiscountFactor}        = $opts_ref->{DiscountFactor} || 0.8;
-    $self->{MaxOlderThoughts}      = $opts_ref->{MaxOlderThoughts} || 10;
-    $self->{OlderThoughtCount}     = 0;
-    $self->{OlderThoughts}         = [];
-    $self->{ThoughtsSet}           = {};
-    $self->{ComponentStrength}     = {};
-    $self->{ComponentOwnership_of} = {};
-    $self->{CurrentThought}        = '';
-    $self->{vivify}                = {};
-    $self->{hit_intensity}         = {};
-    $self->{thought_hit_intensity} = {};
+  $self->{Name}                  = $name;
+  $self->{DiscountFactor}        = $opts_ref->{DiscountFactor} || 0.8;
+  $self->{MaxOlderThoughts}      = $opts_ref->{MaxOlderThoughts} || 10;
+  $self->{OlderThoughtCount}     = 0;
+  $self->{OlderThoughts}         = [];
+  $self->{ThoughtsSet}           = {};
+  $self->{ComponentStrength}     = {};
+  $self->{ComponentOwnership_of} = {};
+  $self->{CurrentThought}        = '';
+  $self->{vivify}                = {};
+  $self->{hit_intensity}         = {};
+  $self->{thought_hit_intensity} = {};
 
-    return $self;
+  return $self;
 }
 
 sub clear {
-    my ($self) = @_;
-    $self->{OlderThoughtCount}     = 0;
-    $self->{OlderThoughts}         = [];
-    $self->{ThoughtsSet}           = {};
-    $self->{ComponentStrength}     = {};
-    $self->{ComponentOwnership_of} = {};
-    $self->{CurrentThought}        = '';
-    $self->{vivify}                = {};
+  my ($self) = @_;
+  $self->{OlderThoughtCount}     = 0;
+  $self->{OlderThoughts}         = [];
+  $self->{ThoughtsSet}           = {};
+  $self->{ComponentStrength}     = {};
+  $self->{ComponentOwnership_of} = {};
+  $self->{CurrentThought}        = '';
+  $self->{vivify}                = {};
 }
 
 ############# Method ######################
@@ -69,7 +69,7 @@ sub clear {
 #  Purpose          : add a new thought
 ##
 #  Multi?           : No
-#  Usage            : $obj->add_thought(...)               
+#  Usage            : $obj->add_thought(...)
 #  Memoized         : No
 #  Throws           : no exceptions
 #  Comments         :
@@ -84,33 +84,37 @@ sub clear {
 #  the hard work.
 
 sub add_thought {
-    @_ == 2 or confess "new thought takes two arguments";
-    my ( $self, $thought ) = @_;
+  @_ == 2 or confess "new thought takes two arguments";
+  my ( $self, $thought ) = @_;
+  return unless $thought->core();
 
-    if ($Global::debugMAX) {
-        main::message("Added thought: " . SUtil::StringifyForCarp($thought));
-    }
-    if ( $Global::Feature{CodeletTree} ) {
-        print {$Global::CodeletTreeLogHandle} "Chose $thought\n";
-    }
+  if ($Global::debugMAX) {
+    main::message( "Added thought: " . SUtil::StringifyForCarp($thought) );
+  }
+  if ( $Global::Feature{CodeletTree} ) {
+    print {$Global::CodeletTreeLogHandle} "Chose $thought\n";
+  }
 
-    return if $thought eq $self->{CurrentThought};
+  return if $thought eq $self->{CurrentThought};
 
-    if ( exists $self->{ThoughtsSet}{$thought} ) {    #okay, so this is an older thought
-        unshift( @{ $self->{OlderThoughts} }, $self->{CurrentThought} ) if $self->{CurrentThought};
-        @{ $self->{OlderThoughts} } = grep { $_ ne $thought } @{ $self->{OlderThoughts} };
-        $self->{CurrentThought} = $thought;
-        _recalculate_Compstrength();
-        $self->{OlderThoughtCount} = scalar( @{ $self->{OlderThoughts} } );
-    }
+  if ( exists $self->{ThoughtsSet}{$thought} )
+  {    #okay, so this is an older thought
+    unshift( @{ $self->{OlderThoughts} }, $self->{CurrentThought} )
+    if $self->{CurrentThought};
+    @{ $self->{OlderThoughts} } =
+    grep { $_ ne $thought } @{ $self->{OlderThoughts} };
+    $self->{CurrentThought} = $thought;
+    _recalculate_Compstrength();
+    $self->{OlderThoughtCount} = scalar( @{ $self->{OlderThoughts} } );
+  }
 
-    else {
-        $self->antiquate_current_thought() if $self->{CurrentThought};
-        $self->{CurrentThought} = $thought;
-        $self->{ThoughtsSet}{$thought} = $thought;
-        $self->_maybe_expell_thoughts();
-    }
-    $self->_think_the_current_thought();
+  else {
+    $self->antiquate_current_thought() if $self->{CurrentThought};
+    $self->{CurrentThought} = $thought;
+    $self->{ThoughtsSet}{$thought} = $thought;
+    $self->_maybe_expell_thoughts();
+  }
+  $self->_think_the_current_thought();
 
 }
 
@@ -132,61 +136,67 @@ sub add_thought {
 #  The method C<_is_there_a_hit> is used to determine similarity to earlier
 #  thoughts.
 sub _think_the_current_thought {
-    my ($self) = @_;
-    my $thought = $self->{CurrentThought};
-    return unless $thought;
+  my ($self) = @_;
+  my $thought = $self->{CurrentThought};
+  return unless $thought;
 
-    $Global::CurrentCodelet = $thought;
-    $Global::CurrentCodeletFamily = ref($thought);
+  $Global::CurrentCodelet       = $thought;
+  $Global::CurrentCodeletFamily = ref($thought);
 
-    my $fringe = $thought->get_fringe();
-    ## $fringe
-    $thought->set_stored_fringe($fringe);
+  my $fringe = $thought->get_fringe();
+  ## $fringe
+  $thought->stored_fringe($fringe);
 
-    my $hit_with = $self->_is_there_a_hit($fringe);
-    ## $hit_with
+  my $hit_with = $self->_is_there_a_hit($fringe);
+  ## $hit_with
 
-    if ($hit_with) {
-        my $new_thought = SCodelet->new(
-            'AreRelated',
-            100,
-            {   a => $hit_with,
-                b => $thought
-            }
-        )->schedule();
+  if ($hit_with) {
+    my $new_thought = SCodelet->new(
+      'AreRelated',
+      100,
+      {
+        a => $hit_with,
+        b => $thought
+      }
+    )->schedule();
+  }
+
+  my @codelets;
+  for my $x ( $thought->get_actions() ) {
+    my $x_type = ref $x;
+    if ( $x_type eq "SCodelet" ) {
+      push @codelets, $x;
     }
+    elsif ( $x_type eq "SAction" ) {
 
-    my @codelets;
-    for my $x ( $thought->get_actions() ) {
-        my $x_type = ref $x;
-        if ( $x_type eq "SCodelet" ) {
-            push @codelets, $x;
-        }
-        elsif ( $x_type eq "SAction" ) {
-
-            # print "Action of family ", $x->get_family(), " to be run\n";
-            # main::message("Action of family ", $x->get_family());
-            if ( $Global::Feature{CodeletTree} ) {
-                my $family      = $x->get_family;
-                my $probability = $x->get_urgency;
-                print {$Global::CodeletTreeLogHandle} "\t$x\t$family\t$probability\n";
-            }
-            $x->conditionally_run();
-        }
-        else {
-            confess "Huh? non-codelet '$x' returned by get_actions";
-        }
+      # print "Action of family ", $x->get_family(), " to be run\n";
+      # main::message("Action of family ", $x->get_family());
+      if ( $Global::Feature{CodeletTree} ) {
+        my $family      = $x->get_family;
+        my $probability = $x->get_urgency;
+        print {$Global::CodeletTreeLogHandle} "\t$x\t$family\t$probability\n";
+      }
+      $x->conditionally_run();
     }
-
-    my @choose2
-        = scalar(@codelets) > 2
-        ? SChoose->choose_a_few_nonzero( 2, [ map { $_->[1] } @codelets ], \@codelets )
-        : @codelets;
-    for (@choose2) {
-        main::message([$_->[0], ['codelet_family'], 
-                      " codelet added by thought: " . SUtil::StringifyForCarp($_)]) if $Global::debugMAX;
-        SCoderack->add_codelet($_);
+    else {
+      confess "Huh? non-codelet '$x' returned by get_actions";
     }
+  }
+
+  my @choose2 =
+  scalar(@codelets) > 2
+  ? SChoose->choose_a_few_nonzero( 2, [ map { $_->[1] } @codelets ],
+    \@codelets )
+  :@codelets;
+  for (@choose2) {
+    main::message(
+      [
+        $_->[0], ['codelet_family'],
+        " codelet added by thought: " . SUtil::StringifyForCarp($_)
+      ]
+    ) if $Global::debugMAX;
+    SCoderack->add_codelet($_);
+  }
 }
 
 # method: _maybe_expell_thoughts
@@ -194,31 +204,31 @@ sub _think_the_current_thought {
 #
 
 sub _maybe_expell_thoughts {
-    my ($self) = @_;
-    return unless $self->{OlderThoughtCount} > $self->{MaxOlderThoughts};
-    for ( 1 .. $self->{OlderThoughtCount} - $self->{MaxOlderThoughts} ) {
-        delete $self->{ThoughtsSet}{ pop @{ $self->{OlderThoughts} } };
-    }
-    $self->{OlderThoughtCount} = $self->{MaxOlderThoughts};
-    $self->_recalculate_Compstrength();
+  my ($self) = @_;
+  return unless $self->{OlderThoughtCount} > $self->{MaxOlderThoughts};
+  for ( 1 .. $self->{OlderThoughtCount} - $self->{MaxOlderThoughts} ) {
+    delete $self->{ThoughtsSet}{ pop @{ $self->{OlderThoughts} } };
+  }
+  $self->{OlderThoughtCount} = $self->{MaxOlderThoughts};
+  $self->_recalculate_Compstrength();
 }
 
 #method: _recalculate_Compstrength
 # Recalculates the strength of components from scratch
 sub _recalculate_Compstrength {
-    my ($self)                = @_;
-    my $vivify                = $self->{vivify};
-    my $ComponentOwnership_of = $self->{ComponentOwnership_of};
-    %{$ComponentOwnership_of} = ();
-    %{$vivify}                = ();
-    for my $t ( @{ $self->{OlderThoughts} } ) {
-        my $fringe = $t->get_stored_fringe();
-        for my $comp_act (@$fringe) {
-            my ( $comp, $act ) = @$comp_act;
-            $vivify->{$comp} = $comp;
-            $ComponentOwnership_of->{$comp}{$t} = $act;
-        }
+  my ($self)                = @_;
+  my $vivify                = $self->{vivify};
+  my $ComponentOwnership_of = $self->{ComponentOwnership_of};
+  %{$ComponentOwnership_of} = ();
+  %{$vivify}                = ();
+  for my $t ( @{ $self->{OlderThoughts} } ) {
+    my $fringe = $t->stored_fringe();
+    for my $comp_act (@$fringe) {
+      my ( $comp, $act ) = @$comp_act;
+      $vivify->{$comp} = $comp;
+      $ComponentOwnership_of->{$comp}{$t} = $act;
     }
+  }
 }
 
 # method: init
@@ -234,84 +244,83 @@ sub init {
 #
 
 sub antiquate_current_thought {
-    my $self = shift;
-    unshift( @{ $self->{OlderThoughts} }, $self->{CurrentThought} );
-    $self->{CurrentThought} = '';
-    $self->{OlderThoughtCount}++;
-    $self->_recalculate_Compstrength();
+  my $self = shift;
+  unshift( @{ $self->{OlderThoughts} }, $self->{CurrentThought} );
+  $self->{CurrentThought} = '';
+  $self->{OlderThoughtCount}++;
+  $self->_recalculate_Compstrength();
 }
 
 # method: _is_there_a_hit
 # Is there another thought with a common fringe?
 sub _is_there_a_hit {
-    my ( $self, $fringe_ref ) = @_;
-    ## $fringe_ref
-    my %components_hit;    # keys values same
-    my $hit_intensity = $self->{hit_intensity};
-    %$hit_intensity = ();    # keys are components, values numbers
+  my ( $self, $fringe_ref ) = @_;
+  ## $fringe_ref
+  my %components_hit;    # keys values same
+  my $hit_intensity = $self->{hit_intensity};
+  %$hit_intensity = ();    # keys are components, values numbers
 
-    my $ComponentOwnership_of = $self->{ComponentOwnership_of};
+  my $ComponentOwnership_of = $self->{ComponentOwnership_of};
 
-    for my $in_fringe (@$fringe_ref) {
-        my ( $comp, $intensity ) = @$in_fringe;
-        next unless exists $ComponentOwnership_of->{$comp};
-        $components_hit{$comp} = $comp;
-        $hit_intensity->{$comp} = $intensity;
+  for my $in_fringe (@$fringe_ref) {
+    my ( $comp, $intensity ) = @$in_fringe;
+    next unless exists $ComponentOwnership_of->{$comp};
+    $components_hit{$comp} = $comp;
+    $hit_intensity->{$comp} = $intensity;
+  }
+
+  # Now get a list of which thoughts are hit.
+  my $thought_hit_intensity = $self->{thought_hit_intensity};
+  %$thought_hit_intensity = ();    # keys are thoughts, values intensity
+
+  for my $comp ( values %components_hit ) {
+    next unless exists $ComponentOwnership_of->{$comp};
+    my $owner_ref = $ComponentOwnership_of->{$comp};
+    my $intensity = $hit_intensity->{$comp};
+    for my $tht ( keys %$owner_ref ) {
+      $thought_hit_intensity->{$tht} += $owner_ref->{$tht} * $intensity;
     }
+  }
 
-    # Now get a list of which thoughts are hit.
-    my $thought_hit_intensity = $self->{thought_hit_intensity};
-    %$thought_hit_intensity = ();    # keys are thoughts, values intensity
+  return unless %$thought_hit_intensity;
 
-    for my $comp ( values %components_hit ) {
-        next unless exists $ComponentOwnership_of->{$comp};
-        my $owner_ref = $ComponentOwnership_of->{$comp};
-        my $intensity = $hit_intensity->{$comp};
-        for my $tht ( keys %$owner_ref ) {
-            $thought_hit_intensity->{$tht} += $owner_ref->{$tht} * $intensity;
-        }
-    }
+  # Dampen their effect...
+  my $dampen_by = 1;
+  for my $i ( 0 .. $self->{OlderThoughtCount} - 1 ) {
+    $dampen_by *= $self->{DiscountFactor};
+    my $thought = $self->{OlderThoughts}[$i];
+    next unless exists $thought_hit_intensity->{$thought};
+    $thought_hit_intensity->{$thought} *= $dampen_by;
+    $thought_hit_intensity->{$thought} *=
+    $self->thoughtTypeMatch( $thought, $self->{CurrentThought} );
+  }
 
-    return unless %$thought_hit_intensity;
-
-    # Dampen their effect...
-    my $dampen_by = 1;
-    for my $i ( 0 .. $self->{OlderThoughtCount} - 1 ) {
-        $dampen_by *= $self->{DiscountFactor};
-        my $thought = $self->{OlderThoughts}[$i];
-        next unless exists $thought_hit_intensity->{$thought};
-        $thought_hit_intensity->{$thought} *= $dampen_by;
-        $thought_hit_intensity->{$thought}
-            *= $self->thoughtTypeMatch( $thought, $self->{CurrentThought} );
-    }
-
-    my $chosen_thought
-        = SChoose->choose( [ values %$thought_hit_intensity ], [ keys %$thought_hit_intensity ] );
-    return $self->{ThoughtsSet}{$chosen_thought};
+  my $chosen_thought = SChoose->choose( [ values %$thought_hit_intensity ],
+    [ keys %$thought_hit_intensity ] );
+  return $self->{ThoughtsSet}{$chosen_thought};
 }
 
 {
-    my %Mapping = (
-        'SElement:SAnchored' => 0.9,
-        'SAnchored:SElement' => 0.9,
-    );
+  my %Mapping = (
+    'SElement:SAnchored' => 0.9,
+    'SAnchored:SElement' => 0.9,
+  );
 
-    sub thoughtTypeMatch {
-        my ( $self, $othertht, $cur_tht ) = @_;
-        my ( $type1, $type2 ) = map { blessed($_) } ( $othertht, $cur_tht );
+  sub thoughtTypeMatch {
+    my ( $self, $othertht, $cur_tht ) = @_;
+    my ( $type1, $type2 ) = map { blessed($_) } ( $othertht, $cur_tht );
 
-        #main::message("$type1 and $type2");
-        return 1 if $type1 eq $type2;
-        my $str = "$type1;$type2";
-        return $Mapping{$str} if exists $Mapping{$str};
+    #main::message("$type1 and $type2");
+    return 1 if $type1 eq $type2;
+    my $str = "$type1;$type2";
+    return $Mapping{$str} if exists $Mapping{$str};
 
-        #main::message("$str barely match!");
-        return 0;
-    }
+    #main::message("$str barely match!");
+    return 0;
+  }
 }
 
 1;
-
 
 __END__
 

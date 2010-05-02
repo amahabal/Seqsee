@@ -12,7 +12,7 @@ use Class::Std;
 use base qw{};
 
 sub get_pure {
-    return $_[0];
+  return $_[0];
 }
 
 # use Class::Multimethods;
@@ -57,7 +57,6 @@ sub get_pure {
 #     return if $obj eq $effective_object;
 #     return find_relation_type($n, $effective_object);
 # };
-
 
 # multimethod find_relation_type => ('SAnchored', 'SAnchored') => sub  {
 #    my ( $a, $b ) = @_;

@@ -63,7 +63,7 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
         #print "NAB=$name~~$arglist~~>>$body<<\n";
         $Compiler::Filters::Formula::LIST{$name}
             = new Compiler::Filters::Formula( { name => $name, arglist => $arglist, body => $body } );
-           print "Noted new formula for >>$name<<\n";
+          # print "Noted new formula for >>$name<<\n";
         $return = 1;
     }
      | FullIdentifier '=>' '{' NameValuePairs '}' ';' {
@@ -74,7 +74,7 @@ Formula: FullIdentifier '(' ArgList ')' OptionalReturns CodeBlock
            $Compiler::Filters::Formula::LIST{$name} = new Compiler::Filters::Formula({ name => $name,
                     arglist => [], body => $v
                   });
-           print "Noted new formula for >>$name<<\n";
+          # print "Noted new formula for >>$name<<\n";
         }
         $return = 1;
      }

@@ -41,9 +41,6 @@ sub message {
     }
 }
 
-sub debug_message {
-}
-
 sub ask_user_extension {
     my ( $arr_ref, $msg_suffix ) = @_;
 
