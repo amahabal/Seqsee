@@ -1,39 +1,44 @@
-#####################################################
-#
-#    Package: ResultOfGetConflicts
-#
-#####################################################
-#####################################################
-
 package ResultOfGetConflicts;
-use strict;
-use Carp;
-use Class::Std;
-use base qw{};
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
 
-my %original_object_of : ATTR(:name<original>);
-my %exact_conflict_of : ATTR(:name<exact>);
-my %other_conflicts_of : ATTR(:name<other>);
+has challenger => (
+  is       => 'ro',
+  isa      => 'SObject',
+  weak_ref => 1,
+  required => 1,
+);
+
+has exact_conflict => (
+  is       => 'ro',
+  required => 0,
+  weak_ref => 1,
+);
+
+has overlapping_conflicts => (
+  traits  => ['Array'],
+  is      => 'ro',
+  isa     => 'ArrayRef[SObject]',
+  default => sub { [] },
+  handles => {
+    overlapping_conflict_count => 'count',
+    all_overlapping_conflicts  => 'elements'
+  }
+);
 
 use overload (
   q{bool} => sub {
     my ($self) = @_;
-    my $id = ident $self;
-    if ( $exact_conflict_of{$id} or @{ $other_conflicts_of{$id} } ) {
-      return 1;
-    }
-    else {
-      return;
-    }
+    return $self->exact_conflict() || $self->overlapping_conflict_count();
   },
   fallback => 1,
 );
 
 sub Resolve {
   my ( $self, $opts_ref ) = @_;
-  my $id = ident $self;
-
-  my $challenger = $original_object_of{$id};
+  my $challenger = $self->challenger();
 
   my $IgnoreConflictWith = '';
   my $FailIfExact        = 0;
@@ -47,7 +52,7 @@ sub Resolve {
     }
   }
 
-  if ( my $exact = $exact_conflict_of{$id} ) {
+  if ( my $exact = $self->exact_conflict() ) {
     if ( $IgnoreConflictWith ne $exact ) {
       return if $FailIfExact;
       SWorkspace->FightUntoDeath(
@@ -59,7 +64,7 @@ sub Resolve {
     }
   }
 
-  for my $some_other ( @{ $other_conflicts_of{$id} } ) {
+  for my $some_other ( $self->all_overlapping_conflicts() ) {
     next if $some_other eq $IgnoreConflictWith;
     next if ( !SWorkspace::__CheckLiveness($some_other) );
     SWorkspace->FightUntoDeath(
@@ -73,4 +78,6 @@ sub Resolve {
   return 1;
 }
 
+__PACKAGE__->meta->make_immutable;
 1;
+

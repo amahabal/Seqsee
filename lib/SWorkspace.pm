@@ -443,9 +443,9 @@ sub __FindGroupsConflictingWith {
   ## @conflicting: @conflicting
   return ResultOfGetConflicts->new(
     {
-      original => $object,
-      exact    => $exact_conflict,
-      other    => \@conflicting,
+      challenger            => $object,
+      exact_conflict        => $exact_conflict,
+      overlapping_conflicts => \@conflicting,
     }
   );
 }
@@ -1411,8 +1411,7 @@ sub are_there_holes_here {
 
   my @keys = values %slots_taken;
   ## @keys
-  my ( $left, $right ) =
-  SUtil::minmax( @keys );
+  my ( $left, $right ) = SUtil::minmax(@keys);
   ## $left, $right
   my $span = $right - $left + 1;
 
