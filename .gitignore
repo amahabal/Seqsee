@@ -9,3 +9,5 @@ genlib
 Makefile
 nytprof.out
 pm_to_blib
+foo
+results.dat

@@ -106,6 +106,13 @@ sub StartRun {
 
   $TotalSequences = scalar(@sequence_list) * $TIMES_TO_RUN;
   for my $terms (@sequence_list) {
+    my @features_for_this_seq;
+    if ($terms =~ m/(.*?):(.*)/) {
+      my $features = $1;
+      $terms = $2;
+      $terms =~ s#^\s*##;
+      @features_for_this_seq = map {"--f=$_"} split(/,/, $features);
+    }
     my ( $seq, $continuation ) = split( /\|/, $terms );
     $RESULTS{$terms}                = &share( [] );
     $WALLCLOCK_TIME{$terms}         = &share( [] );
@@ -123,7 +130,7 @@ sub StartRun {
       qq{--seq="$seq"},         qq{--continuation="$continuation"},
       qq{-max_steps=$MaxSteps}, qq{--min_extension=3},
       qq{--max_false=3},        qq{--tempfilename=foo},
-      @selected_feature_set,
+      @features_for_this_seq,
     );
 
     # my $cmd = join(" ", @cmd);
