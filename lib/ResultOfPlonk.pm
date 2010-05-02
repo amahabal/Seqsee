@@ -35,7 +35,7 @@ sub PlonkWasSuccessful {
 sub AttributeCopyWasSuccessful {
   my ($self) = @_;
   my $id = ident $self;
-  return $AttributeCopyResult_of{$id}->WasSuccessful();
+  return $AttributeCopyResult_of{$id}->success();
 }
 
 1;

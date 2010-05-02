@@ -1,27 +1,32 @@
 package ResultOfAttributeCopy;
-use strict;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
 
-use Class::Std;
-my %status_of : ATTR(:name<status>);
+has success => (
+  traits => ['Bool'],
+  is        => 'rw',
+  isa       => 'Bool',
+  default   => 1,
+  handles => {
 
-sub Failed {
-  return ResultOfAttributeCopy->new( { status => 'failed' } );
-}
+  }
+);
 
 sub Success {
-  return ResultOfAttributeCopy->new( { status => 'succeeded' } );
+  return ResultOfAttributeCopy->new;
 }
 
-sub WasSuccessful {
-  my ($self) = @_;
-  my $id = ident $self;
-  return ( $status_of{$id} eq 'succeeded' ) ? 1 :0;
+sub Failed {
+  return ResultOfAttributeCopy->new(success => 0);
 }
 
 sub UpdateWith {
   my ( $self, $new_value ) = @_;
-  my $id = ident $self;
-  $status_of{$id} = 'failed' if ( !$new_value->WasSuccessful() );
+  $self->success($self->success() && $new_value->success());
 }
 
+__PACKAGE__->meta->make_immutable;
 1;
+
