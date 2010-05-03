@@ -49,7 +49,7 @@ sub init {
   my $package     = shift;    # $package
   my $OPTIONS_ref = shift;
   print "Initializing Coderack...\n";
-
+  $Global::Steps_Finished //= 0;
   if ( $Global::Feature{CodeletTree} ) {
     open my $handle, '>', $Global::CodeletTreeLogfile;
     select($handle);

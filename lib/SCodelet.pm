@@ -1,18 +1,61 @@
 package SCodelet;
-use strict;
-use Carp;
-use English qw(-no_match_vars);
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
 
-sub new {
+has family => (
+  is       => 'ro',
+  isa      => 'Str',
+  required => 1,
+);
+
+has urgency => (
+  is       => 'ro',
+  required => 1,
+);
+
+has creation_time => (
+  is       => 'ro',
+  required => 1,
+);
+
+has arguments => (
+  is       => 'ro',
+  required => 1,
+);
+
+sub BUILDARGS {
   my ( $package, $family, $urgency, $args_ref ) = @_;
   $args_ref ||= {};
-  bless [ $family, $urgency, $Global::Steps_Finished, $args_ref ], $package;
+  return {
+    family        => $family,
+    urgency       => $urgency,
+    creation_time => $Global::Steps_Finished,
+    arguments     => $args_ref
+  };
 }
+
+use overload (
+  '@{}' => sub {
+    my ($self) = @_;
+    return [
+      $self->family(),        $self->urgency(),
+      $self->creation_time(), $self->arguments()
+    ];
+  },
+  fallback => 1
+);
 
 sub as_text {
   my ($self) = @_;
-  return "Codelet(family=$self->[0],urgency=$self->[1],args="
-  . SUtil::StringifyForCarp( $self->[3] );
+  return
+    "Codelet(family="
+  . $self->family()
+  . ",urgency="
+  . $self->urgency()
+  . ",args="
+  . SUtil::StringifyForCarp( $self->arguments() );
 }
 
 sub run {
@@ -20,17 +63,19 @@ sub run {
   if ($Global::debugMAX) {
     main::message(
       [
-        $self->[0], 'green', "About to run: " . SUtil::StringifyForCarp($self)
+        $self->family, 'green',
+        "About to run: " . SUtil::StringifyForCarp($self)
       ]
     );
   }
-  return unless CheckFreshness( $self->[2], values %{ $self->[3] } );
+  return
+  unless CheckFreshness( $self->creation_time, values %{ $self->arguments } );
   $Global::CurrentCodelet       = $self;
-  $Global::CurrentCodeletFamily = $self->[0];
+  $Global::CurrentCodeletFamily = $self->family;
   no strict;
-  my $code = *{"SCF::$self->[0]::run"}{CODE}
-  or fishy_codefamily( $self->[0] );
-  eval { $code->( $self, $self->[3] ) };
+  my $code = *{ "SCF::" . $self->family . "::run" }{CODE}
+  or fishy_codefamily( $self->family );
+  eval { $code->( $self, $self->arguments ) };
   if ($EVAL_ERROR) {
     die $EVAL_ERROR if ref($EVAL_ERROR);
     if ( $EVAL_ERROR =~ /_TK_EXIT_/ ) {
@@ -42,9 +87,9 @@ sub run {
       die("Encountered a confess while running a codelet:\n$EVAL_ERROR");
     }
     else {
-      confess(
-        "Encountered C<die> while running a codelet. Family => $self->[0]. Arguments => $self->[3]\n $EVAL_ERROR"
-      );
+      confess( "Encountered C<die> while running a codelet. Family => "
+        . $self->family
+        . " \n $EVAL_ERROR" );
     }
   }
 }
@@ -98,5 +143,8 @@ multimethod IsFresh => ( 'SRelation', '#' ) => sub {
   return ( $ends[0]->UnchangedSince($since)
     and $ends[1]->UnchangedSince($since) );
 };
+
+__PACKAGE__->meta->make_immutable;
+1;
 
 1;
