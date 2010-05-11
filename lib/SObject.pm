@@ -54,6 +54,11 @@ sub get_items {
   return $items_of{ ident $self};
 }
 
+sub get_items_array {
+  my $self = shift;
+  return @{$items_of{ ident $self}};
+}
+
 sub BUILD {
   my ( $self, $id, $opts_ref ) = @_;
   die "Need group_p" unless exists $opts_ref->{group_p};
@@ -459,7 +464,7 @@ sub set_underlying_ruleapp : CUMULATIVE {
   if ( UNIVERSAL::isa( $reln, "SRule" ) ) {
     $ruleapp = $reln->CheckApplicability(
       {
-        objects   => [@$self],
+        objects   => [$self->get_items_array()],
         direction => $self->get_direction(),
       }
     );    # could be undef.
@@ -504,7 +509,7 @@ sub GetAnnotatedStructureString {
 # XXX(Assumption): [2006/09/16] Parts are non-overlapping.
 sub get_span {
   my ($self) = @_;
-  return List::Util::sum( map { $_->get_span } @$self );
+  return List::Util::sum( map { $_->get_span } $self->get_items_array() );
 }
 
 sub apply_reln_scheme {
@@ -549,7 +554,7 @@ sub get_pure {
 
 sub HasAsItem {
   my ( $self, $item ) = @_;
-  for (@$self) {
+  for ($self->get_items_array()) {
     return 1 if $_ eq $item;
   }
   return 0;
@@ -562,7 +567,7 @@ sub SElement::HasAsPartDeep {
 
 sub HasAsPartDeep {
   my ( $self, $item ) = @_;
-  for (@$self) {
+  for ($self->get_items_array()) {
     return 1 if $_ eq $item;
     return 1 if $_->HasAsPartDeep($item);
   }
@@ -611,7 +616,7 @@ sub GetEffectiveObject {
 
 sub GetEffectiveStructure {
   my ($self) = @_;
-  return [ map { $_->GetEffectiveObject()->get_structure } @$self ];
+  return [ map { $_->GetEffectiveObject()->get_structure } $self->get_items_array() ];
 }
 
 sub SElement::GetEffectiveStructure {
@@ -666,7 +671,7 @@ sub ContainsAMetonym {
   my ($self) = @_;
   my $id = ident $self;
   return 1 if $self->IsThisAMetonymedObject;
-  for (@$self) {
+  for ($self->get_items_array()) {
     return 1 if $_->ContainsAMetonym;
   }
   return 0;
@@ -871,7 +876,7 @@ sub CanBeSeenAs_Literal0rMeto {
 # Returns active metonyms, for use in, for example, bindings creation.
 sub GetEffectiveSlippages {
   my ($self)      = @_;
-  my @parts       = @$self;
+  my @parts       = $self->get_items_array();
   my $parts_count = scalar(@parts);
   my $return      = {};
   for my $idx ( 0 .. $parts_count - 1 ) {
