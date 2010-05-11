@@ -244,41 +244,6 @@ sub boolify : BOOLIFY {
   return $self;
 }
 
-# method: tell_forward_story
-# Given a category, reinterprets bindings for that category so that positions are expressed in a forward direction.
-#
-
-sub tell_forward_story {
-  my ( $self, $cat ) = @_;
-  my $bindings = $self->GetBindingForCategory($cat);
-  confess "Object $self does not belong to category " . $cat->get_name()
-  unless $bindings;
-  $self->AddHistory( "Forward story telling for " . $cat->get_name );
-  $bindings->tell_forward_story($self);
-}
-
-# method: tell_backward_story
-# Given a category, reinterprets bindings for that category so that positions are expressed in a backward direction.
-#
-
-sub tell_backward_story {
-  my ( $self, $cat ) = @_;
-  my $bindings = $self->GetBindingForCategory($cat);
-  confess "Object $self does not belong to category $cat!"
-  unless $bindings;
-  $self->AddHistory( "Backward story telling for " . $cat->get_name );
-  $bindings->tell_backward_story($self);
-}
-
-sub TellDirectedStory {
-  my ( $self, $cat, $position_mode ) = @_;
-  my $bindings     = $self->GetBindingForCategory($cat);
-  my $self_as_text = $self->as_text();
-  confess "Object $self ($self_as_text) does not belong to category $cat!"
-  unless $bindings;
-  $bindings->TellDirectedStory( $self, $position_mode );
-}
-
 # method: get_subobj_given_range
 #  Get the subobject
 #

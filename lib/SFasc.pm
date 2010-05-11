@@ -20,12 +20,4 @@ sub BUILD {
   $strength_of{$id} = $opts_ref->{strength} || 0;
 }
 
-sub get_fascination {
-  my ( $self, $fasc ) = @_;
-  my $type = ref $self;
-  my $subu = ${ "$type::" . "FASCINATION" }{$fasc}
-  or confess "fascination $fasc not defined for $self of type $type";
-  $subu->($self);
-}
-
 1;
