@@ -870,7 +870,6 @@ sub CanBeSeenAs_Literal0rMeto {
 
 #if we get here, it means that the metonym, if present,is not active. and also that the metonym or the object itself cannot be seen as structure
   return;
-
 }
 
 # Returns active metonyms, for use in, for example, bindings creation.
@@ -880,9 +879,8 @@ sub GetEffectiveSlippages {
   my $parts_count = scalar(@parts);
   my $return      = {};
   for my $idx ( 0 .. $parts_count - 1 ) {
-    my $id = ident $parts[$idx];
-    next unless $metonym_activeness_of{$id};
-    $return->{$idx} = $metonym_of{$id};
+    next unless $parts[$idx]->get_metonym_activeness();
+    $return->{$idx} = $parts[$idx]->get_metonym();
   }
   return $return;
 }
