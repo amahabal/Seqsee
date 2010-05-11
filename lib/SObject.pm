@@ -244,47 +244,6 @@ sub boolify : BOOLIFY {
   return $self;
 }
 
-# method: get_subobj_given_range
-#  Get the subobject
-#
-#    Range is a flat array of indices in the array. This method returns an array ref of items in that range.
-#
-# Change (Oct 14 2005):If range has a single number, no [] is wrapped around it.
-#
-#  Exceptions:
-#      SErr::Pos::OutOfRange
-
-sub get_subobj_given_range {
-  my ( $self, $range ) = @_;
-  my $items_ref = $items_of{ ident $self };
-
-  my @ret;
-
-  for (@$range) {
-    my $what = $items_ref->[$_];
-    defined $what or SErr::Pos::OutOfRange->throw();
-    push @ret, $what;
-  }
-
-  if ( @$range == 1 ) {
-    return $ret[0];
-  }
-
-  return \@ret;
-}
-
-# method: get_at_position
-# Returns subobject at given position
-#
-
-sub get_at_position {    #( $self: $position )
-  my ( $self, $position ) = @_;
-  UNIVERSAL::isa( $position, "SPos" ) or confess "Need SPos";
-
-  my $range = $position->find_range($self);
-  return $self->get_subobj_given_range($range);
-}
-
 # method: apply_blemish_at
 # Applies a blemish at a given position
 #
