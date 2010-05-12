@@ -1,31 +1,22 @@
 package SRelation::Structural;
-use 5.10.0;
-use strict;
-use Class::Std;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
 
-use base qw{SRelation};
-my %unchanged_bindings_of :ATTR(:name<unchanged_bindings>);
+extends 'SRelation';
 
-sub SuggestCategoryForEnds {
-    my ( $self ) = @_;
-    my $id = ident $self;
+has unchanged_bindings => (
+  traits => ['Hash'],
+  is        => 'rw',
+  isa       => 'HashRef',
+  default   => sub { {} },
+  reader => 'get_unchanged_bindings',
+  writer => 'set_unchanged_bindings',
+  handles => {
+    'no_unchanged_bindings' => 'is_empty',
+  }
+);
 
-    my $assuming;
-    my $cat = $self->get_category;
-
-    my %unchanged_bindings = %{$unchanged_bindings_of{$id}};
-    if (%unchanged_bindings) {
-        $assuming = SCat::OfObj::Assuming->Create($cat, \%unchanged_bindings);
-    } else {
-        $assuming = $cat;
-    }
-
-    return $assuming;
-}
-
-sub SuggestCategory {
-    my ( $self ) = @_;
-    return SCat::OfObj::RelationTypeBased->Create($self->get_type);
-}
-
+__PACKAGE__->meta->make_immutable;
 1;

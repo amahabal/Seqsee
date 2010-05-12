@@ -1,61 +1,76 @@
 package SRelation;
-use strict;
-use 5.10.0;
-use Class::Std;
-use Carp;
-use English qw{-no_match_vars};
-use base qw();
-
-our %strength_of : ATTR(:get<strength> :set<strength>);
-
-my %history_of : ATTR(:get<history_obj>);
-
-my %first_of : ATTR(:name<first>);
-my %second_of : ATTR(:name<second>);
-my %type_of : ATTR(:name<type>);
-
-my %direction_reln_of : ATTR( :get<direction_reln> :set<direction_reln>  );
-my %holeyness_of : ATTR(:get<holeyness>);
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
+use Try::Tiny;
 
 use Class::Multimethods;
 multimethod 'FindTransform';
-use Smart::Comments;
 
-sub get_history {
-  return shift->get_history_obj->get_history;
-}
+has strength => (
+    is         => 'rw',
+    reader     => 'get_strength',
+    writer     => 'set_strength',
+    init_arg   => 'strength',
+    default    => 0,
+);
 
-sub AddHistory {
-  return shift->get_history_obj->AddHistory(@_);
-}
+has first => (
+    is         => 'rw',
+    isa        => 'SObject',
+    reader     => 'get_first',
+    writer     => 'set_first',
+    required   => 1,
+    init_arg   => 'first',
+);
 
-sub search_history {
-  return shift->get_history_obj->search_history(@_);
-}
+has second => (
+    is         => 'rw',
+    isa        => 'SObject',
+    reader     => 'get_second',
+    writer     => 'set_second',
+    required   => 1,
+    init_arg   => 'second',
+);
 
-sub UnchangedSince {
-  return shift->get_history_obj->UnchangedSince(@_);
-}
+has type => (
+    is         => 'rw',
+    isa        => 'Transform',
+    reader     => 'get_type',
+    writer     => 'set_type',
+    required   => 1,
+    weak_ref   => 0,
+);
 
-sub GetAge {
-  return shift->get_history_obj->GetAge(@_);
-}
+has history_object => (
+    is         => 'rw',
+    isa        => 'SHistory',
+    handles => [qw{ set_history get_history AddHistory search_history UnchangedSince GetAge history_as_text}]
+);
 
-sub history_as_text {
-  return shift->get_history_obj->history_as_text(@_);
-}
+has direction_reln => (
+    is         => 'rw',
+    reader     => 'get_direction_reln',
+    writer     => 'set_direction_reln',
+);
+ 
+has holeyness => (
+    is         => 'rw',
+    isa        => 'Bool',
+    reader     => 'get_holeyness',
+    writer => 'set_holeyness',
+);
 
 
 sub BUILD {
-  my ( $self, $id, $opts_ref ) = @_;
-  my ( $f, $s ) = ( $opts_ref->{first}, $opts_ref->{second} );
-  $direction_reln_of{$id} =
-  FindTransform( $f->get_direction, $s->get_direction() );
-  $holeyness_of{$id} = SWorkspace->are_there_holes_here( $f, $s );
-
-  $strength_of{$id} = $opts_ref->{strength} || 0;
-  $history_of{$id} = SHistory->new();
+  my $self = shift;
+  my ( $f, $s ) = $self->get_ends();
+  $self->set_direction_reln(FindTransform( $f->get_direction, $s->get_direction() ));
+  $self->set_holeyness(SWorkspace->are_there_holes_here( $f, $s ));
+  $self->history_object(SHistory->new());
 }
+
 
 sub get_ends {
   my ($self) = @_;
@@ -64,18 +79,12 @@ sub get_ends {
 
 sub get_extent {
   my ($self) = @_;
-  my ( $f, $s ) = $self->get_ends();
-  my $l = List::Util::min( $f->get_left_edge(), $s->get_left_edge() );
-  my $r = List::Util::max( $f->get_right_edge(), $s->get_right_edge() );
-  return ( $l, $r );
+  return ($self->get_first()->get_left_edge(), $self->get_second()->get_right_edge());
 }
 
 sub are_ends_contiguous {
   my ($self) = @_;
-  my ( $f, $s ) = $self->get_ends();
-  my $l = List::Util::max( $f->get_left_edge(), $s->get_left_edge() );
-  my $r = List::Util::min( $f->get_right_edge(), $s->get_right_edge() );
-  return ( $l == $r + 1 ) ? 1 :0;
+  return $self->get_first()->get_right_edge() + 1 == $self->get_second()->get_left_edge() ? 1 : 0;
 }
 
 sub insert {
@@ -86,16 +95,8 @@ sub insert {
   $reln->uninsert() if $reln;
 
   my $add_success;
-
-  eval { $add_success = SWorkspace->AddRelation($self) };
-  if ( my $err = $EVAL_ERROR ) {
-    CATCH_BLOCK: {
-      print $err, "\n";
-      confess "Relation insertion error";
-      last CATCH_BLOCK;
-      die $err;
-    }
-  }
+  try { $add_success = SWorkspace->AddRelation($self) }
+  catch { confess "Relation insertion error: $_ " };
 
   if ($add_success) {
     for ( $f, $s ) {
@@ -136,15 +137,14 @@ sub get_span {
 
 sub get_pure {
   my ($self) = @_;
-  return $type_of{ ident $self};
+  return $self->get_type;
 }
 
 sub SuggestCategory {
   my ($self)   = @_;
-  my $id       = ident $self;
-  my $category = $type_of{$id}->get_category();
+  my $category = $self->get_type()->get_category();
   if ( $category eq $S::NUMBER ) {
-    my $str = $type_of{$id}->get_name();
+    my $str = $self->get_type()->get_name();
     if ( $str eq "same" ) {
       return $S::SAMENESS;
     }
@@ -156,7 +156,7 @@ sub SuggestCategory {
     }
   }
   else {
-    return SCat::OfObj::RelationTypeBased->Create( $type_of{$id} );
+    return SCat::OfObj::RelationTypeBased->Create( $self->get_type() );
   }
 }
 
@@ -177,22 +177,23 @@ sub UpdateStrength {
 
 sub as_text {
   my ($self)          = @_;
-  my $id              = ident $self;
-  my $first_location  = $first_of{$id}->get_bounds_string();
-  my $second_location = $second_of{$id}->get_bounds_string();
-  return "$first_location --> $second_location: " . $type_of{$id}->as_text;
+  my $first_location  = $self->get_first()->get_bounds_string();
+  my $second_location = $self->get_second()->get_bounds_string();
+  return "$first_location --> $second_location: " . $self->get_type()->as_text;
 }
 
-sub FlippedVersion {
+ sub FlippedVersion {
   my ($self) = @_;
-  my $id = ident $self;
-  my $flipped_type = $type_of{$id}->FlippedVersion() // return;
+  my $flipped_type = $self->get_type()->FlippedVersion() // return;
   return SRelation->new(
     {
-      first  => $second_of{$id},
-      second => $first_of{$id},
+      first  => $self->get_second(),
+      second => $self->get_first(),
       type   => $flipped_type,
     }
   );
 }
+
+__PACKAGE__->meta->make_immutable;
 1;
+
