@@ -47,7 +47,7 @@ SCat::OfObj::RelationTypeBased
 SCat::OfObj::Interlaced
 SCat::OfObj::Assuming
 SCat::OfObj::Alternating
-SLTM::Platonic SRelnType::Simple
+SLTM::Platonic
 METO_MODE POS_MODE
 Transform::Numeric Transform::Structural Transform::Position Transform::MetoType
 Transform::Dir
