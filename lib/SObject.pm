@@ -15,7 +15,7 @@ use Class::Std;
 use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
-use base qw{SInstance SHistory SFasc};
+use base qw{SInstance SHistory};
 use overload ( '~~' => 'literal_comparison_hack_for_smart_match',
   fallback => 1 );
 
@@ -25,6 +25,8 @@ sub literal_comparison_hack_for_smart_match {
 
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';
+
+our %strength_of : ATTR(:get<strength> :set<strength>);
 
 my %items_of : ATTR( :get<parts_ref> );    #    The items of this object.
 my %group_p_of : ATTR( :get<group_p> :set<group_p>)
@@ -71,6 +73,7 @@ sub BUILD {
   $metonym_of{$id}            = undef;
   $direction_of{$id}          = $opts_ref->{direction} || DIR::UNKNOWN();
   $reln_scheme_of{$id}        = "";
+  $strength_of{$id} = $opts_ref->{strength} || 0;
 }
 
 # method: create
