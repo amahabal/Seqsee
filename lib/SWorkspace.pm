@@ -16,7 +16,6 @@ use Class::Std;
 use Class::Multimethods;
 use List::Util;
 use SUtil;
-use base qw{};
 
 use Smart::Comments '###';
 use English qw(-no_match_vars);

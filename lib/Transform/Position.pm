@@ -4,7 +4,6 @@ use strict;
 use Carp;
 use Class::Std;
 use Class::Multimethods;
-use base qw{};
 
 my %text_of : ATTR(:name<text>);
 

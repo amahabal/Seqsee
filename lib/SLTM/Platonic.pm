@@ -12,7 +12,6 @@ use strict;
 use Carp;
 use Class::Std;
 use Smart::Comments;
-use base qw{};
 
 our %StructureString_of : ATTR(:name<structure_string>);
 our %Structure_of : ATTR(:name<structure>);

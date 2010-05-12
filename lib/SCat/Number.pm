@@ -12,7 +12,6 @@ use Carp;
 use Class::Std;
 use Class::Multimethods;
 use Smart::Comments;
-use base qw{};
 multimethod 'find_relation_string';
 
 my $builder = sub {

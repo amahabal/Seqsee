@@ -4,7 +4,6 @@ use strict;
 use Carp;
 use Class::Std;
 use English qw{-no-match-vars};
-use base qw{};
 use Smart::Comments;
 use Class::Multimethods;
 use Try::Tiny;
