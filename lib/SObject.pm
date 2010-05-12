@@ -15,7 +15,7 @@ use Class::Std;
 use Smart::Comments;
 use Class::Multimethods;
 use English qw(-no_match_vars);
-use base qw{SInstance SHistory};
+use base qw{SInstance};
 use overload ( '~~' => 'literal_comparison_hack_for_smart_match',
   fallback => 1 );
 
@@ -27,6 +27,8 @@ multimethod 'FindTransform';
 multimethod 'ApplyTransform';
 
 our %strength_of : ATTR(:get<strength> :set<strength>);
+
+my %history_of : ATTR(:get<history_obj>);
 
 my %items_of : ATTR( :get<parts_ref> );    #    The items of this object.
 my %group_p_of : ATTR( :get<group_p> :set<group_p>)
@@ -51,6 +53,31 @@ my %reln_other_of : ATTR();
 #    is the group based on some relation? undef if not, the relation otherwise
 my %underlying_reln_of : ATTR( :get<underlying_reln>);
 
+sub get_history {
+  return shift->get_history_obj->get_history;
+}
+
+sub AddHistory {
+  return shift->get_history_obj->AddHistory(@_);
+}
+
+sub search_history {
+  return shift->get_history_obj->search_history(@_);
+}
+
+sub UnchangedSince {
+  return shift->get_history_obj->UnchangedSince(@_);
+}
+
+sub GetAge {
+  return shift->get_history_obj->GetAge(@_);
+}
+
+sub history_as_text {
+  return shift->get_history_obj->history_as_text(@_);
+}
+
+
 sub get_items {
   my $self = shift;
   return $items_of{ ident $self};
@@ -74,6 +101,7 @@ sub BUILD {
   $direction_of{$id}          = $opts_ref->{direction} || DIR::UNKNOWN();
   $reln_scheme_of{$id}        = "";
   $strength_of{$id} = $opts_ref->{strength} || 0;
+  $history_of{$id} = SHistory->new();
 }
 
 # method: create
