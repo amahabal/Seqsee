@@ -4,7 +4,11 @@ use 5.10.0;
 use Class::Std;
 use Carp;
 use English qw{-no_match_vars};
-use base qw(SHistory SFasc);
+use base qw();
+
+our %strength_of : ATTR(:get<strength> :set<strength>);
+
+my %history_of : ATTR(:get<history_obj>);
 
 my %first_of : ATTR(:name<first>);
 my %second_of : ATTR(:name<second>);
@@ -17,12 +21,40 @@ use Class::Multimethods;
 multimethod 'FindTransform';
 use Smart::Comments;
 
+sub get_history {
+  return shift->get_history_obj->get_history;
+}
+
+sub AddHistory {
+  return shift->get_history_obj->AddHistory(@_);
+}
+
+sub search_history {
+  return shift->get_history_obj->search_history(@_);
+}
+
+sub UnchangedSince {
+  return shift->get_history_obj->UnchangedSince(@_);
+}
+
+sub GetAge {
+  return shift->get_history_obj->GetAge(@_);
+}
+
+sub history_as_text {
+  return shift->get_history_obj->history_as_text(@_);
+}
+
+
 sub BUILD {
   my ( $self, $id, $opts_ref ) = @_;
   my ( $f, $s ) = ( $opts_ref->{first}, $opts_ref->{second} );
   $direction_reln_of{$id} =
   FindTransform( $f->get_direction, $s->get_direction() );
   $holeyness_of{$id} = SWorkspace->are_there_holes_here( $f, $s );
+
+  $strength_of{$id} = $opts_ref->{strength} || 0;
+  $history_of{$id} = SHistory->new();
 }
 
 sub get_ends {
