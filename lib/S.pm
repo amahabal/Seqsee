@@ -74,7 +74,7 @@ our $MOUNTAIN   = SCategory::Mountain->new;
 our $SAMENESS = SCategory::Sameness->new;
 our $AD_HOC   = $SCat::ad_hoc::AD_HOC;
 our $NUMBER   = SCategory::Number->new;
-our $PRIME    = $SCat::Prime::Prime;
+our $PRIME    = SCategory::Prime->new;
 our $ODD      = SCategory::Odd->new;
 our $EVEN     = SCategory::Even->new;
 

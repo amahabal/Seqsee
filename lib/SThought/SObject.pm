@@ -381,8 +381,8 @@ multimethod get_fringe_for => ('SElement') => sub {
     push @ret, [ $_, 80 ];
 
     if ( $_ eq $S::PRIME ) {
-      my $next = SCat::Prime::NextPrime($mag);
-      my $prev = SCat::Prime::PreviousPrime($mag);
+      my $next = SCategory::Prime::NextPrime($mag);
+      my $prev = SCategory::Prime::PreviousPrime($mag);
       if ($next) {
         my $plat = SLTM::Platonic->create($next);
         push @ret, [ $plat, 100 ];

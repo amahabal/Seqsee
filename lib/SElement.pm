@@ -23,7 +23,7 @@ sub BUILD {
   $mag_of{$id} = int( $opts->{mag} );
   $self->describe_as($S::NUMBER);
   $self->describe_as($S::PRIME)
-  if ( $Global::Feature{Primes} and SCat::Prime::IsPrime( $opts->{mag} ) );
+  if ( $Global::Feature{Primes} and SCategory::Prime::IsPrime( $opts->{mag} ) );
   if ( $Global::Feature{Parity} ) {
     if ( $opts->{mag} % 2 ) {
       $self->describe_as($S::ODD);

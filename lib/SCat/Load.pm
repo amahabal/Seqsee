@@ -14,7 +14,7 @@ use SCategory::Descending;
 use SCategory::Mountain;
 use SCategory::Sameness;
 use SCategory::Number;
-use SCat::Prime;
+use SCategory::Prime;
 use SCategory::Odd;
 use SCategory::Even;
 
