@@ -13,7 +13,7 @@ use SCategory::Ascending;
 use SCategory::Descending;
 use SCategory::Mountain;
 use SCategory::Sameness;
-use SCat::Number;
+use SCategory::Number;
 use SCat::Prime;
 use SCategory::Odd;
 use SCategory::Even;
