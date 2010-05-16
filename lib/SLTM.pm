@@ -42,7 +42,6 @@ our %MEMORIZED_SERIALIZED;    # This is a hack to cover-up for a strange bug:
 # This hash freezes references.
 
 %_PURE_CLASSES_ = map { $_ => 1 } qw(SCat::OfObj::Std
-SCat::OfObj::Numeric
 SCat::OfObj::RelationTypeBased
 SCat::OfObj::Interlaced
 SCat::OfObj::Assuming
