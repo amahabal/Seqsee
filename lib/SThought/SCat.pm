@@ -21,7 +21,7 @@ sub get_actions {
   my $core   = $self->core();
   our @actions_ret = ();
   my $cat = $self->core();
-  return if $cat->isa('SCat::OfObj::Interlaced');
+  return if $cat->isa('SCategory::Interlaced');
 
   my @objects_of_cat = SWorkspace::__GetObjectsBelongingToCategory($cat);
   my @overlapping_sets =

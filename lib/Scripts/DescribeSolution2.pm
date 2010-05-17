@@ -172,7 +172,7 @@ CodeletFamily DescribeRelationCompound( $reln !, $ruleapp ! ) does scripted {
 CodeletFamily DescribeRelnCategory( $cat !, $ruleapp ! ) does scripted {
   NAME: { Describe Category on which Analogy is Based }
   STEP: {
-        if ( $cat->isa('SCat::OfObj::Interlaced') ) {
+        if ( $cat->isa('SCategory::Interlaced') ) {
             SCRIPT DescribeInterlacedCategory,
               {
                 cat     => $cat,

@@ -1,43 +1,56 @@
-package SCat::OfObj::Interlaced;
-use strict;
-use base qw{SCat::OfObj};
-use Class::Std;
+package SCategory::Interlaced;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Smart::Comments;
-use Class::Multimethods;
+
 use Memoize;
+use Class::Multimethods;
 
-my %PartsCount_of : ATTR(:name<parts_count>);
+multimethod 'FindTransform';
+multimethod 'ApplyTransform';
 
-{
-  my %MEMO;
+with 'SCategory::MetonymySpec::NotMetonyable';
+with 'SCategory';
 
-  sub Create {
-    my ( $package, $parts_count ) = @_;
-    return ( $MEMO{$parts_count} ||=
-      $package->new( { parts_count => $parts_count } ) );
-  }
+has parts_count => (
+    is         => 'rw',
+    isa        => 'Int',
+    reader     => 'get_parts_count',
+    writer     => 'set_parts_count',
+    init_arg   => 'parts_count',
+    required   => 1,
+);
+
+sub Create {
+  my ( $package, $parts_count ) = @_;
+  state %MEMO;
+  return ( $MEMO{$parts_count} //=
+    $package->new( { parts_count => $parts_count } ) );
+}
+
+sub is_pure {
+  1;
 }
 
 sub Instancer {
   my ( $self, $object ) = @_;
-  my $id          = ident $self;
-  my $parts_count = $PartsCount_of{$id};
+  my $parts_count = $self->get_parts_count;
 
-  my $parts_ref = $object->get_parts_ref;
-  return unless scalar(@$parts_ref) == $parts_count;
+  my @parts = $object->get_items_array;
+  return unless scalar(@parts) == $parts_count;
 
   my %bdgs = ();
   for my $i ( 1 .. $parts_count ) {
-    $bdgs{"part_no_$i"} = $parts_ref->[ $i - 1 ];
+    $bdgs{"part_no_$i"} = $parts[ $i - 1 ];
   }
-  return SBindings->create( {}, \%bdgs, $object );
+  return SBindings->create( {}, \%bdgs );
 }
 
 # Create an instance of the category stored in $self.
 sub build {
   my ( $self, $opts_ref ) = @_;
-  my $id          = ident $self;
-  my $parts_count = $PartsCount_of{$id};
+  my $parts_count = $self->get_parts_count;
 
   my @ret_parts;
 
@@ -50,8 +63,7 @@ sub build {
 
 sub get_name {
   my ($self)      = @_;
-  my $id          = ident $self;
-  my $parts_count = $PartsCount_of{$id};
+  my $parts_count = $self->get_parts_count;
   return "Interlaced_$parts_count";
 }
 
@@ -68,15 +80,13 @@ sub get_pure {
 }
 
 sub get_memory_dependencies {
-  my ($self) = @_;
-  my $id = ident $self;
   return;
 }
 
 sub serialize {
   my ($self) = @_;
   my $id = ident $self;
-  return $PartsCount_of{$id};
+  return $self->get_parts_count;
 }
 
 sub deserialize {
@@ -88,7 +98,7 @@ sub AreAttributesSufficientToBuild {
   my ( $self, @atts ) = @_;
   return 1
   if scalar( grep { /^part_no_/ } ( SUtil::uniq(@atts) ) ) ==
-    $PartsCount_of{ ident $self};
+    $self->get_parts_count;
   return;
 }
 
@@ -99,4 +109,6 @@ sub longer_description {
   "That is, the sequence consists of $count simpler sequences interlaced together";
 }
 
+
+__PACKAGE__->meta->make_immutable;
 1;

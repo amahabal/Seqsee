@@ -88,7 +88,7 @@ sub get_actions {
   my $distance_magnitude = scalar(@intervening_objects);
   if ($distance_magnitude) {
     my $possible_ad_hoc_cat =
-    SCat::OfObj::Interlaced->Create( $distance_magnitude + 1 );
+    SCategory::Interlaced->Create( $distance_magnitude + 1 );
     my $ad_hoc_activation =
     SLTM::SpikeBy( 20 / $distance_magnitude, $possible_ad_hoc_cat );
     if (  SUtil::significant($ad_hoc_activation)

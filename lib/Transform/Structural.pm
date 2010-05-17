@@ -194,7 +194,7 @@ sub get_complexity {
     my $complexity_of_category;
     given ( $category_of{$id} ) {
         when ( [ $S::ASCENDING, $S::DESCENDING, $S::SAMENESS ] ) { $complexity_of_category = 0.1 }
-        when ( $_->isa('SCat::OfObj::Interlaced') ) {
+        when ( $_->isa('SCategory::Interlaced') ) {
             $complexity_of_category = 0.1 * $_->get_parts_count();
         }
         default { $complexity_of_category = 0.3;}
