@@ -92,7 +92,7 @@ sub get_complexity {
                 default { return 0.1; }
             }
         }
-        when ($_->isa('SCat::OfObj::Alternating')) {
+        when ($_->isa('SCategory::Alternating')) {
             return 0.7;
         }
         default { return 0.4; }

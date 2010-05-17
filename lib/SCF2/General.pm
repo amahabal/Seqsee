@@ -180,7 +180,7 @@ RUN: {
         } elsif ($Global::Feature{Alternating} and
             $a_transform->get_category() eq $b_transform->get_category()) {
             # There is a chance that these are somehow alternating...
-            my $new_transform = SCat::OfObj::Alternating->CheckForAlternation(
+            my $new_transform = SCategory::Alternating->CheckForAlternation(
                 # $a_transform->get_category(),
                 $af, $as, $bs);
             if ($new_transform) {
@@ -202,7 +202,7 @@ RUN: {
         if ($t1 and $t1 eq $t2) {
             $transform_to_consider = $t1;
         } else {
-            $transform_to_consider = SCat::OfObj::Alternating->CheckForAlternation($first, $second, $third) or return;
+            $transform_to_consider = SCategory::Alternating->CheckForAlternation($first, $second, $third) or return;
         }
         CODELET 100, CreateGroup, { items => [$first, $second, $third],
                                     transform => $transform_to_consider,

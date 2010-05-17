@@ -13,7 +13,7 @@ multimethod 'ApplyTransform';
 
 has object1 => (
     is         => 'rw',
-    reader     => 'get_object1',
+    reader     => 'object1',
     writer     => 'set_object1',
     init_arg   => 'object1',
     required   => 1,
@@ -21,7 +21,7 @@ has object1 => (
 
 has object2 => (
     is         => 'rw',
-    reader     => 'get_object2',
+    reader     => 'object2',
     writer     => 'set_object2',
     init_arg   => 'object2',
     required   => 1,
@@ -30,11 +30,15 @@ has object2 => (
 with 'SCategory::MetonymySpec::NotMetonyable';
 with 'SCategory';
 
+sub is_pure {
+  1;
+}
+
 sub Instancer {
   my ( $self, $object ) = @_;
   my $pure = $object->get_pure;
-  return SBindings->new({}, { which => SInt->new(0) }) if ($pure eq $self->get_object1);
-  return SBindings->new({}, { which => SInt->new(1) }) if ($pure eq $self->get_object2);
+  return SBindings->new(raw_slippages => {}, bindings => { which => SInt->new(0) }) if ($pure eq $self->object1);
+  return SBindings->new(raw_slippages => {}, bindings => { which => SInt->new(1) }) if ($pure eq $self->object2);
   return;
 }
 
@@ -210,7 +214,7 @@ sub CheckForAlternation {
   my $b2 = $second->is_of_category_p($cat) or return;
   my $b3 = $third->is_of_category_p($cat)  or return;
 
-  my ( $b1, $b2, $b3 ) = map { $_->get_bindings_ref() } ( $b1, $b2, $b3 );
+  ( $b1, $b2, $b3 ) = map { $_->get_bindings_ref() } ( $b1, $b2, $b3 );
   my @keys = keys %$b1;
   return unless $cat->AreAttributesSufficientToBuild(@keys);
 
