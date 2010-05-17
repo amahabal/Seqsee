@@ -25,7 +25,7 @@ use SCoderack;
 use SMetonym;
 use SMetonymType;
 
-use SCat::Load;
+use SCategory::Load;
 
 use SObject;
 use SAnchored;

@@ -1,8 +1,5 @@
-use SCat::OfObj;
-use SCat::OfObj::Std;
 use SCategory::TransformBased;
 use SCategory::Interlaced;
-use SCat::OfObj::Assuming;
 
 use SCategory::Alternating;
 
