@@ -90,7 +90,7 @@ RUN: {
         if (@newparts > 1) {
             my $transform = FindTransform(@newparts[0,1]) or return;
             my $new_gp = SAnchored->create(@newparts);
-            $new_gp->describe_as(SCat::OfObj::RelationTypeBased->Create($transform));
+            $new_gp->describe_as(SCategory::TransformBased->Create($transform));
             SWorkspace->add_group($new_gp);
             ContinueWith(SThought->create($new_gp));
         }

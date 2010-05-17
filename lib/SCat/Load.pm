@@ -1,6 +1,6 @@
 use SCat::OfObj;
 use SCat::OfObj::Std;
-use SCat::OfObj::RelationTypeBased;
+# use SCat::OfObj::RelationTypeBased;
 use SCategory::TransformBased;
 use SCat::OfObj::Interlaced;
 use SCat::OfObj::Assuming;

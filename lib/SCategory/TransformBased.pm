@@ -130,8 +130,11 @@ sub as_text {
 memoize('get_name');
 memoize('as_text');
 
-sub get_pure {
+sub is_pure {
   1;
+}
+sub get_pure {
+  $_[0];
 }
 
 sub get_memory_dependencies {

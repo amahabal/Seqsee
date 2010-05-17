@@ -156,7 +156,7 @@ sub SuggestCategory {
     }
   }
   else {
-    return SCat::OfObj::RelationTypeBased->Create( $self->get_type() );
+    return SCategory::TransformBased->Create( $self->get_type() );
   }
 }
 

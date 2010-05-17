@@ -101,6 +101,8 @@ sub GetMemoryIndex {
 
 sub InsertNode {
   ### ensure: $_[0] ne "SLTM"
+  confess "Attempt to insert bogus object: '$_[0]'" unless ref($_[0]);
+  ### ensure: ref($_[0])
   ### ensure: $_[0] and ($_PURE_CLASSES_{ref($_[0])} or $_[0]->is_pure())
   my ($pure) = @_;
 

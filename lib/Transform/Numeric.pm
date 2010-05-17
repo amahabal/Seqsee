@@ -68,7 +68,7 @@ sub GetRelationBasedCategory {
     my ($self) = @_;
     my $id = ident $self;
 
-    return SCat::OfObj::RelationTypeBased->Create($self) unless $category_of{$id} eq $S::NUMBER;
+    return SCategory::TransformBased->Create($self) unless $category_of{$id} eq $S::NUMBER;
 
     my $name = $name_of{$id};
     given ($name) {

@@ -115,7 +115,7 @@ Codelet_Family(
           or $reln_type->get_category() ne $S::NUMBER )
         {
           $new_group->describe_as(
-            SCat::OfObj::RelationTypeBased->Create($reln_type) )
+            SCategory::TransformBased->Create($reln_type) )
           || main::message( "Unable to describe "
             . $new_group->as_text()
             . "  as based on "

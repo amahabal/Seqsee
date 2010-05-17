@@ -140,7 +140,7 @@ RUN: {
             if ($transform->isa('Transform::Numeric')) {
                 $category = $transform->GetRelationBasedCategory();
             } else {
-                $category = SCat::OfObj::RelationTypeBased->Create($transform);
+                $category = SCategory::TransformBased->Create($transform);
             }
         }
 
