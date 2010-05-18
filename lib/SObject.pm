@@ -88,6 +88,41 @@ sub get_items_array {
   return @{$items_of{ ident $self}};
 }
 
+sub create {
+  my ($package, @arguments) = @_;
+  if (!@arguments) {
+    return $package->new({group_p => 1, items => []});
+  }
+  if (scalar(@arguments) == 1) {
+    my $sole_argument = $arguments[0];
+    # If it is unblessed, it better be a number!
+    unless (ref $sole_argument) {
+      return SElement->create($sole_argument, 0);
+    }
+
+    if (ref($sole_argument) eq 'ARRAY') {
+      return $package->create(@{$sole_argument});
+    }
+
+    # So it is an SObject of some sort...
+    my @categories = @{ $sole_argument->get_categories };
+    my $new_object;
+    if (ref($sole_argument) eq 'SElement') {
+      $new_object = SElement->create($sole_argument->get_mag, 0);
+    } else {
+      $new_object = $package->create( $sole_argument->get_items_array );
+    }
+
+    for (@categories) {
+      $new_object->describe_as($_);
+    }
+
+    return $new_object;
+  }
+  my @new_arguments = map { SObject->create($_) } @arguments;
+  return $package->new({group_p => 1, items => \@new_arguments});
+}
+
 sub BUILD {
   my ( $self, $id, $opts_ref ) = @_;
   die "Need group_p" unless exists $opts_ref->{group_p};
@@ -102,72 +137,6 @@ sub BUILD {
   $reln_scheme_of{$id}        = "";
   $strength_of{$id} = $opts_ref->{strength} || 0;
   $history_of{$id} = SHistory->new();
-}
-
-# method: create
-# shortest way to create an object
-#
-#    Takes a list of arguments, each of which can be:
-#    * An integer,
-#    * Another SObject
-#    * An array ref, each of whose elements is like those described here.
-#
-#    If there is a single argument that is an array ref, the "square brackets are removed".
-
-sub create {
-  my $package = shift;
-
-  my @arguments = @_;
-
-  if ( !@arguments ) {
-    return $package->new(
-      {
-        group_p => 1,
-        items   => [],
-      }
-    );
-  }
-
-  my @original_arguments      = @arguments;
-  my @categories_of_arguments = map {
-    my @cats;
-    if ( UNIVERSAL::isa( $_, "SObject" ) ) {
-      @cats = @{ $_->get_categories() };
-    }
-    \@cats;
-  } @arguments;
-
-  # Convert Sobjects to array refs...
-  @arguments =
-  map { UNIVERSAL::isa( $_, "SObject" ) ? $_->get_structure() :$_ } @arguments;
-
-  if ( @arguments == 1 and ref( $arguments[0] ) ) {
-
-    # Single argument which is an array ref
-    return $package->create( @{ $original_arguments[0] } );
-  }
-
-  if ( @arguments == 1 ) {    # and is an int
-    return SElement->create( $arguments[0], 0 );
-  }
-
-  # Finally, convert all arrays to objects, too!
-  @arguments = map { CreateObjectFromStructure($_) } @arguments;
-  for my $idx ( 0 .. scalar(@arguments) - 1 ) {
-    for my $cat ( @{ $categories_of_arguments[$idx] } ) {
-      $arguments[$idx]->describe_as($cat);
-    }
-  }
-
-  my $group_p = ( @arguments == 1 ) ? 0 :1;
-
-  return $package->new(
-    {
-      items   => \@arguments,
-      group_p => $group_p,
-    }
-  );
-
 }
 
 # method: CreateObjectFromStructure
