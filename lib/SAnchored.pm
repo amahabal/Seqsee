@@ -164,22 +164,6 @@ sub overlaps {
   return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
 }
 
-sub UpdateStrength {
-  my ($self) = @_;
-  my $strength_from_parts =
-  20 +
-  0.2 * ( sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
-  my $strength_from_categories =
-  30 *
-  ( sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } )
-    || 0 );
-  my $strength = $strength_from_parts + $strength_from_categories;
-  $strength += $Global::GroupStrengthByConsistency{$self};
-  $strength = 100 if $strength > 100;
-  ### p, c, t: $strength_from_parts, $strength_from_categories, $strength
-  $self->set_strength($strength);
-}
-
 sub Extend {
   scalar(@_) == 3 or confess "Need 3 arguments";
   my ( $self, $to_insert, $insert_at_end_p ) = @_;
@@ -255,34 +239,6 @@ sub FindExtension {
       skip_this_many_elements => $skip
     }
   );
-}
-
-sub CheckSquintability {
-  my ( $self, $intended ) = @_;
-  my $intended_structure_string = $intended->get_structure_string();
-  return
-  map { $self->CheckSquintabilityForCategory( $intended_structure_string, $_ ) }
-  @{ $self->get_categories() };
-}
-
-sub CheckSquintabilityForCategory {
-  my ( $self, $intended_structure_string, $category ) = @_;
-
-  my $bindings = $self->GetBindingForCategory($category)
-  or confess
-  "CheckSquintabilityForCategory called on object not an instance of the category";
-
-  my @meto_types = $category->get_meto_types();
-  my @return;
-  for my $name (@meto_types) {
-    my $finder = $category->get_meto_finder($name);
-    my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
-    next
-    unless $squinted->get_starred()->get_structure_string() eq
-      $intended_structure_string;
-    push @return, $squinted->get_type();
-  }
-  return @return;
 }
 
 sub IsFlushRight {
