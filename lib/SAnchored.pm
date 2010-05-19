@@ -1,124 +1,94 @@
-#####################################################
-#
-#    Package: SAnchored
-#
-#####################################################
-#   Objects anchored in the workspace.
-#####################################################
-
 package SAnchored;
-use strict;
-use Carp;
-use Class::Std;
-use English qw(-no_match_vars);
-use base qw{SObject};
-
-# use Smart::Comments;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
 
 use List::Util qw(min max sum);
 use Class::Multimethods;
 multimethod 'ApplyTransform';
 
-my %left_edge_of : ATTR(:get<left_edge> :set<left_edge>)
-;    # Left edge. 0 is leftmost.
-my %right_edge_of : ATTR(:get<right_edge> :set<right_edge>);    # Right edge.
-my %is_locked_against_deletion_of :
-ATTR(:get<is_locked_against_deletion> :set<is_locked_against_deletion>);
+# with 'Categorizable';
 
-use overload fallback => 1;
+has left_edge => (
+    is         => 'rw',
+    #isa        => 'Int',
+    reader     => 'get_left_edge',
+    writer     => 'set_left_edge',
+    init_arg   => 'left_edge',
+    required   => 1,
+);
 
-sub BUILD {
-  my ( $self, $id, $opts_ref ) = @_;
-  $self->set_edges( $opts_ref->{left_edge}, $opts_ref->{right_edge} );
-}
+has right_edge => (
+    is         => 'rw',
+    #isa        => 'Int',
+    reader     => 'get_right_edge',
+    writer     => 'set_right_edge',
+    init_arg   => 'right_edge',
+    required   => 1,
+);
 
-sub recalculate_edges {
-  my ($self) = @_;
-  my $id = ident $self;
+has object => (
+    is         => 'rw',
+    isa        => 'SObject',
+    required   => 1,
+    handles => [qw{get_strength set_strength
+      get_history_object get_parts_ref 
+      get_group_p set_group_p get_metonym
+      get_metonym_activeness get_is_a_metonym set_is_a_metonym
+      get_direction set_direction get_reln_scheme set_reln_scheme
+      get_underlying_reln
+      get_history AddHistory search_history UnchangedSince GetAge
+      history_as_text get_items get_items_array 
+      annotate_with_cat get_structure 
+      get_flattened get_parts_count apply_blemish_at 
+      describe_as redescribe_as
+      set_underlying_ruleapp get_structure_string GetAnnotatedStructureString
+      apply_reln_scheme recalculate_categories get_pure
+      HasAsItem HasAsPartDeep 
+      SetMetonym SetMetonymActiveness GetEffectiveObject GetEffectiveStructure
+      GetEffectiveStructureString GetUnstarred AnnotateWithMetonym
+      MaybeAnnotateWithMetonym IsThisAMetonymedObject
+      ContainsAMetonym
+      AddRelation RemoveRelation RemoveAllRelations get_relation
+      recalculate_relations CanBeSeenAs_ByPart
+      CanBeSeenAs_Meto CanBeSeenAs_Literal CanBeSeenAs_LiteralOrMeto
+      GeteffectiveSlippages CheckSquintability CheckSquintabilityForCategory
+      UpdateStrength
 
-  my %slots_taken;
-  for my $item ( @{ $self->get_parts_ref } ) {
-    confess "SAnchored->create called with a non anchored object"
-    unless UNIVERSAL::isa( $item, "SAnchored" );
-    my ( $left, $right ) = $item->get_edges();
-    @slots_taken{ $left .. $right } = ( $left .. $right );
-  }
+      get_cats_hash add_category remove_category get_categories get_categories_as_string
+      is_of_category_p GetBindingForCategory get_blemish_cats
+      HasNonAdHocCategory CopyCategoriesTo
+    }],
+);
 
-  my @keys = values %slots_taken;
-  ## @keys
-  my ( $left, $right ) =
-  SUtil::minmax( @keys );
-  $self->set_left_edge($left);
-  $self->set_right_edge($right);
-  ### insist: scalar(@keys) == $right - $left + 1
-}
+has is_locked_against_deletion => (
+    is         => 'rw',
+    isa        => 'Bool',
+    reader     => 'get_is_locked_against_deletion',
+    writer     => 'set_is_locked_against_deletion',
+    init_arg   => 'is_locked_against_deletion',
+);
 
-# method: set_edges
-# Sets both edges at once
-#
 sub set_edges {
   my ( $self, $left, $right ) = @_;
-  my $id = ident $self;
-  unless ( defined $left and defined $right ) {
-    confess "SAnchored must have edges defined";
-  }
   $self->set_left_edge($left);
   $self->set_right_edge($right);
   return $self;
 }
 
-# method: get_edges
-#
-#
 sub get_edges {
   my ($self) = @_;
-  my $id = ident $self;
-
   return ( $self->get_left_edge(), $self->get_right_edge() );
 }
 
-sub create {
-  my ( $package, @items ) = @_;
-  SErr::EmptyCreate->throw() unless @items;
-  if ( @items == 1 ) {
-    return $items[0] if UNIVERSAL::isa( $items[0], 'SAnchored' );
-    confess "Unanchored object!";
-  }
-
-  SErr::HolesHere->throw('Holes here')
-  if SWorkspace->are_there_holes_here(@items);
-
-  # I assume @items are live.
-  my $direction = SWorkspace::__FindObjectSetDirection(@items);
-  return unless $direction->IsLeftOrRight();
-
-  my $object = $package->new(
-    {
-      items      => [@items],
-      group_p    => 1,
-      left_edge  => -1,           # Will shortly be reset
-      right_edge => -1,           # Will shortly be reset
-      direction  => $direction,
-    }
-  );
-
-  $object->recalculate_edges();
-  $object->UpdateStrength();
-  return $object;
-}
-
-# method: get_bounds_string
-# returns a string containing the left and right boundaries
-#
 sub get_bounds_string {
   my ($self) = @_;
-  my $id = ident $self;
-  return " <$left_edge_of{$id}, $right_edge_of{$id}> ";
+  return q{ <} . $self->get_left_edge() . q{, } . $self->get_right_edge() . q{> };
 }
 
 sub get_span {
   my ($self) = @_;
-  my $id = ident $self;
   return $self->get_right_edge() - $self->get_left_edge() + 1;
 }
 
@@ -132,14 +102,10 @@ sub as_text {
 
 sub get_next_pos_in_dir {
   my ( $self, $direction ) = @_;
-  my $id = ident $self;
-
   if ( $direction eq DIR::RIGHT() ) {
-    ## Dir Left
     return $self->get_right_edge() + 1;
   }
   elsif ( $direction eq DIR::LEFT() ) {
-    ## Dir Left
     my $le = $self->get_left_edge();
     return unless $le > 0;
     return $le - 1;
@@ -164,24 +130,72 @@ sub overlaps {
   return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
 }
 
+
+sub IsFlushRight {
+  my ($self) = @_;
+  $self->get_right_edge() == $SWorkspace::ElementCount - 1 ? 1 :0;
+}
+
+sub IsFlushLeft {
+  my ($self) = @_;
+  $self->get_left_edge() == 0 ? 1 :0;
+}
+
+sub recalculate_edges {
+  my ($self) = @_;
+  # Assumption: self->object is a valid anchored object...
+  my $obj = $self->object;
+  my $subobjects_ref = $obj->get_items;
+  $self->set_left_edge($subobjects_ref->[0]);
+  $self->set_right_edge($subobjects_ref->[-1]);
+}
+
+sub _CheckValidity {
+  my @items = @_;
+  SErr::EmptyCreate->throw() unless @items;
+
+  # Check all anchored, no holes, no overlap.
+  my $first_item = shift(@items);
+  confess "Unanchored object $first_item" unless $first_item->isa('SAnchored');
+  my $most_recent_right_edge = $first_item->get_right_edge;
+
+  while (my $next_item = shift(@items)) {
+    confess "Unanchored object $next_item" unless $next_item->isa('SAnchored');
+    return unless $next_item->get_left_edge() == $most_recent_right_edge + 1;
+    $most_recent_right_edge = $next_item->get_right_edge();
+  }
+
+  return 1;
+}
+
+sub create {
+  my ($package, @items) = @_;
+  return unless _CheckValidity(@items);
+
+  my $object = SObject->new({group_p => 1, items => \@items});
+  $object->UpdateStrength();
+
+  my $anchored_object = $package->new(left_edge => $items[0]->get_left_edge(),
+                                      right_edge => $items[-1]->get_right_edge(),
+                                      object => $object);
+  return $anchored_object;
+}
+
 sub Extend {
   scalar(@_) == 3 or confess "Need 3 arguments";
   my ( $self, $to_insert, $insert_at_end_p ) = @_;
 
-# $insert_at_end_p is true if we should insert at end, as opposed to at the beginning.
+  my @current_subojects = $self->object->get_items_array;
 
-  my $id        = ident $self;
-  my $parts_ref = $self->get_parts_ref();    # It's in SObject...
-
-  my @parts_of_new_group;
+  my @new_subobjects;
   if ($insert_at_end_p) {
-    @parts_of_new_group = ( @$parts_ref, $to_insert );
+    @new_subobjects = ( @current_subojects, $to_insert );
   }
   else {
-    @parts_of_new_group = ( $to_insert, @$parts_ref );
+    @new_subobjects = ( $to_insert, @current_subojects );
   }
 
-  my $potential_new_group = SAnchored->create(@parts_of_new_group)
+  my $potential_new_group = SAnchored->create(@new_subobjects)
   or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")
   ->throw();
   my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);
@@ -202,12 +216,13 @@ sub Extend {
   }
 
   # If we get here, all conflicting incumbents are dead.
-  @$parts_ref = @parts_of_new_group;
+  @{$self->object->get_parts_ref} = @new_subobjects;
 
   $self->Update();
   $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
   return 1;
 }
+
 
 sub Update {
   my ($self) = @_;
@@ -241,15 +256,6 @@ sub FindExtension {
   );
 }
 
-sub IsFlushRight {
-  my ($self) = @_;
-  $self->get_right_edge() == $SWorkspace::ElementCount - 1 ? 1 :0;
-}
-
-sub IsFlushLeft {
-  my ($self) = @_;
-  $self->get_left_edge() == 0 ? 1 :0;
-}
-
+__PACKAGE__->meta->make_immutable;
 1;
-1;
+

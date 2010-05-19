@@ -1,65 +1,36 @@
-#####################################################
-#
-#    Package: SElement
-#
-#####################################################
-#   Manages elements
-#
-#   Don't know how this fits in exactly. But the workspace, instead of having raw integers (or SObjects) will have SElements. When they are composed into objects, I may just use their integer core. Hmmmm...
-#####################################################
-
 package SElement;
-use strict;
-use Carp;
-use Class::Std;
-use base qw{SAnchored};
-use overload fallback => 1;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
+use Smart::Comments;
 
-my %mag_of : ATTR(:get<mag>);
+extends 'SAnchored';
+has mag => (
+    is         => 'rw',
+    isa        => 'Int',
+    reader     => 'get_mag',
+    init_arg   => 'mag',
+    required   => 1,
+);
 
 sub BUILD {
-  my ( $self, $id, $opts ) = @_;
-  confess "Need mag" unless defined $opts->{mag};
-  $mag_of{$id} = int( $opts->{mag} );
+  my $self = shift;
   $self->describe_as($S::NUMBER);
   $self->describe_as($S::PRIME)
-  if ( $Global::Feature{Primes} and SCategory::Prime::IsPrime( $opts->{mag} ) );
+  if ( $Global::Feature{Primes} and SCategory::Prime::IsPrime( $self->get_mag ) );
   if ( $Global::Feature{Parity} ) {
-    if ( $opts->{mag} % 2 ) {
+    if ( $self->get_mag() % 2 ) {
       $self->describe_as($S::ODD);
     }
     else {
       $self->describe_as($S::EVEN);
     }
   }
-
 }
 
-# method: create
-# Use this: passes the right argumets along to the constructor
-#
-sub create {
-  my ( $package, $mag, $pos ) = @_;
-  my $obj = $package->new(
-    {
-      items      => [$mag],
-      group_p    => 0,
-      mag        => $mag,
-      left_edge  => $pos,
-      right_edge => $pos,
-      strength   => 20,       # default strength for elements
-    }
-  );
-  $obj->get_parts_ref()->[0] = $obj;    #[sic]
-  return $obj;
-}
-
-# method: get_structure
-# just returns the magnitude
-#
 sub get_structure {
   my ($self) = @_;
-  return $mag_of{ ident $self};
+  $self->get_mag;
 }
 
 sub as_text {
@@ -94,4 +65,17 @@ sub CheckSquintability {
   return SObject::CheckSquintability( $self, $intended );
 }
 
+sub create {
+  my ( $package, $mag, $pos ) = @_;
+  my $object = SObject->new({items => [], group_p => 0, magnitude => $mag});
+  my $selement = $package->new(left_edge => $pos,
+                               right_edge => $pos,
+                               mag => $mag,
+                               object => $object);
+  $object->get_parts_ref()->[0] = $selement; #[sic]
+  $object->set_strength(20);
+  return $selement;
+}
+
+__PACKAGE__->meta->make_immutable;
 1;

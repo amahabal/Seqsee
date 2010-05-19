@@ -18,6 +18,7 @@ sub build {
 
 sub Instancer {
   my ( $self, $object ) = @_;
+  # confess "Not an SElement: $object" unless $object->isa('SElement');
   my $mag = $object->get_mag;
   return $self->NumericInstancer($mag);
 }

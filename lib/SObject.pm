@@ -53,6 +53,14 @@ my %reln_other_of : ATTR();
 #    is the group based on some relation? undef if not, the relation otherwise
 my %underlying_reln_of : ATTR( :get<underlying_reln>);
 
+my %mag_of :ATTR(:get<magnitude>);
+
+sub get_mag {
+  my $self = shift;
+  my $mag = $self->get_magnitude() // confess "Called get_mag on a non_selement!";
+  return $mag;
+}
+
 sub get_history {
   return shift->get_history_obj->get_history;
 }
@@ -137,6 +145,8 @@ sub BUILD {
   $reln_scheme_of{$id}        = "";
   $strength_of{$id} = $opts_ref->{strength} || 0;
   $history_of{$id} = SHistory->new();
+
+  $mag_of{$id} = $opts_ref->{magnitude} // undef;
 }
 
 # method: annotate_with_cat
@@ -310,6 +320,7 @@ sub has_structure_one_of {
 # Try to describe the object sa belonging to that category
 #
 
+# COPIED TO Categorizable
 sub describe_as {
   my ( $self, $cat ) = @_;
   my $is_of_cat = $self->is_of_category_p($cat);
@@ -657,7 +668,8 @@ sub recalculate_relations {
 sub as_text {
   my ($self) = @_;
   my $structure_string = $self->get_structure_string();
-  return "SObject $structure_string";
+  my $elementiness = defined($self->get_magnitude) ? '**' : '';
+  return "SObject$elementiness $structure_string";
 }
 
 multimethod CanBeSeenAs => ( '#', '#' ) => sub {
