@@ -139,31 +139,6 @@ sub BUILD {
   $history_of{$id} = SHistory->new();
 }
 
-# method: CreateObjectFromStructure
-# creates the object, or just returns int
-
-sub CreateObjectFromStructure {
-  my $object = shift;
-
-  if ( ref $object ) {
-
-    # An array ref..
-    unless ( ref($object) eq "ARRAY" ) {
-      confess("Got $object");
-    }
-    my @objects = @$object;
-    if ( @objects == 1 ) {
-      return CreateObjectFromStructure( $objects[0] );
-    }
-    else {
-      return SObject->create(@objects);
-    }
-  }
-  else {
-    return SElement->create( $object, 0 );
-  }
-}
-
 # method: annotate_with_cat
 # Annotattes object as belonging to category
 #
