@@ -7,7 +7,7 @@ use Smart::Comments;
 use Class::Multimethods;
 with 'Categorizable';
 use overload ( '~~' => 'literal_comparison_hack_for_smart_match',
-  '@{}' => 'get_parts_ref',
+  '@{}' => sub {$_[0]->get_parts_ref},
   fallback => 1 );
 
 sub literal_comparison_hack_for_smart_match {
@@ -88,6 +88,7 @@ has reln_other_end => (
   handles => {
     'get_relation' => 'get',
     'set_relation_to' => 'set',
+    'remove_reln_to' => 'delete',
     'relation_exists_to' => 'exists',
     'all_relations' => 'values',
   }
@@ -699,7 +700,7 @@ sub set_underlying_ruleapp  {
   }
 
   $self->AddHistory("Underlying relation set: $ruleapp ");
-  $self->set_underlying_ruleapp($ruleapp);
+  $self->set_underlying_reln($ruleapp);
 }
 
 1;

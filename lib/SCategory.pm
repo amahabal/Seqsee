@@ -173,9 +173,9 @@ sub ApplyTransformForCat {
   $ret_obj->describe_as($cat);
   my $rel_dir = $reln->get_direction_reln() // $Transform::Dir::Same;
   my $obj_dir = $object->get_direction;
-  my $new_dir = ApplyTransform( $rel_dir, $obj_dir );
+  # my $new_dir = ApplyTransform( $rel_dir, $obj_dir );
 
-  $ret_obj->set_direction($new_dir);
+  # $ret_obj->set_direction($new_dir);
   $ret_obj->set_group_p(1);
   return $ret_obj;
 }

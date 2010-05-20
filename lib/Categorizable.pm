@@ -12,7 +12,7 @@ has categories => (
     'add_category'             => 'set',
     'remove_category'          => 'delete',
     'GetBindingForCategory'    => 'get',
-    'is_of_category_p'         => 'exists',
+    'is_of_category_p'         => 'get',
     'category_list_as_strings' => 'keys',
   }
 );

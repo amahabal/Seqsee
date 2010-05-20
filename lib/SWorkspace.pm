@@ -221,7 +221,7 @@ sub __DeleteGroup {
     __DeleteGroup($super_group);
   }
 
-  for my $part (@$group) {
+  for my $part ($group->get_items_array()) {
     delete $SuperGroups_of{$part}{$group};
   }
 
@@ -316,7 +316,7 @@ sub __UpdateGroup {
 
   # Assume that if $group has changed, $SuperGroups_of{$group} was empty.
   ### require: not(%{$SuperGroups_of{$group}})
-  my @parts = @$group;
+  my @parts = $group->get_items_array();
   for my $part (@parts) {
     $SuperGroups_of{$part}{$group} = $group;
   }
