@@ -8,6 +8,8 @@ use List::Util qw(min max sum);
 use Class::Multimethods;
 multimethod 'ApplyTransform';
 
+extends 'SObject';
+
 # with 'Categorizable';
 
 has left_edge => (
@@ -28,39 +30,39 @@ has right_edge => (
     required   => 1,
 );
 
-has object => (
-    is         => 'rw',
-    isa        => 'SObject',
-    required   => 1,
-    handles => [qw{get_strength set_strength
-      get_history_object get_parts_ref 
-      get_group_p set_group_p get_metonym
-      get_metonym_activeness get_is_a_metonym set_is_a_metonym
-      get_direction set_direction get_reln_scheme set_reln_scheme
-      get_underlying_reln
-      get_history AddHistory search_history UnchangedSince GetAge
-      history_as_text get_items get_items_array 
-      annotate_with_cat get_structure 
-      get_flattened get_parts_count apply_blemish_at 
-      describe_as redescribe_as
-      set_underlying_ruleapp get_structure_string GetAnnotatedStructureString
-      apply_reln_scheme recalculate_categories get_pure
-      HasAsItem HasAsPartDeep 
-      SetMetonym SetMetonymActiveness GetEffectiveObject GetEffectiveStructure
-      GetEffectiveStructureString GetUnstarred AnnotateWithMetonym
-      MaybeAnnotateWithMetonym IsThisAMetonymedObject
-      ContainsAMetonym
-      AddRelation RemoveRelation RemoveAllRelations get_relation
-      recalculate_relations CanBeSeenAs_ByPart
-      CanBeSeenAs_Meto CanBeSeenAs_Literal CanBeSeenAs_LiteralOrMeto
-      GeteffectiveSlippages CheckSquintability CheckSquintabilityForCategory
-      UpdateStrength
-
-      get_cats_hash add_category remove_category get_categories get_categories_as_string
-      is_of_category_p GetBindingForCategory get_blemish_cats
-      HasNonAdHocCategory CopyCategoriesTo
-    }],
-);
+#has object => (
+#    is         => 'rw',
+#    isa        => 'SObject',
+#    required   => 1,
+#    handles => [qw{get_strength set_strength
+#      get_history_object get_parts_ref
+#      get_group_p set_group_p get_metonym
+#      get_metonym_activeness get_is_a_metonym set_is_a_metonym
+#      get_direction set_direction get_reln_scheme set_reln_scheme
+#      get_underlying_reln
+#      get_history AddHistory search_history UnchangedSince GetAge
+#      history_as_text get_items get_items_array
+#      annotate_with_cat get_structure
+#      get_flattened get_parts_count apply_blemish_at
+#      describe_as redescribe_as
+#      set_underlying_ruleapp get_structure_string GetAnnotatedStructureString
+#      apply_reln_scheme recalculate_categories get_pure
+#      HasAsItem HasAsPartDeep
+#      SetMetonym SetMetonymActiveness GetEffectiveObject GetEffectiveStructure
+#      GetEffectiveStructureString GetUnstarred AnnotateWithMetonym
+#      MaybeAnnotateWithMetonym IsThisAMetonymedObject
+#      ContainsAMetonym
+#      AddRelation RemoveRelation RemoveAllRelations get_relation
+#      recalculate_relations CanBeSeenAs_ByPart
+#      CanBeSeenAs_Meto CanBeSeenAs_Literal CanBeSeenAs_LiteralOrMeto
+#      GeteffectiveSlippages CheckSquintability CheckSquintabilityForCategory
+#      UpdateStrength
+#
+#      get_cats_hash add_category remove_category get_categories get_categories_as_string
+#      is_of_category_p GetBindingForCategory get_blemish_cats
+#      HasNonAdHocCategory CopyCategoriesTo
+#    }],
+#);
 
 has is_locked_against_deletion => (
     is         => 'rw',
@@ -143,9 +145,7 @@ sub IsFlushLeft {
 
 sub recalculate_edges {
   my ($self) = @_;
-  # Assumption: self->object is a valid anchored object...
-  my $obj = $self->object;
-  my $subobjects_ref = $obj->get_items;
+  my $subobjects_ref = $self->get_items;
   $self->set_left_edge($subobjects_ref->[0]);
   $self->set_right_edge($subobjects_ref->[-1]);
 }
@@ -172,12 +172,12 @@ sub create {
   my ($package, @items) = @_;
   return unless _CheckValidity(@items);
 
-  my $object = SObject->new({group_p => 1, items => \@items});
-  $object->UpdateStrength();
 
   my $anchored_object = $package->new(left_edge => $items[0]->get_left_edge(),
                                       right_edge => $items[-1]->get_right_edge(),
-                                      object => $object);
+                                      items => \@items,
+                                      group_p => 1);
+  $anchored_object->UpdateStrength();
   return $anchored_object;
 }
 
@@ -185,7 +185,7 @@ sub Extend {
   scalar(@_) == 3 or confess "Need 3 arguments";
   my ( $self, $to_insert, $insert_at_end_p ) = @_;
 
-  my @current_subojects = $self->object->get_items_array;
+  my @current_subojects = $self->get_items_array;
 
   my @new_subobjects;
   if ($insert_at_end_p) {
@@ -216,7 +216,7 @@ sub Extend {
   }
 
   # If we get here, all conflicting incumbents are dead.
-  @{$self->object->get_parts_ref} = @new_subobjects;
+  @{$self->get_parts_ref} = @new_subobjects;
 
   $self->Update();
   $self->AddHistory( "Extended to become " . $self->get_bounds_string() );

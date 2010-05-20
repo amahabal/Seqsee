@@ -66,7 +66,7 @@ has holeyness => (
 sub BUILD {
   my $self = shift;
   my ( $f, $s ) = $self->get_ends();
-  $self->set_direction_reln(FindTransform( $f->get_direction, $s->get_direction() ));
+  # $self->set_direction_reln(FindTransform( $f->get_direction, $s->get_direction() ));
   $self->set_holeyness(SWorkspace->are_there_holes_here( $f, $s ));
   $self->history_object(SHistory->new());
 }

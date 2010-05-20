@@ -1,22 +1,13 @@
-#####################################################
-#
-#    Package: SObject
-#
-#####################################################
-#   Workspace objects
-#
-#   Redoind SBuiltObj and SInt. This unifies both. Both these packages had accumulated a lot of cruft, including several constructors, a large number of structure related methods and so forth
-#####################################################
-
 package SObject;
-use strict;
-use Carp;
-use Class::Std;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Smart::Comments;
+
 use Class::Multimethods;
-use English qw(-no_match_vars);
-use base qw{SInstance};
+with 'Categorizable';
 use overload ( '~~' => 'literal_comparison_hack_for_smart_match',
+  '@{}' => 'get_parts_ref',
   fallback => 1 );
 
 sub literal_comparison_hack_for_smart_match {
@@ -26,67 +17,106 @@ sub literal_comparison_hack_for_smart_match {
 multimethod 'FindTransform';
 multimethod 'ApplyTransform';
 
-our %strength_of : ATTR(:get<strength> :set<strength>);
+has strength => (
+    is         => 'rw',
+    reader     => 'get_strength',
+    writer     => 'set_strength',
+    init_arg   => 'strength',
+    default    => 0,
+);
 
-my %history_of : ATTR(:get<history_obj>);
+has history_obj => (
+    is         => 'rw',
+    isa        => 'SHistory',
+    reader     => 'get_history_obj',
+    writer     => 'set_history_obj',
+    default   => sub { SHistory->new },
+    required   => 0,
+    weak_ref   => 0,
+    handles => [qw{get_history AddHistory UnchangedSince
+    search_history history_as_text GetAge}],
+);
 
-my %items_of : ATTR( :get<parts_ref> );    #    The items of this object.
-my %group_p_of : ATTR( :get<group_p> :set<group_p>)
-;                                          #    Is this object a group?
-                                           # Can also be true for a single item.
-my %metonym_of : ATTR( :get<metonym>)
-;    #    The metonym associated with this object
-my %metonym_activeness_of : ATTR( :get<metonym_activeness>)
-;    # Bool: is it active?
-my %is_a_metonym_of : ATTR( :get<is_a_metonym> :set<is_a_metonym>);    #
-my %direction_of : ATTR( :get<direction> :set<direction>  )
-;    # Direction: see S::Dir.
-my %reln_scheme_of : ATTR( :get<reln_scheme> :set<reln_scheme>  )
-;    # See S::Reln_Scheme
+has group_p => (
+    is         => 'rw',
+    isa        => 'Bool',
+    reader     => 'get_group_p',
+    writer     => 'set_group_p',
+    init_arg   => 'group_p',
+    required   => 1,
+    weak_ref   => 0,
+);
 
-# variable: %reln_other_of
-# XXX(Assumption): [2006/09/16] Only a single reln between two objects possible
-# this way.
-my %reln_other_of : ATTR();
+has metonym => (
+    is         => 'rw',
+    reader     => 'get_metonym',
+    writer     => 'set_metonym',
+);
 
-# variable: %underlying_reln_of
-#    is the group based on some relation? undef if not, the relation otherwise
-my %underlying_reln_of : ATTR( :get<underlying_reln>);
+has metonym_activeness => (
+    is         => 'rw',
+    isa        => 'Bool',
+    reader     => 'get_metonym_activeness',
+    writer     => 'set_metonym_activeness',
+    default => 0,
+);
 
-sub get_history {
-  return shift->get_history_obj->get_history;
-}
+# should be: is_a_metonym_of
+has is_a_metonym => (
+    is         => 'rw',
+    reader     => 'get_is_a_metonym',
+    writer     => 'set_is_a_metonym',
+);
 
-sub AddHistory {
-  return shift->get_history_obj->AddHistory(@_);
-}
+has direction => (
+    is         => 'rw',
+    reader     => 'get_direction',
+    writer     => 'set_direction',
+);
 
-sub search_history {
-  return shift->get_history_obj->search_history(@_);
-}
+has reln_scheme => (
+    is         => 'rw',
+    reader     => 'get_reln_scheme',
+    writer     => 'set_reln_scheme',
+);
 
-sub UnchangedSince {
-  return shift->get_history_obj->UnchangedSince(@_);
-}
+has reln_other_end => (
+  traits => ['Hash'],
+  is        => 'ro',
+  isa       => 'HashRef',
+  default   => sub { {} },
+  handles => {
+    'get_relation' => 'get',
+    'set_relation_to' => 'set',
+    'relation_exists_to' => 'exists',
+    'all_relations' => 'values',
+  }
+);
 
-sub GetAge {
-  return shift->get_history_obj->GetAge(@_);
-}
+has underlying_reln => (
+    is         => 'rw',
+    reader     => 'get_underlying_reln',
+    writer     => 'set_underlying_reln',
+);
 
-sub history_as_text {
-  return shift->get_history_obj->history_as_text(@_);
-}
+has item => (
+  traits => ['Array'],
+  is        => 'rw',
+  isa       => 'ArrayRef',
+  default   => sub { [] },
+  reader    => 'get_parts_ref',
+  init_arg  => 'items',
+  handles => {
+    'get_items_array' => 'elements',
+    'get_parts_count' => 'count',
+  }
+);
 
 
 sub get_items {
-  my $self = shift;
-  return $items_of{ ident $self};
+  shift->get_parts_ref;
 }
 
-sub get_items_array {
-  my $self = shift;
-  return @{$items_of{ ident $self}};
-}
 
 sub create {
   my ($package, @arguments) = @_;
@@ -123,40 +153,6 @@ sub create {
   return $package->new({group_p => 1, items => \@new_arguments});
 }
 
-sub BUILD {
-  my ( $self, $id, $opts_ref ) = @_;
-  die "Need group_p" unless exists $opts_ref->{group_p};
-
-  $items_of{$id}              = $opts_ref->{items} or die "Need items";
-  $group_p_of{$id}            = $opts_ref->{group_p};
-  $reln_other_of{$id}         = {};
-  $underlying_reln_of{$id}    = undef;
-  $metonym_activeness_of{$id} = 0;
-  $metonym_of{$id}            = undef;
-  $direction_of{$id}          = $opts_ref->{direction} || DIR::UNKNOWN();
-  $reln_scheme_of{$id}        = "";
-  $strength_of{$id} = $opts_ref->{strength} || 0;
-  $history_of{$id} = SHistory->new();
-}
-
-# method: annotate_with_cat
-# Annotattes object as belonging to category
-#
-#    The object must belong to the category: must pass is_instance, otherwise an exception is raised.
-#
-#    usage:
-#     $object->annotate_with_cat($cat)
-#
-#    parameter list:
-#        $self - the object
-#        $cat -  the category
-#
-#    return value:
-#      none
-#
-#    possible exceptions:
-#        SErr::NotOfCat
-
 sub annotate_with_cat {
   my ( $self, $cat ) = @_;
   my $bindings = $self->describe_as($cat);
@@ -165,67 +161,15 @@ sub annotate_with_cat {
   return $bindings;
 }
 
-# method: get_structure
-# returns the structure, a deep array of integers
-#
-#    Returns an array ref of integers and other array refs of integers, unblessed.
-
 sub get_structure {
   my ($self) = shift;
-  my $id = ident $self;
-
-  my $items_ref = $items_of{$id};
-  my @new_items = map { $_->get_structure() } @$items_ref;
-  return \@new_items;
-
+  return [ map { $_->get_structure() } $self->get_items_array() ];
 }
-
-# method: get_flattened
-# get a flattened version
-#
-#    Returns an arrayref of integers.
 
 sub get_flattened {
   my ($self) = @_;
-  my $id = ident $self;
-
-  my $items_ref = $items_of{$id};
-  my @items = map { @{ $_->get_flattened() } } @$items_ref;
-
-  return \@items;
+  return [ map {@{  $_->get_flattened()} } $self->get_items_array() ];
 }
-
-# method: get_parts_count
-# how many parts does the object have?
-#
-
-sub get_parts_count {
-  my $id = ident shift;
-  return scalar( @{ $items_of{$id} } );
-}
-
-# method: arrayify
-# Get the numbered part, 0  indexed
-#
-#    automatically used when object is treated as an array ref
-
-sub arrayify : ARRAYIFY {
-  my $self = shift;
-  return $items_of{ ident $self};
-}
-
-sub boolify : BOOLIFY {
-  my ($self) = @_;
-  return $self;
-}
-
-# method: apply_blemish_at
-# Applies a blemish at a given position
-#
-#    Arguments:
-#    * $object
-#    * $meto_type
-#    * $position
 
 sub apply_blemish_at {
   my ( $object, $meto_type, $position ) = @_;
@@ -234,7 +178,7 @@ sub apply_blemish_at {
   #XXX assumption in prev line that a single item returned
   my @metonyms;
 
-  my @subobjects = @{ $items_of{ ident $object } };
+  my @subobjects = $object->get_items_array;
   my $meto_cat   = $meto_type->get_category;
   my $meto_name  = $meto_type->get_name;
 
@@ -268,42 +212,6 @@ sub apply_blemish_at {
   return $ret;
 
   # maybe make it belong to the category...
-}
-
-#
-# subsection: Testing utilities(methods)
-
-# method: structure_ok
-# checks if structure matches the argument, and cals ok or nok
-#
-
-sub structure_ok {
-  my ( $self, $structure ) = @_;
-  my $struct = $self->get_structure;
-  ## $struct, $structure
-  if ( SUtil::compare_deep( $struct, $structure ) ) {
-    Test::More::ok( 1, "structure ok" );
-  }
-  else {
-    Test::More::ok( 0, "structure ok" );
-  }
-}
-
-# method: has_structure_one_of
-# returns true if one of several options valid
-#
-
-sub has_structure_one_of {
-  my ( $self, @potential ) = @_;
-  my $struct = $self->get_structure;
-  ## $struct, $structure
-  for (@potential) {
-    if ( SUtil::compare_deep( $struct, $_ ) ) {
-      return 1;
-    }
-  }
-  return;
-
 }
 
 # method: describe_as
@@ -348,34 +256,6 @@ sub redescribe_as {
 
 }
 
-# XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
-sub set_underlying_ruleapp : CUMULATIVE {
-  my ( $self, $reln ) = @_;
-  $reln or confess "Cannot set underlying relation to be an undefined value!";
-  my $id = ident $self;
-
-  if ( UNIVERSAL::isa( $reln, "SRelation" )
-    or UNIVERSAL::isa( $reln, 'Transform' ) )
-  {
-    $reln = SRule->create($reln) or return;
-  }
-  my $ruleapp;
-  if ( UNIVERSAL::isa( $reln, "SRule" ) ) {
-    $ruleapp = $reln->CheckApplicability(
-      {
-        objects   => [$self->get_items_array()],
-        direction => $self->get_direction(),
-      }
-    );    # could be undef.
-  }
-  else {
-    confess "Funny argument $reln to set_underlying_ruleapp!";
-  }
-
-  $self->AddHistory("Underlying relation set: $ruleapp ");
-  $underlying_reln_of{$id} = $ruleapp;
-}
-
 sub get_structure_string {
   my ($self) = @_;
   my $struct = $self->get_structure;
@@ -384,17 +264,8 @@ sub get_structure_string {
 
 sub GetAnnotatedStructureString {
   my ($self) = @_;
-  my $id = ident $self;
-
-  my $body;
-  if ( $self->isa('SElement') ) {
-    $body = $self->get_mag;
-  }
-  else {
-    my @items = @{ $self->get_items() };
-    $body =
-    '[' . join( ', ', map { $_->GetAnnotatedStructureString } @items ) . ']';
-  }
+  my $body = $self->isa('SElement') ? $self->get_mag() :
+    '[' . join( ', ', map { $_->GetAnnotatedStructureString } $self->get_items_array ) . ']';
 
   if ( $self->get_metonym_activeness() ) {
     my $meto_structure_string =
@@ -416,7 +287,7 @@ sub apply_reln_scheme {
   return unless $scheme;
   if ( $scheme == RELN_SCHEME::CHAIN() ) {
     my $parts_ref = $self->get_parts_ref;
-    my $cnt       = scalar(@$parts_ref);
+    my $cnt       = $self->get_parts_count;
     for my $i ( 0 .. ( $cnt - 2 ) ) {
       my ( $a, $b ) = ( $parts_ref->[$i], $parts_ref->[ $i + 1 ] );
       next if $a->get_relation($b);
@@ -437,7 +308,6 @@ sub apply_reln_scheme {
 
 sub recalculate_categories {
   my ($self) = @_;
-  my $id = ident $self;
 
   my $cats = $self->get_categories();
   for my $cat (@$cats) {
@@ -479,38 +349,32 @@ sub HasAsPartDeep {
 # METONYM MANAGEMENT
 sub SetMetonym {
   my ( $self, $meto ) = @_;
-  my $id      = ident $self;
   my $starred = $meto->get_starred();
   SErr->throw("Metonym must be an SObject! Got: $starred")
   unless UNIVERSAL::isa( $starred, "SObject" );
-  $is_a_metonym_of{ ident($starred) } = $self;
-  $metonym_of{$id} = $meto;
+  $starred->set_is_a_metonym($self);
+  $self->set_metonym($meto);
 }
 
 sub SetMetonymActiveness {
   my ( $self, $value ) = @_;
-  my $id = ident $self;
-
   if ($value) {
-    return if $metonym_activeness_of{$id};
-    unless ( $metonym_of{$id} ) {
+    return if $self->get_metonym_activeness;
+    unless ( $self->get_metonym ) {
       SErr->throw("Cannot SetMetonymActiveness without a metonym");
     }
     $self->AddHistory("Metonym activeness turned on");
-    $metonym_activeness_of{$id} = 1;
+    $self->set_metonym_activeness(1);
   }
   else {
     $self->AddHistory("Metonym activeness turned off");
-    $metonym_activeness_of{$id} = 0;
+    $self->set_metonym_activeness(0);
   }
 }
 
 sub GetEffectiveObject {
   my ($self) = @_;
-  my $id = ident $self;
-
-  return $self unless $metonym_activeness_of{$id};
-  return $metonym_of{$id}->get_starred();
+  return $self->get_metonym_activeness() ? $self->get_metonym()->get_starred() : $self;
 }
 
 sub GetEffectiveStructure {
@@ -530,8 +394,7 @@ sub GetEffectiveStructureString {
 
 sub GetUnstarred {
   my ($self) = @_;
-  my $id = ident $self;
-  return $is_a_metonym_of{$id} || $self;
+  return $self->get_is_a_metonym() || $self;
 }
 
 sub AnnotateWithMetonym {
@@ -560,15 +423,13 @@ sub MaybeAnnotateWithMetonym {
 
 sub IsThisAMetonymedObject {
   my ($self)          = @_;
-  my $id              = ident $self;
-  my $is_a_metonym_of = $is_a_metonym_of{$id};
+  my $is_a_metonym_of = $self->get_is_a_metonym();
   return 0 if ( not($is_a_metonym_of) or $is_a_metonym_of eq $self );
   return 1;
 }
 
 sub ContainsAMetonym {
   my ($self) = @_;
-  my $id = ident $self;
   return 1 if $self->IsThisAMetonymedObject;
   for ($self->get_items_array()) {
     return 1 if $_->ContainsAMetonym;
@@ -587,41 +448,27 @@ sub SElement::ContainsAMetonym {
 
 sub AddRelation {
   my ( $self, $reln ) = @_;
-  my $id    = ident $self;
   my $other = $self->_get_other_end_of_reln($reln);
 
-  if ( exists( $reln_other_of{$id}{$other} ) ) {
+  if ( $self->relation_exists_to($other) ) {
     SErr->throw("duplicate reln being added");
   }
   $self->AddHistory( "added reln to " . $other->get_bounds_string() );
-  $reln_other_of{$id}{$other} =
-  $reln;    # The other direction is handled by whoever calls this.
+  $self->set_relation_to($other, $reln);
 }
 
 sub RemoveRelation {
   my ( $self, $reln ) = @_;
-  my $id = ident $self;
-
   my $other = $self->_get_other_end_of_reln($reln);
   $self->AddHistory( "removed reln to " . $other->get_bounds_string() );
-  delete $reln_other_of{$id}{$other};
+  $self->remove_reln_to($other);
 }
 
 sub RemoveAllRelations {
   my ($self) = @_;
-  my @relations = values %{ $reln_other_of{ ident $self} };
-  for (@relations) {
+  for ($self->all_relations()) {
     $_->uninsert();
   }
-}
-
-sub get_relation {
-  my ( $self, $other ) = @_;
-  my $id = ident $self;
-
-  return $reln_other_of{$id}{$other}
-  if exists $reln_other_of{$id}{$other};
-  return;
 }
 
 sub _get_other_end_of_reln {
@@ -634,20 +481,19 @@ sub _get_other_end_of_reln {
 
 sub recalculate_relations {
   my ($self) = @_;
-  my %hash = %{ $reln_other_of{ ident $self} };
-  while ( my ( $k, $v ) = each %hash ) {
-    my $type     = $v->get_type();
-    my $new_type = $type->get_category()->FindTransformForCat( $v->get_ends );
+  for my $reln ($self->all_relations()) {
+    my $type     = $reln->get_type();
+    my $new_type = $type->get_category()->FindTransformForCat( $reln->get_ends );
 
     if ($new_type) {
-      my ( $f, $s ) = $v->get_ends;
+      my ( $f, $s ) = $reln->get_ends;
       my $new_rel =
       SRelation->new( { first => $f, second => $s, type => $new_type } );
-      $v->uninsert;
+      $reln->uninsert;
       $new_rel->insert;
     }
     else {
-      $v->uninsert;
+      $reln->uninsert;
 
       #main::message("A relation no longer valid, removing!");
     }
@@ -828,5 +674,35 @@ sub UpdateStrength {
   $self->set_strength($strength);
 }
 
+
+# XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
+sub set_underlying_ruleapp  {
+  my ( $self, $reln ) = @_;
+  $reln or confess "Cannot set underlying relation to be an undefined value!";
+
+  if ( UNIVERSAL::isa( $reln, "SRelation" )
+    or UNIVERSAL::isa( $reln, 'Transform' ) )
+  {
+    $reln = SRule->create($reln) or return;
+  }
+  my $ruleapp;
+  if ( UNIVERSAL::isa( $reln, "SRule" ) ) {
+    $ruleapp = $reln->CheckApplicability(
+      {
+        objects   => [$self->get_items_array()],
+        direction => $self->get_direction(),
+      }
+    );    # could be undef.
+  }
+  else {
+    confess "Funny argument $reln to set_underlying_ruleapp!";
+  }
+
+  $self->AddHistory("Underlying relation set: $ruleapp ");
+  $self->set_underlying_ruleapp($ruleapp);
+}
+
 1;
 
+__PACKAGE__->meta->make_immutable;
+1;

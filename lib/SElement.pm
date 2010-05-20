@@ -67,13 +67,13 @@ sub CheckSquintability {
 
 sub create {
   my ( $package, $mag, $pos ) = @_;
-  my $object = SObject->new({items => [], group_p => 0, magnitude => $mag});
   my $selement = $package->new(left_edge => $pos,
                                right_edge => $pos,
                                mag => $mag,
-                               object => $object);
-  $object->get_parts_ref()->[0] = $selement; #[sic]
-  $object->set_strength(20);
+                               items => [],
+                               group_p => 0);
+  $selement->get_parts_ref()->[0] = $selement; #[sic]
+  $selement->set_strength(20);
   return $selement;
 }
 
