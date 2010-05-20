@@ -40,7 +40,7 @@ multimethod SanityCheck => qw(SAnchored) => sub {
   my ( $l, $r ) = $gp->get_edges();
   0 <= $l                        or SanityFail("Edge problem: left $l");
   $l <= $r                       or SanityFail("Edge problem: $l $r");
-  $r < $SWorkspace::ElementCount or SanityFail("Edge problem: right $r");
+  $r < $SWorkspace::ElementCount or SanityFail("Edge problem: right $r; Workspace has $SWorkspace::ElementCount");
 
   my @parts = @$gp;
 

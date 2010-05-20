@@ -18,7 +18,7 @@ RUN: {
         #print STDERR "\nExtension found:", $extension->as_text();
         #print STDERR "\nDirection:", $direction;
         #main::message("Found extension: $extension; " . $extension->get_structure_string());
-        my $add_to_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
+        my $add_to_end_p = ( $direction eq $DIR::RIGHT ) ? 1 : 0;
         ## add_to_end_p (in SCF): $add_to_end_p
         my $extend_success;
         TRY {
@@ -26,7 +26,7 @@ RUN: {
         }
         CATCH {
         CouldNotCreateExtendedGroup: {
-                my $msg = "Extending object: " . $object->as_text() . "\n";
+                my $msg = "Failed at extending object: " . $object->as_text() . "\n";
                 $msg .= "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
                 print STDERR $msg;
                 main::message($msg);
@@ -80,7 +80,7 @@ RUN: {
         unless ( SWorkspace::__CheckLiveness($object) ) {
             return;    # main::message("SCF::ConvulseEnd: " . $object->as_text());
         }
-        my $change_at_end_p = ( $direction eq $object->get_direction() ) ? 1 : 0;
+        my $change_at_end_p = ( $direction eq $DIR::RIGHT ) ? 1 : 0;
         my @object_parts = @$object;
         my $ejected_object;
         if ($change_at_end_p) {

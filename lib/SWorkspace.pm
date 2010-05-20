@@ -529,8 +529,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
     return __PlonkIntoPlace( $start - $span + 1, $DIR::RIGHT, $object );
   }
 
-  my @to_insert =
-  ( $object->get_direction() eq $DIR::LEFT ) ? reverse(@$object) :@$object;
+  my @to_insert = $object->get_items_array;
   my @new_parts;
   my $plonk_cursor                 = $start;
   my $attribute_copy_status_so_far = ResultOfAttributeCopy->Success();

@@ -7,6 +7,7 @@ use Smart::Comments;
 use List::Util qw(min max sum);
 use Class::Multimethods;
 multimethod 'ApplyTransform';
+multimethod 'SanityCheck';
 
 extends 'SObject';
 
@@ -220,6 +221,7 @@ sub Extend {
 
   $self->Update();
   $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
+  # SanityCheck($self);
   return 1;
 }
 

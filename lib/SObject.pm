@@ -72,6 +72,7 @@ has direction => (
     is         => 'rw',
     reader     => 'get_direction',
     writer     => 'set_direction',
+    default    => $DIR::RIGHT,
 );
 
 has reln_scheme => (
@@ -671,7 +672,7 @@ sub UpdateStrength {
   my $strength = $strength_from_parts + $strength_from_categories;
   $strength += $Global::GroupStrengthByConsistency{$self};
   $strength = 100 if $strength > 100;
-  ### p, c, t: $strength_from_parts, $strength_from_categories, $strength
+  ## p, c, t: $strength_from_parts, $strength_from_categories, $strength
   $self->set_strength($strength);
 }
 
@@ -691,7 +692,7 @@ sub set_underlying_ruleapp  {
     $ruleapp = $reln->CheckApplicability(
       {
         objects   => [$self->get_items_array()],
-        direction => $self->get_direction(),
+        direction => $DIR::RIGHT,
       }
     );    # could be undef.
   }
