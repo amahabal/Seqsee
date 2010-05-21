@@ -54,7 +54,7 @@ INITIAL: {
 
     }
 RUN: {
-        # main::message("In TryToSquint");
+        #main::message("In TryToSquint " . $actual->as_text() . '==>' . $intended->as_text);
         my @potential_squints = $actual->CheckSquintability($intended) or return;
         #main::message("potential_squints: @potential_squints");
         my $chosen_squint = SLTM::SpikeAndChoose(100, @potential_squints) or return;

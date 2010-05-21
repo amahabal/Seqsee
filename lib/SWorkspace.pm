@@ -1458,6 +1458,9 @@ sub GetSomethingLike {
   my $trust_level = $opts_ref->{trust_level} // confess;    # used if ask_user
   my $hilit_set = $opts_ref->{hilit_set};
 
+  #print "GetSomethingLike: object ", $object->as_text;
+  #print " Start: ", $start_pos;
+  #print " dir ", $direction->as_text, "\n"; 
   my @objects_at_that_location;
   if ( $direction eq $DIR::RIGHT ) {
     @objects_at_that_location =
@@ -1467,7 +1470,7 @@ sub GetSomethingLike {
     @objects_at_that_location =
     __GetObjectsWithEndsExactly( undef, $start_pos );
   }
-
+  # print "\tOBJECTS THERE: ", join(", ", map { $_->as_text } @objects_at_that_location), "\n";
   my $expected_structure_string = $object->get_structure_string();
 
   my ( @matching_objects, @potentially_matching_objects );
@@ -1481,6 +1484,8 @@ sub GetSomethingLike {
       push @potentially_matching_objects, $_;
     }
   }
+  #print "\tMATCHING: ", join(", ", map { $_->as_text } @matching_objects), "\n";
+  #print "\tPotentially: ", join(", ", map { $_->as_text } @potentially_matching_objects), "\n";
 
   my $is_object_literally_present;
 

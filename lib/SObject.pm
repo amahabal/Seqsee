@@ -165,6 +165,7 @@ sub annotate_with_cat {
 
 sub get_structure {
   my ($self) = shift;
+  return $self->get_parts_ref()->[0]->get_structure() if $self->get_parts_count() == 1;
   return [ map { $_->get_structure() } $self->get_items_array() ];
 }
 
@@ -522,7 +523,10 @@ multimethod CanBeSeenAs => ( 'SObject', 'SObject' ) => sub {
 multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
   my ( $object, $int ) = @_;
   my $lit_or_meto = $object->CanBeSeenAs_Literal0rMeto($int);
-  ## lit_or_meto(elt): $lit_or_meto
+  #if (not $object->isa('SElement')) {
+  #  print "LIT OR METO: ", $object->as_text, "===> $int\n";
+  #}
+  ## lit_or_meto(elt): $lit_or_meto, $object->as_text()
   return $lit_or_meto if defined $lit_or_meto;
   return ResultOfCanBeSeenAs::NO();
 
@@ -643,6 +647,7 @@ sub CheckSquintability {
 sub CheckSquintabilityForCategory {
   my ( $self, $intended_structure_string, $category ) = @_;
 
+  #main::message("CheckSquintabilityForCategory: $category");
   my $bindings = $self->GetBindingForCategory($category)
   or confess
   "CheckSquintabilityForCategory called on object not an instance of the category";
@@ -650,8 +655,10 @@ sub CheckSquintabilityForCategory {
   my @meto_types = $category->get_meto_types();
   my @return;
   for my $name (@meto_types) {
+   #main::message("Meto type: $name");
     my $finder = $category->get_meto_finder($name);
     my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
+    #main::message("Squinted: " . $squinted->get_starred->get_structure_string . '=?=' . $intended_structure_string);
     next
     unless $squinted->get_starred()->get_structure_string() eq
       $intended_structure_string;
