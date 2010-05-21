@@ -670,7 +670,7 @@ sub UpdateStrength {
   ( List::Util::sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } )
     || 0 );
   my $strength = $strength_from_parts + $strength_from_categories;
-  $strength += $Global::GroupStrengthByConsistency{$self};
+  $strength += ($Global::GroupStrengthByConsistency{$self} || 0);
   $strength = 100 if $strength > 100;
   ## p, c, t: $strength_from_parts, $strength_from_categories, $strength
   $self->set_strength($strength);
