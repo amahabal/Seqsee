@@ -28,19 +28,23 @@ sub as_text {
 sub _guesser {
   my $subobject        = shift // return;
   my $effective_object = $subobject->GetEffectiveObject();
+  # print "In _guesser: $effective_object: ", $effective_object->as_text, "\n";
   return unless ( ref($effective_object) eq 'SElement' );
   return SInt->new( $effective_object->get_mag );
 }
 
 sub Instancer {
   my ( $self, $object ) = @_;
+  # print "In Ascending instancer for ", $object->as_text, "\n";
   my $start = _guesser( $object->get_items()->[0] )  or return;
   my $end   = _guesser( $object->get_items()->[-1] ) or return;
 
+  # print "Start/end: $start, $end\n";
   my %guess = ( start => $start, end => $end );
   my $guess_built = $self->build( \%guess );
 
   my $result_of_can_be_seen_as = $object->CanBeSeenAs($guess_built);
+  # print "result_of_can_be_seen_as: $result_of_can_be_seen_as\n";
   return unless $result_of_can_be_seen_as;
 
   my $slippages = $result_of_can_be_seen_as->GetPartsBlemished() || {};

@@ -5,6 +5,7 @@ use English qw( -no_match_vars );
 use Smart::Comments;
 
 use List::Util qw(min max sum);
+use Try::Tiny;
 use Class::Multimethods;
 multimethod 'ApplyTransform';
 multimethod 'SanityCheck';
@@ -173,11 +174,16 @@ sub create {
   my ($package, @items) = @_;
   return unless _CheckValidity(@items);
 
-
-  my $anchored_object = $package->new(left_edge => $items[0]->get_left_edge(),
-                                      right_edge => $items[-1]->get_right_edge(),
-                                      items => \@items,
-                                      group_p => 1);
+  my $anchored_object;
+  if (@items == 1) {
+    my $only_item = $items[0];
+    $anchored_object = $only_item;
+  } else {
+    $anchored_object = $package->new(left_edge => $items[0]->get_left_edge(),
+                                     right_edge => $items[-1]->get_right_edge(),
+                                     items => \@items,
+                                     group_p => 1);
+  }
   $anchored_object->UpdateStrength();
   return $anchored_object;
 }
@@ -233,11 +239,14 @@ sub Update {
   $self->recalculate_relations();
   $self->UpdateStrength();
   if ( my $underlying_reln = $self->get_underlying_reln() ) {
-    eval { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) };
-    if ($EVAL_ERROR) {
+    # print "UPDATING RULEAPP $underlying_reln\n";
+    my $error;
+    try { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) }
+    catch {
       SWorkspace->remove_gp($self);
-      return;
-    }
+      $error = 1;
+    };
+    return if $error;
     confess "underlying_reln lost here" unless $self->get_underlying_reln;
   }
 

@@ -317,6 +317,9 @@ sub recalculate_categories {
     $self->redescribe_as($cat);
   }
 
+  unless ($self->category_list_as_strings) {
+    confess  "LOST ALL CATEGORIES!!! $self. Had @$cats\n";
+  }
 }
 
 sub get_pure {
@@ -704,6 +707,7 @@ sub set_underlying_ruleapp  {
     );    # could be undef.
   }
   else {
+    print "Funny argument $reln to set_underlying_ruleapp!";
     confess "Funny argument $reln to set_underlying_ruleapp!";
   }
 
