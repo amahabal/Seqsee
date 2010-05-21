@@ -147,8 +147,8 @@ sub IsFlushLeft {
 sub recalculate_edges {
   my ($self) = @_;
   my $subobjects_ref = $self->get_items;
-  $self->set_left_edge($subobjects_ref->[0]);
-  $self->set_right_edge($subobjects_ref->[-1]);
+  $self->set_left_edge($subobjects_ref->[0]->get_left_edge());
+  $self->set_right_edge($subobjects_ref->[-1]->get_right_edge());
 }
 
 sub _CheckValidity {
