@@ -222,8 +222,8 @@ CodeletFamily Describe2InterlacedCategory( $cat !, $ruleapp ! ) does scripted {
         @second_items = @second_items[ 0 .. 2 ] if @second_items > 3;
 
         my $msg = "The group is thus made up of a size-2 template. ";
-        my @first_categories  = SInstance::get_common_categories(@first_items);
-        my @second_categories = SInstance::get_common_categories(@second_items);
+        my @first_categories  = Categorizable::get_common_categories(@first_items);
+        my @second_categories = Categorizable::get_common_categories(@second_items);
 
         if (@first_categories) {
             $msg .= "An instance of the first item in the template is an instance of '"

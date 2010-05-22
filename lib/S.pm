@@ -14,7 +14,6 @@ use SErr;
 use UserInteraction;
 use SChoose;
 use SBindings;
-use SInstance;
 use SPos;
 use SFasc;
 
