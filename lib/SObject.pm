@@ -535,6 +535,17 @@ multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
 
 };
 
+multimethod CanBeSeenAs => ('SElement', '#') => sub {
+  return ($_[0]->get_mag() == $_[1]) ? ResultOfCanBeSeenAs->newUnblemished() : ResultOfCanBeSeenAs::NO();
+};
+
+multimethod CanBeSeenAs => ('SElement', '$') => sub {
+  if ($_[1] =~ m#^-?\d+$#) {
+    return ($_[0]->get_mag() == $_[1]) ? ResultOfCanBeSeenAs->newUnblemished() : ResultOfCanBeSeenAs::NO();
+  }
+  confess "SAW CanBeSeenAs(SElement, \$): " . $_[0]->as_text . " '". $_[1];
+};
+
 multimethod CanBeSeenAs => ( 'SObject', 'ARRAY' ) => sub {
   my ( $object, $structure ) = @_;
   my $meto_activeness = $object->get_metonym_activeness();
