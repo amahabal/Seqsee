@@ -17,23 +17,25 @@ has categories => (
   }
 );
 
+my %category_registry;
+sub RegisterCategory {
+  my ($package, $cat) = @_;
+  $category_registry{$cat} = $cat;
+}
+
 after 'add_category' => sub {
   my ( $self, $cat, $bindings ) = @_;
   $self->AddHistory( "Added category " . $cat->get_name );
-  $S::Str2Cat{$cat} = $cat;
 };
 
 before 'remove_category' => sub {
   my ( $self, $cat ) = @_;
   $self->AddHistory( "Removed category " . $cat->get_name );
-
-  # make string to object mapping
-  $S::Str2Cat{$cat} = $cat;
 };
 
 sub get_categories {
   my ($self) = @_;
-  return [ map { $S::Str2Cat{$_} } $self->category_list_as_strings ];
+  return [ map { $category_registry{$_} } $self->category_list_as_strings ];
 }
 
 sub get_categories_as_string {
@@ -54,9 +56,9 @@ sub get_common_categories {
 
   my @common_strings = grep { $key_count{$_} == $count } keys %key_count;
   return map {
-    $S::Str2Cat{$_}
+    $category_registry{$_}
     or confess "not a cat: $_\ncats known:\n"
-    . join( ', ', %S::Str2Cat )
+    . join( ', ', %category_registry )
   } @common_strings;
 }
 
