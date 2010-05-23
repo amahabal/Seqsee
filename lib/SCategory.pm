@@ -144,9 +144,9 @@ sub ApplyTransformForCat {
     }
   }
 
-  my $ret_obj = $cat->build($new_bindings_ref)
-  or confess "Failed to build " . $cat->as_text(),
-  " from " . join( ', ', keys %$new_bindings_ref );
+  my $ret_obj = $cat->build($new_bindings_ref) or return;
+  #or confess "Failed to build " . $cat->as_text(),
+  #" from " . join( ', ', keys %$new_bindings_ref );
 
   # We have not "applied the blemishes" yet, of course
   my $reln_meto_mode   = $reln->get_meto_mode;
