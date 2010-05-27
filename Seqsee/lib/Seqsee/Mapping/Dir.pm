@@ -27,7 +27,7 @@ class Seqsee::Mapping::Dir {
     return $self eq $Same ? 1 :0;
   }
 
-  multimethod FindTransform => qw(DIR DIR) => sub {
+  multimethod FindMapping => qw(DIR DIR) => sub {
     my ( $da, $db ) = @_;
     if ( $da eq DIR::RIGHT() ) {
       return
@@ -46,7 +46,7 @@ class Seqsee::Mapping::Dir {
     }
   };
 
-  multimethod ApplyTransform => qw{Seqsee::Mapping::Dir DIR} => sub {
+  multimethod ApplyMapping => qw{Seqsee::Mapping::Dir DIR} => sub {
     my ( $transform, $dir ) = @_;
     if ( $transform eq $Same ) {
       return $dir;

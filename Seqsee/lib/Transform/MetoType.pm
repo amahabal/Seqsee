@@ -1,4 +1,4 @@
-package Transform::MetoType;
+package Mapping::MetoType;
 sub create {
   my ( $package, $opts_ref ) = @_;
   Seqsee::Mapping::MetoType->create($opts_ref);

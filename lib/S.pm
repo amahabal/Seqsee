@@ -34,12 +34,12 @@ use SWorkspace;
 
 use ResultOfCanBeSeenAs;
 
-use Transform;
-use Transform::Numeric;
-use Transform::Structural;
-use Transform::Position;
-use Transform::MetoType;
-use Transform::Dir;
+use Mapping;
+use Mapping::Numeric;
+use Mapping::Structural;
+use Mapping::Position;
+use Mapping::MetoType;
+use Mapping::Dir;
 use SRelation;
 use SRelation::Structural;
 

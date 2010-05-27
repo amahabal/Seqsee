@@ -10,7 +10,7 @@ use English qw(-no_match_vars);
 use Set::Weighted;
 use SLTM::Platonic;
 
-multimethod 'ApplyTransform';
+multimethod 'ApplyMapping';
 use constant {
   LTM_FOLLOWS        => 1,    # Link of type A often follows B in sequences
   LTM_IS             => 2,    # A is an instance of B
@@ -49,8 +49,8 @@ SCat::OfObj::Assuming
 SCat::OfObj::Alternating
 SLTM::Platonic SRelnType::Simple
 METO_MODE POS_MODE
-Transform::Numeric Transform::Structural Transform::Position Transform::MetoType
-Transform::Dir
+Mapping::Numeric Mapping::Structural Mapping::Position Mapping::MetoType
+Mapping::Dir
 SMetonymType
 );
 
@@ -549,7 +549,7 @@ sub FindActiveFollowers {
       my $relation_type = $MEMORY[$relation_type_index];
 
       my $possible_next_object =
-      eval { ApplyTransform( $relation_type, $concept ) }
+      eval { ApplyMapping( $relation_type, $concept ) }
       or next;
       $ret->insert( [ $possible_next_object, 1 ] )
       ;    #XXX a dummy value currently.

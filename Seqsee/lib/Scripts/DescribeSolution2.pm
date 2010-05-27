@@ -12,8 +12,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -202,8 +202,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -298,8 +298,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -383,8 +383,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -416,7 +416,7 @@
       {
         my $new_stack = [ @$stack, [ $step_ + 1, $opts_ref, $package_name_ ] ];
         SCodelet->new(
-          'DescribeTransform',
+          'DescribeMapping',
           10000,
           {
             __S_T_E_P__   => 1,
@@ -474,8 +474,8 @@
 
 {
 
-  package SCF::DescribeTransform;
-  our $package_name_ = 'DescribeTransform';
+  package SCF::DescribeMapping;
+  our $package_name_ = 'DescribeMapping';
   our $NAME          = 'Describe Analogy Between Groups';
 
   use 5.10.0;
@@ -486,8 +486,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -512,7 +512,7 @@
     my $ruleapp = $opts_ref->{ruleapp} // 0;
 
     if ( $step_ == 1 ) {
-      if ( $reln->isa('Transform::Structural') ) {
+      if ( $reln->isa('Mapping::Structural') ) {
 
         {
           my $new_stack =
@@ -529,7 +529,7 @@
           return;
         };
       }
-      elsif ( $reln->isa('Transform::Numeric') ) {
+      elsif ( $reln->isa('Mapping::Numeric') ) {
 
         {
           my $new_stack =
@@ -590,8 +590,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -676,8 +676,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -785,8 +785,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -881,8 +881,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -990,8 +990,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -1101,8 +1101,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;
@@ -1184,8 +1184,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $args_ref ) = @_;

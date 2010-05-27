@@ -1,4 +1,4 @@
-package SCategory::TransformBased;
+package SCategory::MappingBased;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
@@ -7,15 +7,15 @@ use Smart::Comments;
 use Class::Multimethods;
 use Memoize;
 
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 with 'SCategory::MetonymySpec::NotMetonyable';
 with 'SCategory';
 
 has transform => (
     is         => 'rw',
-    isa => 'Transform',
+    isa => 'Mapping',
     reader     => 'get_transform',
     writer     => 'set_transform',
     init_arg   => 'transform',
@@ -46,7 +46,7 @@ sub Instancer {
 
   my $failure = 0;
   for my $idx ( 0 .. $parts_count - 2 ) {
-    my $predicted_next = ApplyTransform( $transform, $parts[$idx] );
+    my $predicted_next = ApplyMapping( $transform, $parts[$idx] );
     unless ( $predicted_next
       and $parts[ $idx + 1 ]->CanBeSeenAs( $predicted_next->get_structure ) )
     {
@@ -94,7 +94,7 @@ sub build {
   my @ret         = ($start);
   my $current_end = $start;
   for ( 1 .. $length_as_num - 1 ) {
-    my $next = ApplyTransform( $transform, $current_end ) or return;
+    my $next = ApplyMapping( $transform, $current_end ) or return;
     push @ret, $next;
     $current_end = $next;
   }

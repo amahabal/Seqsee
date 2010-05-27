@@ -13,8 +13,8 @@ use SUtil;
 use List::Util qw(sum shuffle);
 
 use Class::Multimethods;
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 use overload '~~' => sub { $_[0] eq $_[1] }, fallback => 1;
 my %find_transform_of : ATTR(:get<find_transform>);
@@ -70,21 +70,21 @@ sub get_meto_types {
 }
 memoize('get_meto_types');
 
-sub FindTransformForCat {
+sub FindMappingForCat {
   my ( $self, $o1, $o2 ) = @_;
-  my $relation_finder = $self->get_find_transform() || \&Default_FindTransform;
+  my $relation_finder = $self->get_find_transform() || \&Default_FindMapping;
   return $relation_finder->( $self, $o1, $o2 );
 }
 
-sub ApplyTransformForCat {
+sub ApplyMappingForCat {
   my ( $self, $relation_type, $object ) = @_;
   my $relation_applier = $self->get_apply_transform()
-  || \&Default_ApplyTransform;
+  || \&Default_ApplyMapping;
   return $relation_applier->( $self, $relation_type, $object );
 }
 
-sub Default_FindTransform {
-  scalar(@_) == 3 or confess "Need 3 arguments for Default_FindTransform";
+sub Default_FindMapping {
+  scalar(@_) == 3 or confess "Need 3 arguments for Default_FindMapping";
   my ( $self, $o1, $o2 ) = @_;
   my $cat      = $self;
   my $opts_ref = {};
@@ -119,13 +119,13 @@ sub Default_FindTransform {
 
     # So other stuff is relevant, too!
     if ( $meto_mode->is_position_relevant() ) {    # Position relevant!
-      my $rel = FindTransform( $b1->get_position(), $b2->get_position() );
+      my $rel = FindMapping( $b1->get_position(), $b2->get_position() );
       return unless $rel;
       $opts_ref->{position_reln} = $rel;
 
       my $meto_type_1 = $b1->get_metonymy_type;
       my $meto_type_2 = $b2->get_metonymy_type;
-      $rel = FindTransform( $meto_type_1, $meto_type_2 );
+      $rel = FindMapping( $meto_type_1, $meto_type_2 );
       return unless $rel;
       $opts_ref->{metonymy_reln} = $rel;
 
@@ -141,12 +141,12 @@ sub Default_FindTransform {
     $opts_ref->{position_reln} = '';
   }
 
-  $opts_ref->{direction_reln} = $Transform::Dir::Same;    #XXX?
+  $opts_ref->{direction_reln} = $Mapping::Dir::Same;    #XXX?
   $opts_ref->{slippages} //= {};
-  return Transform::Structural->create($opts_ref);
+  return Mapping::Structural->create($opts_ref);
 }
 
-sub Default_ApplyTransform {
+sub Default_ApplyMapping {
   my ( $self, $transform, $original_object ) = @_;
   my $reln = $transform;
   my $cat  = $self;
@@ -169,7 +169,7 @@ sub Default_ApplyTransform {
       my $val = $bindings_ref->{$old_attr};
       if ( exists $changed_bindings_ref->{$att} ) {
         $new_bindings_ref->{$att} =
-        ApplyTransform( $changed_bindings_ref->{$att}, $val );
+        ApplyMapping( $changed_bindings_ref->{$att}, $val );
         return unless defined $new_bindings_ref->{$att};
         next;
       }
@@ -182,7 +182,7 @@ sub Default_ApplyTransform {
       if ( exists $changed_bindings_ref->{$k} ) {
         ## cbr: $changed_bindings_ref->{$k}
         $new_bindings_ref->{$k} =
-        ApplyTransform( $changed_bindings_ref->{$k}, $v ) // return;
+        ApplyMapping( $changed_bindings_ref->{$k}, $v ) // return;
         next;
       }
       ## handled
@@ -207,7 +207,7 @@ sub Default_ApplyTransform {
 
     # Calculate the metonymy type of the new object
     my $new_metonymy_type =
-    ApplyTransform( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
+    ApplyMapping( $reln->get_metonymy_reln, $bindings->get_metonymy_type );
     return unless $new_metonymy_type;
 
     if ( $reln_meto_mode == METO_MODE::ALL() ) {
@@ -217,7 +217,7 @@ sub Default_ApplyTransform {
 
       # If we get here, position is relevant!
       my $new_position =
-      ApplyTransform( $reln->get_position_reln, $bindings->get_position );
+      ApplyMapping( $reln->get_position_reln, $bindings->get_position );
       return unless $new_position;
       my $blemished;
       eval {
@@ -230,9 +230,9 @@ sub Default_ApplyTransform {
   }
 
   $ret_obj->describe_as($cat);
-  my $rel_dir = $reln->get_direction_reln() // $Transform::Dir::Same;
+  my $rel_dir = $reln->get_direction_reln() // $Mapping::Dir::Same;
   my $obj_dir = $object->get_direction;
-  my $new_dir = ApplyTransform( $rel_dir, $obj_dir );
+  my $new_dir = ApplyMapping( $rel_dir, $obj_dir );
 
   $ret_obj->set_direction($new_dir);
   $ret_obj->set_group_p(1);
@@ -260,7 +260,7 @@ sub CalculateBindingsChange_no_slips {
     #    $unchanged_ref->{$k} = $v1;
     #    next;
     #}
-    my $rel = FindTransform( $v1, $v2 );
+    my $rel = FindMapping( $v1, $v2 );
     ## k, v1, v2, rel: $k, $v1, $v2, $rel
     return unless $rel;
     ### Changed binding seen :$rel
@@ -298,7 +298,7 @@ sub CalculateBindingsChange_with_slips {
       #    ## v = v2:
       #    next LOOP;
       #}
-      my $rel = FindTransform( $v, $v2 ) // next;
+      my $rel = FindMapping( $v, $v2 ) // next;
       ## found rel:
       $changed_ref->{$k2} = $rel;
       $slips_ref->{$k2}   = $k;

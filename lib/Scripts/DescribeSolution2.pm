@@ -96,7 +96,7 @@ CodeletFamily DescribeRule( $rule !, $ruleapp ! ) does scripted {
   STEP: {
         main::debug_message( "Rule is $rule", 1 );
         my $reln = $rule->get_transform;
-        SCRIPT DescribeTransform, { reln => $reln, ruleapp => $ruleapp };
+        SCRIPT DescribeMapping, { reln => $reln, ruleapp => $ruleapp };
         Global::SetRuleAppAsBest($ruleapp);
     }
   STEP: {
@@ -104,14 +104,14 @@ CodeletFamily DescribeRule( $rule !, $ruleapp ! ) does scripted {
     }
 }
 
-CodeletFamily DescribeTransform( $reln !, $ruleapp = {0} ) does scripted {
+CodeletFamily DescribeMapping( $reln !, $ruleapp = {0} ) does scripted {
   NAME: { Describe Analogy Between Groups }
   STEP: {
-        if ( $reln->isa('Transform::Structural') ) {
+        if ( $reln->isa('Mapping::Structural') ) {
             SCRIPT DescribeRelationCompound,
               { reln => $reln, ruleapp => $ruleapp };
         }
-        elsif ( $reln->isa('Transform::Numeric') ) {
+        elsif ( $reln->isa('Mapping::Numeric') ) {
             SCRIPT DescribeRelationSimple, { reln => $reln };
         }
         else {

@@ -8,8 +8,8 @@ use Class::Multimethods;
 use Memoize;
 use Carp;
 
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 has object1 => (
     is         => 'rw',
@@ -42,14 +42,14 @@ sub Instancer {
   return;
 }
 
-sub FindTransformForCat {
+sub FindMappingForCat {
   my ( $self, $a, $b ) = @_;
   my ( $a_pure, $b_pure ) = ( $a->get_pure, $b->get_pure );
   my ( $object1, $object2 ) = ( $self->object1, $self->object2 );
 
   if ( $a_pure eq $b_pure ) {
     if ( $a_pure eq $object1 or $a_pure eq $object2 ) {
-      return Transform::Numeric->create( 'no_flip', $self );
+      return Mapping::Numeric->create( 'no_flip', $self );
     }
     else {
       return;
@@ -57,10 +57,10 @@ sub FindTransformForCat {
   }
   else {
     if ( $a_pure eq $object1 and $b_pure eq $object2 ) {
-      return Transform::Numeric->create( 'flip', $self );
+      return Mapping::Numeric->create( 'flip', $self );
     }
     elsif ( $a_pure eq $object2 and $b_pure eq $object1 ) {
-      return Transform::Numeric->create( 'flip', $self );
+      return Mapping::Numeric->create( 'flip', $self );
     }
     else {
       return;
@@ -68,7 +68,7 @@ sub FindTransformForCat {
   }
 }
 
-sub ApplyTransformForCat {
+sub ApplyMappingForCat {
   my ( $self, $transform, $original_object ) = @_;
   my $is_object_a_ref = ref($original_object);
 
@@ -112,9 +112,9 @@ sub ApplyTransformForCat {
   }
 }
 
-sub FlippingTransform {
+sub FlippingMapping {
   my ($self) = @_;
-  return Transform::Numeric->create( 'flip', $self );
+  return Mapping::Numeric->create( 'flip', $self );
 }
 
 sub Create {
@@ -204,7 +204,7 @@ sub CheckForAlternation {
         $_->describe_as($alternating_category);
       }
     }
-    return $alternating_category->FlippingTransform();
+    return $alternating_category->FlippingMapping();
   }
 
   my ($cat) = $first->get_common_categories( $second, $third ) or return;
@@ -221,8 +221,8 @@ sub CheckForAlternation {
   my %changed_bindings;
   for my $key (@keys) {
     my ( $v1, $v2, $v3 ) = ( $b1->{$key}, $b2->{$key}, $b3->{$key} );
-    my $t1 = FindTransform( $v1, $v2 );
-    my $t2 = FindTransform( $v2, $v3 );
+    my $t1 = FindMapping( $v1, $v2 );
+    my $t2 = FindMapping( $v2, $v3 );
     if ( $t1 and $t1 eq $t2 ) {
       $changed_bindings{$key} = $t1;
       next;
@@ -233,11 +233,11 @@ sub CheckForAlternation {
     or return;
     $changed_bindings{$key} = $new_transform;
   }
-  return Transform::Structural->create(
+  return Mapping::Structural->create(
     {
       category         => $cat,
       meto_mode        => $METO_MODE::NONE,
-      direction_reln   => $Transform::Dir::Same,
+      direction_reln   => $Mapping::Dir::Same,
       slippages        => {},
       changed_bindings => \%changed_bindings,
     }

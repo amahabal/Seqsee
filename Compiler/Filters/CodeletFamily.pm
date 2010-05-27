@@ -43,8 +43,8 @@ my $COMMON_PREAMBLE = q{
         use SCF;
         
         use Class::Multimethods;
-        multimethod 'FindTransform';
-        multimethod 'ApplyTransform';
+        multimethod 'FindMapping';
+        multimethod 'ApplyMapping';
 };
 
 my %ScriptAllowedBlocks = map {$_ => 1 } qw(INITIAL FINAL STEP NAME);

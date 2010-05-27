@@ -77,7 +77,7 @@ class Seqsee::Mapping::MetoType {
     );
   }
 
-  multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
+  multimethod FindMapping => qw(SMetonymType SMetonymType) => sub {
     my ( $m1, $m2 ) = @_;
     my $cat1 = $m1->get_category;
     return unless $m2->get_category() eq $cat1;
@@ -94,7 +94,7 @@ class Seqsee::Mapping::MetoType {
     while ( my ( $k, $v ) = each %$info_loss1 ) {
       return unless exists $info_loss2->{$k};
       my $v2 = $info_loss2->{$k};
-      my $rel = FindTransform( $v, $v2 ) or return;
+      my $rel = FindMapping( $v, $v2 ) or return;
       $change_ref->{$k} = $rel;
     }
     return Seqsee::Mapping::MetoType->create(
@@ -107,7 +107,7 @@ class Seqsee::Mapping::MetoType {
 
   };
 
-  multimethod ApplyTransform => qw(Seqsee::Mapping::MetoType SMetonymType) => sub {
+  multimethod ApplyMapping => qw(Seqsee::Mapping::MetoType SMetonymType) => sub {
     my ( $rel, $meto ) = @_;
     my $meto_info_loss = $meto->get_info_loss;
 
@@ -119,7 +119,7 @@ class Seqsee::Mapping::MetoType {
         $new_loss->{$k} = $v;
         next;
       }
-      my $v2 = ApplyTransform( $rel_change_ref->{$k}, $v );
+      my $v2 = ApplyMapping( $rel_change_ref->{$k}, $v );
       $new_loss->{$k} = $v2;
     }
     return SMetonymType->new(

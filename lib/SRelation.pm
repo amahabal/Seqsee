@@ -6,7 +6,7 @@ use Smart::Comments;
 use Try::Tiny;
 
 use Class::Multimethods;
-multimethod 'FindTransform';
+multimethod 'FindMapping';
 
 has strength => (
     is         => 'rw',
@@ -36,7 +36,7 @@ has second => (
 
 has type => (
     is         => 'rw',
-    isa        => 'Transform',
+    isa        => 'Mapping',
     reader     => 'get_type',
     writer     => 'set_type',
     required   => 1,
@@ -66,7 +66,7 @@ has holeyness => (
 sub BUILD {
   my $self = shift;
   my ( $f, $s ) = $self->get_ends();
-  # $self->set_direction_reln(FindTransform( $f->get_direction, $s->get_direction() ));
+  # $self->set_direction_reln(FindMapping( $f->get_direction, $s->get_direction() ));
   $self->set_holeyness(SWorkspace->are_there_holes_here( $f, $s ));
   $self->history_object(SHistory->new());
 }
@@ -156,7 +156,7 @@ sub SuggestCategory {
     }
   }
   else {
-    return SCategory::TransformBased->Create( $self->get_type() );
+    return SCategory::MappingBased->Create( $self->get_type() );
   }
 }
 

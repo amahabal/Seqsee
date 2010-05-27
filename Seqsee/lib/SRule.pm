@@ -8,11 +8,11 @@ use base qw{};
 use Smart::Comments;
 use English qw(-no_match_vars);
 
-multimethod 'ApplyTransform';
-multimethod 'FindTransform';
+multimethod 'ApplyMapping';
+multimethod 'FindMapping';
 
-my %Transform_of : ATTR(:name<transform>);
-my %Flipped_Transform_of : ATTR(:name<flipped_transform>);
+my %Mapping_of : ATTR(:name<transform>);
+my %Flipped_Mapping_of : ATTR(:name<flipped_transform>);
 
 sub create {
   my ($package) = shift;
@@ -24,7 +24,7 @@ multimethod createRule => qw(SRelation) => sub {
   return createRule( $rel->get_type() );
 };
 
-multimethod createRule => qw(Transform) => sub {
+multimethod createRule => qw(Mapping) => sub {
   my ($transform) = @_;
   state %MEMO;
   my $flipped_transform = $transform->FlippedVersion() or return;
@@ -60,10 +60,10 @@ sub CheckApplicability {
   my @objects_to_account_for = @$objects_ref;
   my @accounted_for          = shift(@objects_to_account_for);
 
-  my $transform = $Transform_of{$id};
+  my $transform = $Mapping_of{$id};
   while (@objects_to_account_for) {
     my $last_accounted_for_object = $accounted_for[-1]->GetEffectiveObject;
-    my $expected_next = ApplyTransform( $transform, $last_accounted_for_object )
+    my $expected_next = ApplyMapping( $transform, $last_accounted_for_object )
     or return;
     my $actual_next = shift(@objects_to_account_for);
     return
@@ -87,6 +87,6 @@ sub CheckApplicability {
 sub as_text {
   my ($self) = @_;
   my $id = ident $self;
-  return "Rule: " . $Transform_of{$id}->as_text();
+  return "Rule: " . $Mapping_of{$id}->as_text();
 }
 1;

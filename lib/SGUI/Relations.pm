@@ -19,8 +19,8 @@ DrawIt: {
         my $ypos      = $ystart;
         my $count     = 0;
         my @relations = values %SWorkspace::relations;
-        my @compound  = grep { UNIVERSAL::isa( $_, 'Transform::Numeric' ) } @relations;
-        my @simple    = grep { not UNIVERSAL::isa( $_, 'Transform::Structural' ) } @relations;
+        my @compound  = grep { UNIVERSAL::isa( $_, 'Mapping::Numeric' ) } @relations;
+        my @simple    = grep { not UNIVERSAL::isa( $_, 'Mapping::Structural' ) } @relations;
         for my $reln ( @compound, @simple ) {
             if ( $count % 2 == 0 ) {
                 my $id = $Canvas->createRectangle(

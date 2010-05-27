@@ -1,10 +1,10 @@
-package Transform::Numeric;
+package Mapping::Numeric;
 use 5.10.0;
 use strict;
 use Carp;
 use Class::Std;
 use Smart::Comments;
-use base qw{Transform};
+use base qw{Mapping};
 use Memoize;
 
 my %name_of : ATTR(:name<name>);
@@ -12,7 +12,7 @@ my %category_of : ATTR(:name<category>);
 
 sub create {
     my ( $package, $name, $category ) = @_;
-    die "Transform::Numeric creation attempted without name!" unless $name;
+    die "Mapping::Numeric creation attempted without name!" unless $name;
     state %MEMO;
     return $MEMO{ SLTM::encode( $name, $category ) } //= $package->new(
         {   name     => $name,
@@ -46,7 +46,7 @@ sub FlippedVersion {
     my ($self) = @_;
     my $id = ident $self;
     state $FlipName = {qw{same same pred succ succ pred flip flip no_flip no_flip}};
-    return Transform::Numeric->create( $FlipName->{ $name_of{$id} }, $category_of{$id} );
+    return Mapping::Numeric->create( $FlipName->{ $name_of{$id} }, $category_of{$id} );
 }
 
 sub IsEffectivelyASamenessRelation {
@@ -68,7 +68,7 @@ sub GetRelationBasedCategory {
     my ($self) = @_;
     my $id = ident $self;
 
-    return SCategory::TransformBased->Create($self) unless $category_of{$id} eq $S::NUMBER;
+    return SCategory::MappingBased->Create($self) unless $category_of{$id} eq $S::NUMBER;
 
     my $name = $name_of{$id};
     given ($name) {

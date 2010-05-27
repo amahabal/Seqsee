@@ -54,15 +54,15 @@ class Seqsee::Mapping::Position {
     return "Seqsee::Mapping::Position " . $self->text();
   }
 
-  multimethod FindTransform => qw(SPos::Forward SPos::Forward) =>
+  multimethod FindMapping => qw(SPos::Forward SPos::Forward) =>
   $relation_finder;
-  multimethod FindTransform => qw(SPos::Backward SPos::Backward) =>
+  multimethod FindMapping => qw(SPos::Backward SPos::Backward) =>
   $relation_finder;
-  multimethod FindTransform => qw(SPos SPos) => sub {
+  multimethod FindMapping => qw(SPos SPos) => sub {
     return;
   };
 
-  multimethod ApplyTransform => qw(Seqsee::Mapping::Position SPos::Forward) => sub {
+  multimethod ApplyMapping => qw(Seqsee::Mapping::Position SPos::Forward) => sub {
     my ( $rel, $pos ) = @_;
     my $index = $pos->get_index();
      ( $rel eq $Successor )   ? return ( SPos->new( $index + 1, 'Forward' ) )
@@ -71,7 +71,7 @@ class Seqsee::Mapping::Position {
     :                           return;
   };
 
-  multimethod ApplyTransform => qw(Seqsee::Mapping::Position SPos::Backward) => sub {
+  multimethod ApplyMapping => qw(Seqsee::Mapping::Position SPos::Backward) => sub {
     my ( $rel, $pos ) = @_;
     my $index = $pos->get_index();
      ( $rel eq $Successor )   ? return ( SPos->new( $index + 1, 'Backward' ) )

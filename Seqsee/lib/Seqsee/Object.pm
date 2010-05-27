@@ -7,8 +7,8 @@ class Seqsee::Object {
   use English qw(-no_match_vars);
   use Class::Multimethods;
 
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   has items => (
     metaclass => 'Collection::Array',
@@ -486,7 +486,7 @@ class Seqsee::Object {
       for my $i ( 0 .. ( $cnt - 2 ) ) {
         my ( $a, $b ) = ( $parts_ref->[$i], $parts_ref->[ $i + 1 ] );
         next if $a->get_relation($b);
-        my $transform = FindTransform( $a, $b );
+        my $transform = FindMapping( $a, $b );
         my $rel =
         SRelation->new( { first => $a, second => $b, type => $transform } );
         $rel->insert() if $rel;
@@ -723,7 +723,7 @@ class Seqsee::Object {
     my %hash = %{ $self->relation_to };
     while ( my ( $k, $v ) = each %hash ) {
       my $type     = $v->get_type();
-      my $new_type = $type->get_category()->FindTransformForCat( $v->get_ends );
+      my $new_type = $type->get_category()->FindMappingForCat( $v->get_ends );
 
       if ($new_type) {
         my ( $f, $s ) = $v->get_ends;
@@ -884,7 +884,7 @@ class Seqsee::Object {
     $reln or confess "Cannot set underlying relation to be an undefined value!";
 
     if ( UNIVERSAL::isa( $reln, "SRelation" )
-      or UNIVERSAL::isa( $reln, 'Transform' ) )
+      or UNIVERSAL::isa( $reln, 'Mapping' ) )
     {
       $reln = SRule->create($reln) or return;
     }

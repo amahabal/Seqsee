@@ -69,12 +69,12 @@ RUN: {
         my $effective_transform
             = $direction eq $DIR::RIGHT ? $transform : $transform->FlippedVersion();
         $effective_transform or return;
-        $effective_transform->CheckSanity() or confess "Transform insane!";
+        $effective_transform->CheckSanity() or confess "Mapping insane!";
 
         my $expected_next_object;
 
         # BandAid: The following occasionally crashes.
-        eval {$expected_next_object  = ApplyTransform( $effective_transform, $group )} or return;
+        eval {$expected_next_object  = ApplyMapping( $effective_transform, $group )} or return;
         @$expected_next_object or return;
 
         my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
@@ -136,11 +136,11 @@ RUN: {
 
         unless ($category) {
             # Generate from transform.
-            confess "transform should be a Transform!" unless $transform->isa('Transform');
-            if ($transform->isa('Transform::Numeric')) {
+            confess "transform should be a Mapping!" unless $transform->isa('Mapping');
+            if ($transform->isa('Mapping::Numeric')) {
                 $category = $transform->GetRelationBasedCategory();
             } else {
-                $category = SCategory::TransformBased->Create($transform);
+                $category = SCategory::MappingBased->Create($transform);
             }
         }
 
@@ -197,8 +197,8 @@ NAME: { Check if Alternating }
 RUN: { 
         my $transform_to_consider;
 
-        my $t1 = FindTransform($first, $second);
-        my $t2 = FindTransform($second, $third);
+        my $t1 = FindMapping($first, $second);
+        my $t2 = FindMapping($second, $third);
         if ($t1 and $t1 eq $t2) {
             $transform_to_consider = $t1;
         } else {
@@ -230,7 +230,7 @@ CodeletFamily FindIfRelated(   $a!, $b!) does {
             return;
         }
 
-        my $reln_type = FindTransform($a, $b) || return;
+        my $reln_type = FindMapping($a, $b) || return;
         SLTM::SpikeBy(10, $reln_type);
         
         # insert relation with certain probability:
@@ -294,7 +294,7 @@ RUN: {
         ## distance, next_pos: $distance, $next_pos
         return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
 
-        my $what_next = ApplyTransform( $effective_transform,
+        my $what_next = ApplyMapping( $effective_transform,
                                         $object_at_end->GetEffectiveObject() );
         return unless $what_next;
         return unless @$what_next;    # 0 elts also not okay
@@ -383,12 +383,12 @@ CodeletFamily AttemptExtensionOfGroup_proposed(   $object!, $direction!) does {
         my ($next_position, $expected_next_object);
         given ($direction) {
             when ($DIR::RIGHT) {
-                $expected_next_object = ApplyTransform($transform, $object->[-1]) or return;
+                $expected_next_object = ApplyMapping($transform, $object->[-1]) or return;
                 $next_position = $object->get_right_edge() + 1;
             }
             when ($DIR::LEFT) {
                 my $effective_transform = $transform->FlippedVersion() or return;
-                $expected_next_object = ApplyTransform($effective_transform, $object->[0]);
+                $expected_next_object = ApplyMapping($effective_transform, $object->[0]);
                 $next_position = $object->get_left_edge() - 1;
                 return if $next_position == -1;
             }

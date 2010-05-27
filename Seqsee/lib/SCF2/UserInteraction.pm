@@ -13,8 +13,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   multimethod '__PlonkIntoPlace';
 

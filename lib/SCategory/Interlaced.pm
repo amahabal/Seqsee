@@ -7,8 +7,8 @@ use Smart::Comments;
 use Memoize;
 use Class::Multimethods;
 
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 with 'SCategory::MetonymySpec::NotMetonyable';
 with 'SCategory';

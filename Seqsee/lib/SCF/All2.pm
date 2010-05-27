@@ -12,8 +12,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -50,8 +50,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   multimethod 'SanityCheck';
 
@@ -130,8 +130,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -176,8 +176,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -284,8 +284,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   our $last_time_progresschecker_run = 0;
 

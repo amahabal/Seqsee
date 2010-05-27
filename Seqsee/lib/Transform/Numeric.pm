@@ -1,4 +1,4 @@
-package Transform::Numeric;
+package Mapping::Numeric;
 sub create {
   my ( $package, $opts_ref ) = @_;
   Seqsee::Mapping::Numeric->create($opts_ref);

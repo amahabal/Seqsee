@@ -1,4 +1,4 @@
-package Transform::Dir;
+package Mapping::Dir;
 sub create {
   my ( $package, $opts_ref ) = @_;
   Seqsee::Mapping::Dir->create($opts_ref);

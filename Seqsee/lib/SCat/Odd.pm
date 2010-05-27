@@ -49,7 +49,7 @@ my $relation_finder = sub {
   );
 };
 
-my $FindTransformForCat = sub {
+my $FindMappingForCat = sub {
   my ( $me, $a, $b ) = @_;
 
   # Assume $a, $b are integers.
@@ -67,7 +67,7 @@ my $FindTransformForCat = sub {
   else {
     return;
   }
-  return Transform::Numeric->create( $str, $me );
+  return Mapping::Numeric->create( $str, $me );
 };
 
 my $relation_applier = sub {
@@ -88,7 +88,7 @@ my $relation_applier = sub {
 
 };
 
-my $ApplyTransformForCat = sub {
+my $ApplyMappingForCat = sub {
   my ( $cat, $transform, $object ) = @_;
 
   # Assume $object is number..
@@ -115,8 +115,8 @@ $Odd = SCat::OfObj::Numeric->new(
     metonymy_unfinders => {},
     relation_finder    => $relation_finder,
     relation_applier   => $relation_applier,
-    find_transform     => $FindTransformForCat,
-    apply_transform    => $ApplyTransformForCat,
+    find_transform     => $FindMappingForCat,
+    apply_transform    => $ApplyMappingForCat,
   }
 );
 

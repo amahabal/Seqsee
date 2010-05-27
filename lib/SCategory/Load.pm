@@ -1,4 +1,4 @@
-use SCategory::TransformBased;
+use SCategory::MappingBased;
 use SCategory::Interlaced;
 
 use SCategory::Alternating;

@@ -8,8 +8,8 @@ use Smart::Comments;
 use Class::Multimethods;
 use Try::Tiny;
 
-multimethod 'ApplyTransform';
-multimethod 'FindTransform';
+multimethod 'ApplyMapping';
+multimethod 'FindMapping';
 
 my %Rule_of : ATTR(:name<rule>);   # The underlying rule.
 my %Items_of : ATTR(:name<items>); # Objects to which the rule has been applied.
@@ -83,12 +83,12 @@ sub FindExtension {
 
   $relation_to_use // return;
   confess "Strange transform: $relation_to_use"
-  unless UNIVERSAL::isa( $relation_to_use, 'Transform' );
+  unless UNIVERSAL::isa( $relation_to_use, 'Mapping' );
 
   my $next_pos = $last_object->get_next_pos_in_dir($direction_to_extend_in)
   // return;
   my $expected_next_object =
-  ApplyTransform( $relation_to_use, $last_object->GetEffectiveObject() )
+  ApplyMapping( $relation_to_use, $last_object->GetEffectiveObject() )
   or return;
   return unless @$expected_next_object;
 
@@ -122,7 +122,7 @@ sub _ExtendOneStep {
   my $next_pos = $object_at_end->get_next_pos_in_dir($direction_to_extend_in)
   // return;
   my $next_object =
-  ApplyTransform( $transform, $object_at_end->GetEffectiveObject() );
+  ApplyMapping( $transform, $object_at_end->GetEffectiveObject() );
 
   my $is_this_what_is_present = SWorkspace->check_at_location(
     {
@@ -141,13 +141,13 @@ sub _ExtendOneStep {
   given ($extend_at_start_or_end) {
     when ('end') {
       push @$items_ref, $wso;
-      my $transform = FindTransform( $object_at_end, $wso ) or return;
+      my $transform = FindMapping( $object_at_end, $wso ) or return;
       $reln = SRelation->new(
         { first => $object_at_end, second => $wso, type => $transform } );
     }
     when ('start') {
       unshift @$items_ref, $wso;
-      my $transform = FindTransform( $wso, $object_at_end ) or return;
+      my $transform = FindMapping( $wso, $object_at_end ) or return;
       $reln = SRelation->new(
         { first => $wso, second => $object_at_end, type => $transform } );
     }

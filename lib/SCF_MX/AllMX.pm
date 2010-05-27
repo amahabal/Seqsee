@@ -111,11 +111,11 @@ Codelet_Family(
         }
         SWorkspace->add_group($new_group);
         my $reln_type = $reln->get_type();
-        if ( $reln_type->isa('Transform::Structural')
+        if ( $reln_type->isa('Mapping::Structural')
           or $reln_type->get_category() ne $S::NUMBER )
         {
           $new_group->describe_as(
-            SCategory::TransformBased->Create($reln_type) )
+            SCategory::MappingBased->Create($reln_type) )
           || main::message( "Unable to describe "
             . $new_group->as_text()
             . "  as based on "

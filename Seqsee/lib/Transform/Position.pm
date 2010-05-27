@@ -1,4 +1,4 @@
-package Transform::Position;
+package Mapping::Position;
 sub create {
   my ( $package, $opts_ref ) = @_;
   Seqsee::Mapping::Position->create($opts_ref);

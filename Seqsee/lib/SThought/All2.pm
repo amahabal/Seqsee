@@ -12,8 +12,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -76,8 +76,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -122,7 +122,7 @@
 
         SWorkspace->add_group($new_group);
         my $reln_type = $reln->get_type();
-        if ( $reln_type->isa('Transform::Structural')
+        if ( $reln_type->isa('Mapping::Structural')
           or $reln_type->get_category() ne $S::NUMBER )
         {
           $new_group->describe_as(
@@ -179,8 +179,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;

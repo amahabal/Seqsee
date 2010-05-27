@@ -1,11 +1,11 @@
-package Transform::Structural;
+package Mapping::Structural;
 use 5.10.0;
 use strict;
 use Carp;
 use Class::Std;
 use Smart::Comments;
 use Memoize;
-use base qw{Transform};
+use base qw{Mapping};
 
 my %category_of : ATTR(:name<category>);
 my %meto_mode_of : ATTR(:name<meto_mode>);
@@ -59,7 +59,7 @@ sub FlippedVersion {
     my $new_direction_reln = $direction_reln_of{$id}->FlippedVersion()
         if ref( $direction_reln_of{$id} );
 
-    my $flipped = Transform::Structural->create(
+    my $flipped = Mapping::Structural->create(
         {   category         => $category_of{$id},
             meto_mode        => $meto_mode_of{$id},
             position_reln    => $new_position_reln,

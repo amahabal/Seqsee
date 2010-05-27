@@ -10,7 +10,7 @@ sub NumericInstancer {
   return SBindings->create({}, {});
 }
 
-sub FindTransformForCat {
+sub FindMappingForCat {
   my ( $me, $a, $b ) = @_;
 
   # Assume $a, $b are integers.
@@ -28,10 +28,10 @@ sub FindTransformForCat {
   else {
     return;
   }
-  return Transform::Numeric->create( $str, $me );
+  return Mapping::Numeric->create( $str, $me );
 }
 
-sub ApplyTransformForCat {
+sub ApplyMappingForCat {
   my ( $cat, $transform, $object ) = @_;
 
   # Assume $object is number..

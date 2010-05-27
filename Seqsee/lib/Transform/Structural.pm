@@ -1,4 +1,4 @@
-package Transform::Structural;
+package Mapping::Structural;
 sub create {
   my ( $package, $opts_ref ) = @_;
   Seqsee::Mapping::Structural->create($opts_ref);

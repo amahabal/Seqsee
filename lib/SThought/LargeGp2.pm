@@ -31,7 +31,7 @@ RUN: {
                 my $underlying_rule = $underlying_ruleapp->get_rule();
                 my $transform = $underlying_rule->get_transform();
 
-                if ( $transform->isa("Transform::Structural") ) {
+                if ( $transform->isa("Mapping::Structural") ) {
                     my $cat = $transform->get_category();
                     #main::message($cat->get_name());
                     if ( $cat->get_name() =~ m#^Interlaced_(.*)#o ) {
@@ -88,9 +88,9 @@ RUN: {
             push @newparts, $newpart;
         }
         if (@newparts > 1) {
-            my $transform = FindTransform(@newparts[0,1]) or return;
+            my $transform = FindMapping(@newparts[0,1]) or return;
             my $new_gp = SAnchored->create(@newparts);
-            $new_gp->describe_as(SCategory::TransformBased->Create($transform));
+            $new_gp->describe_as(SCategory::MappingBased->Create($transform));
             SWorkspace->add_group($new_gp);
             ContinueWith(SThought->create($new_gp));
         }

@@ -12,8 +12,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -55,8 +55,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -79,7 +79,7 @@
         my $underlying_rule    = $underlying_ruleapp->get_rule();
         my $transform          = $underlying_rule->get_transform();
 
-        if ( $transform->isa("Transform::Structural") ) {
+        if ( $transform->isa("Mapping::Structural") ) {
           my $cat = $transform->get_category();
 
           #main::message($cat->get_name());
@@ -126,8 +126,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -170,7 +170,7 @@
       push @newparts, $newpart;
     }
     if ( @newparts > 1 ) {
-      my $transform = FindTransform( @newparts[ 0, 1 ] ) or return;
+      my $transform = FindMapping( @newparts[ 0, 1 ] ) or return;
       my $new_gp = SAnchored->create(@newparts);
       $new_gp->describe_as(
         SCat::OfObj::RelationTypeBased->Create($transform) );
@@ -199,8 +199,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;

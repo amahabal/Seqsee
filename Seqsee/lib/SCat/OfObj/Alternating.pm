@@ -8,13 +8,13 @@ use Class::Multimethods;
 use Memoize;
 use Carp;
 
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 my %Object1_of : ATTR(:name<object1>);
 my %Object2_of : ATTR(:name<object2>);
 
-my $FindTransformForCat = sub {
+my $FindMappingForCat = sub {
   my ( $me, $a, $b ) = @_;
   my $id = ident $me;
 
@@ -23,7 +23,7 @@ my $FindTransformForCat = sub {
 
   if ( $a_pure eq $b_pure ) {
     if ( $a_pure eq $object1 or $a_pure eq $object2 ) {
-      return Transform::Numeric->create( 'no_flip', $me );
+      return Mapping::Numeric->create( 'no_flip', $me );
     }
     else {
       return;
@@ -31,10 +31,10 @@ my $FindTransformForCat = sub {
   }
   else {
     if ( $a_pure eq $object1 and $b_pure eq $object2 ) {
-      return Transform::Numeric->create( 'flip', $me );
+      return Mapping::Numeric->create( 'flip', $me );
     }
     elsif ( $a_pure eq $object2 and $b_pure eq $object1 ) {
-      return Transform::Numeric->create( 'flip', $me );
+      return Mapping::Numeric->create( 'flip', $me );
     }
     else {
       return;
@@ -42,10 +42,10 @@ my $FindTransformForCat = sub {
   }
 };
 
-my $ApplyTransformForCat = sub {
+my $ApplyMappingForCat = sub {
   my ( $me, $transform, $object ) = @_;
 
-#main::message("ApplyTransformForCat: $transform and $object " . $transform->as_text);
+#main::message("ApplyMappingForCat: $transform and $object " . $transform->as_text);
   my $id              = ident $me;
   my $is_object_a_ref = ref($object);
 
@@ -89,9 +89,9 @@ my $ApplyTransformForCat = sub {
   }
 };
 
-sub FlippingTransform {
+sub FlippingMapping {
   my ($self) = @_;
-  return Transform::Numeric->create( 'flip', $self );
+  return Mapping::Numeric->create( 'flip', $self );
 }
 
 sub Create {
@@ -104,8 +104,8 @@ sub Create {
     {
       object1         => $pure1,
       object2         => $pure2,
-      find_transform  => $FindTransformForCat,
-      apply_transform => $ApplyTransformForCat,
+      find_transform  => $FindMappingForCat,
+      apply_transform => $ApplyMappingForCat,
     }
   );
 }
@@ -211,7 +211,7 @@ sub CheckForAlternation {
         $_->describe_as($alternating_category);
       }
     }
-    return $alternating_category->FlippingTransform();
+    return $alternating_category->FlippingMapping();
   }
 
   my ($cat) = $first->get_common_categories( $second, $third ) or return;
@@ -228,8 +228,8 @@ sub CheckForAlternation {
   my %changed_bindings;
   for my $key (@keys) {
     my ( $v1, $v2, $v3 ) = ( $b1->{$key}, $b2->{$key}, $b3->{$key} );
-    my $t1 = FindTransform( $v1, $v2 );
-    my $t2 = FindTransform( $v2, $v3 );
+    my $t1 = FindMapping( $v1, $v2 );
+    my $t2 = FindMapping( $v2, $v3 );
     if ( $t1 and $t1 eq $t2 ) {
       $changed_bindings{$key} = $t1;
       next;
@@ -240,11 +240,11 @@ sub CheckForAlternation {
     or return;
     $changed_bindings{$key} = $new_transform;
   }
-  return Transform::Structural->create(
+  return Mapping::Structural->create(
     {
       category         => $cat,
       meto_mode        => $METO_MODE::NONE,
-      direction_reln   => $Transform::Dir::Same,
+      direction_reln   => $Mapping::Dir::Same,
       slippages        => {},
       changed_bindings => \%changed_bindings,
     }

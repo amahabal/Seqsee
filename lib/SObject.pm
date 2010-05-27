@@ -14,8 +14,8 @@ sub literal_comparison_hack_for_smart_match {
   return $_[0] eq $_[1];
 }
 
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 has strength => (
     is         => 'rw',
@@ -294,7 +294,7 @@ sub apply_reln_scheme {
     for my $i ( 0 .. ( $cnt - 2 ) ) {
       my ( $a, $b ) = ( $parts_ref->[$i], $parts_ref->[ $i + 1 ] );
       next if $a->get_relation($b);
-      my $transform = FindTransform( $a, $b );
+      my $transform = FindMapping( $a, $b );
       my $rel =
       SRelation->new( { first => $a, second => $b, type => $transform } );
       $rel->insert() if $rel;
@@ -489,7 +489,7 @@ sub recalculate_relations {
   my ($self) = @_;
   for my $reln ($self->all_relations()) {
     my $type     = $reln->get_type();
-    my $new_type = $type->get_category()->FindTransformForCat( $reln->get_ends );
+    my $new_type = $type->get_category()->FindMappingForCat( $reln->get_ends );
 
     if ($new_type) {
       my ( $f, $s ) = $reln->get_ends;
@@ -704,7 +704,7 @@ sub set_underlying_ruleapp  {
   $reln or confess "Cannot set underlying relation to be an undefined value!";
 
   if ( UNIVERSAL::isa( $reln, "SRelation" )
-    or UNIVERSAL::isa( $reln, 'Transform' ) )
+    or UNIVERSAL::isa( $reln, 'Mapping' ) )
   {
     $reln = SRule->create($reln) or return;
   }

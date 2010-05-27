@@ -1,4 +1,4 @@
-package Transform::MetoType;
+package Mapping::MetoType;
 use 5.10.0;
 use strict;
 use Carp;
@@ -28,13 +28,13 @@ sub FlippedVersion {
     }
     my $name = $name_of{$id};
     my $new_name = ($name =~ m#^flipped_#) ? substr($name, 8) : "flipped_$name";
-    return Transform::MetoType->create({category=>$category_of{$id},
+    return Mapping::MetoType->create({category=>$category_of{$id},
                                         name => $new_name,
                                         change_ref=>\%new_change
 })
 }
 
-multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
+multimethod FindMapping => qw(SMetonymType SMetonymType) => sub {
     my ( $m1, $m2 ) = @_;
     my $cat1 = $m1->get_category;
     return unless $m2->get_category() eq $cat1;
@@ -51,10 +51,10 @@ multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
     while ( my ( $k, $v ) = each %$info_loss1 ) {
         return unless exists $info_loss2->{$k};
         my $v2 = $info_loss2->{$k};
-        my $rel = FindTransform( $v, $v2 ) or return;
+        my $rel = FindMapping( $v, $v2 ) or return;
         $change_ref->{$k} = $rel;
     }
-    return Transform::MetoType->create(
+    return Mapping::MetoType->create(
         {   category => $cat1,
             name     => $name1,
             change_ref   => $change_ref,
@@ -63,7 +63,7 @@ multimethod FindTransform => qw(SMetonymType SMetonymType) => sub {
 
 };
 
-multimethod ApplyTransform => qw(Transform::MetoType SMetonymType) => sub {
+multimethod ApplyMapping => qw(Mapping::MetoType SMetonymType) => sub {
     my ( $rel, $meto ) = @_;
     my $meto_info_loss = $meto->get_info_loss;
 
@@ -75,7 +75,7 @@ multimethod ApplyTransform => qw(Transform::MetoType SMetonymType) => sub {
             $new_loss->{$k} = $v;
             next;
         }
-        my $v2 = ApplyTransform( $rel_change_ref->{$k}, $v );
+        my $v2 = ApplyMapping( $rel_change_ref->{$k}, $v );
         $new_loss->{$k} = $v2;
     }
     return SMetonymType->new(

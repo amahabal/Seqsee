@@ -1,4 +1,4 @@
-package Transform::Position;
+package Mapping::Position;
 use 5.10.0;
 use strict;
 use Carp;
@@ -13,9 +13,9 @@ sub create {
   return $MEMO{$text} ||= $package->new( { text => $text } );
 }
 
-my $Successor   = Transform::Position->create('succ');
-my $Predecessor = Transform::Position->create('pred');
-my $SamePos     = Transform::Position->create('same');
+my $Successor   = Mapping::Position->create('succ');
+my $Predecessor = Mapping::Position->create('pred');
+my $SamePos     = Mapping::Position->create('same');
 my %ComplexityLookup =
 ( $Successor => 0.9, $Predecessor => 0.9, $SamePos => 1 );
 
@@ -44,12 +44,12 @@ my $relation_finder = sub {
 
 sub as_text {
   my ($self) = @_;
-  return "Transform::Position " . $text_of{ ident $self};
+  return "Mapping::Position " . $text_of{ ident $self};
 }
 
-multimethod FindTransform => qw(SPos SPos) => $relation_finder;
+multimethod FindMapping => qw(SPos SPos) => $relation_finder;
 
-multimethod ApplyTransform => qw(Transform::Position SPos) => sub {
+multimethod ApplyMapping => qw(Mapping::Position SPos) => sub {
   my ( $rel, $pos ) = @_;
   my $index = $pos->position();
    ( $rel eq $Successor )   ? return ( SPos->new( $index + 1 ) )
@@ -71,7 +71,7 @@ sub FlippedVersion {
   my ($self) = @_;
   my $id = ident $self;
   state $FlipName = {qw{same same pred succ succ pred }};
-  return Transform::Position->create( $FlipName->{ $text_of{$id} } );
+  return Mapping::Position->create( $FlipName->{ $text_of{$id} } );
 }
 
 1;

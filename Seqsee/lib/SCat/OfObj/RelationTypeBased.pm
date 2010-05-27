@@ -7,8 +7,8 @@ use Smart::Comments;
 use Class::Multimethods;
 use Memoize;
 
-multimethod 'FindTransform';
-multimethod 'ApplyTransform';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 my %RelationType_of : ATTR(:name<relation_type>);
 
@@ -17,7 +17,7 @@ sub Create {
   if ( $relation_type->isa('SRelation') ) {
     $relation_type = $relation_type->get_type;
   }
-  ### require: $relation_type->isa("Transform");
+  ### require: $relation_type->isa("Mapping");
   state %MEMO;
 
   # main::message("Relation type: $relation_type: " . $relation_type->as_text);
@@ -38,7 +38,7 @@ sub Instancer {
 
   my $failure = 0;
   for my $idx ( 0 .. $parts_count - 2 ) {
-    my $predicted_next = ApplyTransform( $relation_type, $parts[$idx] );
+    my $predicted_next = ApplyMapping( $relation_type, $parts[$idx] );
     unless ( $predicted_next
       and $parts[ $idx + 1 ]->CanBeSeenAs( $predicted_next->get_structure ) )
     {
@@ -87,7 +87,7 @@ sub build {
   my @ret         = ($start);
   my $current_end = $start;
   for ( 1 .. $length_as_num - 1 ) {
-    my $next = ApplyTransform( $relation_type, $current_end ) or return;
+    my $next = ApplyMapping( $relation_type, $current_end ) or return;
     push @ret, $next;
     $current_end = $next;
   }

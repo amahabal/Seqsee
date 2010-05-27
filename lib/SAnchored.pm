@@ -7,7 +7,7 @@ use Smart::Comments;
 use List::Util qw(min max sum);
 use Try::Tiny;
 use Class::Multimethods;
-multimethod 'ApplyTransform';
+multimethod 'ApplyMapping';
 multimethod 'SanityCheck';
 
 extends 'SObject';

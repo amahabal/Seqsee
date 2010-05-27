@@ -276,7 +276,7 @@ sub get_actions {
 
   if ($underlying_reln) {
     my $transform = $underlying_reln->get_rule()->get_transform();
-    if ( $transform->isa('Transform::Structural')
+    if ( $transform->isa('Mapping::Structural')
       and not( $transform->get_category()->isa('SCategory::Interlaced') ) )
     {
       my $urgency = 30 * SLTM::GetRealActivationsForOneConcept($transform);

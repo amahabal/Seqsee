@@ -12,8 +12,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -55,8 +55,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -93,8 +93,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -154,8 +154,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -193,8 +193,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   multimethod '__PlonkIntoPlace';
 
@@ -223,13 +223,13 @@
     my $effective_transform =
     $direction eq $DIR::RIGHT ? $transform :$transform->FlippedVersion();
     $effective_transform or return;
-    $effective_transform->CheckSanity() or confess "Transform insane!";
+    $effective_transform->CheckSanity() or confess "Mapping insane!";
 
     my $expected_next_object;
 
     # BandAid: The following occasionally crashes.
     eval {
-      $expected_next_object = ApplyTransform( $effective_transform, $group );
+      $expected_next_object = ApplyMapping( $effective_transform, $group );
     } or return;
     @$expected_next_object or return;
 
@@ -301,8 +301,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -332,9 +332,9 @@
     unless ($category) {
 
       # Generate from transform.
-      confess "transform should be a Transform!"
-      unless $transform->isa('Transform');
-      if ( $transform->isa('Transform::Numeric') ) {
+      confess "transform should be a Mapping!"
+      unless $transform->isa('Mapping');
+      if ( $transform->isa('Mapping::Numeric') ) {
         $category = $transform->GetRelationBasedCategory();
       }
       else {
@@ -385,8 +385,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -458,8 +458,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -472,8 +472,8 @@
 
     my $transform_to_consider;
 
-    my $t1 = FindTransform( $first,  $second );
-    my $t2 = FindTransform( $second, $third );
+    my $t1 = FindMapping( $first,  $second );
+    my $t2 = FindMapping( $second, $third );
     if ( $t1 and $t1 eq $t2 ) {
       $transform_to_consider = $t1;
     }
@@ -512,8 +512,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   sub run {
     my ( $action_object, $opts_ref ) = @_;
@@ -540,7 +540,7 @@
       return;
     }
 
-    my $reln_type = FindTransform( $a, $b ) || return;
+    my $reln_type = FindMapping( $a, $b ) || return;
     SLTM::SpikeBy( 10, $reln_type );
 
     # insert relation with certain probability:
@@ -598,8 +598,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   multimethod '__PlonkIntoPlace';
   multimethod 'SanityCheck';
@@ -640,7 +640,7 @@
     return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
 
     my $what_next =
-    ApplyTransform( $effective_transform,
+    ApplyMapping( $effective_transform,
       $object_at_end->GetEffectiveObject() );
     return unless $what_next;
     return unless @$what_next;    # 0 elts also not okay
@@ -757,8 +757,8 @@
   use SCF;
 
   use Class::Multimethods;
-  multimethod 'FindTransform';
-  multimethod 'ApplyTransform';
+  multimethod 'FindMapping';
+  multimethod 'ApplyMapping';
 
   multimethod '__PlonkIntoPlace';
 
@@ -776,14 +776,14 @@
     my ( $next_position, $expected_next_object );
     given ($direction) {
       when ($DIR::RIGHT) {
-        $expected_next_object = ApplyTransform( $transform, $object->[-1] )
+        $expected_next_object = ApplyMapping( $transform, $object->[-1] )
         or return;
         $next_position = $object->get_right_edge() + 1;
       }
       when ($DIR::LEFT) {
         my $effective_transform = $transform->FlippedVersion() or return;
         $expected_next_object =
-        ApplyTransform( $effective_transform, $object->[0] );
+        ApplyMapping( $effective_transform, $object->[0] );
         $next_position = $object->get_left_edge() - 1;
         return if $next_position == -1;
       }

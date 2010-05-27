@@ -1,4 +1,4 @@
-package Transform::Dir;
+package Mapping::Dir;
 use 5.10.0;
 use strict;
 use Class::Multimethods;
@@ -18,16 +18,16 @@ sub get_memory_dependencies {
     return;
 }
 
-our $Same      = Transform::Dir->create('Same');
-our $Different = Transform::Dir->create('Different');
-our $Unknown   = Transform::Dir->create('Unknown');
+our $Same      = Mapping::Dir->create('Same');
+our $Different = Mapping::Dir->create('Different');
+our $Unknown   = Mapping::Dir->create('Unknown');
 
 sub IsEffectivelyASamenessRelation {
     my ( $self ) = @_;
     return $self eq $Same ? 1 : 0;
 }
 
-multimethod FindTransform => qw(DIR DIR) => sub  {
+multimethod FindMapping => qw(DIR DIR) => sub  {
     my ( $da, $db ) = @_;
     if ( $da eq DIR::RIGHT() ) {
         return ( $db eq DIR::RIGHT() ) ? $Same
@@ -44,7 +44,7 @@ multimethod FindTransform => qw(DIR DIR) => sub  {
     }
 };
 
-multimethod ApplyTransform => qw{Transform::Dir DIR} => sub  {
+multimethod ApplyMapping => qw{Mapping::Dir DIR} => sub  {
     my ( $transform, $dir ) = @_;
     if ($transform eq $Same) {
         return $dir;
