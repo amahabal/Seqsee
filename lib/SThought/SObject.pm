@@ -225,8 +225,8 @@ sub get_actions {
 
   }
 
-  my $possible_category_for_ends = $first_reln->SuggestCategoryForEnds()
-  if $first_reln;
+  my $possible_category_for_ends;
+  $possible_category_for_ends = $first_reln->SuggestCategoryForEnds() if $first_reln;
   if ($possible_category_for_ends) {
     for ( @{ $core->get_underlying_reln()->get_items() } ) {
       unless ( UNIVERSAL::isa( $_, "SAnchored" ) ) {

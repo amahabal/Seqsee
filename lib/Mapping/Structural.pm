@@ -52,11 +52,12 @@ sub FlippedVersion {
     ## new_slippages: $new_slippages
     ## new_bindings_change: $new_bindings_change
 
-    my $new_position_reln   = $position_reln_of{$id}->FlippedVersion()
+    my ($new_position_reln, $new_metonymy_reln, $new_direction_reln);
+    $new_position_reln   = $position_reln_of{$id}->FlippedVersion()
         if ref( $position_reln_of{$id} );
-    my $new_metonymy_reln = $metonymy_reln_of{$id}->FlippedVersion()
+    $new_metonymy_reln = $metonymy_reln_of{$id}->FlippedVersion()
         if ref( $metonymy_reln_of{$id} );
-    my $new_direction_reln = $direction_reln_of{$id}->FlippedVersion()
+    $new_direction_reln = $direction_reln_of{$id}->FlippedVersion()
         if ref( $direction_reln_of{$id} );
 
     my $flipped = Mapping::Structural->create(
