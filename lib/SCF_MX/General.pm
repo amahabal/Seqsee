@@ -215,6 +215,8 @@ use MooseX::SCF;
 use English qw(-no_match_vars);
 use SCF;
 use Class::Multimethods;
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 Codelet_Family(
   attributes => [a => {required => 1}, b => {required => 1}],
@@ -255,6 +257,8 @@ use MooseX::SCF;
 use English qw(-no_match_vars);
 use SCF;
 use Class::Multimethods;
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
 
 Codelet_Family(
   attributes => [first => { required => 1}, second => {required => 1}, third => { required => 1}],
@@ -276,3 +280,189 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
+package SCF::FindIfRelated;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
+
+Codelet_Family(
+  attributes => [a => {required => 1}, b => {required => 1}],
+  body => sub {
+    my ($a, $b) = @_;
+    return unless SWorkspace::__CheckLiveness( $a, $b );
+    ( $a, $b ) = SWorkspace::__SortLtoRByLeftEdge( $a, $b );
+    if ( $a->overlaps($b) ) {
+        my ( $ul_a, $ul_b ) = ( $a->get_underlying_reln(), $b->get_underlying_reln() );
+        return unless ( $ul_a and $ul_b );
+        return unless $ul_a->get_rule() eq $ul_b->get_rule();
+        return unless ($a->[-1] ~~ @$b); #i.e., actual subgroups overlap.
+        SCodelet->new('MergeGroups', 200, { a => $a, b => $b })->schedule();
+        return;
+    }
+
+    if (my $relation = $a->get_relation($b)) {
+        SLTM::SpikeBy(10, $relation->get_type());
+        SCodelet->new('FocusOn', 100, { what => $relation })->schedule();
+        return;
+    }
+
+    my $reln_type = FindMapping($a, $b) || return;
+    SLTM::SpikeBy(10, $reln_type);
+
+    # insert relation with certain probability:
+    my $transform_complexity = $reln_type->get_complexity();
+    my $transform_activation = SLTM::GetRealActivationsForOneConcept($reln_type);
+    my $distance = SWorkspace::__FindDistance($a, $b, $DISTANCE_MODE::ELEMENT)->GetMagnitude();
+    my $sense_in_continuing = ShouldIContinue($transform_complexity,
+                                              $transform_activation,
+                                              $distance
+                                                  );
+    main::message("Sense in continuing=$sense_in_continuing") if $Global::debugMAX;
+    return unless SUtil::toss($sense_in_continuing);
+
+    SLTM::SpikeBy(10, $reln_type);
+    my $relation = SRelation->new({first => $a,
+                                   second => $b,
+                                   type => $reln_type
+                                       });
+    $relation->insert();
+    SCodelet->new('FocusOn', 200, { what => $relation })->schedule();
+  }
+);
+
+sub ShouldIContinue {
+  my ( $transform_complexity, $transform_activation, $distance ) = @_;
+  # transform_activation and transform_complexity are between 0 and 1
+  
+  my $not_continue = $transform_complexity * (1 - $transform_activation)
+  * sqrt($distance);
+  return 1 - $not_continue;
+}
+
+__PACKAGE__->meta->make_immutable;
+
+package SCF::AttemptExtensionOfRelation;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+multimethod '__PlonkIntoPlace';
+multimethod 'SanityCheck';
+multimethod 'FindMapping';
+multimethod 'ApplyMapping';
+
+Codelet_Family(
+  attributes => [core => {required => 1}, direction => {required => 1}],
+  body => sub {
+    my ($core, $direction) = @_;
+    ## Codelet started:
+    my $transform = $core->get_type();
+    my ($end1, $end2) = $core->get_ends();
+    ## ends: $end1->as_text, $end2->as_text
+    my ($effective_transform, $object_at_end);
+    if ($direction eq $DIR::RIGHT) {
+        ($effective_transform, $object_at_end) = ($transform, $end2);
+        ## Thought it was right:
+    } else {
+        $effective_transform = $transform->FlippedVersion() or return;
+        $object_at_end = $end1;        
+    }
+
+    my $distance = SWorkspace::__FindDistance( $end1, $end2 );
+    ## oae_l: $object_at_end->get_left_edge(), $distance, $direction
+    my $next_pos = SWorkspace::__GetPositionInDirectionAtDistance(
+        {   from_object => $object_at_end,
+            direction   => $direction,
+            distance    => $distance,
+        }
+    );
+    ## next_pos: $next_pos
+    return unless defined($next_pos);
+    ## distance, next_pos: $distance, $next_pos
+    return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
+
+    my $what_next = ApplyMapping( $effective_transform,
+                                    $object_at_end->GetEffectiveObject() );
+    return unless $what_next;
+    return unless @$what_next;    # 0 elts also not okay
+
+    my $is_this_what_is_present;
+    TRY {
+        $is_this_what_is_present = SWorkspace->check_at_location(
+            {   start     => $next_pos,
+                direction => $direction,
+                what      => $what_next
+            }
+        );
+    }
+    CATCH {
+    ElementsBeyondKnownSought: {
+          return unless EstimateAskability($core, $transform, $end1, $end2);
+          SCodelet->new('AskIfThisIsTheContinuation', 100,
+                        {              relation  => $core,
+                          exception => $err,
+                          expected_object => $what_next,
+                          start_position => $next_pos,
+                          known_term_count => $SWorkspace::ElementCount,
+                        })->schedule();
+        }
+  };
+
+    ## is_this_what_is_present:
+    if ($is_this_what_is_present) {
+        SLTM::SpikeBy(10, $transform);
+
+        my $plonk_result = __PlonkIntoPlace( $next_pos, $direction, $what_next );
+        return unless $plonk_result->PlonkWasSuccessful();
+        my $wso = $plonk_result->resultant_object();
+
+        my $cat = $transform->get_category();
+        SLTM::SpikeBy(10, $cat);
+        $wso->describe_as($cat) or return;
+
+        my $reln_to_add;
+        if ($direction eq $DIR::RIGHT) {
+                $reln_to_add = SRelation->new({first => $end2,
+                                               second => $wso,
+                                               type => $transform,
+                                           });
+            } else {
+                $reln_to_add = SRelation->new({first => $wso,
+                                               second => $end1,
+                                               type => $transform,
+                                           });
+
+            }
+        $reln_to_add->insert() if $reln_to_add;
+        ## HERE1:
+        # SanityCheck($reln_to_add);
+        ## Here2:
+    }
+  }
+);
+
+sub EstimateAskability {
+  my ( $relation, $transform, $end1, $end2 ) = @_;
+  if (SWorkspace->AreThereAnySuperSuperGroups($end1) or
+      SWorkspace->AreThereAnySuperSuperGroups($end2)
+      ) {
+    return 0;
+  }
+
+  my $supergroup_penalty = 0;
+  if (SWorkspace->GetSuperGroups($end1) or SWorkspace->GetSuperGroups($end2)) {
+    $supergroup_penalty = 0.6;
+  }
+  
+  my $transform_activation = SLTM::GetRealActivationsForOneConcept($transform);
+  return SUtil::toss($transform_activation * ( 1 - $supergroup_penalty ));
+}
+
+__PACKAGE__->meta->make_immutable;
+
+1;
