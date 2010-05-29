@@ -1,14 +1,39 @@
 package Mapping::MetoType;
-use 5.10.0;
-use strict;
-use Carp;
-use Class::Std;
-use Class::Multimethods;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Smart::Comments;
+use Carp;
+use Class::Multimethods;
 
-my %category_of : ATTR( :name<category>);       # Category shared by both ends of relation.
-my %name_of : ATTR( :name<name>);               # Shared name.
-my %change_of_of : ATTR( :name<change_ref>);    # How the info lost is changing: key -> reln
+has category => (
+    is         => 'rw',
+    reader     => 'get_category',
+    writer     => 'set_category',
+    init_arg   => 'category',
+    required   => 1,
+    weak_ref   => 0,
+);
+
+has name => (
+    is         => 'rw',
+    isa        => 'Str',
+    reader     => 'get_name',
+    writer     => 'set_name',
+    init_arg   => 'name',
+    required   => 0,
+    weak_ref   => 0,
+);
+
+# How the info lost is changing: key -> reln
+has change_ref => (
+    is         => 'rw',
+    reader     => 'get_change_ref',
+    writer     => 'set_change_ref',
+    init_arg   => 'change_ref',
+    required   => 1,
+    weak_ref   => 0,
+);
 
 sub create {
     my ( $package, $opts_ref ) = @_;
@@ -17,18 +42,15 @@ sub create {
     return $MEMO{$string} ||= $package->new($opts_ref);
 }
 
-
 sub FlippedVersion {
     my ($self) = @_;
-    my $id = ident $self;
-    my $change_ref = $change_of_of{$id};
     my %new_change;
-    while (my ($k, $v) = each %$change_ref) {
+    while (my ($k, $v) = each %{$self->get_change_ref()}) {
         $new_change{$k} = $v->FlippedVersion;
     }
-    my $name = $name_of{$id};
+    my $name = $self->get_name;
     my $new_name = ($name =~ m#^flipped_#) ? substr($name, 8) : "flipped_$name";
-    return Mapping::MetoType->create({category=>$category_of{$id},
+    return Mapping::MetoType->create({category=>$self->get_category(),
                                         name => $new_name,
                                         change_ref=>\%new_change
 })
@@ -89,15 +111,12 @@ multimethod ApplyMapping => qw(Mapping::MetoType SMetonymType) => sub {
 
 sub get_memory_dependencies {
     my ($self) = @_;
-    my $id = ident $self;
-    return grep { ref($_) } ($category_of{$id}, values %{ $change_of_of{$id} });
+    return grep { ref($_) } ($self->get_category(), values %{ $self->get_change_ref() });
 }
 
 sub serialize{
     my ( $self ) = @_;
-    my $id = ident $self;
-
-    return SLTM::encode($category_of{$id}, $name_of{$id}, $change_of_of{$id});
+    return SLTM::encode($self->get_category(), $self->get_name(), $self->get_change_ref());
 }
 
 sub deserialize{
@@ -109,11 +128,9 @@ sub deserialize{
 
 sub as_text{
     my ( $self ) = @_;
-    my $id = ident $self;
-
-    my $change = SUtil::StringifyForCarp($change_of_of{$id});
-    my $category = SUtil::StringifyForCarp($category_of{$id});
-    return "SReln::MetoType[$id](change=>$change, category=>$category)";
+    my $change = SUtil::StringifyForCarp($self->get_change_ref());
+    my $category = SUtil::StringifyForCarp($self->get_category());
+    return "Mapping::MetoType(change=>$change, category=>$category)";
 }
 
 sub get_pure {
@@ -122,10 +139,11 @@ sub get_pure {
 
 sub IsEffectivelyASamenessRelation {
     my ( $self ) = @_;
-    my $id = ident $self;
-    while (my($k, $v) = each %{$change_of_of{$id}}) {
+    while (my($k, $v) = each %{$self->get_change_ref()}) {
         return unless $v->IsEffectivelyASamenessRelation;
     }
     return 1;
 }
+
+__PACKAGE__->meta->make_immutable;
 1;
