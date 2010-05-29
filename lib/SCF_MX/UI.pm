@@ -1,3 +1,62 @@
+package SCF::AskIfThisIsTheContinuation;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+multimethod '__PlonkIntoPlace';
+Codelet_Family(
+  attributes => [
+    relation => {default => 0}, group => {default => 0}, exception => { required => 1},
+    expected_object => {required => 1}, start_position => { required => 1},
+    known_term_count => {required => 1}
+],
+  body => sub {
+    my ($relation, $group, $exception, $expected_object, $start_position, $known_term_count) = @_;
+    return unless $SWorkspace::ElementCount == $known_term_count;
+
+    unless ($relation or $group) {
+      confess "Need relation or ruleapp";
+    }
+    
+    my $success;
+    if ($relation) {
+      $success = $exception->AskBasedOnRelation($relation, '');
+    } else {
+      $success = $exception->AskBasedOnGroup($group, '');
+    }
+    
+    return unless $success;
+    my $plonk_result = __PlonkIntoPlace( $start_position,
+                                         $DIR::RIGHT,
+                                         $expected_object );
+    return unless ($plonk_result->PlonkWasSuccessful);
+    
+    if ($relation) {
+      # We can establish the new relation!
+      my $transform = $relation->get_type();
+      my $new_relation = SRelation->new({first => $relation->get_second(),
+        second => $plonk_result->resultant_object(),
+        type => $transform,
+      });
+      $new_relation->insert();
+    } else {
+      # We can extend the group!
+      my $ruleapp = $group->get_underlying_reln() or return;
+      my $transform = $ruleapp->get_rule()->get_transform();
+      my $new_object = $plonk_result->resultant_object();
+      my $new_relation = SRelation->new({first => $group->[-1],
+        second => $new_object, 
+        type => $transform,
+      });
+      $new_relation->insert() or return;
+      $group->Extend($new_object, 1);
+    }  
+  }
+);
+
+__PACKAGE__->meta->make_immutable;
+
 package SCF::MaybeAskTheseTerms;
 use 5.010;
 use MooseX::SCF;
