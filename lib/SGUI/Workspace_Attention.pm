@@ -3,11 +3,11 @@
 SeqseeDisplay Workspace_Attention is {
   ConfigNames: {
     ElementsYFraction MinGpHeightFraction MaxGpHeightFraction MetoYFraction
-    RelnZenithFraction BarlineHeightFraction;
+    RelnZenithFraction BarlineHeightFraction
   }
   Variables: {
     ElementsY MinGpHeight MaxGpHeight BarlineTop BarlineBottom MetoY
-    SpacePerElement GroupHtPerUnitSpan AttentionDistribution;
+    SpacePerElement GroupHtPerUnitSpan AttentionDistribution
   }
   InitialCode: {
     use Smart::Comments;

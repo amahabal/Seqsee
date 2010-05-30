@@ -1,11 +1,11 @@
 SeqseeDisplay Workspace is {
   ConfigNames: {
     ElementsYFraction MinGpHeightFraction MaxGpHeightFraction MetoYFraction
-    RelnZenithFraction BarlineHeightFraction;
+    RelnZenithFraction BarlineHeightFraction
   }
   Variables: {
     ElementsY MinGpHeight MaxGpHeight BarlineTop BarlineBottom MetoY
-    SpacePerElement GroupHtPerUnitSpan;
+    SpacePerElement GroupHtPerUnitSpan
   }
   InitialCode: {
     use Smart::Comments;

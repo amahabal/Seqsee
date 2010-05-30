@@ -1,6 +1,5 @@
 package Mapping;
 use 5.10.0;
-use Class::Std;
 use Class::Multimethods;
 use strict;
 use Carp;

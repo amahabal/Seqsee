@@ -22,6 +22,7 @@ my %category_registry;
 sub RegisterCategory {
   my ( $package, $cat ) = @_;
   $category_registry{$cat} = $cat;
+  return;
 }
 
 after 'add_category' => sub {

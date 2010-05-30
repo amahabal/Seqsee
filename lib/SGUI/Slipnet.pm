@@ -1,7 +1,7 @@
 SeqseeDisplay Slipnet is {
   ConfigNames: {
     EntriesPerColumn ColumnCount MaxOvalRadius MaxTextWidth
-    MinActivationForDisplay;
+    MinActivationForDisplay
   }
   Variables: { ColumnWidth RowHeight }
   Setup: {

@@ -1,7 +1,7 @@
 SeqseeDisplay Coderack is {
   ConfigNames: {
     MaxRows MaxColumns NameOffset CountOffset UrgencyOffset
-    HistoricalFractionOffset;
+    HistoricalFractionOffset
   }
   Variables: { RowHeight ColumnWidth }
   Setup: {

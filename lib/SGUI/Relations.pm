@@ -1,11 +1,11 @@
 SeqseeDisplay Relations is {
   ConfigNames: {
     RowCount End1Offset End2Offset StrengthOffset SimplicityOffset TypeOffset
-    Font;
+    Font
   }
   Variables: {
     row_height ystart end1_x end2_x strength_x simplicity_x type_x
-    rectangle_left rectangle_right;
+    rectangle_left rectangle_right
   }
   Setup: {
     $row_height      = $EffectiveHeight / $RowCount;
