@@ -6,18 +6,19 @@ use Smart::Comments;
 
 extends 'SAnchored';
 has mag => (
-    is         => 'rw',
-    isa        => 'Int',
-    reader     => 'get_mag',
-    init_arg   => 'mag',
-    required   => 1,
+  is       => 'rw',
+  isa      => 'Int',
+  reader   => 'get_mag',
+  init_arg => 'mag',
+  required => 1,
 );
 
 sub BUILD {
   my $self = shift;
   $self->describe_as($S::NUMBER);
   $self->describe_as($S::PRIME)
-  if ( $Global::Feature{Primes} and SCategory::Prime::IsPrime( $self->get_mag ) );
+  if ( $Global::Feature{Primes}
+    and SCategory::Prime::IsPrime( $self->get_mag ) );
   if ( $Global::Feature{Parity} ) {
     if ( $self->get_mag() % 2 ) {
       $self->describe_as($S::ODD);
@@ -67,12 +68,14 @@ sub CheckSquintability {
 
 sub create {
   my ( $package, $mag, $pos ) = @_;
-  my $selement = $package->new(left_edge => $pos,
-                               right_edge => $pos,
-                               mag => $mag,
-                               items => [],
-                               group_p => 0);
-  $selement->get_parts_ref()->[0] = $selement; #[sic]
+  my $selement = $package->new(
+    left_edge  => $pos,
+    right_edge => $pos,
+    mag        => $mag,
+    items      => [],
+    group_p    => 0
+  );
+  $selement->get_parts_ref()->[0] = $selement;    #[sic]
   $selement->set_strength(20);
   return $selement;
 }

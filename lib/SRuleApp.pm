@@ -68,7 +68,7 @@ sub FindExtension {
   my $skip_this_many_elements = $opts_ref->{skip_this_many_elements} || 0;
   my $direction_of_self = $Direction_of{$id};
 
-  # print "FindExtension: ruleapp dir ", $direction_of_self->as_text, " to extend in ", $direction_to_extend_in->as_text, "\n";
+# print "FindExtension: ruleapp dir ", $direction_of_self->as_text, " to extend in ", $direction_to_extend_in->as_text, "\n";
 
   return if $skip_this_many_elements >= scalar(@$items_ref);
   my ( $last_object, $relation_to_use );
@@ -209,7 +209,8 @@ sub _ExtendSeveralSteps {
           )
         );
         return;
-      } else {
+      }
+      else {
         die $_;
       }
     };

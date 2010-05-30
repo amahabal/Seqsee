@@ -26,7 +26,7 @@ sub as_text {
 }
 
 sub _guesser {
-  my $subobject        = shift // return;
+  my $subobject = shift // return;
   my $effective_object = $subobject->GetEffectiveObject();
   return unless ( ref($effective_object) eq 'SElement' );
   return SInt->new( $effective_object->get_mag );
@@ -57,7 +57,7 @@ sub Instancer {
 sub build {
   my ( $self, $args_ref ) = @_;
   confess 'Too few params'
-  unless $self->AreAttributesSufficientToBuild(keys %{$args_ref});
+  unless $self->AreAttributesSufficientToBuild( keys %{$args_ref} );
 
   my ( $start, $end );
 
@@ -77,7 +77,7 @@ sub build {
 
   my $start_mag = ref($start) ? $start->get_mag() :$start;
   my $end_mag   = ref($end)   ? $end->get_mag()   :$end;
-  my $ret = SObject->create( reverse($end_mag .. $start_mag) );
+  my $ret = SObject->create( reverse( $end_mag .. $start_mag ) );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
   $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
   return $ret;

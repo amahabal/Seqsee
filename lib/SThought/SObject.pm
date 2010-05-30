@@ -22,6 +22,7 @@ multimethod get_fringe_for => ('SAnchored') => sub {
   }
 
   for my $category ( @{ $core->get_categories() } ) {
+
     # next if $category eq $S::RELN_BASED;
     push @ret, [ $category, 100 ];
     SLTM::SpikeBy( 5, $category );
@@ -226,7 +227,8 @@ sub get_actions {
   }
 
   my $possible_category_for_ends;
-  $possible_category_for_ends = $first_reln->SuggestCategoryForEnds() if $first_reln;
+  $possible_category_for_ends = $first_reln->SuggestCategoryForEnds()
+  if $first_reln;
   if ($possible_category_for_ends) {
     for ( @{ $core->get_underlying_reln()->get_items() } ) {
       unless ( UNIVERSAL::isa( $_, "SAnchored" ) ) {
@@ -411,7 +413,7 @@ multimethod get_fringe_for => ('SElement') => sub {
 
 sub get_fringe {
   my ($self) = @_;
-  return  get_fringe_for( $self->core ) ;
+  return get_fringe_for( $self->core );
 }
 
 sub get_actions {

@@ -7,13 +7,14 @@ use Smart::Comments;
 use overload
 '~~'     => 'literal_comparison_hack_for_smart_match',
 fallback => 1;
+
 sub literal_comparison_hack_for_smart_match {
   return $_[0] eq $_[1];
 }
 
 sub NumericInstancer {
-  my ($self, $mag) = @_;
-  return SBindings->create({}, {});
+  my ( $self, $mag ) = @_;
+  return SBindings->create( {}, {} );
 }
 
 sub FindMappingForCat {
@@ -52,7 +53,7 @@ sub ApplyMappingForCat {
   }
   $new_mag // return;
   return $new_mag;
-};
+}
 
 with 'LTMStorable::Independent';
 with 'SCategory::MetonymySpec::NotMetonyable';
@@ -70,7 +71,6 @@ sub get_name {
 sub as_text {
   return "number";
 }
-
 
 __PACKAGE__->meta->make_immutable;
 1;

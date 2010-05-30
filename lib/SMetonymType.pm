@@ -74,8 +74,7 @@ sub GetCatAndName {
 sub get_memory_dependencies {
   my ($self) = @_;
   my $id = ident $self;
-  return
-  map { $_->get_pure() }
+  return map { $_->get_pure() }
   grep { ref($_) and ref($_) ne 'SInt' }
   ( $category_of{$id}, values %{ $info_loss_of{$id} } );
 }

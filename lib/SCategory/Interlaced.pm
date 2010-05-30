@@ -14,12 +14,12 @@ with 'SCategory::MetonymySpec::NotMetonyable';
 with 'SCategory';
 
 has parts_count => (
-    is         => 'rw',
-    isa        => 'Int',
-    reader     => 'get_parts_count',
-    writer     => 'set_parts_count',
-    init_arg   => 'parts_count',
-    required   => 1,
+  is       => 'rw',
+  isa      => 'Int',
+  reader   => 'get_parts_count',
+  writer   => 'set_parts_count',
+  init_arg => 'parts_count',
+  required => 1,
 );
 
 sub Create {
@@ -62,7 +62,7 @@ sub build {
 }
 
 sub get_name {
-  my ($self)      = @_;
+  my ($self) = @_;
   my $parts_count = $self->get_parts_count;
   return "Interlaced_$parts_count";
 }
@@ -108,7 +108,6 @@ sub longer_description {
   return
   "That is, the sequence consists of $count simpler sequences interlaced together";
 }
-
 
 __PACKAGE__->meta->make_immutable;
 1;

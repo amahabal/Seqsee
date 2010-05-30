@@ -5,9 +5,9 @@ use English qw( -no_match_vars );
 use Smart::Comments;
 
 sub NumericInstancer {
-  my ($self, $mag) = @_;
+  my ( $self, $mag ) = @_;
   return if $mag % 2;
-  return SBindings->create({}, {});
+  return SBindings->create( {}, {} );
 }
 
 sub FindMappingForCat {
@@ -46,7 +46,7 @@ sub ApplyMappingForCat {
   }
   $new_mag // return;
   return $new_mag;
-};
+}
 
 with 'LTMStorable::Independent';
 with 'SCategory::MetonymySpec::NotMetonyable';

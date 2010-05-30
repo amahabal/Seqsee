@@ -20,7 +20,6 @@ has arguments => (
   required => 1,
 );
 
-
 sub run {
   my $self = shift;
 
@@ -41,7 +40,7 @@ sub run {
 
   no strict;
   my $method_name = "SCF::" . $self->family() . '::run';
-  $method_name->($self, $self->arguments);
+  $method_name->( $self, $self->arguments );
 }
 
 sub CheckFreshness {
@@ -73,7 +72,6 @@ multimethod IsFresh => ( 'SRelation', '#' ) => sub {
   return ( $ends[0]->UnchangedSince($since)
     and $ends[1]->UnchangedSince($since) );
 };
-
 
 __PACKAGE__->meta->make_immutable;
 1;

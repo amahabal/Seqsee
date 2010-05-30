@@ -11,7 +11,6 @@ has creation_time => (
   required => 1,
 );
 
-
 sub BUILDARGS {
   my ( $package, $family, $urgency, $args_ref ) = @_;
   $args_ref ||= {};
@@ -45,12 +44,10 @@ sub as_text {
   . SUtil::StringifyForCarp( $self->arguments() );
 }
 
-
 sub schedule {
   my ($self) = @_;
   SCoderack->add_codelet($self);
 }
-
 
 __PACKAGE__->meta->make_immutable;
 1;

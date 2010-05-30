@@ -15,21 +15,23 @@ extends 'SObject';
 # with 'Categorizable';
 
 has left_edge => (
-    is         => 'rw',
-    #isa        => 'Int',
-    reader     => 'get_left_edge',
-    writer     => 'set_left_edge',
-    init_arg   => 'left_edge',
-    required   => 1,
+  is => 'rw',
+
+  #isa        => 'Int',
+  reader   => 'get_left_edge',
+  writer   => 'set_left_edge',
+  init_arg => 'left_edge',
+  required => 1,
 );
 
 has right_edge => (
-    is         => 'rw',
-    #isa        => 'Int',
-    reader     => 'get_right_edge',
-    writer     => 'set_right_edge',
-    init_arg   => 'right_edge',
-    required   => 1,
+  is => 'rw',
+
+  #isa        => 'Int',
+  reader   => 'get_right_edge',
+  writer   => 'set_right_edge',
+  init_arg => 'right_edge',
+  required => 1,
 );
 
 #has object => (
@@ -67,11 +69,11 @@ has right_edge => (
 #);
 
 has is_locked_against_deletion => (
-    is         => 'rw',
-    isa        => 'Bool',
-    reader     => 'get_is_locked_against_deletion',
-    writer     => 'set_is_locked_against_deletion',
-    init_arg   => 'is_locked_against_deletion',
+  is       => 'rw',
+  isa      => 'Bool',
+  reader   => 'get_is_locked_against_deletion',
+  writer   => 'set_is_locked_against_deletion',
+  init_arg => 'is_locked_against_deletion',
 );
 
 sub set_edges {
@@ -88,7 +90,10 @@ sub get_edges {
 
 sub get_bounds_string {
   my ($self) = @_;
-  return q{ <} . $self->get_left_edge() . q{, } . $self->get_right_edge() . q{> };
+  return
+    q{ <}
+  . $self->get_left_edge() . q{, }
+  . $self->get_right_edge() . q{> };
 }
 
 sub get_span {
@@ -134,7 +139,6 @@ sub overlaps {
   return ( ( $sr <= $or and $sr >= $ol ) or ( $or <= $sr and $or >= $sl ) );
 }
 
-
 sub IsFlushRight {
   my ($self) = @_;
   $self->get_right_edge() == $SWorkspace::ElementCount - 1 ? 1 :0;
@@ -148,8 +152,8 @@ sub IsFlushLeft {
 sub recalculate_edges {
   my ($self) = @_;
   my $subobjects_ref = $self->get_items;
-  $self->set_left_edge($subobjects_ref->[0]->get_left_edge());
-  $self->set_right_edge($subobjects_ref->[-1]->get_right_edge());
+  $self->set_left_edge( $subobjects_ref->[0]->get_left_edge() );
+  $self->set_right_edge( $subobjects_ref->[-1]->get_right_edge() );
 }
 
 sub _CheckValidity {
@@ -161,7 +165,7 @@ sub _CheckValidity {
   confess "Unanchored object $first_item" unless $first_item->isa('SAnchored');
   my $most_recent_right_edge = $first_item->get_right_edge;
 
-  while (my $next_item = shift(@items)) {
+  while ( my $next_item = shift(@items) ) {
     confess "Unanchored object $next_item" unless $next_item->isa('SAnchored');
     return unless $next_item->get_left_edge() == $most_recent_right_edge + 1;
     $most_recent_right_edge = $next_item->get_right_edge();
@@ -171,18 +175,21 @@ sub _CheckValidity {
 }
 
 sub create {
-  my ($package, @items) = @_;
+  my ( $package, @items ) = @_;
   return unless _CheckValidity(@items);
 
   my $anchored_object;
-  if (@items == 1) {
+  if ( @items == 1 ) {
     my $only_item = $items[0];
     $anchored_object = $only_item;
-  } else {
-    $anchored_object = $package->new(left_edge => $items[0]->get_left_edge(),
-                                     right_edge => $items[-1]->get_right_edge(),
-                                     items => \@items,
-                                     group_p => 1);
+  }
+  else {
+    $anchored_object = $package->new(
+      left_edge  => $items[0]->get_left_edge(),
+      right_edge => $items[-1]->get_right_edge(),
+      items      => \@items,
+      group_p    => 1
+    );
   }
   $anchored_object->UpdateStrength();
   return $anchored_object;
@@ -223,14 +230,14 @@ sub Extend {
   }
 
   # If we get here, all conflicting incumbents are dead.
-  @{$self->get_parts_ref} = @new_subobjects;
+  @{ $self->get_parts_ref } = @new_subobjects;
 
   $self->Update();
   $self->AddHistory( "Extended to become " . $self->get_bounds_string() );
+
   # SanityCheck($self);
   return 1;
 }
-
 
 sub Update {
   my ($self) = @_;
@@ -239,6 +246,7 @@ sub Update {
   $self->recalculate_relations();
   $self->UpdateStrength();
   if ( my $underlying_reln = $self->get_underlying_reln() ) {
+
     # print "UPDATING RULEAPP $underlying_reln\n";
     my $error;
     try { $self->set_underlying_ruleapp( $underlying_reln->get_rule() ) }

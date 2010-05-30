@@ -18,7 +18,7 @@ sub get_fringe {
 
 sub get_actions {
   my ($self) = @_;
-  my $core   = $self->core();
+  my $core = $self->core();
   our @actions_ret = ();
   my $cat = $self->core();
   return if $cat->isa('SCategory::Interlaced');

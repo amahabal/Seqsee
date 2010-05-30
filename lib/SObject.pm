@@ -6,9 +6,11 @@ use Smart::Comments;
 
 use Class::Multimethods;
 with 'Categorizable';
-use overload ( '~~' => 'literal_comparison_hack_for_smart_match',
-  '@{}' => sub {$_[0]->get_parts_ref},
-  fallback => 1 );
+use overload (
+  '~~'     => 'literal_comparison_hack_for_smart_match',
+  '@{}'    => sub { $_[0]->get_parts_ref },
+  fallback => 1
+);
 
 sub literal_comparison_hack_for_smart_match {
   return $_[0] eq $_[1];
@@ -18,130 +20,132 @@ multimethod 'FindMapping';
 multimethod 'ApplyMapping';
 
 has strength => (
-    is         => 'rw',
-    reader     => 'get_strength',
-    writer     => 'set_strength',
-    init_arg   => 'strength',
-    default    => 0,
+  is       => 'rw',
+  reader   => 'get_strength',
+  writer   => 'set_strength',
+  init_arg => 'strength',
+  default  => 0,
 );
 
 has history_obj => (
-    is         => 'rw',
-    isa        => 'SHistory',
-    reader     => 'get_history_obj',
-    writer     => 'set_history_obj',
-    default   => sub { SHistory->new },
-    required   => 0,
-    weak_ref   => 0,
-    handles => [qw{get_history AddHistory UnchangedSince
-    search_history history_as_text GetAge}],
+  is       => 'rw',
+  isa      => 'SHistory',
+  reader   => 'get_history_obj',
+  writer   => 'set_history_obj',
+  default  => sub { SHistory->new },
+  required => 0,
+  weak_ref => 0,
+  handles  => [
+    qw{get_history AddHistory UnchangedSince
+    search_history history_as_text GetAge}
+  ],
 );
 
 has group_p => (
-    is         => 'rw',
-    isa        => 'Bool',
-    reader     => 'get_group_p',
-    writer     => 'set_group_p',
-    init_arg   => 'group_p',
-    required   => 1,
-    weak_ref   => 0,
+  is       => 'rw',
+  isa      => 'Bool',
+  reader   => 'get_group_p',
+  writer   => 'set_group_p',
+  init_arg => 'group_p',
+  required => 1,
+  weak_ref => 0,
 );
 
 has metonym => (
-    is         => 'rw',
-    reader     => 'get_metonym',
-    writer     => 'set_metonym',
+  is     => 'rw',
+  reader => 'get_metonym',
+  writer => 'set_metonym',
 );
 
 has metonym_activeness => (
-    is         => 'rw',
-    isa        => 'Bool',
-    reader     => 'get_metonym_activeness',
-    writer     => 'set_metonym_activeness',
-    default => 0,
+  is      => 'rw',
+  isa     => 'Bool',
+  reader  => 'get_metonym_activeness',
+  writer  => 'set_metonym_activeness',
+  default => 0,
 );
 
 # should be: is_a_metonym_of
 has is_a_metonym => (
-    is         => 'rw',
-    reader     => 'get_is_a_metonym',
-    writer     => 'set_is_a_metonym',
+  is     => 'rw',
+  reader => 'get_is_a_metonym',
+  writer => 'set_is_a_metonym',
 );
 
 has direction => (
-    is         => 'rw',
-    reader     => 'get_direction',
-    writer     => 'set_direction',
-    default    => $DIR::RIGHT,
+  is      => 'rw',
+  reader  => 'get_direction',
+  writer  => 'set_direction',
+  default => $DIR::RIGHT,
 );
 
 has reln_scheme => (
-    is         => 'rw',
-    reader     => 'get_reln_scheme',
-    writer     => 'set_reln_scheme',
+  is     => 'rw',
+  reader => 'get_reln_scheme',
+  writer => 'set_reln_scheme',
 );
 
 has reln_other_end => (
-  traits => ['Hash'],
-  is        => 'ro',
-  isa       => 'HashRef',
-  default   => sub { {} },
+  traits  => ['Hash'],
+  is      => 'ro',
+  isa     => 'HashRef',
+  default => sub { {} },
   handles => {
-    'get_relation' => 'get',
-    'set_relation_to' => 'set',
-    'remove_reln_to' => 'delete',
+    'get_relation'       => 'get',
+    'set_relation_to'    => 'set',
+    'remove_reln_to'     => 'delete',
     'relation_exists_to' => 'exists',
-    'all_relations' => 'values',
+    'all_relations'      => 'values',
   }
 );
 
 has underlying_reln => (
-    is         => 'rw',
-    reader     => 'get_underlying_reln',
-    writer     => 'set_underlying_reln',
+  is     => 'rw',
+  reader => 'get_underlying_reln',
+  writer => 'set_underlying_reln',
 );
 
 has item => (
-  traits => ['Array'],
-  is        => 'rw',
-  isa       => 'ArrayRef',
-  default   => sub { [] },
-  reader    => 'get_parts_ref',
-  init_arg  => 'items',
-  handles => {
+  traits   => ['Array'],
+  is       => 'rw',
+  isa      => 'ArrayRef',
+  default  => sub { [] },
+  reader   => 'get_parts_ref',
+  init_arg => 'items',
+  handles  => {
     'get_items_array' => 'elements',
     'get_parts_count' => 'count',
   }
 );
 
-
 sub get_items {
   shift->get_parts_ref;
 }
 
-
 sub create {
-  my ($package, @arguments) = @_;
-  if (!@arguments) {
-    return $package->new({group_p => 1, items => []});
+  my ( $package, @arguments ) = @_;
+  if ( !@arguments ) {
+    return $package->new( { group_p => 1, items => [] } );
   }
-  if (scalar(@arguments) == 1) {
+  if ( scalar(@arguments) == 1 ) {
     my $sole_argument = $arguments[0];
+
     # If it is unblessed, it better be a number!
-    unless (ref $sole_argument) {
-      return SElement->create($sole_argument, 0);
+    unless ( ref $sole_argument ) {
+      return SElement->create( $sole_argument, 0 );
     }
 
-    if (ref($sole_argument) eq 'ARRAY') {
-      return $package->create(@{$sole_argument});
+    if ( ref($sole_argument) eq 'ARRAY' ) {
+      return $package->create( @{$sole_argument} );
     }
 
     # So it is an SObject of some sort...
     my @categories = @{ $sole_argument->get_categories };
     my $new_object;
-    if (ref($sole_argument) eq 'SElement') {
-      $new_object = SElement->create($sole_argument->get_mag, 0);
-    } else {
+    if ( ref($sole_argument) eq 'SElement' ) {
+      $new_object = SElement->create( $sole_argument->get_mag, 0 );
+    }
+    else {
       $new_object = $package->create( $sole_argument->get_items_array );
     }
 
@@ -152,7 +156,7 @@ sub create {
     return $new_object;
   }
   my @new_arguments = map { SObject->create($_) } @arguments;
-  return $package->new({group_p => 1, items => \@new_arguments});
+  return $package->new( { group_p => 1, items => \@new_arguments } );
 }
 
 sub annotate_with_cat {
@@ -165,13 +169,14 @@ sub annotate_with_cat {
 
 sub get_structure {
   my ($self) = shift;
-  return $self->get_parts_ref()->[0]->get_structure() if $self->get_parts_count() == 1;
+  return $self->get_parts_ref()->[0]->get_structure()
+  if $self->get_parts_count() == 1;
   return [ map { $_->get_structure() } $self->get_items_array() ];
 }
 
 sub get_flattened {
   my ($self) = @_;
-  return [ map {@{  $_->get_flattened()} } $self->get_items_array() ];
+  return [ map { @{ $_->get_flattened() } } $self->get_items_array() ];
 }
 
 sub apply_blemish_at {
@@ -267,8 +272,12 @@ sub get_structure_string {
 
 sub GetAnnotatedStructureString {
   my ($self) = @_;
-  my $body = $self->isa('SElement') ? $self->get_mag() :
-    '[' . join( ', ', map { $_->GetAnnotatedStructureString } $self->get_items_array ) . ']';
+  my $body =
+    $self->isa('SElement')
+  ? $self->get_mag()
+  :'['
+  . join( ', ', map { $_->GetAnnotatedStructureString } $self->get_items_array )
+  . ']';
 
   if ( $self->get_metonym_activeness() ) {
     my $meto_structure_string =
@@ -317,8 +326,8 @@ sub recalculate_categories {
     $self->redescribe_as($cat);
   }
 
-  unless ($self->category_list_as_strings) {
-    confess  "LOST ALL CATEGORIES!!! $self. Had @$cats\n";
+  unless ( $self->category_list_as_strings ) {
+    confess "LOST ALL CATEGORIES!!! $self. Had @$cats\n";
   }
 }
 
@@ -329,7 +338,7 @@ sub get_pure {
 
 sub HasAsItem {
   my ( $self, $item ) = @_;
-  for ($self->get_items_array()) {
+  for ( $self->get_items_array() ) {
     return 1 if $_ eq $item;
   }
   return 0;
@@ -342,7 +351,7 @@ sub SElement::HasAsPartDeep {
 
 sub HasAsPartDeep {
   my ( $self, $item ) = @_;
-  for ($self->get_items_array()) {
+  for ( $self->get_items_array() ) {
     return 1 if $_ eq $item;
     return 1 if $_->HasAsPartDeep($item);
   }
@@ -380,12 +389,15 @@ sub SetMetonymActiveness {
 
 sub GetEffectiveObject {
   my ($self) = @_;
-  return $self->get_metonym_activeness() ? $self->get_metonym()->get_starred() : $self;
+  return $self->get_metonym_activeness()
+  ? $self->get_metonym()->get_starred()
+  :$self;
 }
 
 sub GetEffectiveStructure {
   my ($self) = @_;
-  return [ map { $_->GetEffectiveObject()->get_structure } $self->get_items_array() ];
+  return [ map { $_->GetEffectiveObject()->get_structure }
+    $self->get_items_array() ];
 }
 
 sub SElement::GetEffectiveStructure {
@@ -428,7 +440,7 @@ sub MaybeAnnotateWithMetonym {
 }
 
 sub IsThisAMetonymedObject {
-  my ($self)          = @_;
+  my ($self) = @_;
   my $is_a_metonym_of = $self->get_is_a_metonym();
   return 0 if ( not($is_a_metonym_of) or $is_a_metonym_of eq $self );
   return 1;
@@ -437,7 +449,7 @@ sub IsThisAMetonymedObject {
 sub ContainsAMetonym {
   my ($self) = @_;
   return 1 if $self->IsThisAMetonymedObject;
-  for ($self->get_items_array()) {
+  for ( $self->get_items_array() ) {
     return 1 if $_->ContainsAMetonym;
   }
   return 0;
@@ -460,7 +472,7 @@ sub AddRelation {
     SErr->throw("duplicate reln being added");
   }
   $self->AddHistory( "added reln to " . $other->get_bounds_string() );
-  $self->set_relation_to($other, $reln);
+  $self->set_relation_to( $other, $reln );
 }
 
 sub RemoveRelation {
@@ -472,7 +484,7 @@ sub RemoveRelation {
 
 sub RemoveAllRelations {
   my ($self) = @_;
-  for ($self->all_relations()) {
+  for ( $self->all_relations() ) {
     $_->uninsert();
   }
 }
@@ -487,7 +499,7 @@ sub _get_other_end_of_reln {
 
 sub recalculate_relations {
   my ($self) = @_;
-  for my $reln ($self->all_relations()) {
+  for my $reln ( $self->all_relations() ) {
     my $type     = $reln->get_type();
     my $new_type = $type->get_category()->FindMappingForCat( $reln->get_ends );
 
@@ -526,6 +538,7 @@ multimethod CanBeSeenAs => ( 'SObject', 'SObject' ) => sub {
 multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
   my ( $object, $int ) = @_;
   my $lit_or_meto = $object->CanBeSeenAs_Literal0rMeto($int);
+
   #if (not $object->isa('SElement')) {
   #  print "LIT OR METO: ", $object->as_text, "===> $int\n";
   #}
@@ -535,15 +548,19 @@ multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
 
 };
 
-multimethod CanBeSeenAs => ('SElement', '#') => sub {
-  return ($_[0]->get_mag() == $_[1]) ? ResultOfCanBeSeenAs->newUnblemished() : ResultOfCanBeSeenAs::NO();
+multimethod CanBeSeenAs => ( 'SElement', '#' ) => sub {
+  return ( $_[0]->get_mag() == $_[1] )
+  ? ResultOfCanBeSeenAs->newUnblemished()
+  :ResultOfCanBeSeenAs::NO();
 };
 
-multimethod CanBeSeenAs => ('SElement', '$') => sub {
-  if ($_[1] =~ m#^-?\d+$#) {
-    return ($_[0]->get_mag() == $_[1]) ? ResultOfCanBeSeenAs->newUnblemished() : ResultOfCanBeSeenAs::NO();
+multimethod CanBeSeenAs => ( 'SElement', '$' ) => sub {
+  if ( $_[1] =~ m#^-?\d+$# ) {
+    return ( $_[0]->get_mag() == $_[1] )
+    ? ResultOfCanBeSeenAs->newUnblemished()
+    :ResultOfCanBeSeenAs::NO();
   }
-  confess "SAW CanBeSeenAs(SElement, \$): " . $_[0]->as_text . " '". $_[1];
+  confess "SAW CanBeSeenAs(SElement, \$): " . $_[0]->as_text . " '" . $_[1];
 };
 
 multimethod CanBeSeenAs => ( 'SObject', 'ARRAY' ) => sub {
@@ -669,10 +686,12 @@ sub CheckSquintabilityForCategory {
   my @meto_types = $category->get_meto_types();
   my @return;
   for my $name (@meto_types) {
-   #main::message("Meto type: $name");
+
+    #main::message("Meto type: $name");
     my $finder = $category->get_meto_finder($name);
     my $squinted = $finder->( $self, $category, $name, $bindings ) or next;
-    #main::message("Squinted: " . $squinted->get_starred->get_structure_string . '=?=' . $intended_structure_string);
+
+#main::message("Squinted: " . $squinted->get_starred->get_structure_string . '=?=' . $intended_structure_string);
     next
     unless $squinted->get_starred()->get_structure_string() eq
       $intended_structure_string;
@@ -684,22 +703,24 @@ sub CheckSquintabilityForCategory {
 sub UpdateStrength {
   my ($self) = @_;
   my $strength_from_parts =
-  20 +
-  0.2 * ( List::Util::sum( map { $_->get_strength() } @{ $self->get_parts_ref() } ) || 0 );
-  my $strength_from_categories =
-  30 *
-  ( List::Util::sum( @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) } )
+  20 + 0.2 *
+  ( List::Util::sum( map { $_->get_strength() } @{ $self->get_parts_ref() } )
     || 0 );
+  my $strength_from_categories = 30 * (
+    List::Util::sum(
+      @{ SLTM::GetRealActivationsForConcepts( $self->get_categories() ) }
+    )
+    || 0
+  );
   my $strength = $strength_from_parts + $strength_from_categories;
-  $strength += ($Global::GroupStrengthByConsistency{$self} || 0);
+  $strength += ( $Global::GroupStrengthByConsistency{$self} || 0 );
   $strength = 100 if $strength > 100;
   ## p, c, t: $strength_from_parts, $strength_from_categories, $strength
   $self->set_strength($strength);
 }
 
-
 # XXX(Board-it-up): [2007/02/03] changing reln to ruleapp!
-sub set_underlying_ruleapp  {
+sub set_underlying_ruleapp {
   my ( $self, $reln ) = @_;
   $reln or confess "Cannot set underlying relation to be an undefined value!";
 
@@ -712,7 +733,7 @@ sub set_underlying_ruleapp  {
   if ( UNIVERSAL::isa( $reln, "SRule" ) ) {
     $ruleapp = $reln->CheckApplicability(
       {
-        objects   => [$self->get_items_array()],
+        objects   => [ $self->get_items_array() ],
         direction => $DIR::RIGHT,
       }
     );    # could be undef.

@@ -26,7 +26,7 @@ sub literal_comparison_hack_for_smart_match {
 
 sub BUILD {
 }
-after 'BUILD' => sub { Categorizable->RegisterCategory($_[0]) };
+after 'BUILD' => sub { Categorizable->RegisterCategory( $_[0] ) };
 
 sub is_instance {
   my ( $cat, $object ) = @_;
@@ -37,7 +37,7 @@ sub is_instance {
 }
 
 sub FindMappingForCat {
-  my ($self, $o1, $o2) = @_;
+  my ( $self, $o1, $o2 ) = @_;
   scalar(@_) == 3 or confess "Need 3 arguments for Default_FindMapping";
   my $cat      = $self;
   my $opts_ref = {};
@@ -145,6 +145,7 @@ sub ApplyMappingForCat {
   }
 
   my $ret_obj = $cat->build($new_bindings_ref) or return;
+
   #or confess "Failed to build " . $cat->as_text(),
   #" from " . join( ', ', keys %$new_bindings_ref );
 
@@ -185,6 +186,7 @@ sub ApplyMappingForCat {
   $ret_obj->describe_as($cat);
   my $rel_dir = $reln->get_direction_reln() // $Mapping::Dir::Same;
   my $obj_dir = $DIR::RIGHT;
+
   # my $new_dir = ApplyMapping( $rel_dir, $obj_dir );
 
   # $ret_obj->set_direction($new_dir);

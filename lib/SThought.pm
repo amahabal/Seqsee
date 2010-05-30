@@ -28,7 +28,9 @@ sub create {
   };
 
   my $class;
-  if ( $core->isa('SCat::OfObj') or ($core->isa('Moose::Object') and $core->does('SCategory'))) {
+  if ( $core->isa('SCat::OfObj')
+    or ( $core->isa('Moose::Object') and $core->does('SCategory') ) )
+  {
     $class = 'SThought::SCat';
   }
   else {

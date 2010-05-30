@@ -264,7 +264,9 @@ sub StringifyForCarp {
   my $arg = shift;
 
   # temporarily replaced line by next...
-  $arg = '«' . $arg->as_text() . '»' if (ref($arg) and UNIVERSAL::can( $arg, 'as_text' ));
+  $arg = '«' . $arg->as_text() . '»'
+  if ( ref($arg) and UNIVERSAL::can( $arg, 'as_text' ) );
+
   # $arg = '«' . $arg . '»' if UNIVERSAL::can( $arg, 'as_text' );
 
   my $reftype = ref($arg);

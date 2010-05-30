@@ -12,19 +12,19 @@ multimethod 'FindMapping';
 multimethod 'ApplyMapping';
 
 has object1 => (
-    is         => 'rw',
-    reader     => 'object1',
-    writer     => 'set_object1',
-    init_arg   => 'object1',
-    required   => 1,
+  is       => 'rw',
+  reader   => 'object1',
+  writer   => 'set_object1',
+  init_arg => 'object1',
+  required => 1,
 );
 
 has object2 => (
-    is         => 'rw',
-    reader     => 'object2',
-    writer     => 'set_object2',
-    init_arg   => 'object2',
-    required   => 1,
+  is       => 'rw',
+  reader   => 'object2',
+  writer   => 'set_object2',
+  init_arg => 'object2',
+  required => 1,
 );
 
 with 'SCategory::MetonymySpec::NotMetonyable';
@@ -37,14 +37,18 @@ sub is_pure {
 sub Instancer {
   my ( $self, $object ) = @_;
   my $pure = $object->get_pure;
-  return SBindings->new(raw_slippages => {}, bindings => { which => SInt->new(0) }) if ($pure eq $self->object1);
-  return SBindings->new(raw_slippages => {}, bindings => { which => SInt->new(1) }) if ($pure eq $self->object2);
+  return SBindings->new( raw_slippages => {},
+    bindings => { which => SInt->new(0) } )
+  if ( $pure eq $self->object1 );
+  return SBindings->new( raw_slippages => {},
+    bindings => { which => SInt->new(1) } )
+  if ( $pure eq $self->object2 );
   return;
 }
 
 sub FindMappingForCat {
   my ( $self, $a, $b ) = @_;
-  my ( $a_pure, $b_pure ) = ( $a->get_pure, $b->get_pure );
+  my ( $a_pure,  $b_pure )  = ( $a->get_pure,   $b->get_pure );
   my ( $object1, $object2 ) = ( $self->object1, $self->object2 );
 
   if ( $a_pure eq $b_pure ) {
@@ -73,7 +77,9 @@ sub ApplyMappingForCat {
   my $is_object_a_ref = ref($original_object);
 
   my ($original_object_pure) =
-  $is_object_a_ref ? $original_object->get_pure() : SLTM::Platonic->create($original_object);
+    $is_object_a_ref
+  ? $original_object->get_pure()
+  :SLTM::Platonic->create($original_object);
   my ( $object1, $object2 ) = ( $self->object1, $self->object2 );
 
   my $name = $transform->get_name();
@@ -125,8 +131,8 @@ sub Create {
   my $string = "$pure1#$pure2";
   return $MEMO{$string} //= $package->new(
     {
-      object1         => $pure1,
-      object2         => $pure2,
+      object1 => $pure1,
+      object2 => $pure2,
     }
   );
 }
@@ -175,7 +181,7 @@ sub get_memory_dependencies {
 
 sub serialize {
   my ($self) = @_;
-  return SLTM::encode(  $self->object1, $self->object2 );
+  return SLTM::encode( $self->object1, $self->object2 );
 }
 
 sub deserialize {
@@ -243,7 +249,6 @@ sub CheckForAlternation {
     }
   );
 }
-
 
 __PACKAGE__->meta->make_immutable;
 1;

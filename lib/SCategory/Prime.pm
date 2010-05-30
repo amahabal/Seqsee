@@ -37,9 +37,9 @@ sub PreviousPrime {
 }
 
 sub NumericInstancer {
-  my ($self, $mag) = @_;
+  my ( $self, $mag ) = @_;
   return unless IsPrime($mag);
-  return SBindings->create({}, {});
+  return SBindings->create( {}, {} );
 }
 
 sub FindMappingForCat {
@@ -78,7 +78,7 @@ sub ApplyMappingForCat {
   }
   $new_mag // return;
   return $new_mag;
-};
+}
 
 with 'LTMStorable::Independent';
 with 'SCategory::MetonymySpec::NotMetonyable';

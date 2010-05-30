@@ -14,9 +14,9 @@ has object_being_plonked => (
 );
 
 has resultant_object => (
-  is       => 'rw',
-  isa      => 'SObject',
-  weak_ref => 1,
+  is        => 'rw',
+  isa       => 'SObject',
+  weak_ref  => 1,
   predicate => 'has_resultant_object',
 );
 
@@ -25,7 +25,7 @@ has attribute_copy_result => (
   isa      => 'ResultOfAttributeCopy',
   required => 1,
   weak_ref => 0,
-  handles => { 'AttributeCopyWasSuccessful' => 'success' },
+  handles  => { 'AttributeCopyWasSuccessful' => 'success' },
 );
 
 sub Failed {

@@ -81,12 +81,12 @@ sub get_common_categories {
   my %counter;
   my %str2cat;
   for my $sint (@_) {
-    for (@{$sint->[1]}) {
+    for ( @{ $sint->[1] } ) {
       $counter{$_}++;
       $str2cat{$_} = $_;
     }
   }
-  return map {$str2cat{$_} } grep { $counter{$_} == $count } keys %counter;
+  return map { $str2cat{$_} } grep { $counter{$_} == $count } keys %counter;
 }
 
 sub get_mag {

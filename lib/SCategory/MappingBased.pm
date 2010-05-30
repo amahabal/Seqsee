@@ -14,12 +14,12 @@ with 'SCategory::MetonymySpec::NotMetonyable';
 with 'SCategory';
 
 has transform => (
-    is         => 'rw',
-    isa => 'Mapping',
-    reader     => 'get_transform',
-    writer     => 'set_transform',
-    init_arg   => 'transform',
-    required   => 1,
+  is       => 'rw',
+  isa      => 'Mapping',
+  reader   => 'get_transform',
+  writer   => 'set_transform',
+  init_arg => 'transform',
+  required => 1,
 );
 
 sub Create {
@@ -133,6 +133,7 @@ memoize('as_text');
 sub is_pure {
   1;
 }
+
 sub get_pure {
   $_[0];
 }
@@ -159,7 +160,6 @@ sub AreAttributesSufficientToBuild {
   return unless 'length' ~~ @atts;
   return 1;
 }
-
 
 __PACKAGE__->meta->make_immutable;
 1;

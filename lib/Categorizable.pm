@@ -18,8 +18,9 @@ has categories => (
 );
 
 my %category_registry;
+
 sub RegisterCategory {
-  my ($package, $cat) = @_;
+  my ( $package, $cat ) = @_;
   $category_registry{$cat} = $cat;
 }
 

@@ -26,8 +26,9 @@ sub as_text {
 }
 
 sub _guesser {
-  my $subobject        = shift // return;
+  my $subobject = shift // return;
   my $effective_object = $subobject->GetEffectiveObject();
+
   # print "In _guesser: $effective_object: ", $effective_object->as_text, "\n";
   return unless ( ref($effective_object) eq 'SElement' );
   return SInt->new( $effective_object->get_mag );
@@ -35,6 +36,7 @@ sub _guesser {
 
 sub Instancer {
   my ( $self, $object ) = @_;
+
   # print "In Ascending instancer for ", $object->as_text, "\n";
   my $start = _guesser( $object->get_items()->[0] )  or return;
   my $end   = _guesser( $object->get_items()->[-1] ) or return;
@@ -44,6 +46,7 @@ sub Instancer {
   my $guess_built = $self->build( \%guess );
 
   my $result_of_can_be_seen_as = $object->CanBeSeenAs($guess_built);
+
   # print "result_of_can_be_seen_as: $result_of_can_be_seen_as\n";
   return unless $result_of_can_be_seen_as;
 
@@ -61,7 +64,7 @@ sub Instancer {
 sub build {
   my ( $self, $args_ref ) = @_;
   confess 'Too few params'
-  unless $self->AreAttributesSufficientToBuild(keys %{$args_ref});
+  unless $self->AreAttributesSufficientToBuild( keys %{$args_ref} );
 
   my ( $start, $end );
 

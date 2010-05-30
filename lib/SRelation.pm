@@ -9,68 +9,69 @@ use Class::Multimethods;
 multimethod 'FindMapping';
 
 has strength => (
-    is         => 'rw',
-    reader     => 'get_strength',
-    writer     => 'set_strength',
-    init_arg   => 'strength',
-    default    => 0,
+  is       => 'rw',
+  reader   => 'get_strength',
+  writer   => 'set_strength',
+  init_arg => 'strength',
+  default  => 0,
 );
 
 has first => (
-    is         => 'rw',
-    isa        => 'SObject',
-    reader     => 'get_first',
-    writer     => 'set_first',
-    required   => 1,
-    init_arg   => 'first',
+  is       => 'rw',
+  isa      => 'SObject',
+  reader   => 'get_first',
+  writer   => 'set_first',
+  required => 1,
+  init_arg => 'first',
 );
 
 has second => (
-    is         => 'rw',
-    isa        => 'SObject',
-    reader     => 'get_second',
-    writer     => 'set_second',
-    required   => 1,
-    init_arg   => 'second',
+  is       => 'rw',
+  isa      => 'SObject',
+  reader   => 'get_second',
+  writer   => 'set_second',
+  required => 1,
+  init_arg => 'second',
 );
 
 has type => (
-    is         => 'rw',
-    isa        => 'Mapping',
-    reader     => 'get_type',
-    writer     => 'set_type',
-    required   => 1,
-    weak_ref   => 0,
+  is       => 'rw',
+  isa      => 'Mapping',
+  reader   => 'get_type',
+  writer   => 'set_type',
+  required => 1,
+  weak_ref => 0,
 );
 
 has history_object => (
-    is         => 'rw',
-    isa        => 'SHistory',
-    handles => [qw{ set_history get_history AddHistory search_history UnchangedSince GetAge history_as_text}]
+  is      => 'rw',
+  isa     => 'SHistory',
+  handles => [
+    qw{ set_history get_history AddHistory search_history UnchangedSince GetAge history_as_text}
+  ]
 );
 
 has direction_reln => (
-    is         => 'rw',
-    reader     => 'get_direction_reln',
-    writer     => 'set_direction_reln',
-);
- 
-has holeyness => (
-    is         => 'rw',
-    isa        => 'Bool',
-    reader     => 'get_holeyness',
-    writer => 'set_holeyness',
+  is     => 'rw',
+  reader => 'get_direction_reln',
+  writer => 'set_direction_reln',
 );
 
+has holeyness => (
+  is     => 'rw',
+  isa    => 'Bool',
+  reader => 'get_holeyness',
+  writer => 'set_holeyness',
+);
 
 sub BUILD {
   my $self = shift;
   my ( $f, $s ) = $self->get_ends();
-  # $self->set_direction_reln(FindMapping( $f->get_direction, $s->get_direction() ));
-  $self->set_holeyness(SWorkspace->are_there_holes_here( $f, $s ));
-  $self->history_object(SHistory->new());
-}
 
+# $self->set_direction_reln(FindMapping( $f->get_direction, $s->get_direction() ));
+  $self->set_holeyness( SWorkspace->are_there_holes_here( $f, $s ) );
+  $self->history_object( SHistory->new() );
+}
 
 sub get_ends {
   my ($self) = @_;
@@ -79,12 +80,14 @@ sub get_ends {
 
 sub get_extent {
   my ($self) = @_;
-  return ($self->get_first()->get_left_edge(), $self->get_second()->get_right_edge());
+  return ( $self->get_first()->get_left_edge(),
+    $self->get_second()->get_right_edge() );
 }
 
 sub are_ends_contiguous {
   my ($self) = @_;
-  return $self->get_first()->get_right_edge() + 1 == $self->get_second()->get_left_edge() ? 1 : 0;
+  return $self->get_first()->get_right_edge() + 1 ==
+  $self->get_second()->get_left_edge() ? 1 :0;
 }
 
 sub insert {
@@ -141,7 +144,7 @@ sub get_pure {
 }
 
 sub SuggestCategory {
-  my ($self)   = @_;
+  my ($self) = @_;
   my $category = $self->get_type()->get_category();
   if ( $category eq $S::NUMBER ) {
     my $str = $self->get_type()->get_name();
@@ -182,7 +185,7 @@ sub as_text {
   return "$first_location --> $second_location: " . $self->get_type()->as_text;
 }
 
- sub FlippedVersion {
+sub FlippedVersion {
   my ($self) = @_;
   my $flipped_type = $self->get_type()->FlippedVersion() // return;
   return SRelation->new(

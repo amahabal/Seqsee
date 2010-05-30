@@ -67,15 +67,16 @@ sub build {
   my $foot = $args_ref->{foot};
   my $peak = $args_ref->{peak};
 
-  my $foot_mag = ref($foot) ? $foot->get_mag : $foot;
-  my $peak_mag = ref($peak) ? $peak->get_mag : $peak;
+  my $foot_mag = ref($foot) ? $foot->get_mag :$foot;
+  my $peak_mag = ref($peak) ? $peak->get_mag :$peak;
 
   return if $peak_mag < $foot_mag;
 
   my $ret =
   ( $foot_mag == $peak_mag )
   ? SObject->create($foot_mag)
-  :SObject->create( $foot_mag .. $peak_mag, reverse( $foot_mag .. $peak_mag - 1 ) );
+  :SObject->create( $foot_mag .. $peak_mag,
+    reverse( $foot_mag .. $peak_mag - 1 ) );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
   $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
   return $ret;
