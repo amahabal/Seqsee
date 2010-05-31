@@ -7,22 +7,9 @@ use SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
 
+extends 'Scripts';
+
 my $package_name_ = "DescribeSolution";
-use Exception::Class (
-  'SErr::ScriptReturn' => {},
-  'SErr::CallSubscript' => {fields => ['name', 'arguments']},
-);
-
-sub RETURN {
-  print "RETURN\n";
-  SErr::ScriptReturn->throw();
-}
-
-sub SCRIPT {
-  my ($name, $arguments) = @_;
-  print "SCRIPT($name)\n";
-  SErr::CallSubscript->throw(name => $name, arguments => $arguments);
-}
 
 class_has step => (
   traits => ['Array'],
@@ -35,14 +22,14 @@ class_has step => (
       my $ruleapp = $group->get_underlying_reln();
       unless ($ruleapp) {
         print "Returning\n";
-        RETURN;
+        RETURN();
       }
       my $rule               = $ruleapp->get_rule;
       my $position_structure = PositionStructure->Create($group);
       if (
         SolutionConfirmation->HasThisBeenRejected( $rule, $position_structure ) )
       {
-        RETURN;
+        RETURN();
       }
       say "Reached end!";
     },
@@ -52,17 +39,17 @@ class_has step => (
         SWorkspace::DeleteObjectsInconsistentWith($ruleapp);
       }
       main::message( "I will describe the solution now!", 1 );
-      SCRIPT 'DescribeInitialBlemish', { group => $group };
+      Scripts::SCRIPT('DescribeInitialBlemish', { group => $group });
     },
     sub {
       my ($group) = @_;
-      SCRIPT 'DescribeBlocks', { group => $group };
+      Scripts::SCRIPT('DescribeBlocks', { group => $group });
     },
     sub {
       my ($group) = @_;
       my $ruleapp = $group->get_underlying_reln();
       my $rule    = $ruleapp->get_rule();
-      SCRIPT 'DescribeRule', { rule => $rule, ruleapp => $ruleapp };
+      Scripts::SCRIPT('DescribeRule', { rule => $rule, ruleapp => $ruleapp });
     },
     sub {
       my ($group) = @_;
