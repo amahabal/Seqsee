@@ -1,11 +1,20 @@
 package Mapping::Position;
-use 5.10.0;
-use strict;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Carp;
-use Class::Std;
+use Smart::Comments;
 use Class::Multimethods;
 
-my %text_of : ATTR(:name<text>);
+has text => (
+    is         => 'rw',
+    isa        => 'Str',
+    reader     => 'get_text',
+    writer     => 'set_text',
+    init_arg   => 'text',
+    required   => 1,
+    weak_ref   => 0,
+);
 
 sub create {
   my ( $package, $text ) = @_;
@@ -23,7 +32,7 @@ sub get_memory_dependencies { return; }
 
 sub serialize {
   my ($self) = @_;
-  return $text_of{ ident $self};
+  return $self->get_text;
 }
 
 sub deserialize {
@@ -44,7 +53,7 @@ my $relation_finder = sub {
 
 sub as_text {
   my ($self) = @_;
-  return "Mapping::Position " . $text_of{ ident $self};
+  return "Mapping::Position " . $self->get_text;
 }
 
 multimethod FindMapping => qw(SPos SPos) => $relation_finder;
@@ -69,10 +78,9 @@ sub IsEffectivelyASamenessRelation {
 
 sub FlippedVersion {
   my ($self) = @_;
-  my $id = ident $self;
   state $FlipName = {qw{same same pred succ succ pred }};
-  return Mapping::Position->create( $FlipName->{ $text_of{$id} } );
+  return Mapping::Position->create( $FlipName->{ $self->get_text() } );
 }
-
+__PACKAGE__->meta->make_immutable;
 1;
 

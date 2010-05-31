@@ -1,14 +1,31 @@
 package Mapping::Numeric;
-use 5.10.0;
-use strict;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Carp;
-use Class::Std;
 use Smart::Comments;
-use base qw{Mapping};
 use Memoize;
 
-my %name_of : ATTR(:name<name>);
-my %category_of : ATTR(:name<category>);
+extends 'Mapping';
+has name => (
+    is         => 'rw',
+    isa        => 'Str',
+    reader     => 'get_name',
+    writer     => 'set_name',
+    init_arg   => 'name',
+    required   => 1,
+    weak_ref   => 0,
+);
+
+has category => (
+    is         => 'rw',
+    reader     => 'get_category',
+    writer     => 'set_category',
+    init_arg   => 'category',
+    required   => 1,
+    weak_ref   => 0,
+);
+
 
 sub create {
   my ( $package, $name, $category ) = @_;
@@ -24,8 +41,7 @@ sub create {
 
 sub serialize {
   my ($self) = @_;
-  my $id = ident $self;
-  return SLTM::encode( $name_of{$id}, $category_of{$id} );
+  return SLTM::encode( $self->get_name(), $self->get_category() );
 }
 
 sub deserialize {
@@ -35,8 +51,7 @@ sub deserialize {
 
 sub get_memory_dependencies {
   my ($self) = @_;
-  my $id = ident $self;
-  return $category_of{$id};
+  return $self->get_category();
 }
 
 sub get_pure {
@@ -45,36 +60,32 @@ sub get_pure {
 
 sub FlippedVersion {
   my ($self) = @_;
-  my $id = ident $self;
   state $FlipName =
   {qw{same same pred succ succ pred flip flip no_flip no_flip}};
-  return Mapping::Numeric->create( $FlipName->{ $name_of{$id} },
-    $category_of{$id} );
+  return Mapping::Numeric->create( $FlipName->{ $self->get_name() },
+    $self->get_category() );
 }
 
 sub IsEffectivelyASamenessRelation {
   my ($self) = @_;
-  my $id = ident $self;
-  return $name_of{$id} eq 'same' ? 1 :0;
+  return $self->get_name() eq 'same' ? 1 :0;
 }
 
 sub as_text {
   my ($self) = @_;
-  my $id     = ident $self;
-  my $cat    = $category_of{$id};
+  my $cat    = $self->get_category;
   my $cat_string = ( $cat eq $S::NUMBER ) ? '' :$cat->as_text() . ' ';
-  return "$cat_string$name_of{$id}";
+  return $cat_string . $self->get_name();
 }
 memoize('as_text');
 
 sub GetRelationBasedCategory {
   my ($self) = @_;
-  my $id = ident $self;
 
   return SCategory::MappingBased->Create($self)
-  unless $category_of{$id} eq $S::NUMBER;
+  unless $self->get_category() eq $S::NUMBER;
 
-  my $name = $name_of{$id};
+  my $name = $self->get_name;
   given ($name) {
     when ('succ') { return $S::ASCENDING; }
     when ('same') { return $S::SAMENESS; }
@@ -85,9 +96,8 @@ sub GetRelationBasedCategory {
 
 sub get_complexity {
   my ($self)   = @_;
-  my $id       = ident $self;
-  my $category = $category_of{$id};
-  my $name     = $name_of{$id};
+  my $category = $self->get_category;
+  my $name     = $self->get_name;
 
   given ($category) {
     when ( $category eq $S::NUMBER ) {
@@ -105,4 +115,5 @@ sub get_complexity {
 
 memoize('get_complexity');
 
+__PACKAGE__->meta->make_immutable;
 1;

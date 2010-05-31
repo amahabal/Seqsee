@@ -1,25 +1,81 @@
 package Mapping::Structural;
-use 5.10.0;
-use strict;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Carp;
-use Class::Std;
 use Smart::Comments;
+
 use Memoize;
-use base qw{Mapping};
+extends 'Mapping';
 
-my %category_of : ATTR(:name<category>);
-my %meto_mode_of : ATTR(:name<meto_mode>);
+has category => (
+    is         => 'rw',
+    reader     => 'get_category',
+    writer     => 'set_category',
+    init_arg   => 'category',
+    required   => 1,
+    weak_ref   => 0,
+);
 
-# ASSUMPTION: pos_mode_of is always forward.
+has meto_mode => (
+    is         => 'rw',
+    reader     => 'get_meto_mode',
+    writer     => 'set_meto_mode',
+    init_arg   => 'meto_mode',
+    required   => 1,
+    weak_ref   => 0,
+);
 
-my %position_reln_of : ATTR(:name<position_reln>);
-my %metonymy_reln_of : ATTR(:name<metonymy_reln>);
-my %direction_reln_of : ATTR(:name<direction_reln>);
+has position_reln => (
+    is         => 'rw',
+    reader     => 'get_position_reln',
+    writer     => 'set_position_reln',
+    init_arg   => 'position_reln',
+    required   => 1,
+    weak_ref   => 0,
+);
 
-my %slippages_of : ATTR(:name<slippages>)
-;    # Key: new attribute, Val: old attribute.
-my %changed_bindings_of_of : ATTR(:name<changed_bindings>)
-;    # Key: new attribute. Val: the transform.
+has metonymy_reln => (
+    is         => 'rw',
+    reader     => 'get_metonymy_reln',
+    writer     => 'set_metonymy_reln',
+    init_arg   => 'metonymy_reln',
+    required   => 1,
+    weak_ref   => 0,
+);
+
+has direction_reln => (
+    is         => 'rw',
+    reader     => 'get_direction_reln',
+    writer     => 'set_direction_reln',
+    init_arg   => 'direction_reln',
+    required   => 1,
+    weak_ref   => 0,
+);
+
+has slippages => (
+  # Key: new attribute, Val: old attribute.
+  traits => ['Hash'],
+  is        => 'ro',
+  isa       => 'HashRef',
+  default   => sub { {} },
+  reader => 'get_slippages',
+  handles => {
+
+  }
+);
+
+has changed_bindings => (
+  # Key: new attribute. Val: the transform.
+  traits => ['Hash'],
+  is        => 'ro',
+  isa       => 'HashRef',
+  default   => sub { {} },
+  reader  => 'get_changed_bindings',
+  handles => {
+
+  }
+);
 
 sub create {
   my ( $package, $opts_ref ) = @_;
@@ -47,30 +103,27 @@ sub create {
 
 sub FlippedVersion {
   my ($self) = @_;
-  my $id = ident $self;
 
-  ## Flipping: $self->as_text()
-
-  my $new_slippages = _FlipSlippages( $slippages_of{$id} ) // return;
+  my $new_slippages = _FlipSlippages( $self->get_slippages() ) // return;
   my $new_bindings_change =
-  _FlipChangedBindings( $changed_bindings_of_of{$id}, $slippages_of{$id} )
+  _FlipChangedBindings( $self->get_changed_bindings(), $self->get_slippages() )
   // return;
 
   ## new_slippages: $new_slippages
   ## new_bindings_change: $new_bindings_change
 
   my ( $new_position_reln, $new_metonymy_reln, $new_direction_reln );
-  $new_position_reln = $position_reln_of{$id}->FlippedVersion()
-  if ref( $position_reln_of{$id} );
-  $new_metonymy_reln = $metonymy_reln_of{$id}->FlippedVersion()
-  if ref( $metonymy_reln_of{$id} );
-  $new_direction_reln = $direction_reln_of{$id}->FlippedVersion()
-  if ref( $direction_reln_of{$id} );
+  $new_position_reln = $self->get_position_reln()->FlippedVersion()
+  if ref( $self->get_position_reln() );
+  $new_metonymy_reln = $self->get_metonymy_reln()->FlippedVersion()
+  if ref( $self->get_metonymy_reln() );
+  $new_direction_reln = $self->get_direction_reln()->FlippedVersion()
+  if ref( $self->get_direction_reln() );
 
   my $flipped = Mapping::Structural->create(
     {
-      category         => $category_of{$id},
-      meto_mode        => $meto_mode_of{$id},
+      category         => $self->get_category(),
+      meto_mode        => $self->get_meto_mode(),
       position_reln    => $new_position_reln,
       metonymy_reln    => $new_metonymy_reln,
       direction_reln   => $new_direction_reln,
@@ -121,18 +174,17 @@ sub get_pure {
 
 sub IsEffectivelyASamenessRelation {
   my ($self) = @_;
-  my $id = ident $self;
-  while ( my ( $k, $v ) = each %{ $slippages_of{$id} } ) {
+  while ( my ( $k, $v ) = each %{ $self->get_slippages() } ) {
     return unless $k eq $v;
   }
-  while ( my ( $k, $v ) = each %{ $changed_bindings_of_of{$id} } ) {
+  while ( my ( $k, $v ) = each %{ $self->get_changed_bindings() } ) {
     return unless $v->IsEffectivelyASamenessRelation();
   }
-  if ( $meto_mode_of{$id}->is_metonymy_present() ) {
-    return unless $metonymy_reln_of{$id}->IsEffectivelyASamenessRelation();
-    return unless $direction_reln_of{$id}->IsEffectivelyASamenessRelation();
-    if ( $meto_mode_of{$id}->is_position_relevant() ) {
-      return unless $position_reln_of{$id}->IsEffectivelyASamenessRelation();
+  if ( $self->get_meto_mode()->is_metonymy_present() ) {
+    return unless $self->get_metonymy_reln()->IsEffectivelyASamenessRelation();
+    return unless $self->get_direction_reln()->IsEffectivelyASamenessRelation();
+    if ( $self->get_meto_mode()->is_position_relevant() ) {
+      return unless $self->get_position_reln()->IsEffectivelyASamenessRelation();
     }
   }
 
@@ -141,23 +193,21 @@ sub IsEffectivelyASamenessRelation {
 
 sub get_memory_dependencies {
   my ($self) = @_;
-  my $id = ident $self;
 
   return grep { ref($_) } (
-    $category_of{$id},       $meto_mode_of{$id},
-    $position_reln_of{$id},  $metonymy_reln_of{$id},
-    $direction_reln_of{$id}, values %{ $changed_bindings_of_of{$id} }
+    $self->get_category(),       $self->get_meto_mode(),
+    $self->get_position_reln(),  $self->get_metonymy_reln(),
+    $self->get_direction_reln(), values %{ $self->get_changed_bindings() }
   );
 }
 
 sub as_text {
   my ($self)           = @_;
-  my $id               = ident $self;
-  my $cat_name         = $category_of{$id}->get_name();
-  my $changed_bindings = $changed_bindings_of_of{$id};
+  my $cat_name         = $self->get_category()->get_name();
+  my $changed_bindings = $self->get_changed_bindings();
   my $changed_bindings_string;
-  my $metonymy_presence = $meto_mode_of{$id}->is_metonymy_present() ? '*' :'';
-  my %slippages = %{ $slippages_of{$id} };
+  my $metonymy_presence = $self->get_meto_mode()->is_metonymy_present() ? '*' :'';
+  my %slippages = %{ $self->get_slippages() };
   if (%slippages) {
 
     while ( my ( $new, $old ) = each %slippages ) {
@@ -186,12 +236,11 @@ sub as_text {
 
 sub serialize {
   my ($self) = @_;
-  my $id = ident $self;
   return SLTM::encode(
-    $category_of{$id},      $meto_mode_of{$id},
-    $metonymy_reln_of{$id}, $direction_reln_of{$id},
-    $position_reln_of{$id}, $changed_bindings_of_of{$id},
-    $slippages_of{$id}
+    $self->get_category(),      $self->get_meto_mode(),
+    $self->get_metonymy_reln(), $self->get_direction_reln(),
+    $self->get_position_reln(), $self->get_changed_bindings(),
+    $self->get_slippages()
   );
 }
 
@@ -206,10 +255,9 @@ sub deserialize {
 
 sub get_complexity {
   my ($self) = @_;
-  my $id = ident $self;
 
   my $complexity_of_category;
-  given ( $category_of{$id} ) {
+  given ( $self->get_category() ) {
     when ( [ $S::ASCENDING, $S::DESCENDING, $S::SAMENESS ] ) {
       $complexity_of_category = 0.1
     }
@@ -220,16 +268,16 @@ sub get_complexity {
   }
 
   my $total_complexity = $complexity_of_category;
-  given ( $meto_mode_of{$id} ) {
+  given ( $self->get_meto_mode() ) {
     when ($METO_MODE::NONE) { }
     default { $total_complexity += 0.2; }
   }
 
-  for ( values %{ $changed_bindings_of_of{$id} } ) {
+  for ( values %{ $self->get_changed_bindings() } ) {
     $total_complexity += $_->get_complexity();
   }
 
-  my %slippages = %{ $slippages_of{$id} };
+  my %slippages = %{ $self->get_slippages() };
   while ( my ( $k, $v ) = each %slippages ) {
     $total_complexity += 0.2 unless $k eq $v;
   }
@@ -237,5 +285,6 @@ sub get_complexity {
   $total_complexity = 0.9 if $total_complexity > 0.9;
   return $total_complexity;
 }
-
+__PACKAGE__->meta->make_immutable;
 1;
+
