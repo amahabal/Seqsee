@@ -38,7 +38,7 @@ sub ACTION {
     {
       family  => $family,
       urgency => $urgency,
-      args    => $options,
+      arguments    => $options,
     }
   )->conditionally_run();
 }
