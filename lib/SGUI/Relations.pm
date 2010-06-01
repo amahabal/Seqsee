@@ -1,13 +1,40 @@
-SeqseeDisplay Relations is {
-  ConfigNames: {
-    RowCount End1Offset End2Offset StrengthOffset SimplicityOffset TypeOffset
-    Font
-  }
-  Variables: {
-    row_height ystart end1_x end2_x strength_x simplicity_x type_x
-    rectangle_left rectangle_right
-  }
-  Setup: {
+{
+package SGUI::Relations;
+
+use strict;
+use Carp;
+use Class::Std;
+use Config::Std;
+use base qw{};
+use List::Util qw(min max);
+use Sort::Key qw(rikeysort);
+
+my $Canvas;
+my ( $Height,  $Width );
+my ( $XOffset, $YOffset );
+
+my $Margin;
+my $EffectiveHeight;
+my $EffectiveWidth;
+
+
+my ($row_height, $ystart, $end1_x, $end2_x, $strength_x, $simplicity_x, $type_x, $rectangle_left, $rectangle_right, $RowCount, $End1Offset, $End2Offset, $StrengthOffset, $SimplicityOffset, $TypeOffset, $Font);
+
+
+    BEGIN {
+        read_config 'config/GUI_ws3.conf' => my %config;
+        $Margin = $config{Layout}{Margin};
+
+        my %layout_options = %{ $config{RelationsLayout} };
+        ($RowCount, $End1Offset, $End2Offset, $StrengthOffset, $SimplicityOffset, $TypeOffset, $Font) = @layout_options{ qw{RowCount End1Offset End2Offset StrengthOffset SimplicityOffset TypeOffset Font} };
+    }
+     
+sub Setup {
+    my $package = shift;
+    ( $Canvas, $XOffset, $YOffset, $Width, $Height ) = @_;
+    $EffectiveHeight = $Height - 2 * $Margin;
+    $EffectiveWidth  = $Width - 2 * $Margin;
+    
     $row_height      = $EffectiveHeight / $RowCount;
     $ystart          = $YOffset + $Margin + 10;
     $end1_x          = $XOffset + $Margin + $End1Offset;
@@ -17,8 +44,9 @@ SeqseeDisplay Relations is {
     $type_x          = $XOffset + $Margin + $TypeOffset;
     $rectangle_left  = $XOffset + $Margin;
     $rectangle_right = $XOffset + $Width - $Margin;
-  }
-  DrawIt: {
+  ;
+}
+  sub DrawIt {my $self = shift; 
     my $ypos      = $ystart;
     my $count     = 0;
     my @relations = values %SWorkspace::relations;
@@ -39,8 +67,7 @@ SeqseeDisplay Relations is {
       $ypos += $row_height;
       $count++;
     }
-  }
-  ExtraStuff: {
+  }  
 
     sub DrawRelation {
       my ( $reln, $ypos ) = @_;
@@ -77,5 +104,7 @@ SeqseeDisplay Relations is {
       );
     }
 
-  }
-}
+  
+    }
+1;
+

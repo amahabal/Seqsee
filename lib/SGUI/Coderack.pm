@@ -1,27 +1,64 @@
-SeqseeDisplay Coderack is {
-  ConfigNames: {
-    MaxRows MaxColumns NameOffset CountOffset UrgencyOffset
-    HistoricalFractionOffset
+{
+
+  package SGUI::Coderack;
+
+  use strict;
+  use Carp;
+  use Class::Std;
+  use Config::Std;
+  use base qw{};
+  use List::Util qw(min max);
+  use Sort::Key qw(rikeysort);
+
+  my $Canvas;
+  my ( $Height,  $Width );
+  my ( $XOffset, $YOffset );
+
+  my $Margin;
+  my $EffectiveHeight;
+  my $EffectiveWidth;
+
+  my ( $RowHeight, $ColumnWidth, $MaxRows, $MaxColumns, $NameOffset,
+    $CountOffset, $UrgencyOffset, $HistoricalFractionOffset );
+
+  use Memoize;
+  use Smart::Comments;
+
+  sub family_to_name {
+    my ($family) = @_;
+    no strict 'refs';
+    my $name = ${ $family . '::NAME' };
+    ### family, name: $family, $name
+    return $name;
   }
-  Variables: { RowHeight ColumnWidth }
-  Setup: {
+  memoize 'family_to_name';
+
+  BEGIN {
+    read_config 'config/GUI_ws3.conf' => my %config;
+    $Margin = $config{Layout}{Margin};
+
+    my %layout_options = %{ $config{CoderackLayout} };
+    (
+      $MaxRows, $MaxColumns, $NameOffset, $CountOffset, $UrgencyOffset,
+      $HistoricalFractionOffset
+    )
+    = @layout_options{
+      qw{MaxRows MaxColumns NameOffset CountOffset UrgencyOffset HistoricalFractionOffset}
+    };
+  }
+
+  sub Setup {
+    my $package = shift;
+    ( $Canvas, $XOffset, $YOffset, $Width, $Height ) = @_;
+    $EffectiveHeight = $Height - 2 * $Margin;
+    $EffectiveWidth  = $Width - 2 * $Margin;
+
     $RowHeight   = int( $EffectiveHeight / $MaxRows );
     $ColumnWidth = int( $EffectiveWidth / $MaxColumns );
   }
-  InitialCode: {
-    use Memoize;
-    use Smart::Comments;
 
-    sub family_to_name {
-      my ($family) = @_;
-      no strict 'refs';
-      my $name = ${ $family . '::NAME' };
-      ### family, name: $family, $name
-      return $name;
-    }
-    memoize 'family_to_name';
-  }
-  DrawIt: {
+  sub DrawIt {
+    my $self = shift;
     my %count;
     my %sum;
 
@@ -159,4 +196,6 @@ SeqseeDisplay Coderack is {
     }
   }
 }
+1;
+
 1;

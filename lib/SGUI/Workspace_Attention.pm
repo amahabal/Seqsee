@@ -1,22 +1,48 @@
 # Mostly copied from SGUI/Workspace.
 # Before I ever make a third similar class, I must refactor.
-SeqseeDisplay Workspace_Attention is {
-  ConfigNames: {
-    ElementsYFraction MinGpHeightFraction MaxGpHeightFraction MetoYFraction
-    RelnZenithFraction BarlineHeightFraction
-  }
-  Variables: {
-    ElementsY MinGpHeight MaxGpHeight BarlineTop BarlineBottom MetoY
-    SpacePerElement GroupHtPerUnitSpan AttentionDistribution
-  }
-  InitialCode: {
+{
+package SGUI::Workspace_Attention;
+
+use strict;
+use Carp;
+use Class::Std;
+use Config::Std;
+use base qw{};
+use List::Util qw(min max);
+use Sort::Key qw(rikeysort);
+
+my $Canvas;
+my ( $Height,  $Width );
+my ( $XOffset, $YOffset );
+
+my $Margin;
+my $EffectiveHeight;
+my $EffectiveWidth;
+
+
+my ($ElementsY, $MinGpHeight, $MaxGpHeight, $BarlineTop, $BarlineBottom, $MetoY, $SpacePerElement, $GroupHtPerUnitSpan, $AttentionDistribution, $ElementsYFraction, $MinGpHeightFraction, $MaxGpHeightFraction, $MetoYFraction, $RelnZenithFraction, $BarlineHeightFraction);
+
     use Smart::Comments;
     my %Id2Obj;
     my %Obj2Id;
     my %RelationsToHide;
     my %AnchorsForRelations;
-  }
-  Setup: {
+  
+
+    BEGIN {
+        read_config 'config/GUI_ws3.conf' => my %config;
+        $Margin = $config{Layout}{Margin};
+
+        my %layout_options = %{ $config{Workspace_AttentionLayout} };
+        ($ElementsYFraction, $MinGpHeightFraction, $MaxGpHeightFraction, $MetoYFraction, $RelnZenithFraction, $BarlineHeightFraction) = @layout_options{ qw{ElementsYFraction MinGpHeightFraction MaxGpHeightFraction MetoYFraction RelnZenithFraction BarlineHeightFraction} };
+    }
+     
+sub Setup {
+    my $package = shift;
+    ( $Canvas, $XOffset, $YOffset, $Width, $Height ) = @_;
+    $EffectiveHeight = $Height - 2 * $Margin;
+    $EffectiveWidth  = $Width - 2 * $Margin;
+    
     $ElementsY   = $YOffset + $Margin + $EffectiveHeight * $ElementsYFraction;
     $MinGpHeight = $EffectiveHeight * $MinGpHeightFraction;
     $MaxGpHeight = $EffectiveHeight * $MaxGpHeightFraction;
@@ -24,8 +50,9 @@ SeqseeDisplay Workspace_Attention is {
     $BarlineTop  = $ElementsY - $EffectiveHeight * 0.5 * $BarlineHeightFraction;
     $BarlineBottom =
     $ElementsY + $EffectiveHeight * 0.5 * $BarlineHeightFraction;
-  }
-  DrawIt: {
+  ;
+}
+  sub DrawIt {my $self = shift; 
     $self->PrepareForDrawing();
     $self->DrawLegend( 10, 10 );
     $GroupHtPerUnitSpan =
@@ -38,8 +65,7 @@ SeqseeDisplay Workspace_Attention is {
     $self->DrawRelations();
     $self->DrawBarLines();
     $self->DrawLastRunnable();
-  }
-  ExtraStuff: {
+  }  
 
     sub DrawLegend {
 
@@ -249,7 +275,9 @@ SeqseeDisplay Workspace_Attention is {
       );
     }
 
-  }
-}
+  
+    }
+1;
+
 
 1;

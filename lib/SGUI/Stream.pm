@@ -1,12 +1,46 @@
-SeqseeDisplay Stream is {
-  ConfigNames: { EntriesPerColumn ColumnCount }
-  Variables: { ColumnWidth RowHeight }
-  Setup: {
+{
+package SGUI::Stream;
+
+use strict;
+use Carp;
+use Class::Std;
+use Config::Std;
+use base qw{};
+use List::Util qw(min max);
+use Sort::Key qw(rikeysort);
+
+my $Canvas;
+my ( $Height,  $Width );
+my ( $XOffset, $YOffset );
+
+my $Margin;
+my $EffectiveHeight;
+my $EffectiveWidth;
+
+
+my ($ColumnWidth, $RowHeight, $EntriesPerColumn, $ColumnCount);
+
+
+    BEGIN {
+        read_config 'config/GUI_ws3.conf' => my %config;
+        $Margin = $config{Layout}{Margin};
+
+        my %layout_options = %{ $config{StreamLayout} };
+        ($EntriesPerColumn, $ColumnCount) = @layout_options{ qw{EntriesPerColumn ColumnCount} };
+    }
+     
+sub Setup {
+    my $package = shift;
+    ( $Canvas, $XOffset, $YOffset, $Width, $Height ) = @_;
+    $EffectiveHeight = $Height - 2 * $Margin;
+    $EffectiveWidth  = $Width - 2 * $Margin;
+    
     $ColumnWidth = int( $EffectiveWidth / $ColumnCount );
     $RowHeight   = int( $EffectiveHeight / $EntriesPerColumn );
 
-  }
-  DrawIt: {
+  ;
+}
+  sub DrawIt {my $self = shift; 
     DrawThought(
       $Global::MainStream->{CurrentThought},
       $XOffset + $Margin / 2, $YOffset,
@@ -27,8 +61,7 @@ SeqseeDisplay Stream is {
         0,    # not current tht
       );
     }
-  }
-  ExtraStuff: {
+  }  
 
     sub DrawThought {
       my ( $tht, $left, $top, $is_current ) = @_;
@@ -62,6 +95,8 @@ SeqseeDisplay Stream is {
         );
       }
     }
-  }
-}
+  
+    }
+1;
+
 1;
