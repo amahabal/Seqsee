@@ -39,7 +39,8 @@ Codelet_Family(
 
     return if SWorkspace::__AreThereHolesOrOverlap(@items);
     my $new_group;
-    TRY {
+    
+       eval { 
       my @unstarred_items = map { $_->GetUnstarred() } @items;
       ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
       SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
@@ -50,10 +51,11 @@ Codelet_Family(
         $a->CopyCategoriesTo($new_group);
         SWorkspace->add_group($new_group);
       }
-    }
-    CATCH {
-      ConflictingGroups: { return }
-    }
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ConflictingGroups')) {  return ; last CATCH_BLOCK; }die $err }
+       }
+    
   }
 );
 
@@ -136,7 +138,8 @@ Codelet_Family(
     return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
 
     my $is_this_what_is_present;
-    TRY {
+    
+       eval { 
       $is_this_what_is_present = SWorkspace->check_at_location(
         {
           start     => $next_pos,
@@ -144,12 +147,13 @@ Codelet_Family(
           what      => $expected_next_object,
         }
       );
-    }
-    CATCH {
-      ElementsBeyondKnownSought: {
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ElementsBeyondKnownSought')) { 
         return;
-      }
-    };
+      ; last CATCH_BLOCK; }die $err }
+       }
+    ;
 
     if ($is_this_what_is_present) {
       my $plonk_result =
@@ -221,10 +225,12 @@ Codelet_Family(
     ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
     SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
     my $new_group;
-    TRY { $new_group = SAnchored->create(@unstarred_items); }
-    CATCH {
-      HolesHere: { return; }
-    };
+    
+       eval {  $new_group = SAnchored->create(@unstarred_items);  };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::HolesHere')) {  return; ; last CATCH_BLOCK; }die $err }
+       }
+    ;
     return unless $new_group;
     $new_group->describe_as($category) or return;
     if ($transform) {
@@ -459,7 +465,8 @@ Codelet_Family(
     return unless @$what_next;    # 0 elts also not okay
 
     my $is_this_what_is_present;
-    TRY {
+    
+       eval { 
       $is_this_what_is_present = SWorkspace->check_at_location(
         {
           start     => $next_pos,
@@ -467,9 +474,9 @@ Codelet_Family(
           what      => $what_next
         }
       );
-    }
-    CATCH {
-      ElementsBeyondKnownSought: {
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ElementsBeyondKnownSought')) { 
         return unless EstimateAskability( $core, $transform, $end1, $end2 );
         SCodelet->new(
           'AskIfThisIsTheContinuation',
@@ -482,8 +489,9 @@ Codelet_Family(
             known_term_count => $SWorkspace::ElementCount,
           }
         )->schedule();
-      }
-    };
+      ; last CATCH_BLOCK; }die $err }
+       }
+    ;
 
     ## is_this_what_is_present:
     if ($is_this_what_is_present) {

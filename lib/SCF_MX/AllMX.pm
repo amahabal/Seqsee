@@ -103,12 +103,14 @@ Codelet_Family(
       SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
       $new_group = SAnchored->create(@unstarred_items);
       if ($new_group) {
-        TRY { $new_group->set_underlying_ruleapp($reln); }
-        CATCH {
-          UnderlyingRelnUnapplicable: {
+        
+       eval {  $new_group->set_underlying_ruleapp($reln);  };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::UnderlyingRelnUnapplicable')) { 
             return;
-          }
-        }
+          ; last CATCH_BLOCK; }die $err }
+       }
+    
         SWorkspace->add_group($new_group);
         my $reln_type = $reln->get_type();
         if ( $reln_type->isa('Mapping::Structural')

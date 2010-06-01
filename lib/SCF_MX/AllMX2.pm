@@ -25,18 +25,20 @@ Codelet_Family(
 
     my $add_to_end_p = ( $direction eq $DIR::RIGHT ) ? 1 :0;
     my $extend_success;
-    TRY {
+    
+       eval { 
       $extend_success = $object->Extend( $extension, $add_to_end_p );
-    }
-    CATCH {
-      CouldNotCreateExtendedGroup: {
+     };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::CouldNotCreateExtendedGroup')) { 
         my $msg = "Failed at extending object: " . $object->as_text() . "\n";
         $msg .=
         "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
         print STDERR $msg;
         main::message($msg);
-      }
-    }
+      ; last CATCH_BLOCK; }die $err }
+       }
+    
 
     return unless $extend_success;
     if ( SUtil::toss( $object->get_strength() / 100 ) ) {
