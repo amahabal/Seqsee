@@ -300,7 +300,7 @@ sub ExpandStepBody {
       {
             $return = qq{SAction->new({ family => "$item{Identifier}", 
                                         urgency => $item{IntOrVar},
-                                        args =>  {$item{CodeBlock}} })->conditionally_run(); \n};
+                                        arguments =>  {$item{CodeBlock}} })->conditionally_run(); \n};
       }
     };
     my $ActionFilter = Compiler::Filter::CreateFilter( 'ACTION', $ActionFilterGrammar, 'Action' );

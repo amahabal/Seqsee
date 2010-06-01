@@ -96,7 +96,7 @@ sub run {
         $name,
         10000,
         {
-          __S_T_E_P__   => 1,
+          __S_T_E_P__   => 0,
           __A_R_G_S__   => $arguments,
           __S_T_A_C_K__ => $new_stack
         }
