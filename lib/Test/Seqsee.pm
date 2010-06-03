@@ -728,7 +728,8 @@ sub RunSeqsee {
   Global->clear();
 
   my $return;
-  TRY {
+  
+       eval { 
     while (
       not Seqsee::Interaction_step_n(
         {
@@ -740,9 +741,9 @@ sub RunSeqsee {
     )
     {
     }
-  }
-  CATCH {
-    FinishedTest: {
+   };
+       if (my $err = $EVAL_ERROR) {
+          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::FinishedTest')) { 
       $return = ResultOfTestRun->new(
         {
           status => $TestOutputStatus::Successful,
@@ -752,8 +753,7 @@ sub RunSeqsee {
       ) if $err->got_it();
       confess "A SErr::FinishedTest thrown without getting it. Bad."
       unless $err->got_it();
-    }
-    NotClairvoyant: {
+    ; last CATCH_BLOCK; }if (UNIVERSAL::isa($err, 'SErr::NotClairvoyant')) { 
       $return = ResultOfTestRun->new(
         {
           status => $TestOutputStatus::RanOutOfTerms,
@@ -761,8 +761,7 @@ sub RunSeqsee {
           error  => undef,
         }
       );
-    }
-    FinishedTestBlemished: {
+    ; last CATCH_BLOCK; }if (UNIVERSAL::isa($err, 'SErr::FinishedTestBlemished')) { 
       $return = ResultOfTestRun->new(
         {
           status => $TestOutputStatus::InitialBlemish,
@@ -770,8 +769,7 @@ sub RunSeqsee {
           error  => undef,
         }
       );
-    }
-    DEFAULT: {
+    ; last CATCH_BLOCK; } 
       $return = ResultOfTestRun->new(
         {
           status => $TestOutputStatus::Crashed,
@@ -779,8 +777,9 @@ sub RunSeqsee {
           error  => "Crashed!\n$err",
         }
       );
-    }
-  }
+    ; last CATCH_BLOCK; die $err }
+       }
+    
 
   if ( $Global::Feature{LTM} ) {
     SLTM->Dump('memory_dump.dat');
