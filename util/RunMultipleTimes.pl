@@ -69,7 +69,7 @@ sub StartRun {
 
     my @cmd;
     if ($OSNAME eq 'MSWin32') {
-        @cmd = ( 'c:\perl\bin\perl',   'util/RunTestOnce.pl' );
+        @cmd = ( $EXECUTABLE_NAME,   'util/RunTestOnce.pl' );
     } else {
         @cmd = ('perl', 'util/RunTestOnce.pl');
     }

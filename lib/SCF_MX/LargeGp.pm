@@ -1,26 +1,42 @@
-CodeletFamily LargeGroup( $group! ) does {
-  NAME: { I See a Large Group }
-  RUN: {
+package SCF::LargeGroup;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+
+Codelet_Family(
+  attributes => [group => {}],
+  body => sub {
+    my ($group) = @_;
     my $flush_right = $group->IsFlushRight();
     my $flush_left  = $group->IsFlushLeft();
 
     if ( $flush_right and $flush_left ) {
-      CODELET 100, AreWeDone, { group => $group };
+      SCodelet->new('AreWeDone', 100, { group => $group } )->schedule();
     }
     elsif ( $Global::AtLeastOneUserVerification
       and $flush_right
       and!$flush_left )
     {
-      CODELET 100, MaybeStartBlemish, { group => $group };
+      SCodelet->new('MaybeStartBlemish', 100, { group => $group } )->schedule();
     }
   }
-}
+);
 
-CodeletFamily MaybeStartBlemish( $group! ) does {
-  NAME: { Maybe the Sequence Has an Initial Blemish }
-  RUN: {
+__PACKAGE__->meta->make_immutable;
 
-    #XXX runs too eagerly.
+package SCF::MaybeStartBlemish;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+
+Codelet_Family(
+  attributes => [group => {}],
+  body => sub {
+    my ($group) = @_;
     my $flush_right = $group->IsFlushRight();
     my $flush_left  = $group->IsFlushLeft();
     if ( !$flush_left ) {
@@ -41,28 +57,39 @@ CodeletFamily MaybeStartBlemish( $group! ) does {
 
           #main::message($cat->get_name());
           if ( $cat->get_name() =~ m#^Interlaced_(.*)#o ) {
-            CODELET 100, InterlacedInitialBlemish,
-            {
-              count => $1,
-              group => $group,
-              cat   => $cat,
-            };
+            SCodelet->new('InterlacedInitialBlemish', 100,
+                          {
+                            count => $1,
+                            group => $group,
+                            cat   => $cat,
+                          })->schedule();
             return;
           }
         }
 
         # So: either statecount > 1, or not interlaced.
         if ($flush_right) {
-          CODELET 100, ArbitraryInitialBlemish, { group => $group };
+          SCodelet->new('ArbitraryInitialBlemish', 100,  { group => $group } )->schedule();
         }
       }
     }
   }
-}
+);
 
-CodeletFamily InterlacedInitialBlemish( $count!, $group!, $cat! ) does {
-  NAME: { One-off Error }
-  RUN: {
+__PACKAGE__->meta->make_immutable;
+
+package SCF::InterlacedInitialBlemish;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+multimethod 'FindMapping';
+
+Codelet_Family(
+  attributes => [count => {}, group => {}, cat => {}],
+  body => sub {
+    my ($count, $group, $cat) = @_;
     return unless SWorkspace::__CheckLiveness($group);
     my @parts = @$group;
     Global::Hilit( 1, @parts );
@@ -102,14 +129,25 @@ CodeletFamily InterlacedInitialBlemish( $count!, $group!, $cat! ) does {
       ContinueWith( SThought->create($new_gp) );
     }
   }
-}
+);
 
-CodeletFamily ArbitraryInitialBlemish( $group! ) does {
-  NAME: { A Real Initial Blemish }
-  RUN: {
+__PACKAGE__->meta->make_immutable;
+
+package SCF::ArbitraryInitialBlemish;
+use 5.010;
+use MooseX::SCF;
+use English qw(-no_match_vars);
+use SCF;
+use Class::Multimethods;
+
+Codelet_Family(
+  attributes => [group => {}],
+  body => sub {
+    my ($group) = @_;
     SErr::FinishedTestBlemished->throw() if $Global::TestingMode;
-    ACTION 100, DescribeSolution, { group => $group };
+    ACTION(100, 'DescribeSolution', { group => $group });
   }
-}
+);
 
-1;
+__PACKAGE__->meta->make_immutable;
+
