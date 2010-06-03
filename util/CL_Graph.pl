@@ -6,7 +6,7 @@ use strict;
 use Smart::Comments;
 use Data::Dump::Streamer;
 
-use lib 'genlib';
+use lib 'lib';
 use SCF::All2;
 use SThought::All2;
 use SThought::LargeGp2;
@@ -191,17 +191,17 @@ GetFromSubroutine( 'Background',       'Seqsee::do_background_activity' );
 GetFromSubroutine( 'Stream',           'SStream::_think_the_current_thought' );
 GetFromSubroutine( 'GetSomethingLike', 'SWorkspace::GetSomethingLike' );
 
-for (<genlib/SThought/*2.pm>) {
+for (<lib/SThought/*2.pm>) {
     ### Thoughtfile: $_
     ThoughtFile($_);
 }
 
-for (<genlib/SCF/*2.pm>) {
+for (<lib/SCF/*2.pm>) {
     ### Codeletfile: $_
     CodeletFile($_);
 }
 
-for (<genlib/Scripts/*2.pm>) {
+for (<lib/Scripts/*2.pm>) {
     ### Scriptfile: $_
     CodeletFile($_);
 }

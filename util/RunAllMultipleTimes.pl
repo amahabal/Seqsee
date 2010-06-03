@@ -2,7 +2,7 @@ use threads;
 use threads::shared;
 use strict;
 use Tk;
-use lib 'genlib';
+use lib 'lib';
 use Test::Seqsee;
 use Global;
 use List::Util qw{min max sum};

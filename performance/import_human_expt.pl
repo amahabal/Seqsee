@@ -2,7 +2,7 @@ use 5.10.0;
 use strict;
 use Statistics::Basic qw{:all};
 
-use lib 'genlib';
+use lib 'lib';
 use Test::Seqsee;
 use Global;
 use List::Util qw{min max sum};

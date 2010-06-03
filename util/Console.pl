@@ -1,13 +1,13 @@
 use 5.10.0;
 use strict;
-use lib 'genlib';
+use lib 'lib';
 
 my $PAR_PREFIX = '';
 
 # Added to ensure that distribution runs with Par
 # If Seqsee.par missing, that is not an issue.
 BEGIN {
-    if (-e 'Seqsee.par' and not -e 'genlib') {
+    if (-e 'Seqsee.par' and not -e 'lib') {
         eval "use PAR 'Seqsee.par'";
         $PAR_PREFIX = ' -MPAR=Seqsee ';
     }
@@ -43,9 +43,9 @@ INSERT_BUTTONS: {
     my @button_config = (
         [ Compile => CreateRunPerlScriptCommand('Compiler\Compile.pl') ],
         [   DeleteGenlib => sub {
-                unlink(<genlib/*.pm>);
-                unlink(<genlib/*/*.pm>);
-                unlink(<genlib/*/*.pm>);
+                unlink(<lib/*.pm>);
+                unlink(<lib/*/*.pm>);
+                unlink(<lib/*/*.pm>);
                 }
         ],
         [ CPAN     => CreateRunPerlScriptCommand(qw{-MCPAN -e shell}) ],

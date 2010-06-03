@@ -581,7 +581,7 @@ sub RegTestHelper {
     my $FeatureSetCommand =
     join( ";", map { "\$Global::Feature{$_} = 1" } ( keys %Global::Feature ) );
     system
-    "perl  -e \"use lib 'genlib';use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
+    "perl  -e \"use lib 'lib';use Test::Seqsee; use warnings; $FeatureSetCommand; RegStat();\""
     and die "The subcommand was cancelled. exiting";
     open REG, "<", $tmp_file;
     my $VAR1;

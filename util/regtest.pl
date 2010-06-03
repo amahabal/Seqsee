@@ -1,4 +1,4 @@
-use lib 'genlib';
+use lib 'lib';
 use Test::Seqsee;
 use Getopt::Long;
 use Seqsee;

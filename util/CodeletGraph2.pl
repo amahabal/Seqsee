@@ -3,7 +3,7 @@ use Smart::Comments;
 use Data::Dump::Streamer;
 use GraphViz;
 
-use lib 'genlib';
+use lib 'lib';
 use SCF::Load;
 use SThought::Load;
 use Scripts::Load;

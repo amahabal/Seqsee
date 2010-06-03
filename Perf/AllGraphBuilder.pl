@@ -21,7 +21,7 @@ use File::Path;
 use File::Spec;
 
 # Do this to load seqsee.
-use lib 'genlib';
+use lib 'lib';
 use ResultOfTestRun;
 
 use Perf::TestSequence;

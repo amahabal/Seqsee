@@ -21,7 +21,7 @@ use warnings;
 ## END OF STANDARD INCLUDES
 
 # Do this to load seqsee.
-use lib 'genlib';
+use lib 'lib';
 use ResultOfTestRun;
 
 use Perf::TestSequence;

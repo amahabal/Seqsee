@@ -5,7 +5,7 @@ use Carp;
 use Smart::Comments;
 use Getopt::Long;
 
-use lib 'genlib';
+use lib 'lib';
 use S;
 
 use Memoize; 
