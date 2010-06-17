@@ -1,13 +1,8 @@
 # Copyright (C) 2005-2008, Abhijit Mahabal.
-use 5.10.0;
+use 5.010.001;
 use strict;
 use lib 'lib/';
 
-# Added to ensure that distribution runs with Par
-# If Seqsee.par missing, that is not an issue.
-BEGIN {
-    eval "use PAR 'Seqsee.par'" if (-e 'Seqsee.par' and not -e 'lib');
-}
 use Carp::Seqsee;
 
 use Config::Std;
