@@ -10,7 +10,6 @@ use Exception::Class (
   'SErr::Att::Extra'         => { fields => ['what'] },
   'SErr::EmptyCreate'        => {},
 
-  'SErr::UnderlyingRelnUnapplicable' => {},
   'SErr::ConflictingGroups'          => { fields => ['conflicts'] },
 
   'SErr::Code' => {},
