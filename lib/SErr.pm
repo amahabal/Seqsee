@@ -10,6 +10,13 @@ use Exception::Class (
   #  Attempted meto app not feasible. Trapped by MaybeAnnotateWithMetonym
   'SErr::MetonymNotAppicable' => {},
 
+
+  'SErr::FinishedTest'          => { fields => [qw( got_it)] },
+  'SErr::FinishedTestBlemished' => {},
+  'SErr::NotClairvoyant'        => {},
+
+  'SErr::CouldNotCreateExtendedGroup' => {},
+
   'SErr::AskUser' => {
     fields => [
       qw{already_matched
@@ -21,11 +28,6 @@ use Exception::Class (
     ]
   },
 
-  'SErr::FinishedTest'          => { fields => [qw( got_it)] },
-  'SErr::FinishedTestBlemished' => {},
-  'SErr::NotClairvoyant'        => {},
-
-  'SErr::CouldNotCreateExtendedGroup' => {},
 );
 1;
 

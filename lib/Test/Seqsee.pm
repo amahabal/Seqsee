@@ -434,7 +434,7 @@ sub RegTestHelper {
 
   print STDERR "\n****** BEGIN ANOTHER RUN: ";
 
-  eval {
+  eval { 
     while (
       !Seqsee::Interaction_step_n(
         {
@@ -443,50 +443,37 @@ sub RegTestHelper {
           update_after => $max_steps,
         }
       )
-    )
-    {
-
-      # Just do Interaction_step_n until finished...
-    }
+    ) {}
   };
-  my $err = $EVAL_ERROR;
-  my $with_error = $err ? ( " (With Exception Thrown " . ref($err) . ")" ) :"";
-  print STDERR "Done$with_error.\n";
-  ## Finished run, with steps: $Global::Steps_Finished
-  ## Workspace has this many elements: $SWorkspace::ElementCount
-
-  my $failed_requests = GetFailedRequests();
-  if ( $failed_requests > $max_false_continuations ) {
-    print STDERR
-    "+TOO MANY FAILED QUERIES ($failed_requests > $max_false_continuations)!\n";
-    print STDERR join( '; ', keys %Global::ExtensionRejectedByUser ), "\n";
-    return ( "TooManyFalseQueries", 0 );
-  }
-
-  if ($err) {
-    if ( UNIVERSAL::isa( $err, "SErr::FinishedTest" ) ) {
-      if ( $err->got_it() ) {
-        print STDERR "+GOT IT\n";
-        return ( "GotIt", $Global::Steps_Finished );
-      }
-      else {
-        confess "A SErr::FinishedTest thrown without getting it. Bad.";
-      }
-    }
-    elsif ( UNIVERSAL::isa( $err, "SErr::NotClairvoyant" ) ) {
-      print STDERR "+EXTENDED (NO MORE KNOWN TERMS)\n";
-      return ( "Extended", $Global::Steps_Finished );
-    }
-    elsif ( UNIVERSAL::isa( $err, 'SErr::FinishedTestBlemished' ) ) {
-      print STDERR "+BLEMISHED GOT IT\n";
-      return ( "BlemishedGotIt", $Global::Steps_Finished );
+  
+  my $e;
+  if ( $e = Exception::Class->caught('SErr::FinishedTest') ) {
+    if ( $e->got_it() ) {
+      print STDERR "+GOT IT\n";
+      return ( "GotIt", $Global::Steps_Finished );
     }
     else {
-
-      # print STDERR "Caught error $err";
-      print STDERR "ERROR WAS: $err\n";
-      die $err;
+      $e->rethrow;
     }
+  }
+  elsif ( $e = Exception::Class->caught('SErr::NotClairvoyant') ) {
+    print STDERR "+EXTENDED (NO MORE KNOWN TERMS)\n";
+    return ( "Extended", $Global::Steps_Finished );
+  }
+  elsif ( $e = Exception::Class->caught('SErr::FinishedTestBlemished') ) {
+    print STDERR "+BLEMISHED GOT IT\n";
+    return ( "BlemishedGotIt", $Global::Steps_Finished );
+  }
+  elsif($e = Exception::Class->caught()) {
+    my $failed_requests = GetFailedRequests();
+    if ( $failed_requests > $max_false_continuations ) {
+      print STDERR
+      "+TOO MANY FAILED QUERIES ($failed_requests > $max_false_continuations)!\n";
+      print STDERR join( '; ', keys %Global::ExtensionRejectedByUser ), "\n";
+      return ( "TooManyFalseQueries", 0 );
+    }
+
+    ref $e ? $e->rethrow : die $e;
   }
   else {
 
