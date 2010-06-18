@@ -432,10 +432,16 @@ sub AnnotateWithMetonym {
 
 sub MaybeAnnotateWithMetonym {
   my ( $self, $cat, $name ) = @_;
-  eval { $self->AnnotateWithMetonym( $cat, $name ) };
 
-  if ( my $o = $EVAL_ERROR ) {
-    confess $o unless ( UNIVERSAL::isa( $o, 'SErr::MetonymNotAppicable' ) );
+  eval {  $self->AnnotateWithMetonym( $cat, $name ) };
+  
+  my $e;
+  if ( $e = Exception::Class->caught('SErr::MetonymNotAppicable') ) {
+    # Ignore.
+  }
+  else {
+    $e = Exception::Class->caught();
+    ref $e ? $e->rethrow : die $e;
   }
 }
 

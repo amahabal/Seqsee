@@ -97,49 +97,34 @@ Codelet_Family(
     return if $is_covering;
 
     my $new_group;
-    eval {
-      my @unstarred_items = map { $_->GetUnstarred() } @$items;
-      ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
-      SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
-      $new_group = SAnchored->create(@unstarred_items);
-      if ($new_group) {
-        
-       $new_group->set_underlying_ruleapp($reln);
-    
-        SWorkspace->add_group($new_group);
-        my $reln_type = $reln->get_type();
-        if ( $reln_type->isa('Mapping::Structural')
-          or $reln_type->get_category() ne $S::NUMBER )
-        {
-          $new_group->describe_as( SCategory::MappingBased->Create($reln_type) )
-          || main::message( "Unable to describe "
-            . $new_group->as_text()
-            . "  as based on "
-            . $reln_type->as_text );
-        }
-        else {
-          state $map = {
-            same => $S::SAMENESS,
-            succ => $S::ASCENDING,
-            pred => $S::DESCENDING
-          };
-          $new_group->describe_as( $map->{ $reln_type->get_name() }
-            || confess "Should not be here ($reln_type)" );
-        }
+    my @unstarred_items = map { $_->GetUnstarred() } @$items;
+    ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
+    SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
+    $new_group = SAnchored->create(@unstarred_items);
+    if ($new_group) {      
+      $new_group->set_underlying_ruleapp($reln);
+      
+      SWorkspace->add_group($new_group);
+      my $reln_type = $reln->get_type();
+      if ( $reln_type->isa('Mapping::Structural')
+           or $reln_type->get_category() ne $S::NUMBER )
+      {
+        $new_group->describe_as( SCategory::MappingBased->Create($reln_type) )
+        || main::message( "Unable to describe "
+                          . $new_group->as_text()
+                          . "  as based on "
+                          . $reln_type->as_text );
       }
-
-    };
-    if ( my $e = $EVAL_ERROR ) {
-      if ( UNIVERSAL::isa( $e, "SErr::HolesHere" ) ) {
-        return;
+      else {
+        state $map = {
+          same => $S::SAMENESS,
+          succ => $S::ASCENDING,
+          pred => $S::DESCENDING
+        };
+        $new_group->describe_as( $map->{ $reln_type->get_name() }
+        || confess "Should not be here ($reln_type)" );
       }
-      print "HERE IN SCF::AreTheseGroupable, error is $e of type ", ref($e),
-      "\n";
-      confess $e;
     }
-
-# confess "@SWorkspace::OBJECTS New group created: $new_group, and added it to w/s";
-
   }
 );
 

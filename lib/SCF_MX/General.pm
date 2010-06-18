@@ -222,11 +222,7 @@ Codelet_Family(
     SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
     my $new_group;
     
-       eval {  $new_group = SAnchored->create(@unstarred_items);  };
-       if (my $err = $EVAL_ERROR) {
-          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::HolesHere')) {  return; ; last CATCH_BLOCK; }die $err }
-       }
-    ;
+    $new_group = SAnchored->create(@unstarred_items);
     return unless $new_group;
     $new_group->describe_as($category) or return;
     if ($transform) {

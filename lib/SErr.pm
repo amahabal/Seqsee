@@ -7,10 +7,8 @@ use Exception::Class (
   # Long-term Memory loading issues; caught by SLTM::Load. 
   'SErr::LTM_LoadFailure'    => { fields => ['what'] },
 
+  #  Attempted meto app not feasible. Trapped by MaybeAnnotateWithMetonym
   'SErr::MetonymNotAppicable' => {},
-
-  # Never thrown?
-  'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
   'SErr::AskUser' => {
     fields => [
@@ -29,6 +27,5 @@ use Exception::Class (
 
   'SErr::CouldNotCreateExtendedGroup' => {},
 );
-SErr::HolesHere->Trace(1);
 1;
 
