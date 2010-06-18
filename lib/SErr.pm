@@ -7,11 +7,6 @@ use Exception::Class (
   # Long-term Memory loading issues; caught by SLTM::Load. 
   'SErr::LTM_LoadFailure'    => { fields => ['what'] },
 
-  'SErr::ProgOver' => {},
-
-  # Thrown, never caught
-  'SErr::NotOfCat'            => {},
-
   'SErr::MetonymNotAppicable' => {},
 
   # Never thrown?

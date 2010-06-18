@@ -163,7 +163,7 @@ sub annotate_with_cat {
   my ( $self, $cat ) = @_;
   my $bindings = $self->describe_as($cat);
 
-  SErr::NotOfCat->throw() unless $bindings;
+  SErr->throw("Not of category") unless $bindings;
   return $bindings;
 }
 

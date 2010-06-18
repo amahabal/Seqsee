@@ -74,25 +74,6 @@ sub already_rejected_by_user {
   return 0;
 }
 
-# method: Seqsee_Step
-# One step of Seqsee execution.
-#
-# Details:
-#  Backround activity is things that should happen between steps, update activation etc. Done using a call to do_background_activity()
-#
-#  The call SCoderack->get_next_runnable() returns a codelet or a thought, taking into account whether a thought is scheduled, etc.
-#
-#  If a thought is returned, we should call $Global::MainStream->add_thought(), which, er, thinks the thought.
-#
-#  If it is a codelet, it should be executed, and its return value looked at: If the return value is a thought, that should also result in $Global::MainStream->add_thought(), too.
-#
-# Error Checking:
-#   * If running a codelet, traps SErr::ProgOver and SErr::Think
-#   * If running a thought, traps SErr::Think
-#
-# return value:
-#    true if prog finished
-
 sub Seqsee_Step {
   $Global::Steps_Finished++;
   SLTM->LogActivations()
@@ -114,35 +95,20 @@ sub Seqsee_Step {
   my $runnable = SCoderack->get_next_runnable();
   return unless $runnable;    # prog not yet finished!
 
-  eval {
-    if ( $runnable->isa("SCodelet") )
-    {
-      if ( $Global::Feature{CodeletTree} ) {
-        print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
-      }
-      $Global::CurrentRunnableString = "SCF::" . $runnable->[0];
-      $runnable->run();
+  if ( $runnable->isa("SCodelet") )
+  {
+    if ( $Global::Feature{CodeletTree} ) {
+      print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
     }
-    else {
-      SErr::Fatal->throw("Runnable object is $runnable: expected a SCodelet");
-    }
-    if ($Global::Sanity) {
-      SanityCheck();
-    }
-  };
-  if ( my $err = $EVAL_ERROR ) {
-    CATCH_BLOCK: {
-      if ( UNIVERSAL::isa( $err, 'SErr::ProgOver' ) ) {
-        return 1;
-
-        last CATCH_BLOCK;
-      }
-      main::default_error_handler($err);
-      last CATCH_BLOCK;
-      die $err;
-    }
+    $Global::CurrentRunnableString = "SCF::" . $runnable->[0];
+    $runnable->run();
   }
-
+  else {
+    SErr::Fatal->throw("Runnable object is $runnable: expected a SCodelet");
+  }
+  if ($Global::Sanity) {
+    SanityCheck();
+  }
   return;
 }
 
