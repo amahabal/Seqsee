@@ -41,7 +41,7 @@ sub find_range {
   my $object_str = $object->get_structure_string();
   $size == 0
   and
-  SErr::Pos::OutOfRange->throw("[obj=$object_str]index=$index, size=$size, ");
+  SErr->throw("OutOfRange [obj=$object_str]index=$index, size=$size, ");
 
   if ( $index == -1 ) {
     return [ $size - 1 ];
@@ -49,10 +49,10 @@ sub find_range {
 
   $index < 1
   and
-  SErr::Pos::OutOfRange->throw("[obj=$object_str]index=$index, size=$size, ");
+  SErr->throw("OutOfRange [obj=$object_str]index=$index, size=$size, ");
   $index > $size
   and
-  SErr::Pos::OutOfRange->throw("[obj=$object_str]index=$index, size=$size, ");
+  SErr->throw("OutOfRange [obj=$object_str]index=$index, size=$size, ");
 
   return [ $index - 1 ];
 }

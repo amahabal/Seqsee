@@ -89,15 +89,7 @@ sub INITIALIZE {
     }
 
     if ($Global::Feature{LTM}) {
-        eval { SLTM->Load('memory_dump.dat') };
-        if ($EVAL_ERROR) {
-            given (ref($EVAL_ERROR)) {
-                when ('SErr::LTM_LoadFailure') {
-                    say "Failure in loading LTM: ", $EVAL_ERROR->what();
-                }
-                confess $EVAL_ERROR;
-            }
-        }
+      SLTM->Load('memory_dump.dat');
     }
     SLTM->init();
 }

@@ -133,9 +133,6 @@ Codelet_Family(
       if ( UNIVERSAL::isa( $e, "SErr::HolesHere" ) ) {
         return;
       }
-      elsif ( UNIVERSAL::isa( $e, 'SErr::ConflictingGroups' ) ) {
-        return;
-      }
       print "HERE IN SCF::AreTheseGroupable, error is $e of type ", ref($e),
       "\n";
       confess $e;

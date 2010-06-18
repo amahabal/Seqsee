@@ -158,7 +158,7 @@ sub recalculate_edges {
 
 sub _CheckValidity {
   my @items = @_;
-  SErr::EmptyCreate->throw() unless @items;
+  SErr->throw("EmptyCreate") unless @items;
 
   # Check all anchored, no holes, no overlap.
   my $first_item = shift(@items);

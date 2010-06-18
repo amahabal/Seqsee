@@ -1,13 +1,11 @@
 # I am perhaps erring on the side of using too many..
 use strict;
 use Exception::Class (
+  #Generic error
   'SErr'                     => {},
-  'SErr::LTM_LoadFailure'    => { fields => ['what'] },
-  'SErr::Pos::OutOfRange'    => {},
-  'SErr::EmptyCreate'        => {},
 
-  ## Perhaps never thrown?
-  'SErr::ConflictingGroups'          => { fields => ['conflicts'] },
+  # Long-term Memory loading issues; caught by SLTM::Load. 
+  'SErr::LTM_LoadFailure'    => { fields => ['what'] },
 
   'SErr::ProgOver' => {},
 
@@ -19,7 +17,6 @@ use Exception::Class (
   # Never thrown?
   'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
-  # YET TO CHECK BELOW THIS
   'SErr::AskUser' => {
     fields => [
       qw{already_matched

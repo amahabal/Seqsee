@@ -52,10 +52,6 @@ Codelet_Family(
         SWorkspace->add_group($new_group);
       }
      };
-       if (my $err = $EVAL_ERROR) {
-          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ConflictingGroups')) {  return ; last CATCH_BLOCK; }die $err }
-       }
-    
   }
 );
 

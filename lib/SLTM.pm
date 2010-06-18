@@ -263,8 +263,24 @@ sub Dump {
 }
 
 # method Load( $package: Str $filename )
-sub Load {
+sub Load { # Safe, non-throwing.
   my ( $package, $filename ) = @_;
+  eval { $package->Load_Helper($filename) };
+
+  my $e;
+  if ( $e = Exception::Class->caught('SErr::LTM_LoadFailure') ) {
+      warn "Failure loading LTM: ", $e->what, "\n", $e->trace->as_string, "\n";
+      exit;
+  }
+  else {
+      $e = Exception::Class->caught();
+      ref $e ? $e->rethrow : die $e;
+  }
+}
+
+sub Load_Helper { # May throw SErr::LTM_LoadFailure
+  my ( $package, $filename ) = @_;
+
   say "Loading LTM from $filename";
   Clear();
   my $string = read_file($filename);
