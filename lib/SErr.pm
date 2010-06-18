@@ -4,23 +4,22 @@ use Exception::Class (
   'SErr'                     => {},
   'SErr::LTM_LoadFailure'    => { fields => ['what'] },
   'SErr::Pos::OutOfRange'    => {},
-  'SErr::Pos::UnExpMulti'    => {},
-  'SErr::Pos::MultipleNamed' => {},
-  'SErr::Att::Missing'       => { fields => ['what'] },
-  'SErr::Att::Extra'         => { fields => ['what'] },
   'SErr::EmptyCreate'        => {},
 
+  ## Perhaps never thrown?
   'SErr::ConflictingGroups'          => { fields => ['conflicts'] },
-
-  'SErr::Code' => {},
 
   'SErr::ProgOver' => {},
 
+  # Thrown, never caught
   'SErr::NotOfCat'            => {},
+
   'SErr::MetonymNotAppicable' => {},
 
+  # Never thrown?
   'SErr::HolesHere' => {},    #thrown by SAnchored constructor
 
+  # YET TO CHECK BELOW THIS
   'SErr::AskUser' => {
     fields => [
       qw{already_matched
