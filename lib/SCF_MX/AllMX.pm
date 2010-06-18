@@ -245,31 +245,29 @@ Codelet_Family(
       SWorkspace::__RemoveFromSupergroups_of( $ejected_object, $object );
       $object->recalculate_edges();
 
-      #main::message( "New extension! Instead of "
-      #      . $ejected_object->as_text()
-      #      . " I can use "
-      #      . $new_extension->as_text() );
-      my $extended =
-      eval { $object->Extend( $new_extension, $change_at_end_p ) };
-      if ( my $e = $EVAL_ERROR ) {
-        if ( UNIVERSAL::isa( $e, "SErr::CouldNotCreateExtendedGroup" ) ) {
-          print STDERR
-          "(structure before ejection): $structure_string_before_ejection\n";
-          print STDERR "Extending group: ", $object->as_text(), "\n";
-          print STDERR "(But effectively): ",
-          $object->GetEffectiveStructureString();
-          print STDERR "Ejected object: ",
-          $ejected_object->get_structure_string(), "\n";
-          print STDERR "(But effectively): ",
-          $ejected_object->GetEffectiveStructureString();
-          print STDERR "New object: ", $new_extension->get_structure_string(),
-          "\n";
-          print STDERR "(But effectively): ",
-          $new_extension->GetEffectiveStructureString();
-          confess "Unable to extend group!";
-        }
-        confess $e;
+      my $extended = eval {  $object->Extend( $new_extension, $change_at_end_p ) };
+      
+      my $e;
+      if ( $e = Exception::Class->caught('SErr::CouldNotCreateExtendedGroup') ) {
+        print STDERR
+        "(structure before ejection): $structure_string_before_ejection\n";
+        print STDERR "Extending group: ", $object->as_text(), "\n";
+        print STDERR "(But effectively): ",
+        $object->GetEffectiveStructureString();
+        print STDERR "Ejected object: ",
+        $ejected_object->get_structure_string(), "\n";
+        print STDERR "(But effectively): ",
+        $ejected_object->GetEffectiveStructureString();
+        print STDERR "New object: ", $new_extension->get_structure_string(),
+        "\n";
+        print STDERR "(But effectively): ",
+        $new_extension->GetEffectiveStructureString();
+        confess "Unable to extend group!";     
       }
+      elsif($e = Exception::Class->caught()) {
+        ref $e ? $e->rethrow : die $e;
+      }
+
       unless ($extended) {
 
         # main::message("Failed to extend, and no deaths!");

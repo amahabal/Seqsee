@@ -134,22 +134,22 @@ Codelet_Family(
     return if ( !defined($next_pos) or $next_pos > $SWorkspace::ElementCount );
 
     my $is_this_what_is_present;
-    
-       eval { 
-      $is_this_what_is_present = SWorkspace->check_at_location(
+    eval {       $is_this_what_is_present = SWorkspace->check_at_location(
         {
           start     => $next_pos,
           direction => $direction,
           what      => $expected_next_object,
         }
       );
-     };
-       if (my $err = $EVAL_ERROR) {
-          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::ElementsBeyondKnownSought')) { 
-        return;
-      ; last CATCH_BLOCK; }die $err }
-       }
-    ;
+    };
+    
+    my $e;
+    if ( $e = Exception::Class->caught('SErr::ElementsBeyondKnownSought') ) {
+      # Ignore.
+    }
+    elsif($e = Exception::Class->caught()) {
+      ref $e ? $e->rethrow : die $e;
+    }
 
     if ($is_this_what_is_present) {
       my $plonk_result =
