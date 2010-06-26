@@ -207,7 +207,8 @@ use MooseX::SCF;
 use English qw(-no_match_vars);
 use SCF;
 use Class::Multimethods;
-
+multimethod 'SanityCheck';
+    
 Codelet_Family(
   attributes => [ object => {}, direction => {} ],
   body       => sub {
@@ -226,17 +227,14 @@ Codelet_Family(
     }
 
     my $underlying_reln = $object->get_underlying_reln();
-    multimethod 'SanityCheck';
     if ($underlying_reln) {
       SanityCheck( $object, $underlying_reln, "Pre-extension" );
     }
 
     my $new_extension = $object->FindExtension( $direction, 1 ) or return;
-    if ( my $unstarred = $new_extension->get_is_a_metonym() ) {
-      main::message("new_extension was metonym! fixing...");
-      $new_extension = $unstarred;
-    }
-    if ( $new_extension and $new_extension ne $ejected_object ) {
+    $new_extension = $new_extension->GetConcreteObject();
+
+    if ( $new_extension ne $ejected_object ) {
       if ($underlying_reln) {
         SanityCheck( $object, $underlying_reln, "post-extension" );
       }
