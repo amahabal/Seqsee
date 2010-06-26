@@ -24,23 +24,8 @@ Codelet_Family(
     }
 
     my $add_to_end_p = ( $direction eq $DIR::RIGHT ) ? 1 :0;
-    my $extend_success;
-    
-       eval { 
-      $extend_success = $object->Extend( $extension, $add_to_end_p );
-     };
-       if (my $err = $EVAL_ERROR) {
-          CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::CouldNotCreateExtendedGroup')) { 
-        my $msg = "Failed at extending object: " . $object->as_text() . "\n";
-        $msg .=
-        "Extension: " . $extension->as_text() . " in direction $add_to_end_p\n";
-        print STDERR $msg;
-        main::message($msg);
-      ; last CATCH_BLOCK; }die $err }
-       }
-    
+    my $extend_success  = $object->SafeExtend( $extension, $add_to_end_p ) or return;
 
-    return unless $extend_success;
     if ( SUtil::toss( $object->get_strength() / 100 ) ) {
       SCodelet->new( 'AreWeDone', 100, { group => $object } )->schedule();
     }

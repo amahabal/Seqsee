@@ -285,4 +285,5 @@ sub IsNumeric {
   my $self = shift;
   return $self->does("SCategory::Numeric");
 }
+
 1;

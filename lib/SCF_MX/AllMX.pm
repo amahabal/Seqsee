@@ -6,8 +6,8 @@ Codelet_Family(
   body       => sub {
     my ( $obj, $cat ) = @_;
     if ( $obj->describe_as($cat) and $Global::Feature{LTM} ) {
-      SLTM::SpikeBy( 10, $cat );
-      SLTM::InsertISALink( $obj, $cat )->Spike(5);
+      $cat->SpikeBy( 10 );
+      $obj->InsertISALink( $cat )->Spike(5);
     }
   }
 );

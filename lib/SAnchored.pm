@@ -239,6 +239,23 @@ sub Extend {
   return 1;
 }
 
+sub SafeExtend { # Same as Extend, but traps CouldNotCreateExtendedGroup
+  scalar(@_) == 3 or confess "Need 3 arguments";
+  my ( $self, $to_insert, $insert_at_end_p ) = @_;
+
+  eval { $self->Extend($to_insert, $insert_at_end_p) };
+  
+  my $e;
+  if ( $e = Exception::Class->caught('SErr::CouldNotCreateExtendedGroup') ) {
+    return 0;
+  }
+  elsif($e = Exception::Class->caught()) {
+    ref $e ? $e->rethrow : die $e;
+  }
+
+  return 1;
+}
+
 sub Update {
   my ($self) = @_;
   $self->recalculate_edges();
