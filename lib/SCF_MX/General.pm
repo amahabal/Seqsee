@@ -41,7 +41,7 @@ Codelet_Family(
     my $new_group;
     
        eval { 
-      my @unstarred_items = map { $_->GetUnstarred() } @items;
+      my @unstarred_items = map { $_->GetConcreteObject() } @items;
       ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
       SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
       $new_group = SAnchored->create(@unstarred_items);
@@ -217,7 +217,7 @@ Codelet_Family(
       }
     }
 
-    my @unstarred_items = map { $_->GetUnstarred() } @$items;
+    my @unstarred_items = map { $_->GetConcreteObject() } @$items;
     ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
     SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
     my $new_group;

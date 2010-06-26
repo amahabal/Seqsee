@@ -105,7 +105,7 @@ sub __CheckLivenessAndDiagnose {
       if ( exists $LiveAtSomePoint{$object} ) {
         $msg .= "But was live once!\n";
       }
-      my $unstarred = $object->GetUnstarred();
+      my $unstarred = $object->GetConcreteObject();
       if ( $unstarred ne $object ) {
         $msg .= "A METONYM IS BEING CHECKED FOR LIVENESS!\n";
         if ( exists $Objects{$unstarred} ) {

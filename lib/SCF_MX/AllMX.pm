@@ -86,49 +86,50 @@ Codelet_Family(
   body       => sub {
     my ( $items, $reln ) = @_;
 
-    # Check if these are already grouped...
-    # to do that, we need to find the left and right edges
-    my ( @left_edges, @right_edges );
+    my @items =  SWorkspace::__SortLtoRByLeftEdge(@{$items}) or return;
 
-    for (@$items) {
-      SWorkspace::__CheckLiveness($_) or return;
-      push @left_edges,  $_->get_left_edge;
-      push @right_edges, $_->get_right_edge;
+    # Create potential group first:
+    my @concrete_items = map { $_->GetConcreteObject() } @$items;
+    ### require: SWorkspace::__CheckLivenessAtSomePoint(@concrete_items)
+    SWorkspace::__CheckLiveness(@concrete_items) or return;   # dead objects.
+
+    my $new_group = SAnchored->create(@concrete_items) or return; # Failed _CheckValidity!
+
+    my $conflicts = SWorkspace::__FindGroupsConflictingWith($new_group);
+
+    if ($conflicts->exact_conflict) {
+      return; # Already exists!
     }
-    my $left_edge  = List::Util::min(@left_edges);
-    my $right_edge = List::Util::max(@right_edges);
-    my $is_covering =
-    scalar( SWorkspace::__GetObjectsWithEndsBeyond( $left_edge, $right_edge ) );
-    return if $is_covering;
 
-    my $new_group;
-    my @unstarred_items = map { $_->GetUnstarred() } @$items;
-    ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
-    SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
-    $new_group = SAnchored->create(@unstarred_items);
-    if ($new_group) {      
-      $new_group->set_underlying_ruleapp($reln);
+    if ($conflicts->has_overlapping_conflicts() ) {
+      # Should I fight?
+      if (SUtil::toss(0.2)) {
+        $conflicts->Resolve() or return;
+      }
+    }
+
+    # If we get here, all conflicting incumbents are dead.
+    $new_group->set_underlying_ruleapp($reln);
       
-      SWorkspace->add_group($new_group);
-      my $reln_type = $reln->get_type();
-      if ( $reln_type->isa('Mapping::Structural')
-           or $reln_type->get_category() ne $S::NUMBER )
-      {
-        $new_group->describe_as( SCategory::MappingBased->Create($reln_type) )
-        || main::message( "Unable to describe "
-                          . $new_group->as_text()
-                          . "  as based on "
-                          . $reln_type->as_text );
-      }
-      else {
-        state $map = {
-          same => $S::SAMENESS,
-          succ => $S::ASCENDING,
-          pred => $S::DESCENDING
-        };
-        $new_group->describe_as( $map->{ $reln_type->get_name() }
-        || confess "Should not be here ($reln_type)" );
-      }
+    SWorkspace->add_group($new_group);
+    my $reln_type = $reln->get_type();
+    if ( $reln_type->isa('Mapping::Structural')
+         or $reln_type->get_category() ne $S::NUMBER )
+    {
+      $new_group->describe_as( SCategory::MappingBased->Create($reln_type) )
+      || main::message( "Unable to describe "
+                        . $new_group->as_text()
+                        . "  as based on "
+                        . $reln_type->as_text );
+    }
+    else {
+      state $map = {
+        same => $S::SAMENESS,
+        succ => $S::ASCENDING,
+        pred => $S::DESCENDING
+      };
+      $new_group->describe_as( $map->{ $reln_type->get_name() }
+      || confess "Should not be here ($reln_type)" );
     }
   }
 );

@@ -410,7 +410,7 @@ sub GetEffectiveStructureString {
   return SUtil::StructureToString( $self->GetEffectiveStructure() );
 }
 
-sub GetUnstarred {
+sub GetConcreteObject {
   my ($self) = @_;
   return $self->get_is_a_metonym() || $self;
 }

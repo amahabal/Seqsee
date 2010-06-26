@@ -23,6 +23,7 @@ has overlapping_conflicts => (
   isa     => 'ArrayRef[SObject]',
   default => sub { [] },
   handles => {
+    has_overlapping_conflicts  => 'count',
     overlapping_conflict_count => 'count',
     all_overlapping_conflicts  => 'elements'
   }

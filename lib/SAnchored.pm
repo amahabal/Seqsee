@@ -53,7 +53,7 @@ has right_edge => (
 #      apply_reln_scheme recalculate_categories get_pure
 #      HasAsItem HasAsPartDeep
 #      SetMetonym SetMetonymActiveness GetEffectiveObject GetEffectiveStructure
-#      GetEffectiveStructureString GetUnstarred AnnotateWithMetonym
+#      GetEffectiveStructureString GetConcreteObject AnnotateWithMetonym
 #      MaybeAnnotateWithMetonym IsThisAMetonymedObject
 #      ContainsAMetonym
 #      AddRelation RemoveRelation RemoveAllRelations get_relation
