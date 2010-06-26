@@ -152,7 +152,7 @@ sub _think_the_current_thought {
 
   if ($hit_with) {
     my $new_thought = SCodelet->new(
-      'AreRelated',
+      'ActOnOverlappingThoughts',
       100,
       {
         a => $hit_with,
@@ -373,7 +373,7 @@ This module will probably undergo the greatest amounts of change when I start wo
 
 =over
 
-=item _is_there_a_hit currently returns a single matching thought. If there is any match whatsoever, something is returned. With this return value, the codelet AreRelated is always launched. _is_there_a_hit should instead return a smart value which will be sensitive to the type of the match and the level of the match. Currently, the type of the match is very crudely approximated by the method thoughtTypeMatch.
+=item _is_there_a_hit currently returns a single matching thought. If there is any match whatsoever, something is returned. With this return value, the codelet ActOnOverlappingThoughts is always launched. _is_there_a_hit should instead return a smart value which will be sensitive to the type of the match and the level of the match. Currently, the type of the match is very crudely approximated by the method thoughtTypeMatch.
 
 =back
 

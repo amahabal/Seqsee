@@ -21,53 +21,58 @@ Codelet_Family(
     my ($what) = @_;
     if ($what) {
       ContinueWith( SThought->create($what) );
+    } else {
+      # Equivalent to Reader
+      if ( SUtil::toss(0.3) ) {
+        SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
+        return;
+      }
+      my $object = SWorkspace::__ReadObjectOrRelation() // return;
+      main::message( "Focusing on: " . $object->as_text() ) if $Global::debugMAX;
+      ContinueWith( SThought->create($object) );
     }
-
-    # Equivalent to Reader
-    if ( SUtil::toss(0.1) ) {
-      SWorkspace::__CreateSamenessGroupAround($SWorkspace::ReadHead);
-      return;
-    }
-    my $object = SWorkspace::__ReadObjectOrRelation() // return;
-    main::message( "Focusing on: " . $object->as_text() ) if $Global::debugMAX;
-    ContinueWith( SThought->create($object) );
   }
 );
 
-package SCF::AreRelated;
+package SCF::ActOnOverlappingThoughts;
 use MooseX::SCF;
 use English qw(-no_match_vars);
 use SCF;
+
+use Class::Multimethods;
+
+# By default, do nothing.
+multimethod ActionForThoughtTypes => ('*', '*') => sub { return; };
+
+multimethod ActionForThoughtTypes => ('SRelation', 'SRelation') => sub {
+  my ($a_core, $b_core) = @_;
+  ACTION(
+    100,
+    FindIfRelatedRelations => {
+      a => $a_core,
+      b => $b_core
+    }
+  );
+};
+
+multimethod ActionForThoughtTypes => ('SObject', 'SObject') => sub {
+  my ($a_core, $b_core) = @_;
+  ACTION(
+    100,
+    FindIfRelated => {
+      a => $a_core,
+      b => $b_core
+    }
+  );
+};
+
 Codelet_Family(
   attributes => [ a => {}, b => {} ],
   body       => sub {
     my ( $a, $b ) = @_;
     my $a_core = $a->can('core') ? $a->core() :undef;
     my $b_core = $b->can('core') ? $b->core() :undef;
-
-    ## $a_core, $b_core
-
-    if ( $a_core and $b_core ) {
-      if ( $a_core->isa("SObject") and $b_core->isa("SObject") ) {
-        ACTION(
-          100,
-          FindIfRelated => {
-            a => $a_core,
-            b => $b_core
-          }
-        );
-      }
-      elsif ( $a_core->isa("SRelation") and $b_core->isa("SRelation") ) {
-        ## I am comparing two relations!
-        ACTION(
-          100,
-          FindIfRelatedRelations => {
-            a => $a_core,
-            b => $b_core
-          }
-        );
-      }
-    }
+    ActionForThoughtTypes($a_core, $b_core);
   }
 );
 
