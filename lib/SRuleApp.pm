@@ -43,6 +43,12 @@ has direction => (
     weak_ref   => 0,
 );
 
+sub BUILD {
+  my $self = shift;
+  if ($self->get_direction() ne $DIR::RIGHT) {
+    confess "Expected direction to be right!";
+  }
+}
 sub CheckConsitencyOfGroup {       #CHECK THIS CODE
   my ( $self, $group ) = @_;
 
@@ -72,11 +78,10 @@ sub FindExtension {
   my $direction_to_extend_in = $opts_ref->{direction_to_extend_in}
   or confess "need direction_to_extend_in";
   my $skip_this_many_elements = $opts_ref->{skip_this_many_elements} || 0;
-  my $direction_of_self = $self->get_direction;
 
   return if $skip_this_many_elements >= scalar(@items);
   my ( $last_object, $relation_to_use );
-  if ( $direction_of_self eq $direction_to_extend_in ) {
+  if ( $direction_to_extend_in eq $DIR::RIGHT ) {
     $last_object     = $items[ -1 - $skip_this_many_elements ];
     $relation_to_use = $rule->get_transform;
   }
@@ -236,30 +241,12 @@ sub ExtendBackward {
 
 sub ExtendRight {
   my ( $self, $steps ) = @_;
-  my $direction = $self->get_direction;
-  if ( $direction eq $DIR::RIGHT ) {
-    $self->ExtendForward($steps);
-  }
-  elsif ( $direction eq $DIR::LEFT ) {
-    $self->ExtendBackward($steps);
-  }
-  else {
-    confess "Huh?";
-  }
+  $self->ExtendForward($steps);
 }
 
 sub ExtendLeft {
   my ( $self, $steps ) = @_;
-  my $direction = $self->get_direction;
-  if ( $direction eq $DIR::LEFT ) {
-    $self->ExtendForward($steps);
-  }
-  elsif ( $direction eq $DIR::RIGHT ) {
-    $self->ExtendBackward($steps);
-  }
-  else {
-    confess "Huh?";
-  }
+  $self->ExtendBackward($steps);
 }
 
 sub ExtendLeftMaximally {
@@ -282,17 +269,7 @@ sub get_span {
 sub get_edges {
   my ($self) = @_;
   my @items  = $self->get_all_items;
-  given ( $self->get_direction ) {
-    when ($DIR::RIGHT) {
-      return ( $items[0]->get_left_edge(), $items[-1]->get_right_edge() );
-    }
-    when ($DIR::LEFT) {
-      return ( $items[-1]->get_left_edge(), $items[0]->get_right_edge() );
-    }
-    default {
-      confess "Huh?";
-    }
-  }
+  return ( $items[0]->get_left_edge(), $items[-1]->get_right_edge() );
 }
 
 
