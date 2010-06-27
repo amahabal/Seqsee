@@ -1597,7 +1597,7 @@ sub DeleteObjectsInconsistentWith {
   my ($ruleapp) = @_;
 
   for my $rel ( values %relations ) {
-    my $is_consistent = $ruleapp->CheckConsitencyOfRelation($rel);
+    ## TODO: We don't always need to delete!
     $rel->uninsert();
   }
 

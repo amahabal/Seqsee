@@ -1,24 +1,50 @@
 package SRuleApp;
-use 5.10.0;
-use strict;
+use 5.010;
+use Moose;
+use English qw( -no_match_vars );
 use Carp;
-use Class::Std;
-use English qw{-no-match-vars};
 use Smart::Comments;
+
 use Class::Multimethods;
 use Try::Tiny;
 
 multimethod 'ApplyMapping';
 multimethod 'FindMapping';
 
-my %Rule_of : ATTR(:name<rule>);   # The underlying rule.
-my %Items_of : ATTR(:name<items>); # Objects to which the rule has been applied.
-my %Direction_of : ATTR(:name<direction>)
-;                                  # Direction of application (Right/Left).
+has rule => (
+    is         => 'rw',
+    reader     => 'get_rule',
+    writer     => 'set_rule',
+    init_arg   => 'rule',
+    required   => 1,
+);
+
+has item => (
+  traits => ['Array'],
+  is        => 'ro',
+  isa       => 'ArrayRef',
+  default   => sub { [] },
+  init_arg => 'items',
+    writer => 'set_items',
+    reader => 'get_items',
+  handles => {
+    'get_all_items' => 'elements',
+    'push_item' => 'push',
+    'unshift_item' => 'unshift'
+  }
+);
+
+has direction => (
+    is         => 'rw',
+    reader     => 'get_direction',
+    writer     => 'set_direction',
+    init_arg   => 'direction',
+    required   => 1,
+    weak_ref   => 0,
+);
 
 sub CheckConsitencyOfGroup {       #CHECK THIS CODE
   my ( $self, $group ) = @_;
-  my $id = ident $self;
 
   # If the ruleapp does not fully cover group, it is still consistent
   my ( $left,    $right )    = $self->get_edges();
@@ -29,7 +55,7 @@ sub CheckConsitencyOfGroup {       #CHECK THIS CODE
   # Reasons for consistency:
   # a: is an item.
   # b: is an item of the item etc.
-  for my $item ( @{ $Items_of{$id} } ) {
+  for my $item ( $self->get_all_items ) {
     return 1 if $group eq $item;    #Reason a
     return 1 if $item->HasAsPartDeep($group);    # Reason b
   }
@@ -37,47 +63,25 @@ sub CheckConsitencyOfGroup {       #CHECK THIS CODE
   return 0;
 }
 
-sub CheckConsitencyOfRelation {                  #CHECK THIS CODE
-  my ( $self, $reln ) = @_;
-  return 1;
-  my $id    = ident $self;
-  my @items = @{ $Items_of{$id} };
-
-  # If the ruleapp does not fully cover either end, it in not inconsistent
-  my ( $left, $right ) = $self->get_edges();
-  my ( $end1, $end2 )  = $reln->get_ends();
-  my ( $e1left, $e1right, $e2left, $e2right ) =
-  map { $_->get_edges() } ( $end1, $end2 );
-  my $some_end_overlaps = 0;
-
-  # Check if end1 overlaps:
-  if ( $e1left >= $left and $e1right <= $right ) {
-
-  }
-}
-
 sub FindExtension {
   my ( $self, $opts_ref ) = @_;
-  my $id = ident $self;
 
-  my $rule      = $Rule_of{$id};
-  my $items_ref = $Items_of{$id};
+  my $rule      = $self->get_rule;
+  my @items = $self->get_all_items;
 
   my $direction_to_extend_in = $opts_ref->{direction_to_extend_in}
   or confess "need direction_to_extend_in";
   my $skip_this_many_elements = $opts_ref->{skip_this_many_elements} || 0;
-  my $direction_of_self = $Direction_of{$id};
+  my $direction_of_self = $self->get_direction;
 
-# print "FindExtension: ruleapp dir ", $direction_of_self->as_text, " to extend in ", $direction_to_extend_in->as_text, "\n";
-
-  return if $skip_this_many_elements >= scalar(@$items_ref);
+  return if $skip_this_many_elements >= scalar(@items);
   my ( $last_object, $relation_to_use );
   if ( $direction_of_self eq $direction_to_extend_in ) {
-    $last_object     = $items_ref->[ -1 - $skip_this_many_elements ];
+    $last_object     = $items[ -1 - $skip_this_many_elements ];
     $relation_to_use = $rule->get_transform;
   }
   else {
-    $last_object     = $items_ref->[$skip_this_many_elements];
+    $last_object     = $items[$skip_this_many_elements];
     $relation_to_use = $rule->get_flipped_transform;
   }
 
@@ -101,7 +105,7 @@ sub FindExtension {
       trust_level => 50 * $self->get_span() / ( $SWorkspace::ElementCount + 1 )
       ,                                   # !!
       reason => '',    # 'Extension attempted for: ' . $rule->as_text(),
-      hilit_set => [@$items_ref],
+      hilit_set => [@items],
     }
   );
 
@@ -140,13 +144,13 @@ sub _ExtendOneStep {
   my $reln;
   given ($extend_at_start_or_end) {
     when ('end') {
-      push @$items_ref, $wso;
+      push @{$items_ref}, $wso;
       my $transform = FindMapping( $object_at_end, $wso ) or return;
       $reln = SRelation->new(
         { first => $object_at_end, second => $wso, type => $transform } );
     }
     when ('start') {
-      unshift @$items_ref, $wso;
+      unshift @{$items_ref}, $wso;
       my $transform = FindMapping( $wso, $object_at_end ) or return;
       $reln = SRelation->new(
         { first => $wso, second => $object_at_end, type => $transform } );
@@ -164,22 +168,21 @@ sub _ExtendOneStep {
 
 sub _ExtendSeveralSteps {
   my ( $self, $extend_at_start_or_end, $steps ) = @_;
-  my $id = ident $self;
   $steps //= 1;
 
   my $index_of_end = ( $extend_at_start_or_end eq 'end' ) ? -1 :0;
 
-  my $direction_to_extend_in = $Direction_of{$id};
-  my @items                  = @{ $Items_of{$id} };
+  my $direction_to_extend_in = $self->get_direction;
+  my @items                  = $self->get_all_items;
   my $count                  = scalar(@items);
-  my $rule                   = $Rule_of{$id};
+  my $rule                   = $self->get_rule;
   my $transform              = $rule->get_transform();
 
   for ( 1 .. $steps ) {
     my $current_end = $items[$index_of_end];
     my $success;
 
-    try {
+    eval { 
       $success = _ExtendOneStep(
         {
           items_ref              => \@items,
@@ -189,35 +192,34 @@ sub _ExtendSeveralSteps {
           extend_at_start_or_end => $extend_at_start_or_end,
         }
       );
-    }
-    catch {
-      main::message("In catch block");
-      if ( UNIVERSAL::isa( $_, 'SErr::ElementsBeyondKnownSought' ) ) {
-        my $trust_level =
-        0.5 *
-        List::Util::sum( map { $_->get_span() } @items ) /
-        $SWorkspace::ElementCount;
-        return unless SUtil::toss($trust_level);
-        SCoderack->add_codelet(
-          SCodelet->new(
-            'MaybeAskTheseTerms',
-            10000,
-            {
-              core      => $self,
-              exception => $_,
-            }
-          )
-        );
-        return;
-      }
-      else {
-        die $_;
-      }
     };
-
+    
+    my $e;
+    if ( $e = Exception::Class->caught('SErr::ElementsBeyondKnownSought') ) {
+      my $trust_level =
+      0.5 *
+      List::Util::sum( map { $_->get_span() } @items ) /
+      $SWorkspace::ElementCount;
+      return unless SUtil::toss($trust_level);
+      SCoderack->add_codelet(
+        SCodelet->new(
+          'MaybeAskTheseTerms',
+          10000,
+          {
+            core      => $self,
+            exception => $_,
+          }
+        )
+      );
+      return;   
+    }
+    elsif($e = Exception::Class->caught()) {
+      ref $e ? $e->rethrow : die $e;
+    }
     return unless $success;
   }
-  $Items_of{$id} = \@items;
+
+  $self->set_items([@items]);
   Global::UpdateGroupStrengthByConsistency();
   return 1;
 }
@@ -234,7 +236,7 @@ sub ExtendBackward {
 
 sub ExtendRight {
   my ( $self, $steps ) = @_;
-  my $direction = $Direction_of{ ident $self};
+  my $direction = $self->get_direction;
   if ( $direction eq $DIR::RIGHT ) {
     $self->ExtendForward($steps);
   }
@@ -248,7 +250,7 @@ sub ExtendRight {
 
 sub ExtendLeft {
   my ( $self, $steps ) = @_;
-  my $direction = $Direction_of{ ident $self};
+  my $direction = $self->get_direction;
   if ( $direction eq $DIR::LEFT ) {
     $self->ExtendForward($steps);
   }
@@ -262,8 +264,6 @@ sub ExtendLeft {
 
 sub ExtendLeftMaximally {
   my ($self) = @_;
-  my $id = ident $self;
-
   while ( $self->ExtendLeft(1) ) {
   }
 }
@@ -281,9 +281,8 @@ sub get_span {
 
 sub get_edges {
   my ($self) = @_;
-  my $id     = ident $self;
-  my @items  = @{ $Items_of{$id} };
-  given ( $Direction_of{$id} ) {
+  my @items  = $self->get_all_items;
+  given ( $self->get_direction ) {
     when ($DIR::RIGHT) {
       return ( $items[0]->get_left_edge(), $items[-1]->get_right_edge() );
     }
@@ -296,4 +295,6 @@ sub get_edges {
   }
 }
 
+
+__PACKAGE__->meta->make_immutable;
 1;
