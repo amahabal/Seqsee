@@ -20,7 +20,7 @@ multimethod SanityCheck => () => sub {
   }
 };
 
-multimethod SanityCheck => qw(SElement) => sub {
+multimethod SanityCheck => qw(Seqsee::Element) => sub {
   my ($gp) = @_;
   for my $cat ( @{ $gp->get_categories } ) {
     my $bindings = $gp->GetBindingForCategory($cat)
@@ -32,7 +32,7 @@ multimethod SanityCheck => qw(SElement) => sub {
   }
 };
 
-multimethod SanityCheck => qw(SAnchored) => sub {
+multimethod SanityCheck => qw(Seqsee::Anchored) => sub {
   my ($gp) = @_;
   if ( my $underlying_ruleapp = $gp->get_underlying_reln() ) {
     SanityCheck( $gp, $underlying_ruleapp );
@@ -49,7 +49,7 @@ multimethod SanityCheck => qw(SAnchored) => sub {
   SWorkspace->are_there_holes_here(@parts) and SanityFail("Holes in group!");
 
   for my $part (@parts) {
-    $part->isa('SAnchored') or SanityFail("Unanchored part!");
+    $part->isa('Seqsee::Anchored') or SanityFail("Unanchored part!");
     $part->get_is_a_metonym() and SanityFail("Group has metonym as part");
   }
 
@@ -73,11 +73,11 @@ multimethod SanityCheck => qw(SAnchored) => sub {
   }
 };
 
-multimethod SanityCheck => qw(SAnchored SRuleApp) => sub {
+multimethod SanityCheck => qw(Seqsee::Anchored SRuleApp) => sub {
   SanityCheck( @_, '' );
 };
 
-multimethod SanityCheck => qw(SAnchored SRuleApp $) => sub {
+multimethod SanityCheck => qw(Seqsee::Anchored SRuleApp $) => sub {
   my ( $gp, $ra, $m ) = @_;
   $m = $m ? "($m) " :"";
   my @gp_parts = @$gp;

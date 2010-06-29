@@ -1,4 +1,4 @@
-package SObject;
+package Seqsee::Object;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
@@ -132,18 +132,18 @@ sub create {
 
     # If it is unblessed, it better be a number!
     unless ( ref $sole_argument ) {
-      return SElement->create( $sole_argument, 0 );
+      return Seqsee::Element->create( $sole_argument, 0 );
     }
 
     if ( ref($sole_argument) eq 'ARRAY' ) {
       return $package->create( @{$sole_argument} );
     }
 
-    # So it is an SObject of some sort...
+    # So it is an Seqsee::Object of some sort...
     my @categories = @{ $sole_argument->get_categories };
     my $new_object;
-    if ( ref($sole_argument) eq 'SElement' ) {
-      $new_object = SElement->create( $sole_argument->get_mag, 0 );
+    if ( ref($sole_argument) eq 'Seqsee::Element' ) {
+      $new_object = Seqsee::Element->create( $sole_argument->get_mag, 0 );
     }
     else {
       $new_object = $package->create( $sole_argument->get_items_array );
@@ -155,7 +155,7 @@ sub create {
 
     return $new_object;
   }
-  my @new_arguments = map { SObject->create($_) } @arguments;
+  my @new_arguments = map { Seqsee::Object->create($_) } @arguments;
   return $package->new( { group_p => 1, items => \@new_arguments } );
 }
 
@@ -208,7 +208,7 @@ sub apply_blemish_at {
     ## $blemished_object_at_pos->get_metonym
     $subobjects[$index] = $blemished_object_at_pos;
   }
-  my $ret = SObject->create(@subobjects);
+  my $ret = Seqsee::Object->create(@subobjects);
   ## $ret->get_structure()
   for my $index (@indices) {
     my $metonym = shift(@metonyms);
@@ -273,7 +273,7 @@ sub get_structure_string {
 sub GetAnnotatedStructureString {
   my ($self) = @_;
   my $body =
-    $self->isa('SElement')
+    $self->isa('Seqsee::Element')
   ? $self->get_mag()
   :'['
   . join( ', ', map { $_->GetAnnotatedStructureString } $self->get_items_array )
@@ -344,7 +344,7 @@ sub HasAsItem {
   return 0;
 }
 
-sub SElement::HasAsPartDeep {
+sub Seqsee::Element::HasAsPartDeep {
   my ( $self, $item ) = @_;
   return $self eq $item;
 }
@@ -365,8 +365,8 @@ sub HasAsPartDeep {
 sub SetMetonym {
   my ( $self, $meto ) = @_;
   my $starred = $meto->get_starred();
-  SErr->throw("Metonym must be an SObject! Got: $starred")
-  unless UNIVERSAL::isa( $starred, "SObject" );
+  SErr->throw("Metonym must be an Seqsee::Object! Got: $starred")
+  unless UNIVERSAL::isa( $starred, "Seqsee::Object" );
   $starred->set_is_a_metonym($self);
   $self->set_metonym($meto);
 }
@@ -400,7 +400,7 @@ sub GetEffectiveStructure {
     $self->get_items_array() ];
 }
 
-sub SElement::GetEffectiveStructure {
+sub Seqsee::Element::GetEffectiveStructure {
   my ($self) = @_;
   return $self->get_mag();
 }
@@ -461,7 +461,7 @@ sub ContainsAMetonym {
   return 0;
 }
 
-sub SElement::ContainsAMetonym {
+sub Seqsee::Element::ContainsAMetonym {
   return 0;
 }
 
@@ -527,7 +527,7 @@ sub recalculate_relations {
 sub as_text {
   my ($self) = @_;
   my $structure_string = $self->get_structure_string();
-  return "SObject $structure_string";
+  return "Seqsee::Object $structure_string";
 }
 
 multimethod CanBeSeenAs => ( '#', '#' ) => sub {
@@ -536,16 +536,16 @@ multimethod CanBeSeenAs => ( '#', '#' ) => sub {
   return Seqsee::ResultOfCanBeSeenAs->NO();
 };
 
-multimethod CanBeSeenAs => ( 'SObject', 'SObject' ) => sub {
+multimethod CanBeSeenAs => ( 'Seqsee::Object', 'Seqsee::Object' ) => sub {
   my ( $obj, $structure ) = @_;
   return CanBeSeenAs( $obj, $structure->get_structure() );
 };
 
-multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
+multimethod CanBeSeenAs => ( 'Seqsee::Object', '#' ) => sub {
   my ( $object, $int ) = @_;
   my $lit_or_meto = $object->CanBeSeenAs_Literal0rMeto($int);
 
-  #if (not $object->isa('SElement')) {
+  #if (not $object->isa('Seqsee::Element')) {
   #  print "LIT OR METO: ", $object->as_text, "===> $int\n";
   #}
   ## lit_or_meto(elt): $lit_or_meto, $object->as_text()
@@ -554,22 +554,22 @@ multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
 
 };
 
-multimethod CanBeSeenAs => ( 'SElement', '#' ) => sub {
+multimethod CanBeSeenAs => ( 'Seqsee::Element', '#' ) => sub {
   return ( $_[0]->get_mag() == $_[1] )
   ? Seqsee::ResultOfCanBeSeenAs->newUnblemished()
   :Seqsee::ResultOfCanBeSeenAs::NO();
 };
 
-multimethod CanBeSeenAs => ( 'SElement', '$' ) => sub {
+multimethod CanBeSeenAs => ( 'Seqsee::Element', '$' ) => sub {
   if ( $_[1] =~ m#^-?\d+$# ) {
     return ( $_[0]->get_mag() == $_[1] )
     ? Seqsee::ResultOfCanBeSeenAs->newUnblemished()
     :Seqsee::ResultOfCanBeSeenAs::NO();
   }
-  confess "SAW CanBeSeenAs(SElement, \$): " . $_[0]->as_text . " '" . $_[1];
+  confess "SAW CanBeSeenAs(Seqsee::Element, \$): " . $_[0]->as_text . " '" . $_[1];
 };
 
-multimethod CanBeSeenAs => ( 'SObject', 'ARRAY' ) => sub {
+multimethod CanBeSeenAs => ( 'Seqsee::Object', 'ARRAY' ) => sub {
   my ( $object, $structure ) = @_;
   my $meto_activeness = $object->get_metonym_activeness();
   my $metonym         = $object->get_metonym();
@@ -635,7 +635,7 @@ sub CanBeSeenAs_Literal {
 sub CanBeSeenAs_Literal0rMeto {
   my ( $object, $structure ) = @_;
   $structure = $structure->get_structure()
-  if UNIVERSAL::isa( $structure, 'SObject' );
+  if UNIVERSAL::isa( $structure, 'Seqsee::Object' );
 
   my $meto_activeness = $object->get_metonym_activeness();
   my $metonym         = $object->get_metonym();

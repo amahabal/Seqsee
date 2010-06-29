@@ -12,12 +12,12 @@ multimethod FindMapping => ( '*', '*', '*' ) => sub {
 
 {
   my $numeric_FindTransorm = sub {
-    *__ANON__ = "((__ANON__ FindMapping SInt/SElement SInt/SElement))";
+    *__ANON__ = "((__ANON__ FindMapping SInt/Seqsee::Element SInt/Seqsee::Element))";
     my ( $a, $b ) = @_;
     my @common_categories = $a->get_common_categories($b) or confess;
     if ( grep { not defined $_ } @common_categories ) {
       confess
-      "undef in common_categories FindMapping SInt/SElement SInt/SElement:"
+      "undef in common_categories FindMapping SInt/Seqsee::Element SInt/Seqsee::Element:"
       . join( ', ', @common_categories );
     }
     my $cat = SLTM::SpikeAndChoose( 0, @common_categories ) // $S::NUMBER;
@@ -29,7 +29,7 @@ multimethod FindMapping => ( '*', '*', '*' ) => sub {
     }
   };
   multimethod FindMapping => qw{SInt SInt}         => $numeric_FindTransorm;
-  multimethod FindMapping => qw{SElement SElement} => $numeric_FindTransorm;
+  multimethod FindMapping => qw{Seqsee::Element Seqsee::Element} => $numeric_FindTransorm;
 }
 
 multimethod FindMapping => qw(# #) => sub {
@@ -38,8 +38,8 @@ multimethod FindMapping => qw(# #) => sub {
   $S::NUMBER->FindMappingForCat( $a, $b );
 };
 
-multimethod FindMapping => qw(SAnchored SAnchored) => sub {
-  *__ANON__ = "((__ANON__ FindMapping SAnchored SAnchored))";
+multimethod FindMapping => qw(Seqsee::Anchored Seqsee::Anchored) => sub {
+  *__ANON__ = "((__ANON__ FindMapping Seqsee::Anchored Seqsee::Anchored))";
   my ( $a, $b ) = @_;
   my @common_categories = $a->get_common_categories($b) or return;
   my $cat = SLTM::SpikeAndChoose( 10, @common_categories ) or return;
@@ -63,16 +63,16 @@ multimethod ApplyMapping => qw(Mapping::Numeric SInt) => sub {
   SInt->new($new_mag);
 };
 
-multimethod ApplyMapping => qw(Mapping::Numeric SElement) => sub {
-  *__ANON__ = "((__ANON__ ApplyMapping Mapping::Numeric SElement))";
+multimethod ApplyMapping => qw(Mapping::Numeric Seqsee::Element) => sub {
+  *__ANON__ = "((__ANON__ ApplyMapping Mapping::Numeric Seqsee::Element))";
   my ( $transform, $num ) = @_;
   my $new_mag =
   $transform->get_category()->ApplyMappingForCat( $transform, $num->get_mag() )
   // return;
-  SElement->create( $new_mag, -1 );
+  Seqsee::Element->create( $new_mag, -1 );
 };
 
-multimethod ApplyMapping => qw(Mapping::Structural SObject) => sub {
+multimethod ApplyMapping => qw(Mapping::Structural Seqsee::Object) => sub {
   my ( $transform, $object ) = @_;
   $transform->get_category()->ApplyMappingForCat( $transform, $object );
 };
@@ -81,11 +81,11 @@ multimethod ApplyMapping => qw(Mapping::Structural SObject) => sub {
   my $Fail = sub {
     return;
   };
-  multimethod FindMapping  => qw{SInt SElement}              => $Fail;
-  multimethod FindMapping  => qw{SElement SInt}              => $Fail;
-  multimethod FindMapping  => qw{SAnchored SInt}             => $Fail;
-  multimethod FindMapping  => qw{SInt SAnchored}             => $Fail;
-  multimethod ApplyMapping => qw{Mapping::Numeric SAnchored} => $Fail;
+  multimethod FindMapping  => qw{SInt Seqsee::Element}              => $Fail;
+  multimethod FindMapping  => qw{Seqsee::Element SInt}              => $Fail;
+  multimethod FindMapping  => qw{Seqsee::Anchored SInt}             => $Fail;
+  multimethod FindMapping  => qw{SInt Seqsee::Anchored}             => $Fail;
+  multimethod ApplyMapping => qw{Mapping::Numeric Seqsee::Anchored} => $Fail;
 }
 
 sub CheckSanity {

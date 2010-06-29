@@ -302,8 +302,8 @@ sub _is_there_a_hit {
 
 {
   my %Mapping = (
-    'SElement:SAnchored' => 0.9,
-    'SAnchored:SElement' => 0.9,
+    'Seqsee::Element:Seqsee::Anchored' => 0.9,
+    'Seqsee::Anchored:Seqsee::Element' => 0.9,
   );
 
   sub thoughtTypeMatch {

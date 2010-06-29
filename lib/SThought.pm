@@ -21,8 +21,8 @@ has core => (
 sub create {
   my ( $package, $core ) = @_;
   state $_Type2Class = {
-    qw(   SElement        SThought::SElement
-    SAnchored       SThought::SAnchored
+    qw(   Seqsee::Element        SThought::Seqsee::Element
+    Seqsee::Anchored       SThought::Seqsee::Anchored
     SRelation       SThought::SRelation
     )
   };

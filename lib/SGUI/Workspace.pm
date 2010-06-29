@@ -80,7 +80,7 @@ sub Setup {
       );
     }
 
-    sub SElement::draw_ws3 {
+    sub Seqsee::Element::draw_ws3 {
       my ( $self, $display, $idx, @rest ) = @_;
       ## drawing element: @_
       my $id = $Canvas->createText(
@@ -104,7 +104,7 @@ sub Setup {
       return Style::Element($is_hilit);
     }
 
-    sub SAnchored::draw_ws3 {
+    sub Seqsee::Anchored::draw_ws3 {
       my ( $self, $display, $is_largest ) = @_;
       ## drawing group: @_
       my @items = @$self;
@@ -232,7 +232,7 @@ sub Setup {
         $gp->draw_ws3($self);
       }
       for my $elt ( SWorkspace::GetElements() ) {
-        SAnchored::draw_ws3( $elt, $self )
+        Seqsee::Anchored::draw_ws3( $elt, $self )
         if ( $elt->get_group_p() or $elt->get_metonym_activeness() );
       }
       $Canvas->raise('hilit');

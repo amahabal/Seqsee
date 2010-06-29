@@ -26,9 +26,9 @@ use SMetonymType;
 
 use SCategory::Load;
 
-use SObject;
-use SAnchored;
-use SElement;
+use Seqsee::Object;
+use Seqsee::Anchored;
+use Seqsee::Element;
 use SInt;
 use SWorkspace;
 

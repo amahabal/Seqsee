@@ -91,11 +91,11 @@ sub ApplyMappingForCat {
     when ('flip') {
       if ( $original_object_pure eq $object1 ) {
         my $structure = $object2->get_structure();
-        return $is_object_a_ref ? SObject->create($structure) :$structure;
+        return $is_object_a_ref ? Seqsee::Object->create($structure) :$structure;
       }
       elsif ( $original_object_pure eq $object2 ) {
         my $structure = $object1->get_structure();
-        return $is_object_a_ref ? SObject->create($structure) :$structure;
+        return $is_object_a_ref ? Seqsee::Object->create($structure) :$structure;
       }
       else {
         return;
@@ -104,11 +104,11 @@ sub ApplyMappingForCat {
     when ('no_flip') {
       if ( $original_object_pure eq $object1 ) {
         my $structure = $object1->get_structure();
-        return $is_object_a_ref ? SObject->create($structure) :$structure;
+        return $is_object_a_ref ? Seqsee::Object->create($structure) :$structure;
       }
       elsif ( $original_object_pure eq $object2 ) {
         my $structure = $object2->get_structure();
-        return $is_object_a_ref ? SObject->create($structure) :$structure;
+        return $is_object_a_ref ? Seqsee::Object->create($structure) :$structure;
       }
       else {
         return;
@@ -146,7 +146,7 @@ sub build {
     when (1) { $structure_of_object = $self->object2->get_structure() }
     default { confess "Should not be here" };
   }
-  my $object = SObject->create($structure_of_object);
+  my $object = Seqsee::Object->create($structure_of_object);
   $object->describe_as($self);
   return $object;
 }

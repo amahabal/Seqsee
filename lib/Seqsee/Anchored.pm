@@ -1,4 +1,4 @@
-package SAnchored;
+package Seqsee::Anchored;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
@@ -10,7 +10,7 @@ use Class::Multimethods;
 multimethod 'ApplyMapping';
 multimethod 'SanityCheck';
 
-extends 'SObject';
+extends 'Seqsee::Object';
 
 # with 'Categorizable';
 
@@ -36,7 +36,7 @@ has right_edge => (
 
 #has object => (
 #    is         => 'rw',
-#    isa        => 'SObject',
+#    isa        => 'Seqsee::Object',
 #    required   => 1,
 #    handles => [qw{get_strength set_strength
 #      get_history_object get_parts_ref
@@ -106,7 +106,7 @@ sub as_text {
   my $bounds_string    = $self->get_bounds_string();
   my $structure_string = $self->GetAnnotatedStructureString();
   my $ruleapp = $self->get_underlying_reln ? 'u' :'';
-  return "SAnchored $ruleapp$bounds_string $structure_string";
+  return "Seqsee::Anchored $ruleapp$bounds_string $structure_string";
 }
 
 sub get_next_pos_in_dir {
@@ -162,11 +162,11 @@ sub _CheckValidity {
 
   # Check all anchored, no holes, no overlap.
   my $first_item = shift(@items);
-  confess "Unanchored object $first_item" unless $first_item->isa('SAnchored');
+  confess "Unanchored object $first_item" unless $first_item->isa('Seqsee::Anchored');
   my $most_recent_right_edge = $first_item->get_right_edge;
 
   while ( my $next_item = shift(@items) ) {
-    confess "Unanchored object $next_item" unless $next_item->isa('SAnchored');
+    confess "Unanchored object $next_item" unless $next_item->isa('Seqsee::Anchored');
     return unless $next_item->get_left_edge() == $most_recent_right_edge + 1;
     $most_recent_right_edge = $next_item->get_right_edge();
   }
@@ -209,7 +209,7 @@ sub Extend {
     @new_subobjects = ( $to_insert, @current_subojects );
   }
 
-  my $potential_new_group = SAnchored->create(@new_subobjects)
+  my $potential_new_group = Seqsee::Anchored->create(@new_subobjects)
   or SErr::CouldNotCreateExtendedGroup->new("Extended group creation failed")
   ->throw();
   my $conflicts = SWorkspace::__FindGroupsConflictingWith($potential_new_group);

@@ -55,7 +55,7 @@ multimethod ActionForThoughtTypes => ('SRelation', 'SRelation') => sub {
   );
 };
 
-multimethod ActionForThoughtTypes => ('SObject', 'SObject') => sub {
+multimethod ActionForThoughtTypes => ('Seqsee::Object', 'Seqsee::Object') => sub {
   my ($a_core, $b_core) = @_;
   ACTION(
     100,
@@ -93,7 +93,7 @@ Codelet_Family(
     ### require: SWorkspace::__CheckLivenessAtSomePoint(@concrete_items)
     SWorkspace::__CheckLiveness(@concrete_items) or return;   # dead objects.
 
-    my $new_group = SAnchored->create(@concrete_items) or return; # Failed _CheckValidity!
+    my $new_group = Seqsee::Anchored->create(@concrete_items) or return; # Failed _CheckValidity!
 
     my $conflicts = SWorkspace::__FindGroupsConflictingWith($new_group);
 

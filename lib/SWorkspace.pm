@@ -235,7 +235,7 @@ sub __DeleteGroup {
   delete $NonEltObjects{$group};
 }
 
-multimethod __InsertElement => ('SElement') => sub {
+multimethod __InsertElement => ('Seqsee::Element') => sub {
   my ($element) = @_;
   my $magnitude = $element->get_mag();
 
@@ -265,7 +265,7 @@ sub __CheckTwoGroupsForConflict {    # Second must be live.
   }
 
   my ( $smaller, $bigger ) = ikeysort { $_->get_span() } ( $A, $B );
-  return 0 if $smaller->isa('SElement');
+  return 0 if $smaller->isa('Seqsee::Element');
   return 0 unless $bigger->spans($smaller);
 
   my $smaller_left_edge = $smaller->get_left_edge();
@@ -494,7 +494,7 @@ sub __CopyAttributes {
   }
 }
 
-multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SElement' ) => sub {
+multimethod __PlonkIntoPlace => ( '#', 'DIR', 'Seqsee::Element' ) => sub {
   my ( $start, $direction, $element ) = @_;
   *__ANON__ = '__ANON__PlonkIntoPlace_el';
   my $magnitude = $element->get_mag();
@@ -518,7 +518,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SElement' ) => sub {
   );
 };
 
-multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
+multimethod __PlonkIntoPlace => ( '#', 'DIR', 'Seqsee::Object' ) => sub {
   my ( $start, $direction, $object ) = @_;
   *__ANON__ = '__ANON__PlonkIntoPlace_obj';
 
@@ -549,7 +549,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
     }
   }
 
-  my $new_obj = SAnchored->create(@new_parts);
+  my $new_obj = Seqsee::Anchored->create(@new_parts);
   if ( my $existing_object = __GetExactObjectIfPresent($new_obj) ) {
     $new_obj = $existing_object;
   }
@@ -752,7 +752,7 @@ sub __CreateSamenessGroupAround {
     return if $_->get_metonym_activeness();
   }
 
-  my $new_group = SAnchored->create(@items);
+  my $new_group = Seqsee::Anchored->create(@items);
   $new_group->describe_as($S::SAMENESS);
   return __AddGroup($new_group);
 }
@@ -979,13 +979,13 @@ sub insert_elements {
 
 # method: _insert_element($)
 
-# method: _insert_element(SElement)
+# method: _insert_element(Seqsee::Element)
 
 multimethod _insert_element => ('#') => sub {
 
   # using bogues edges, since they'd be corrected soon anyway
   my $mag = shift;
-  _insert_element( SElement->create( $mag, 0 ) );
+  _insert_element( Seqsee::Element->create( $mag, 0 ) );
 };
 
 multimethod _insert_element => ('$') => sub {
@@ -994,14 +994,14 @@ multimethod _insert_element => ('$') => sub {
   if ( looks_like_number($what) ) {
 
     # using bogus edges; these will get fixed immediately...
-    _insert_element( SElement->create( int($what), 0 ) );
+    _insert_element( Seqsee::Element->create( int($what), 0 ) );
   }
   else {
     die "Huh? Trying to insert '$what' into the workspace";
   }
 };
 
-multimethod _insert_element => ('SElement') => sub {
+multimethod _insert_element => ('Seqsee::Element') => sub {
   my $elt = shift;
   %Global::ExtensionRejectedByUser = ();
 
@@ -1012,7 +1012,7 @@ sub __ReadObjectOrRelation {
   my ( $dist_likelihoods_ref, $dist_objects ) =
   __GetObjectOrRelationChoiceProbabilityDistribution();
   my $chosen = SChoose->choose( $dist_likelihoods_ref, $dist_objects );
-  if ( UNIVERSAL::isa( $chosen, 'SAnchored' ) ) {
+  if ( UNIVERSAL::isa( $chosen, 'Seqsee::Anchored' ) ) {
     my $right_edge = $RightEdge_of{$chosen};
     if ( $right_edge == $ElementCount - 1 ) {
       _saccade();
@@ -1095,10 +1095,10 @@ sub __GetRelationChoiceProbabilityDistribution {
 sub __GetPositionStructure {
   my ($group) = @_;
   given ( ref($group) ) {
-    when ('SElement') {
+    when ('Seqsee::Element') {
       return $LeftEdge_of{$group};
     }
-    when ('SAnchored') {
+    when ('Seqsee::Anchored') {
       return [ map { __GetPositionStructure($_) } @{$group} ];
     }
   }
@@ -1376,7 +1376,7 @@ sub rapid_create_gp {
     }
   } @items;
 
-  my $object = SAnchored->create(@items);
+  my $object = Seqsee::Anchored->create(@items);
   SWorkspace->add_group($object);
 
   while (@$cats) {
@@ -1402,7 +1402,7 @@ sub are_there_holes_here {
   for my $item (@items) {
     SErr->throw(
       "SWorkspace are_there_holes_here called with a non anchored object $item")
-    unless UNIVERSAL::isa( $item, "SAnchored" );
+    unless UNIVERSAL::isa( $item, "Seqsee::Anchored" );
     my ( $left, $right ) = $item->get_edges();
     @slots_taken{ $left .. $right } = ( $left .. $right );
   }
@@ -1620,14 +1620,14 @@ sub __DeleteNonSubgroupsOfFrom {
   my @queue = @$of;
   while (@queue) {
     my $front = shift(@queue);
-    next if $front->isa('SElement');
+    next if $front->isa('Seqsee::Element');
     $groups_to_keep{$front} = 1;
     push @queue, @$front;
   }
 
   for my $potential_delete (@$from) {
     next if $potential_delete ~~ %groups_to_keep;
-    next if $potential_delete->isa('SElement');
+    next if $potential_delete->isa('Seqsee::Element');
     next unless __CheckLiveness($potential_delete);
 
     # main::message("Deleting cruft: " . $potential_delete->as_text());

@@ -10,7 +10,7 @@ sub build {
   my ( $self, $args_ref ) = @_;
   confess "Need mag" unless ( exists $args_ref->{mag} );
 
-  my $ret = SElement->create( $args_ref->{mag}, -1 );
+  my $ret = Seqsee::Element->create( $args_ref->{mag}, -1 );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
 
   return $ret;
@@ -19,7 +19,7 @@ sub build {
 sub Instancer {
   my ( $self, $object ) = @_;
 
-  # confess "Not an SElement: $object" unless $object->isa('SElement');
+  # confess "Not an Seqsee::Element: $object" unless $object->isa('Seqsee::Element');
   my $mag = $object->get_mag;
   return $self->NumericInstancer($mag);
 }

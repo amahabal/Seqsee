@@ -44,7 +44,7 @@ Codelet_Family(
       my @unstarred_items = map { $_->GetConcreteObject() } @items;
       ### require: SWorkspace::__CheckLivenessAtSomePoint(@unstarred_items)
       SWorkspace::__CheckLiveness(@unstarred_items) or return;   # dead objects.
-      $new_group = SAnchored->create(@unstarred_items);
+      $new_group = Seqsee::Anchored->create(@unstarred_items);
       if ( $new_group and $a->get_underlying_reln() ) {
         $new_group->set_underlying_ruleapp(
           $a->get_underlying_reln()->get_rule() );
@@ -222,7 +222,7 @@ Codelet_Family(
     SWorkspace::__CheckLiveness(@unstarred_items) or return;    # dead objects.
     my $new_group;
     
-    $new_group = SAnchored->create(@unstarred_items);
+    $new_group = Seqsee::Anchored->create(@unstarred_items);
     return unless $new_group;
     $new_group->describe_as($category) or return;
     if ($transform) {

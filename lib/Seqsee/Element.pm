@@ -1,10 +1,10 @@
-package SElement;
+package Seqsee::Element;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
 use Smart::Comments;
 
-extends 'SAnchored';
+extends 'Seqsee::Anchored';
 has mag => (
   is       => 'rw',
   isa      => 'Int',
@@ -47,7 +47,7 @@ my $POS_LAST  = SPos->new(-1);
 sub get_at_position {
   my ( $self, $position ) = @_;
   return $self if ( $position eq $POS_FIRST or $position eq $POS_LAST );
-  SErr->throw("out of range for SElement");
+  SErr->throw("out of range for Seqsee::Element");
 }
 
 sub get_flattened {
@@ -63,7 +63,7 @@ sub UpdateStrength {
 sub CheckSquintability {
   my ( $self, $intended ) = @_;
   $self->describe_as($S::NUMBER);
-  return SObject::CheckSquintability( $self, $intended );
+  return Seqsee::Object::CheckSquintability( $self, $intended );
 }
 
 sub create {

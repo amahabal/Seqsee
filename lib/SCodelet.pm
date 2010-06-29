@@ -86,7 +86,7 @@ multimethod IsFresh => ( 'HASH', '#' ) => sub {
   return 1;
 };
 
-multimethod IsFresh => ( 'SAnchored', '#' ) => sub {
+multimethod IsFresh => ( 'Seqsee::Anchored', '#' ) => sub {
   my ( $obj, $since ) = @_;
   return $obj->UnchangedSince($since);
 };

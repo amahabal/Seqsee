@@ -1,4 +1,4 @@
-package SThought::SAnchored;
+package SThought::Seqsee::Anchored;
 use Moose;
 extends 'SThought';
 use Carp;
@@ -10,7 +10,7 @@ use List::Util qw{min max};
 our @actions_ret;
 our $NAME = 'Focusing on a Group';
 
-multimethod get_fringe_for => ('SAnchored') => sub {
+multimethod get_fringe_for => ('Seqsee::Anchored') => sub {
   my ($core) = @_;
   my @ret;
 
@@ -231,8 +231,8 @@ sub get_actions {
   if $first_reln;
   if ($possible_category_for_ends) {
     for ( @{ $core->get_underlying_reln()->get_items() } ) {
-      unless ( UNIVERSAL::isa( $_, "SAnchored" ) ) {
-        print "An item of an SAnchored object($core) is not anchored!\n";
+      unless ( UNIVERSAL::isa( $_, "Seqsee::Anchored" ) ) {
+        print "An item of an Seqsee::Anchored object($core) is not anchored!\n";
         print "The anchored object is ", $core->get_structure_string(), "\n";
         print "Its items are: ", join( "; ", @$core );
         print "Items of the underlying ruleapp are: ",
@@ -351,7 +351,7 @@ sub as_text {
   return "Group " . $self->core()->as_text;
 }
 
-package SThought::SElement;
+package SThought::Seqsee::Element;
 use Moose;
 extends 'SThought';
 use Carp;
@@ -372,7 +372,7 @@ sub _build_magnitude() {
   $_[0]->core->get_mag();
 }
 
-multimethod get_fringe_for => ('SElement') => sub {
+multimethod get_fringe_for => ('Seqsee::Element') => sub {
   my ($core) = @_;
   my $mag = $core->get_mag();
   my @ret;
@@ -428,9 +428,9 @@ sub get_actions {
 
     # Spread activation from corresponding node:
     SLTM::SpreadActivationFrom( SLTM::GetMemoryIndex($core) );
-    SThought::SAnchored::ExtendFromMemory($core);
+    SThought::Seqsee::Anchored::ExtendFromMemory($core);
 
-    SThought::SAnchored::AddCategoriesFromMemory($core);
+    SThought::Seqsee::Anchored::AddCategoriesFromMemory($core);
   }
 
   return @actions_ret;

@@ -116,14 +116,14 @@ Codelet_Family(
       for ( 1 .. $count ) {
         push @new_part, shift(@subparts);
       }
-      my $newpart = SAnchored->create(@new_part);
+      my $newpart = Seqsee::Anchored->create(@new_part);
       $newpart->describe_as($cat);
       SWorkspace->add_group($newpart) or return;
       push @newparts, $newpart;
     }
     if ( @newparts > 1 ) {
       my $transform = FindMapping( @newparts[ 0, 1 ] ) or return;
-      my $new_gp = SAnchored->create(@newparts);
+      my $new_gp = Seqsee::Anchored->create(@newparts);
       $new_gp->describe_as( SCategory::MappingBased->Create($transform) );
       SWorkspace->add_group($new_gp);
       ContinueWith( SThought->create($new_gp) );

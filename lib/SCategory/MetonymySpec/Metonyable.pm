@@ -30,7 +30,7 @@ sub find_metonym {
 
   my $obj = $finder->( $object, $self, $name, $bindings );
   ## next line kludgy
-  if ( UNIVERSAL::isa( $object, "SAnchored" ) ) {
+  if ( UNIVERSAL::isa( $object, "Seqsee::Anchored" ) ) {
     $obj->get_starred->set_edges( $object->get_edges );
   }
 

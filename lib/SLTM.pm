@@ -537,8 +537,8 @@ sub GetRealActivationsForOneConcept {
 # method WhoGotExcited( $package: LTMNode @nodes ) returns @LTMNodes
 
 # proto method GetMemoryActions (...) returns @SAction
-# multi method GetMemoryActions( SElement $e )
-# multi method GetMemoryActions( SAnchored $o )
+# multi method GetMemoryActions( Seqsee::Element $e )
+# multi method GetMemoryActions( Seqsee::Anchored $o )
 # multi method GetMemoryActions( SReln $r )
 
 # XXX(Board-it-up): [2006/11/15] dummy function

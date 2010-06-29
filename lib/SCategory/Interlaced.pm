@@ -58,7 +58,7 @@ sub build {
     push @ret_parts, $opts_ref->{"part_no_$i"};
   }
 
-  return SObject->create(@ret_parts);
+  return Seqsee::Object->create(@ret_parts);
 }
 
 sub get_name {

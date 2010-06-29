@@ -19,7 +19,7 @@ has '+metonym_finders' => (
       each => sub {
         my ( $object, $cat, $name, $bindings ) = @_;
         my $starred =
-        SObject->create( $bindings->GetBindingForAttribute("each") );
+        Seqsee::Object->create( $bindings->GetBindingForAttribute("each") );
         my $info_lost =
         { length => $bindings->GetBindingForAttribute("length") };
 
@@ -27,7 +27,7 @@ has '+metonym_finders' => (
           {
             category  => $cat,
             name      => $name,
-            starred   => SAnchored->create($starred),
+            starred   => Seqsee::Anchored->create($starred),
             unstarred => $object,
             info_loss => $info_lost,
           }
@@ -66,7 +66,7 @@ sub as_text {
 sub _guesser {
   my $subobject        = shift;
   my $effective_object = $subobject->GetEffectiveObject();
-  return unless ( ref($effective_object) eq 'SElement' );
+  return unless ( ref($effective_object) eq 'Seqsee::Element' );
   return SInt->new( $effective_object->get_mag );
 }
 
@@ -83,7 +83,7 @@ sub Instancer {
 
   my $slippages = $result_of_can_be_seen_as->GetPartsBlemished() || {};
 
-  if ( $object->isa('SElement') ) {
+  if ( $object->isa('Seqsee::Element') ) {
     if ( my $entire_blemish = $result_of_can_be_seen_as->GetEntireBlemish() ) {
       $slippages = { 0 => $entire_blemish };
     }
@@ -104,7 +104,7 @@ sub build {
 
   return if $length < 1;
 
-  my $ret = SObject->create( map { $each } ( 1 .. $length ) );
+  my $ret = Seqsee::Object->create( map { $each } ( 1 .. $length ) );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
   $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
   return $ret;

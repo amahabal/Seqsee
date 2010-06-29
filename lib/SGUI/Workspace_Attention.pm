@@ -110,7 +110,7 @@ sub Setup {
       );
     }
 
-    sub SElement::draw_attention {
+    sub Seqsee::Element::draw_attention {
       my ( $self, $display, $idx, @rest ) = @_;
       ## drawing element: @_
       my $id = $Canvas->createText(
@@ -128,7 +128,7 @@ sub Setup {
       return $id;
     }
 
-    sub SAnchored::draw_attention {
+    sub Seqsee::Anchored::draw_attention {
       my ( $self, $display, $is_largest ) = @_;
       ## drawing group: @_
       my @items = @$self;
@@ -228,7 +228,7 @@ sub Setup {
         $gp->draw_attention($self);
       }
       for my $elt ( SWorkspace::GetElements() ) {
-        SAnchored::draw_attention( $elt, $self )
+        Seqsee::Anchored::draw_attention( $elt, $self )
         if ( $elt->get_group_p() or $elt->get_metonym_activeness() );
       }
       $Canvas->raise('hilit');

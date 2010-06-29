@@ -42,9 +42,9 @@ sub FindMappingForCat {
   my $cat      = $self;
   my $opts_ref = {};
 
-  confess "Need SObjects, got >>$o1<< >>$o2<<"
-  unless ( UNIVERSAL::isa( $o1, 'SObject' )
-    and UNIVERSAL::isa( $o2, 'SObject' ) );
+  confess "Need Seqsee::Objects, got >>$o1<< >>$o2<<"
+  unless ( UNIVERSAL::isa( $o1, 'Seqsee::Object' )
+    and UNIVERSAL::isa( $o2, 'Seqsee::Object' ) );
   $opts_ref->{first}  = $o1;
   $opts_ref->{second} = $o2;
 

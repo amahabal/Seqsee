@@ -8,14 +8,14 @@ use Seqsee::ResultOfAttributeCopy;
 
 has object_being_plonked => (
   is       => 'rw',
-  isa      => 'SObject',
+  isa      => 'Seqsee::Object',
   required => 1,
   weak_ref => 1,
 );
 
 has resultant_object => (
   is        => 'rw',
-  isa       => 'SObject',
+  isa       => 'Seqsee::Object',
   weak_ref  => 1,
   predicate => 'has_resultant_object',
 );

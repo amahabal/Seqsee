@@ -6,7 +6,7 @@ use Smart::Comments;
 
 has challenger => (
   is       => 'ro',
-  isa      => 'SObject',
+  isa      => 'Seqsee::Object',
   weak_ref => 1,
   required => 1,
 );
@@ -20,7 +20,7 @@ has exact_conflict => (
 has overlapping_conflicts => (
   traits  => ['Array'],
   is      => 'ro',
-  isa     => 'ArrayRef[SObject]',
+  isa     => 'ArrayRef[Seqsee::Object]',
   default => sub { [] },
   handles => {
     has_overlapping_conflicts  => 'count',

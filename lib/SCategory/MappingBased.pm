@@ -98,7 +98,7 @@ sub build {
     push @ret, $next;
     $current_end = $next;
   }
-  my $ret = SObject->create(@ret);
+  my $ret = Seqsee::Object->create(@ret);
   $ret->add_category(
     $self,
     SBindings->new(

@@ -106,7 +106,7 @@ sub get_actions {
         )
       )
       {
-        my $new_obj = SAnchored->create(@new_object_parts);
+        my $new_obj = Seqsee::Anchored->create(@new_object_parts);
         SWorkspace->add_group($new_obj);
         $new_obj->describe_as($possible_ad_hoc_cat);
       }

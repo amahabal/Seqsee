@@ -18,7 +18,7 @@ has strength => (
 
 has first => (
   is       => 'rw',
-  isa      => 'SObject',
+  isa      => 'Seqsee::Object',
   reader   => 'get_first',
   writer   => 'set_first',
   required => 1,
@@ -27,7 +27,7 @@ has first => (
 
 has second => (
   is       => 'rw',
-  isa      => 'SObject',
+  isa      => 'Seqsee::Object',
   reader   => 'get_second',
   writer   => 'set_second',
   required => 1,

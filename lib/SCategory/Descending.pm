@@ -28,7 +28,7 @@ sub as_text {
 sub _guesser {
   my $subobject = shift // return;
   my $effective_object = $subobject->GetEffectiveObject();
-  return unless ( ref($effective_object) eq 'SElement' );
+  return unless ( ref($effective_object) eq 'Seqsee::Element' );
   return SInt->new( $effective_object->get_mag );
 }
 
@@ -45,7 +45,7 @@ sub Instancer {
 
   my $slippages = $result_of_can_be_seen_as->GetPartsBlemished() || {};
 
-  if ( $object->isa('SElement') ) {
+  if ( $object->isa('Seqsee::Element') ) {
     if ( my $entire_blemish = $result_of_can_be_seen_as->GetEntireBlemish() ) {
       $slippages = { 0 => $entire_blemish };
     }
@@ -77,7 +77,7 @@ sub build {
 
   my $start_mag = ref($start) ? $start->get_mag() :$start;
   my $end_mag   = ref($end)   ? $end->get_mag()   :$end;
-  my $ret = SObject->create( reverse( $end_mag .. $start_mag ) );
+  my $ret = Seqsee::Object->create( reverse( $end_mag .. $start_mag ) );
   $ret->add_category( $self, SBindings->create( {}, $args_ref, $ret ) );
   $ret->set_reln_scheme( RELN_SCHEME::CHAIN() );
   return $ret;
