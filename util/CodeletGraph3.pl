@@ -4,9 +4,9 @@ use Data::Dump::Streamer;
 use GraphViz;
 
 use lib 'lib';
-use SCF::Load;
+use Seqsee::SCF::Load;
 use SThought::Load;
-use Scripts::Load;
+use Seqsee::Scripts::Load;
 
 use Seqsee;
 use SStream2;
@@ -60,7 +60,7 @@ for ( keys %OtherMethods ) {
 
 ## ADD EDGES:
 for (@codefamilies) {
-    my $code = GetSubroutineCode("SCF::${_}::run");
+    my $code = GetSubroutineCode("Seqsee::SCF::${_}::run");
     AddEdges( $_, $code );
 }
 
@@ -211,7 +211,7 @@ sub AddEdges {
 }
 
 sub GetListOfCodefamilies {
-    return sort map { my $x = $_; chop($x); chop($x); $x } grep {/::$/} keys %SCF::;
+    return sort map { my $x = $_; chop($x); chop($x); $x } grep {/::$/} keys %Seqsee::SCF::;
 }
 
 sub GetListOfThoughts {

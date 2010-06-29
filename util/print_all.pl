@@ -97,7 +97,7 @@ Compiler/*.p* Compiler/*/*.pm>);
     push( @files, @code_files ) if $SHOW_CODE_FILES;
     push( @files, @test_files ) if $SHOW_TEST_FILES;
     if ($DYNAMIC_ONLY) {
-        @files = sort(<lib/SCF/*.pm lib/SThought/*.pm lib/Scripts/*.pm>);
+        @files = sort(<lib/Seqsee::SCF/*.pm lib/SThought/*.pm lib/Seqsee::Scripts/*.pm>);
     }
     my %PrintOK;
     for (@files) {

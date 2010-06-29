@@ -100,7 +100,7 @@ sub Seqsee_Step {
     if ( $Global::Feature{CodeletTree} ) {
       print {$Global::CodeletTreeLogHandle} "Chose $runnable\n";
     }
-    $Global::CurrentRunnableString = "SCF::" . $runnable->[0];
+    $Global::CurrentRunnableString = "Seqsee::SCF::" . $runnable->[0];
     $runnable->run();
   }
   else {

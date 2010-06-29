@@ -1,8 +1,8 @@
-package SCF::AttemptExtensionOfGroup;
+package Seqsee::SCF::AttemptExtensionOfGroup;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 
 use Class::Multimethods;
 multimethod('SanityCheck');
@@ -37,11 +37,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::TryToSquint;
+package Seqsee::SCF::TryToSquint;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 
 Codelet_Family(
   attributes => [ actual => {}, intended => {} ],

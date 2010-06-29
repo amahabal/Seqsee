@@ -13,7 +13,7 @@ memoize 'family_to_name';
 sub family_to_name {
     my ( $family ) = @_;
     no strict 'refs';
-    my $name_string = 'SCF::' . $family . '::NAME';
+    my $name_string = 'Seqsee::SCF::' . $family . '::NAME';
     my $name = ${$name_string} // confess "No name for family $family? [I looked for $name_string]";
     return $name;
 }

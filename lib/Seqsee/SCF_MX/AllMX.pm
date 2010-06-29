@@ -1,4 +1,4 @@
-package SCF::CheckIfInstance;
+package Seqsee::SCF::CheckIfInstance;
 use 5.010;
 use MooseX::SCF;
 Codelet_Family(
@@ -12,9 +12,9 @@ Codelet_Family(
   }
 );
 
-package SCF::FocusOn;
+package Seqsee::SCF::FocusOn;
 use MooseX::SCF;
-use SCF;
+use Seqsee::SCF;
 Codelet_Family(
   attributes => [ what => { optional => 1 } ],
   body       => sub {
@@ -34,10 +34,10 @@ Codelet_Family(
   }
 );
 
-package SCF::ActOnOverlappingThoughts;
+package Seqsee::SCF::ActOnOverlappingThoughts;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 
 use Class::Multimethods;
 
@@ -76,10 +76,10 @@ Codelet_Family(
   }
 );
 
-package SCF::AreTheseGroupable;
+package Seqsee::SCF::AreTheseGroupable;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 
 Codelet_Family(
   attributes => [ items => {}, reln => {} ],
@@ -134,10 +134,10 @@ Codelet_Family(
   }
 );
 
-package SCF::AreWeDone;
+package Seqsee::SCF::AreWeDone;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 
 my $LastSolutionDescriptionTime;
 
@@ -201,11 +201,11 @@ Codelet_Family(
   }
 );
 
-package SCF::ConvulseEnd;
+package Seqsee::SCF::ConvulseEnd;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod 'SanityCheck';
     
@@ -214,7 +214,7 @@ Codelet_Family(
   body       => sub {
     my ( $object, $direction ) = @_;
     unless ( SWorkspace::__CheckLiveness($object) ) {
-      return;    # main::message("SCF::ConvulseEnd: " . $object->as_text());
+      return;    # main::message("Seqsee::SCF::ConvulseEnd: " . $object->as_text());
     }
     my $change_at_end_p = ( $direction eq $DIR::RIGHT ) ? 1 :0;
     my @object_parts = $object->get_items_array;
@@ -289,11 +289,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::CheckProgress;
+package Seqsee::SCF::CheckProgress;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(

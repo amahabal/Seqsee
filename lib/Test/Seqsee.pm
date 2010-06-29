@@ -106,7 +106,7 @@ sub _wrap_to_get_payload_type {
     if ( my $e = $EVAL_ERROR ) {
       if ( UNIVERSAL::can( $e, 'payload' ) ) {
         my $type = ref( $e->payload );
-        if ( $type =~ /^(SCF|SThought)::(.*)/ ) {
+        if ( $type =~ /^(Seqsee::SCF|SThought)::(.*)/ ) {
           return $2;
         }
       }

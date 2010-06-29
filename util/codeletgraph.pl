@@ -5,10 +5,10 @@ use Data::Dump::Streamer;
 
 
 use lib 'lib';
-use SCF::All2;
+use Seqsee::SCF::All2;
 use SThought::All2;
 use SThought::LargeGp2;
-use Scripts::DescribeSolution2;
+use Seqsee::Scripts::DescribeSolution2;
 use Seqsee;
 use SStream;
 
@@ -25,7 +25,7 @@ my $g = GraphViz->new(rankdir => 1,
     my $THOUGHT_PATTERN2 = qr{SThought->create\(};
     sub AddEdges{
         my ( $source_node, $code ) = @_;
-        if ($source_node =~ /^SCF/) {
+        if ($source_node =~ /^Seqsee::SCF/) {
             $g->add_node($source_node, shape => 'trapezium', 
                              color => '0.5,0.2,0.8', style => 'filled');
         } elsif ($source_node =~ /^SThought/) {
@@ -40,15 +40,15 @@ my $g = GraphViz->new(rankdir => 1,
         }
         #print $code;
         while ($code =~ m/$ACTION_PATTERN/g) {
-            $g->add_edge($source_node, "SCF::$1");
+            $g->add_edge($source_node, "Seqsee::SCF::$1");
             print "$source_node =>(a) $1\n";
         }
         while ($code =~ m/$CODELET_PATTERN/g) {
-            $g->add_edge($source_node, "SCF::$1", style => 'dotted');
+            $g->add_edge($source_node, "Seqsee::SCF::$1", style => 'dotted');
             print "$source_node =>(c) $1\n";
         }
         while ($code =~ m/$CODELET_PATTERN2/g) {
-            $g->add_edge($source_node, "SCF::$1", style => 'dotted');
+            $g->add_edge($source_node, "Seqsee::SCF::$1", style => 'dotted');
             print "$source_node =>(c) $1\n";
         }
         while ($code =~ m/$THOUGHT_PATTERN/g) {
@@ -138,12 +138,12 @@ for (<lib/SThought/*2.pm>) {
     ThoughtFile($_);
 }
 
-for (<lib/SCF/*2.pm>) {
+for (<lib/Seqsee::SCF/*2.pm>) {
     ### Codeletfile: $_
     CodeletFile($_);
 }
 
-for (<lib/Scripts/*2.pm>) {
+for (<lib/Seqsee::Scripts/*2.pm>) {
     ### Scriptfile: $_
     CodeletFile($_);
 }

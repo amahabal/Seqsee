@@ -1,4 +1,4 @@
-package Scripts;
+package Seqsee::Scripts;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
@@ -61,7 +61,7 @@ sub run {
   }
 
   # Package name for class attributes may be inferred from the family:
-  my $package = 'SCF::' . $action_object->family;
+  my $package = 'Seqsee::SCF::' . $action_object->family;
 
   # Validate arguments...
   my @arguments = validated_list( [ %{ $opts_ref } ], $package->expected_attributes() );

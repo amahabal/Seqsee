@@ -1,8 +1,8 @@
-package SCF::LargeGroup;
+package Seqsee::SCF::LargeGroup;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -26,11 +26,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::MaybeStartBlemish;
+package Seqsee::SCF::MaybeStartBlemish;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -78,11 +78,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::InterlacedInitialBlemish;
+package Seqsee::SCF::InterlacedInitialBlemish;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod 'FindMapping';
 
@@ -133,11 +133,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::ArbitraryInitialBlemish;
+package Seqsee::SCF::ArbitraryInitialBlemish;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(

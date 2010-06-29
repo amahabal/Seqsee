@@ -66,7 +66,7 @@
     for my $cl (@SCoderack::CODELETS) {
       my $family  = $cl->[0];
       my $urgency = $cl->[1];
-      $family = "SCF::$family";
+      $family = "Seqsee::SCF::$family";
       $count{$family}++;
       $sum{$family} += $urgency;
 

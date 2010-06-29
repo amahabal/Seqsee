@@ -1,14 +1,14 @@
-package SCF::DescribeSolution;
+package Seqsee::SCF::DescribeSolution;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -20,7 +20,7 @@ class_has '+step' => (
         my $ruleapp = $group->get_underlying_reln();
         unless ($ruleapp) {
           print "Returning\n";
-          Scripts::RETURN();
+          Seqsee::Scripts::RETURN();
         }
         my $rule               = $ruleapp->get_rule;
         my $position_structure = PositionStructure->Create($group);
@@ -30,7 +30,7 @@ class_has '+step' => (
           )
         )
         {
-          Scripts::RETURN();
+          Seqsee::Scripts::RETURN();
         }
         say "Reached end!";
       },
@@ -40,18 +40,18 @@ class_has '+step' => (
           SWorkspace::DeleteObjectsInconsistentWith($ruleapp);
         }
         main::message( "I will describe the solution now!", 1 );
-        Scripts::SCRIPT( 'DescribeInitialBlemish', { group => $group } );
+        Seqsee::Scripts::SCRIPT( 'DescribeInitialBlemish', { group => $group } );
       },
       sub {
         my ($group) = @_;
-        Scripts::SCRIPT( 'DescribeBlocks', { group => $group } );
+        Seqsee::Scripts::SCRIPT( 'DescribeBlocks', { group => $group } );
       },
       sub {
         my ($group) = @_;
         my $ruleapp = $group->get_underlying_reln();
         my $rule    = $ruleapp->get_rule();
         main::message("RULE DESCRIPTION CURRENTLY BROKEN!!", 1);
-        #Scripts::SCRIPT( 'DescribeRule',
+        #Seqsee::Scripts::SCRIPT( 'DescribeRule',
         #  { rule => $rule, ruleapp => $ruleapp } );
       },
       sub {
@@ -86,17 +86,17 @@ class_has '+attributes' => ( default => sub { [ group => {} ] }, );
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeInitialBlemish;
+package Seqsee::SCF::DescribeInitialBlemish;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -119,7 +119,7 @@ class_has '+step' => (
           );
         }
 
-        Scripts::RETURN();
+        Seqsee::Scripts::RETURN();
       }
     ];
   },
@@ -130,17 +130,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeBlocks;
+package Seqsee::SCF::DescribeBlocks;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -151,7 +151,7 @@ class_has '+step' => (
         my @parts = @$group;
         my $msg = join( '; ', map { $_->get_structure_string() } @parts );
         main::message( "The sequence consists of the blocks $msg", 1 );
-        Scripts::RETURN();
+        Seqsee::Scripts::RETURN();
       }
     ];
   },
@@ -165,17 +165,17 @@ class_has '+attributes' => (
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeRule;
+package Seqsee::SCF::DescribeRule;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -185,9 +185,9 @@ class_has '+step' => (
         my ( $rule, $ruleapp ) = @_;
         main::debug_message( "Rule is $rule", 1 );
         my $reln = $rule->get_transform;
-        Scripts::SCRIPT('DescribeMapping', { reln => $reln, ruleapp => $ruleapp });
+        Seqsee::Scripts::SCRIPT('DescribeMapping', { reln => $reln, ruleapp => $ruleapp });
         Global::SetRuleAppAsBest($ruleapp);
-        Scripts::RETURN();
+        Seqsee::Scripts::RETURN();
       }
     ];
   },
@@ -198,17 +198,17 @@ class_has '+attributes' => ( default =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeMapping;
+package Seqsee::SCF::DescribeMapping;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -217,11 +217,11 @@ class_has '+step' => (
       sub {
         my ( $reln, $ruleapp ) = @_;
         if ( $reln->isa('Mapping::Structural') ) {
-          Scripts::SCRIPT('DescribeRelationCompound',
+          Seqsee::Scripts::SCRIPT('DescribeRelationCompound',
           { reln => $reln, ruleapp => $ruleapp });
         }
         elsif ( $reln->isa('Mapping::Numeric') ) {
-          Scripts::SCRIPT('DescribeRelationSimple', { reln => $reln });
+          Seqsee::Scripts::SCRIPT('DescribeRelationSimple', { reln => $reln });
         }
         else {
           main::message( "Strange bond! Something wrong, let abhijit know", 1 );
@@ -237,17 +237,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeRelationSimple;
+package Seqsee::SCF::DescribeRelationSimple;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -285,17 +285,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeRelationCompound;
+package Seqsee::SCF::DescribeRelationCompound;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -304,7 +304,7 @@ class_has '+step' => (
       sub {
         my ( $reln, $ruleapp ) = @_;
         my $category = $reln->get_category();
-        Scripts::SCRIPT('DescribeRelnCategory',
+        Seqsee::Scripts::SCRIPT('DescribeRelnCategory',
         {
           cat     => $category,
           ruleapp => $ruleapp,
@@ -314,7 +314,7 @@ class_has '+step' => (
         my ( $reln, $ruleapp ) = @_;
         my $meto_mode = $reln->get_meto_mode();
         my $meto_reln = $reln->get_metonymy_reln();
-        Scripts::SCRIPT('DescribeRelnMetoMode',
+        Seqsee::Scripts::SCRIPT('DescribeRelnMetoMode',
         {
           meto_mode => $meto_mode,
           meto_reln => $meto_reln,
@@ -331,17 +331,17 @@ class_has '+attributes' => ( default =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeRelnCategory;
+package Seqsee::SCF::DescribeRelnCategory;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -350,7 +350,7 @@ class_has '+step' => (
       sub {
         my ( $cat, $ruleapp ) = @_;
         if ( $cat->isa('SCategory::Interlaced') ) {
-          Scripts::SCRIPT('DescribeInterlacedCategory',
+          Seqsee::Scripts::SCRIPT('DescribeInterlacedCategory',
           {
             cat     => $cat,
             ruleapp => $ruleapp,
@@ -375,17 +375,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeInterlacedCategory;
+package Seqsee::SCF::DescribeInterlacedCategory;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -395,14 +395,14 @@ class_has '+step' => (
         my ( $cat, $ruleapp ) = @_;
         my $parts = $cat->get_parts_count();
         if ( $parts == 2 ) {
-          Scripts::SCRIPT('Describe2InterlacedCategory',
+          Seqsee::Scripts::SCRIPT('Describe2InterlacedCategory',
           {
             cat     => $cat,
             ruleapp => $ruleapp,
           });
         }
         else {
-          Scripts::SCRIPT('DescribeMultipleInterlacedCategory',
+          Seqsee::Scripts::SCRIPT('DescribeMultipleInterlacedCategory',
           {
             cat     => $cat,
             ruleapp => $ruleapp,
@@ -420,17 +420,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::Describe2InterlacedCategory;
+package Seqsee::SCF::Describe2InterlacedCategory;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -495,17 +495,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeMultipleInterlacedCategory;
+package Seqsee::SCF::DescribeMultipleInterlacedCategory;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -540,17 +540,17 @@ class_has '+attributes' =>
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DescribeRelnMetoMode;
+package Seqsee::SCF::DescribeRelnMetoMode;
 use 5.010;
 use Moose;
 use MooseX::ClassAttribute;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 use MooseX::Params::Validate;
-use Scripts;
+use Seqsee::Scripts;
 
-extends 'Scripts';
+extends 'Seqsee::Scripts';
 before 'run' => sub { };
 
 class_has '+step' => (
@@ -559,7 +559,7 @@ class_has '+step' => (
       sub {
         my ( $meto_mode, $meto_reln, $ruleapp ) = @_;
         unless ( $meto_mode->is_metonymy_present ) {
-          Scripts::RETURN();
+          Seqsee::Scripts::RETURN();
         }
 
         main::message(

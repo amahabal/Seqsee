@@ -27,7 +27,7 @@ sub run {
   $Global::CurrentCodeletFamily = $self->family;
 
   no strict;
-  my $method_name = "SCF::" . $self->family() . '::run';
+  my $method_name = "Seqsee::SCF::" . $self->family() . '::run';
   $method_name->( $self, $self->arguments );
 }
 

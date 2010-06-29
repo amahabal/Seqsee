@@ -1,8 +1,8 @@
-package SCF::LookForSimilarGroups;
+package Seqsee::SCF::LookForSimilarGroups;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -21,11 +21,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::MergeGroups;
+package Seqsee::SCF::MergeGroups;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -57,11 +57,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::CleanUpGroup;
+package Seqsee::SCF::CleanUpGroup;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -82,11 +82,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DoTheSameThing;
+package Seqsee::SCF::DoTheSameThing;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 Codelet_Family(
   attributes => [
@@ -171,11 +171,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::CreateGroup;
+package Seqsee::SCF::CreateGroup;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -234,11 +234,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::FindIfRelatedRelations;
+package Seqsee::SCF::FindIfRelatedRelations;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod 'FindMapping';
 multimethod 'ApplyMapping';
@@ -294,11 +294,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::CheckIfAlternating;
+package Seqsee::SCF::CheckIfAlternating;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod 'FindMapping';
 multimethod 'ApplyMapping';
@@ -336,11 +336,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::FindIfRelated;
+package Seqsee::SCF::FindIfRelated;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod 'FindMapping';
 multimethod 'ApplyMapping';
@@ -408,11 +408,11 @@ sub ShouldIContinue {
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::AttemptExtensionOfRelation;
+package Seqsee::SCF::AttemptExtensionOfRelation;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod '__PlonkIntoPlace';
 multimethod 'SanityCheck';

@@ -47,9 +47,9 @@ use SThought;
 use SStream2;
 use SWorkspace;
 
-use SCF_MX::Load;
+use Seqsee::SCF_MX::Load;
 use SThought::Load;
-use Scripts::Load;
+use Seqsee::Scripts::Load;
 
 use SLinkActivation;
 use SNodeActivation;

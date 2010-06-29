@@ -1,8 +1,8 @@
-package SCF::AskIfThisIsTheContinuation;
+package Seqsee::SCF::AskIfThisIsTheContinuation;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod '__PlonkIntoPlace';
 Codelet_Family(
@@ -71,11 +71,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::MaybeAskTheseTerms;
+package Seqsee::SCF::MaybeAskTheseTerms;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 multimethod 'createRule';
@@ -148,11 +148,11 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-package SCF::MaybeAskUsingThisGoodRule;
+package Seqsee::SCF::MaybeAskUsingThisGoodRule;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 
 Codelet_Family(
@@ -173,11 +173,11 @@ Codelet_Family(
 
 __PACKAGE__->meta->make_immutable;
 
-package SCF::DoTheAsking;
+package Seqsee::SCF::DoTheAsking;
 use 5.010;
 use MooseX::SCF;
 use English qw(-no_match_vars);
-use SCF;
+use Seqsee::SCF;
 use Class::Multimethods;
 multimethod 'createRule';
 
@@ -189,7 +189,7 @@ Codelet_Family(
     main::message("DoTheAsking called");
 
     my ( $type_of_core, $rule ) =
-    SCF::MaybeAskTheseTerms::get_core_type_and_rule($core);
+    Seqsee::SCF::MaybeAskTheseTerms::get_core_type_and_rule($core);
     my $success;
     if ( $type_of_core eq 'relation' ) {
       $success = $exception->AskBasedOnRelation( $core, $msg_prefix );
