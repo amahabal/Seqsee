@@ -1,4 +1,4 @@
-package ResultOfGetSomethingLike;
+package Seqsee::ResultOfGetSomethingLike;
 use strict;
 use 5.10.0;
 use Class::Std;

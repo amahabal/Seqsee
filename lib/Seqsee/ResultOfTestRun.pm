@@ -30,7 +30,7 @@ sub IsACrash {
   return ( $self->get_status_string eq 'Crashed' ) ? 1 :0;
 }
 
-package ResultOfTestRun;
+package Seqsee::ResultOfTestRun;
 use Class::Std::Storable;
 my %OutputStatus_of : ATTR(:name<status>);
 my %StepsTaken_of : ATTR(:name<steps>);

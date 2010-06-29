@@ -23,10 +23,10 @@ use English qw(-no_match_vars);
 use Sort::Key qw{rikeysort ikeysort};
 
 # Seqsee packages. Fix.
-use ResultOfGetConflicts;
-use ResultOfAttributeCopy;
-use ResultOfPlonk;
-use ResultOfGetSomethingLike;
+use Seqsee::ResultOfGetConflicts;
+use Seqsee::ResultOfAttributeCopy;
+use Seqsee::ResultOfPlonk;
+use Seqsee::ResultOfGetSomethingLike;
 
 #=============================================
 #=============================================
@@ -440,7 +440,7 @@ sub __FindGroupsConflictingWith {
   }
 
   ## @conflicting: @conflicting
-  return ResultOfGetConflicts->new(
+  return Seqsee::ResultOfGetConflicts->new(
     {
       challenger            => $object,
       exact_conflict        => $exact_conflict,
@@ -487,10 +487,10 @@ sub __CopyAttributes {
     }
   }
   if ($any_failure_so_far) {
-    return ResultOfAttributeCopy->Failed();
+    return Seqsee::ResultOfAttributeCopy->Failed();
   }
   else {
-    return ResultOfAttributeCopy->Success();
+    return Seqsee::ResultOfAttributeCopy->Success();
   }
 }
 
@@ -500,7 +500,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SElement' ) => sub {
   my $magnitude = $element->get_mag();
 
   unless ( $magnitude == $ElementMagnitudes[$start] ) {
-    return ResultOfPlonk->Failed($element);
+    return Seqsee::ResultOfPlonk->Failed($element);
   }
 
   my $attribute_copy_result = __CopyAttributes(
@@ -509,7 +509,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SElement' ) => sub {
       to   => $Elements[$start],
     }
   );
-  return ResultOfPlonk->new(
+  return Seqsee::ResultOfPlonk->new(
     {
       object_being_plonked  => $element,
       resultant_object      => $Elements[$start],
@@ -522,17 +522,17 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
   my ( $start, $direction, $object ) = @_;
   *__ANON__ = '__ANON__PlonkIntoPlace_obj';
 
-  my $span = $object->get_span() or return ResultOfPlonk->Failed($object);
+  my $span = $object->get_span() or return Seqsee::ResultOfPlonk->Failed($object);
 
   if ( $direction eq $DIR::LEFT ) {
-    return ResultOfPlonk->Failed($object) if $start < $span - 1;
+    return Seqsee::ResultOfPlonk->Failed($object) if $start < $span - 1;
     return __PlonkIntoPlace( $start - $span + 1, $DIR::RIGHT, $object );
   }
 
   my @to_insert = $object->get_items_array;
   my @new_parts;
   my $plonk_cursor                 = $start;
-  my $attribute_copy_status_so_far = ResultOfAttributeCopy->Success();
+  my $attribute_copy_status_so_far = Seqsee::ResultOfAttributeCopy->Success();
 
   for my $subobject (@to_insert) {
     my $subobjectspan = $subobject->get_span;
@@ -545,7 +545,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
         $plonk_result->attribute_copy_result );
     }
     else {
-      return ResultOfPlonk->Failed($object);
+      return Seqsee::ResultOfPlonk->Failed($object);
     }
   }
 
@@ -555,7 +555,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
   }
   else {
     if ( !SWorkspace->add_group($new_obj) ) {
-      return ResultOfPlonk->Failed($object);
+      return Seqsee::ResultOfPlonk->Failed($object);
     }
   }
 
@@ -566,7 +566,7 @@ multimethod __PlonkIntoPlace => ( '#', 'DIR', 'SObject' ) => sub {
     }
   );
   $attribute_copy_status_so_far->UpdateWith($attribute_copy_result);
-  return ResultOfPlonk->new(
+  return Seqsee::ResultOfPlonk->new(
     {
       object_being_plonked  => $object,
       resultant_object      => $new_obj,
@@ -1693,7 +1693,7 @@ sub LookForSomethingLike {
   $is_object_literally_present = [ $start_position, $direction, $object ]
   if $is_object_literally_present;
 
-  return ResultOfGetSomethingLike->new(
+  return Seqsee::ResultOfGetSomethingLike->new(
     {
       to_ask            => $to_ask,
       literally_present => $is_object_literally_present,

@@ -1,10 +1,10 @@
-package ResultOfPlonk;
+package Seqsee::ResultOfPlonk;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
 use Smart::Comments;
 
-use ResultOfAttributeCopy;
+use Seqsee::ResultOfAttributeCopy;
 
 has object_being_plonked => (
   is       => 'rw',
@@ -22,7 +22,7 @@ has resultant_object => (
 
 has attribute_copy_result => (
   is       => 'rw',
-  isa      => 'ResultOfAttributeCopy',
+  isa      => 'Seqsee::ResultOfAttributeCopy',
   required => 1,
   weak_ref => 0,
   handles  => { 'AttributeCopyWasSuccessful' => 'success' },
@@ -32,7 +32,7 @@ sub Failed {
   my ( $package, $object_being_plonked ) = @_;
   return $package->new(
     object_being_plonked  => $object_being_plonked,
-    attribute_copy_result => ResultOfAttributeCopy->Failed(),
+    attribute_copy_result => Seqsee::ResultOfAttributeCopy->Failed(),
   );
 }
 

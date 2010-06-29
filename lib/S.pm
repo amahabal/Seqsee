@@ -32,7 +32,7 @@ use SElement;
 use SInt;
 use SWorkspace;
 
-use ResultOfCanBeSeenAs;
+use Seqsee::ResultOfCanBeSeenAs;
 
 use Mapping;
 use Mapping::Numeric;

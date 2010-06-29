@@ -532,8 +532,8 @@ sub as_text {
 
 multimethod CanBeSeenAs => ( '#', '#' ) => sub {
   my ( $a, $b ) = @_;
-  return ResultOfCanBeSeenAs->newUnblemished() if $a == $b;
-  return ResultOfCanBeSeenAs->NO();
+  return Seqsee::ResultOfCanBeSeenAs->newUnblemished() if $a == $b;
+  return Seqsee::ResultOfCanBeSeenAs->NO();
 };
 
 multimethod CanBeSeenAs => ( 'SObject', 'SObject' ) => sub {
@@ -550,21 +550,21 @@ multimethod CanBeSeenAs => ( 'SObject', '#' ) => sub {
   #}
   ## lit_or_meto(elt): $lit_or_meto, $object->as_text()
   return $lit_or_meto if defined $lit_or_meto;
-  return ResultOfCanBeSeenAs::NO();
+  return Seqsee::ResultOfCanBeSeenAs::NO();
 
 };
 
 multimethod CanBeSeenAs => ( 'SElement', '#' ) => sub {
   return ( $_[0]->get_mag() == $_[1] )
-  ? ResultOfCanBeSeenAs->newUnblemished()
-  :ResultOfCanBeSeenAs::NO();
+  ? Seqsee::ResultOfCanBeSeenAs->newUnblemished()
+  :Seqsee::ResultOfCanBeSeenAs::NO();
 };
 
 multimethod CanBeSeenAs => ( 'SElement', '$' ) => sub {
   if ( $_[1] =~ m#^-?\d+$# ) {
     return ( $_[0]->get_mag() == $_[1] )
-    ? ResultOfCanBeSeenAs->newUnblemished()
-    :ResultOfCanBeSeenAs::NO();
+    ? Seqsee::ResultOfCanBeSeenAs->newUnblemished()
+    :Seqsee::ResultOfCanBeSeenAs::NO();
   }
   confess "SAW CanBeSeenAs(SElement, \$): " . $_[0]->as_text . " '" . $_[1];
 };
@@ -592,7 +592,7 @@ multimethod CanBeSeenAs => ( 'SObject', 'ARRAY' ) => sub {
     return $meto_seen_as if defined $meto_seen_as;
   }
   ## failed CanBeSeenAs
-  return ResultOfCanBeSeenAs::NO();
+  return Seqsee::ResultOfCanBeSeenAs::NO();
 };
 
 sub CanBeSeenAs_ByPart {
@@ -615,20 +615,20 @@ sub CanBeSeenAs_ByPart {
     $blemishes{$i} = $part_can_be_seen_as->GetEntireBlemish();
   }
   ## %blemishes
-  return ResultOfCanBeSeenAs->newUnblemished() unless %blemishes;
-  return ResultOfCanBeSeenAs->newByPart( \%blemishes );
+  return Seqsee::ResultOfCanBeSeenAs->newUnblemished() unless %blemishes;
+  return Seqsee::ResultOfCanBeSeenAs->newByPart( \%blemishes );
 }
 
 sub CanBeSeenAs_Meto {
   scalar(@_) == 4 or confess;
   my ( $object, $structure, $starred, $metonym ) = @_;
-  return ResultOfCanBeSeenAs->newEntireBlemish($metonym)
+  return Seqsee::ResultOfCanBeSeenAs->newEntireBlemish($metonym)
   if SUtil::compare_deep( $starred->get_structure(), $structure );
 }
 
 sub CanBeSeenAs_Literal {
   my ( $object, $structure ) = @_;
-  return ResultOfCanBeSeenAs->newUnblemished()
+  return Seqsee::ResultOfCanBeSeenAs->newUnblemished()
   if SUtil::compare_deep( $object->get_structure(), $structure );
 }
 
@@ -643,16 +643,16 @@ sub CanBeSeenAs_Literal0rMeto {
 
   if ($meto_activeness) {
     ## active metonym
-    return ResultOfCanBeSeenAs->newEntireBlemish($metonym)
+    return Seqsee::ResultOfCanBeSeenAs->newEntireBlemish($metonym)
     if SUtil::compare_deep( $starred->get_structure(), $structure );
   }
 
-  return ResultOfCanBeSeenAs->newUnblemished()
+  return Seqsee::ResultOfCanBeSeenAs->newUnblemished()
   if SUtil::compare_deep( $object->get_structure(), $structure );
 
   if ($metonym) {
     ## inactive metonym
-    return ResultOfCanBeSeenAs->newEntireBlemish($metonym)
+    return Seqsee::ResultOfCanBeSeenAs->newEntireBlemish($metonym)
     if SUtil::compare_deep( $starred->get_structure(), $structure );
   }
 

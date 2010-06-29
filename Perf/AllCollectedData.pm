@@ -21,7 +21,7 @@ use Carp;
 
 our $CODELETS_PER_SECOND = 300;
 
-# Each value if an ArrayRef, consisting of ResultOfTestRuns objects.
+# Each value if an ArrayRef, consisting of Seqsee::ResultOfTestRuns objects.
 my %Seqsee_Data_of : ATTR(:name<seqsee_data>);
 my %Human_Data_of : ATTR(:name<human_data>);
 my %LTM_Data_of : ATTR(:name<ltm_data>);

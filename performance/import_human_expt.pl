@@ -105,7 +105,7 @@ sub WriteOutAllSequences {
 sub SequenceToResultsOfTestRuns {
     my ($ExptSeq) = @_;
     my @encounters = $ExptSeq->GetInlierEncounters();
-    my @results;    # Each is a ResultOfTestRun, frozen.
+    my @results;    # Each is a Seqsee::ResultOfTestRun, frozen.
 
     my $terms = join(' ', @{$ExptSeq->get_presented_terms()});
     my @possible_extensions = @{$ExptSeq->get_acceptable_extensions()};
@@ -134,7 +134,7 @@ sub EncounterToRTR_Frozen {
       $encounter->get_is_extension_correct() ? 'Successful' : 'NotEvenExtended';
     my $status = TestOutputStatus->new( { status_string => $status_string } );
 
-    return Storable::freeze(ResultOfTestRun->new(
+    return Storable::freeze(Seqsee::ResultOfTestRun->new(
         {
             status => $status,
             steps  => $encounter->get_time_to_understand(),

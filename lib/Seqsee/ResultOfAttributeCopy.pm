@@ -1,4 +1,4 @@
-package ResultOfAttributeCopy;
+package Seqsee::ResultOfAttributeCopy;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
@@ -15,11 +15,11 @@ has success => (
 );
 
 sub Success {
-  return ResultOfAttributeCopy->new;
+  return Seqsee::ResultOfAttributeCopy->new;
 }
 
 sub Failed {
-  return ResultOfAttributeCopy->new( success => 0 );
+  return Seqsee::ResultOfAttributeCopy->new( success => 0 );
 }
 
 sub UpdateWith {

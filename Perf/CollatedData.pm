@@ -20,7 +20,7 @@ use Carp;
 
 use Statistics::Basic qw{:all};
 
-# Array-ref, each a ResultOfTestRun
+# Array-ref, each a Seqsee::ResultOfTestRun
 my %Data_for : ATTR(:name<data>);
 
 my %total_count_of : ATTR(:name<total_count>);

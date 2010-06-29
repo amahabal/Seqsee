@@ -1,4 +1,4 @@
-package ResultOfGetConflicts;
+package Seqsee::ResultOfGetConflicts;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );

@@ -22,7 +22,7 @@ use warnings;
 
 # Do this to load seqsee.
 use lib 'lib';
-use ResultOfTestRun;
+use Seqsee::ResultOfTestRun;
 
 use Perf::TestSequence;
 use Perf::Version;

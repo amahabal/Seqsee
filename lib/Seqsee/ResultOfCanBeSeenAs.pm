@@ -1,4 +1,4 @@
-package ResultOfCanBeSeenAs;
+package Seqsee::ResultOfCanBeSeenAs;
 use 5.010;
 use Moose;
 use English qw( -no_match_vars );
@@ -52,7 +52,7 @@ sub newByPart {
 }
 
 {
-  my $NO = ResultOfCanBeSeenAs->new( success => 0 );
+  my $NO = Seqsee::ResultOfCanBeSeenAs->new( success => 0 );
 
   sub NO() {
     return $NO;

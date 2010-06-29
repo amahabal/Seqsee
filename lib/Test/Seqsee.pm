@@ -683,7 +683,7 @@ sub ParseSeq_ {
   return ( [ split( /\s+/, $s ) ], [ split( /\s+/, $c ) ] );
 }
 
-use ResultOfTestRun;
+use Seqsee::ResultOfTestRun;
 
 sub RunSeqsee {
   my ( $seq, $continuation, $max_steps, $max_false, $min_extension ) = @_;
@@ -696,7 +696,7 @@ sub RunSeqsee {
   if ( $Global::Feature{LTM} ) {
     eval { SLTM->Load('memory_dump.dat') };
     if ($EVAL_ERROR) {
-      return ResultOfTestRun->new(
+      return Seqsee::ResultOfTestRun->new(
         {
           status => $TestOutputStatus::Crashed,
           steps  => $Global::Steps_Finished,
@@ -731,7 +731,7 @@ sub RunSeqsee {
    };
        if (my $err = $EVAL_ERROR) {
           CATCH_BLOCK: { if (UNIVERSAL::isa($err, 'SErr::FinishedTest')) { 
-      $return = ResultOfTestRun->new(
+      $return = Seqsee::ResultOfTestRun->new(
         {
           status => $TestOutputStatus::Successful,
           steps  => $Global::Steps_Finished,
@@ -741,7 +741,7 @@ sub RunSeqsee {
       confess "A SErr::FinishedTest thrown without getting it. Bad."
       unless $err->got_it();
     ; last CATCH_BLOCK; }if (UNIVERSAL::isa($err, 'SErr::NotClairvoyant')) { 
-      $return = ResultOfTestRun->new(
+      $return = Seqsee::ResultOfTestRun->new(
         {
           status => $TestOutputStatus::RanOutOfTerms,
           steps  => $Global::Steps_Finished,
@@ -749,7 +749,7 @@ sub RunSeqsee {
         }
       );
     ; last CATCH_BLOCK; }if (UNIVERSAL::isa($err, 'SErr::FinishedTestBlemished')) { 
-      $return = ResultOfTestRun->new(
+      $return = Seqsee::ResultOfTestRun->new(
         {
           status => $TestOutputStatus::InitialBlemish,
           steps  => $Global::Steps_Finished,
@@ -757,7 +757,7 @@ sub RunSeqsee {
         }
       );
     ; last CATCH_BLOCK; } 
-      $return = ResultOfTestRun->new(
+      $return = Seqsee::ResultOfTestRun->new(
         {
           status => $TestOutputStatus::Crashed,
           steps  => $Global::Steps_Finished,
@@ -780,7 +780,7 @@ sub RunSeqsee {
 
   # So did not die.
   if ( $SWorkspace::ElementCount - scalar(@$seq) > $min_extension ) {
-    return ResultOfTestRun->new(
+    return Seqsee::ResultOfTestRun->new(
       {
         status => $TestOutputStatus::ExtendedABit,
         steps  => $Global::Steps_Finished,
@@ -789,7 +789,7 @@ sub RunSeqsee {
     );
   }
   else {
-    return ResultOfTestRun->new(
+    return Seqsee::ResultOfTestRun->new(
       {
         status => $TestOutputStatus::NotEvenExtended,
         steps  => $Global::Steps_Finished,
