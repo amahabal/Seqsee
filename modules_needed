@@ -13,3 +13,5 @@ File::Slurp
 Carp::Source
 MooseX::Params::Validate
 MooseX::ClassAttribute
+Tk::StatusBar
+
