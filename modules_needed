@@ -14,4 +14,7 @@ Carp::Source
 MooseX::Params::Validate
 MooseX::ClassAttribute
 Tk::StatusBar
+Class::Std::Storable
+Test::Stochastic
+Test::Exception
 
